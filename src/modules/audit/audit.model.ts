@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IAudit extends Document {
-  targetType: 'hotel' | 'merchant';
+  targetType: 'hotel' | 'merchant' | 'room';
   targetId: Types.ObjectId;
   action: 'approve' | 'reject' | 'offline';
   operatorId: Types.ObjectId;
@@ -11,10 +11,10 @@ export interface IAudit extends Document {
 
 const AuditSchema = new Schema<IAudit>(
   {
-    targetType: { type: String, enum: ['hotel', 'merchant'], required: true },
-    targetId: { type: Schema.Types.ObjectId, required: true },
+    targetType: { type: String, enum: ['hotel', 'merchant', 'room'], required: true },
+    targetId: { type: Schema.Types.ObjectId, required: true, index: true },
     action: { type: String, enum: ['approve', 'reject', 'offline'], required: true },
-    operatorId: { type: Schema.Types.ObjectId, ref: 'AdminProfile', required: true },
+    operatorId: { type: Schema.Types.ObjectId, ref: 'AdminProfile', required: true, index: true },
     reason: String
   },
   { timestamps: { createdAt: true, updatedAt: false } }

@@ -2,19 +2,28 @@ import { Request, Response } from 'express';
 import { Hotel } from './hotel.model';
 
 export const createHotel = async (req: Request, res: Response) => {
-  const { nameCn, nameEn, address, city, star, rooms, images } = req.body;
   const user = (req as any).user;
+  const { baseInfo, checkinInfo } = req.body;
+
+  // allow legacy flat fields for convenience
+  const normalizedBase = baseInfo || {
+    nameCn: req.body.nameCn,
+    nameEn: req.body.nameEn,
+    address: req.body.address,
+    city: req.body.city,
+    star: req.body.star,
+    openTime: req.body.openTime,
+    roomTotal: req.body.roomTotal || 0,
+    phone: req.body.phone || '',
+    description: req.body.description || '',
+    images: req.body.images || []
+  };
+
   try {
     const hotel = await Hotel.create({
-      merchantId: user.id || user.id,
-      nameCn,
-      nameEn,
-      address,
-      city,
-      star,
-      rooms: rooms || [],
-      images: images || [],
-      status: 'draft'
+      merchantId: user.id,
+      baseInfo: normalizedBase,
+      checkinInfo: checkinInfo || {}
     });
     res.status(201).json(hotel);
   } catch (err: any) {
@@ -30,7 +39,10 @@ export const updateHotel = async (req: Request, res: Response) => {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
     if (hotel.merchantId.toString() !== user.id && user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
-    Object.assign(hotel, updates);
+    // allow updating baseInfo/checkinInfo/auditInfo via body
+    if (updates.baseInfo) hotel.baseInfo = { ...hotel.baseInfo, ...updates.baseInfo };
+    if (updates.checkinInfo) hotel.checkinInfo = { ...hotel.checkinInfo, ...updates.checkinInfo };
+    if (updates.auditInfo && user.role === 'admin') hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
     await hotel.save();
     res.json(hotel);
   } catch (err: any) {
@@ -45,7 +57,7 @@ export const submitHotel = async (req: Request, res: Response) => {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
     if (hotel.merchantId.toString() !== user.id) return res.status(403).json({ message: 'Forbidden' });
-    hotel.status = 'pending';
+    hotel.auditInfo = { ...hotel.auditInfo, status: 'pending' };
     await hotel.save();
     res.json(hotel);
   } catch (err: any) {
@@ -54,6 +66,6 @@ export const submitHotel = async (req: Request, res: Response) => {
 };
 
 export const listApprovedHotels = async (req: Request, res: Response) => {
-  const hotels = await Hotel.find({ status: 'approved' });
+  const hotels = await Hotel.find({ 'auditInfo.status': 'approved' });
   res.json(hotels);
 };

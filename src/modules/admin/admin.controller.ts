@@ -9,9 +9,7 @@ export const approveHotel = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
-    hotel.status = 'approved';
-    hotel.auditedBy = user.id;
-    hotel.auditedAt = new Date();
+    hotel.auditInfo = { ...hotel.auditInfo, status: 'approved', auditedBy: user.id, auditedAt: new Date(), rejectReason: undefined };
     await hotel.save();
 
     await AuditLog.create({ targetType: 'hotel', targetId: hotel._id, action: 'approve', operatorId: user.id, reason });
@@ -29,10 +27,7 @@ export const rejectHotel = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
-    hotel.status = 'rejected';
-    hotel.rejectReason = reason;
-    hotel.auditedBy = user.id;
-    hotel.auditedAt = new Date();
+    hotel.auditInfo = { ...hotel.auditInfo, status: 'rejected', auditedBy: user.id, auditedAt: new Date(), rejectReason: reason };
     await hotel.save();
 
     await AuditLog.create({ targetType: 'hotel', targetId: hotel._id, action: 'reject', operatorId: user.id, reason });
@@ -49,9 +44,7 @@ export const offlineHotel = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
-    hotel.status = 'offline';
-    hotel.auditedBy = user.id;
-    hotel.auditedAt = new Date();
+    hotel.auditInfo = { ...hotel.auditInfo, status: 'offline', auditedBy: user.id, auditedAt: new Date() };
     await hotel.save();
 
     await AuditLog.create({ targetType: 'hotel', targetId: hotel._id, action: 'offline', operatorId: user.id });

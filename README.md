@@ -1,168 +1,47 @@
-# PC Admin Backend (First Phase)
 
-## Overview
+## ✨ 项目简介
 
-This repository contains the backend implementation for the PC admin platform of the E-Stay Hotel Booking System. It focuses on platform governance: account system, merchant management, hotel information management and audit flows.
+这是 E‑Stay 酒店预订平台的 **PC 管理后台（后端）实现**，用于平台治理（账号管理、商户与酒店管理、审核与审计日志等）。
 
-## Tech Stack
+## ✅ 核心特性
 
-- Node.js >= 18
-- TypeScript
+- 用户认证（JWT）与角色权限（Admin / Merchant）
+- 商户与酒店的 CRUD 与审核流程
+- 审计日志记录平台操作与审核行为
+- 基于 TypeScript 的结构化代码与中间件支持
+
+## 🔧 技术栈
+
+- Node.js (>=18) + TypeScript
 - Express
 - MongoDB + Mongoose
-- JWT for auth
-- Zod for validation (planned)
+- JWT（鉴权）
+- Zod（校验，可选）
 
-## Project Structure
+## 📁 目录结构（简要）
 
-src
-|-- app.ts
-|-- server.ts
-|-- config
-|   |-- db.ts
-|   |-- env.ts
-|   |-- jwt.ts
-|-- modules
-|   |-- auth
-|   |   |-- auth.routes.ts
-|   |   |-- auth.controller.ts
-|   |   |-- auth.service.ts
-|   |   |-- auth.schema.ts
-|   |-- user
-|   |   |-- user.model.ts
-|   |-- merchant
-|   |   |-- merchant.model.ts
-|   |   |-- merchant.service.ts
-|   |   |-- merchant.routes.ts
-|   |-- hotel
-|   |   |-- hotel.model.ts
-|   |   |-- hotel.service.ts
-|   |   |-- hotel.routes.ts
-|   |-- admin
-|   |   |-- admin.routes.ts
-|   |   |-- admin.service.ts
-|   |-- audit
-|       |-- audit.model.ts
-|-- middlewares
-|   |-- auth.middleware.ts
-|   |-- role.middleware.ts
-|   |-- error.middleware.ts
-|-- utils
-|   |-- logger.ts
-|-- constants
-|   |-- roles.ts
+```
+src/
+├─ app.ts
+├─ server.ts
+├─ config/      # 数据库、环境与 JWT 配置
+├─ middlewares/ # 身份认证、权限、错误处理
+├─ modules/     # 按业务拆分：auth, admin, merchant, hotel, audit, ...
+└─ utils/       # 日志等工具
+```
 
-## APIs (Planned)
+## 🚀 快速开始（本地开发）
 
-- POST /api/auth/register — Register a new user (merchant or admin)
-- POST /api/auth/login — Login and receive a JWT token
-- POST /api/auth/forgot-password — Trigger password reset flow (send email or generate reset token)
-- Merchant CRUD — Create / Read / Update merchant profiles
-- Hotel CRUD + submit for audit — Merchants manage hotels and submit them for admin review
-- Admin endpoints: approve / reject / offline — Admins perform audits and platform governance actions
-- GET /api/admin/audit-logs — Query audit logs (admin only)
+先决条件：Node.js v18+, pnpm, MongoDB
 
-## Database Schema (Models & Fields)
-
-The following outlines the main collections and the meaning of each field. Models are designed to be decoupled and reflect realistic platform business requirements.
-
-1. User
-
-- Purpose: authentication and authorization
-- Fields:
-  - _id: unique identifier (ObjectId)
-  - email: user's email, used for login
-  - password: hashed password
-  - role: user role, `merchant` or `admin`
-  - status: `active` | `disabled`
-  - createdAt: record creation timestamp
-  - updatedAt: record update timestamp
-
-2. MerchantProfile
-
-- Purpose: represent the merchant as a business entity
-- Fields:
-  - _id: unique identifier (ObjectId)
-  - userId: reference to `User` (owner account)
-  - merchantName: official merchant name
-  - contactName: contact person
-  - contactPhone: contact phone number
-  - contactEmail: contact email
-  - businessLicenseNo: optional business license number
-  - idCardNo: optional identifier for responsible person
-  - verifyStatus: `unverified` | `pending` | `verified` | `rejected`
-  - rejectReason: reason for rejection when applicable
-  - createdAt, updatedAt
-
-3. AdminProfile
-
-- Purpose: store admin metadata for audit traceability
-- Fields:
-  - _id: unique identifier
-  - userId: reference to `User` (admin account)
-  - name: admin name
-  - employeeNo: optional employee number
-  - createdAt: creation timestamp
-
-4. Hotel
-
-- Purpose: merchant-managed hotel information and the data served to mobile users
-- Fields:
-  - _id: unique identifier
-  - merchantId: reference to `MerchantProfile` (owner)
-  - nameCn: Chinese name
-  - nameEn: English name (optional)
-  - address: address string
-  - city: city name
-  - star: number of stars (rating)
-  - openTime: textual opening info
-  - rooms: array of room objects
-    - type: room type or name
-    - price: numeric price
-    - stock: available inventory
-    - facilities: the facilities include in the room
-    - size: the size of the room
-  - images: array of image URLs
-  - status: `draft` | `pending` | `approved` | `rejected` | `offline`
-  - rejectReason: reason for rejection
-  - auditedBy: reference to `AdminProfile` who audited
-  - auditedAt: audit timestamp
-  - createdAt, updatedAt
-
-5. AuditLog
-
-- Purpose: record every audit action for governance and traceability
-- Fields:
-  - _id: unique identifier
-  - targetType: `hotel` or `merchant`
-  - targetId: the ObjectId of the audited target
-  - action: `approve` | `reject` | `offline`
-  - operatorId: reference to `AdminProfile` who performed the action
-  - reason: optional reason for action
-  - createdAt: action timestamp
-
-## How to run (Development)
-
-Prerequisites:
-- Node.js v18 or later
-- pnpm (recommended)
-- MongoDB running locally or use a remote connection string
-
-Steps:
-
-1. Clone repository and enter the `pc-admin` folder:
+1. 进入仓库并安装依赖：
 
 ```bash
 cd pc-admin
-```
-
-2. Install dependencies:
-
-```bash
 pnpm install
 ```
 
-3. Create `.env` file from `.env.example` and set values:
+2. 新建并配置环境变量（`.env`）：
 
 ```env
 MONGO_URI=mongodb://localhost:27017/estay
@@ -171,26 +50,158 @@ PORT=3000
 NODE_ENV=development
 ```
 
-4. Start development server (hot reload):
+3. 启动开发模式（支持热重载）：
 
 ```bash
 pnpm run dev
 ```
 
-Note: On first run a default admin account is created for convenience:
-- **Email**: `admin@local`
-- **Password**: `admin123`
-
-5. Build and run for production:
+4. 打包与生产运行：
 
 ```bash
 pnpm run build
 pnpm start
 ```
 
-## Next Steps
+> 开发提示：首次运行会自动创建一个默认管理员（方便开发）。
 
-1. Implement request validation using Zod
-2. Harden authentication flows (forgot/reset password email flow)
-3. Add integration tests and CI
-4. Add file uploads (Multer) and media storage
+## 🔑 默认管理员账号（开发用）
+
+- Email: `admin@local`
+- Password: `admin123`
+
+## 📚 数据表结构设计
+
+> 以下内容来自 `src/modules`，已与实际 Mongoose 模型保持一致。包含：字段名、类型、必填约束、枚举、索引、唯一/稀疏设置、默认值、关联与 timestamps 行为。
+
+---
+
+### MerchantProfile — 商户资料表 (`MerchantProfile`) ✅
+
+**顶级字段**
+- `userId` — ObjectId, **必填**, ref: `User`
+- `baseInfo` — 子文档, **必填**
+- `qualificationInfo` — 子文档, 可选, 默认 `{}`
+- `auditInfo` — 子文档, 可选, 默认 `{}`
+- timestamps: `createdAt`, `updatedAt`
+
+**baseInfo（商户基础联系信息）**
+- `merchantName` — String, **必填**
+- `contactName` — String, **必填**
+- `contactPhone` — String, **必填**
+- `contactEmail` — String, **必填**
+
+**qualificationInfo（资质 / 实名）**
+- `businessLicenseNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
+- `idCardNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
+- `realNameStatus` — String, **必填**, enum: `['unverified','verified','rejected']`, default: `'unverified'`
+
+**auditInfo（审核状态）**
+- `verifyStatus` — String, **必填**, enum: `['unverified','pending','verified','rejected']`, default: `'unverified'`
+- `rejectReason` — String, 可选
+
+---
+
+### AdminProfile — 管理员资料表 (`AdminProfile`) 🛡️
+
+**顶级字段**
+- `userId` — ObjectId, **必填**, ref: `User`
+- `baseInfo` — 子文档, **必填**
+- timestamps: **仅维护** `createdAt`
+
+**baseInfo（管理员信息）**
+- `name` — String, **必填**
+- `employeeNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
+
+---
+
+### Hotel — 酒店主表 (`Hotel`) 🏨
+
+**顶级字段**
+- `merchantId` — ObjectId, **必填**, ref: `MerchantProfile`
+- `baseInfo` — 子文档, **必填**
+- `checkinInfo` — 子文档, 可选, 默认 `{}`
+- `auditInfo` — 子文档, 可选, 默认 `{}`
+- timestamps: `createdAt`, `updatedAt`
+
+**baseInfo（酒店基础信息）**
+- `nameCn` — String, **必填**
+- `nameEn` — String, 可选
+- `address` — String, **必填**
+- `city` — String, **必填**, **带索引 (index)**
+- `star` — Number, **必填**
+- `openTime` — String, **必填**（文本）
+- `roomTotal` — Number, **必填**
+- `phone` — String, **必填**
+- `description` — String, **必填**
+- `images` — String[], **必填**
+
+**checkinInfo（入住 / 早餐）**
+- `checkinTime` — String, **必填**
+- `checkoutTime` — String, **必填**
+- `breakfastType` — String, 可选
+- `breakfastPrice` — Number, 可选
+
+**auditInfo（酒店审核）**
+- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`, default: `'draft'`
+- `auditedBy` — ObjectId, 可选, ref: `AdminProfile`, **带索引 (index)**, default: `null`
+- `auditedAt` — Date, 可选, default: `null`
+- `rejectReason` — String, 可选
+
+---
+
+### Room — 房间主表 (`Room`) 🛏️
+
+**顶级字段**
+- `hotelId` — ObjectId, **必填**, ref: `Hotel`, **带索引 (index)**
+- `baseInfo` — 子文档, **必填**
+- `headInfo` — 子文档, **必填**
+- `bedInfo` — 子文档数组, **必填**（至少为空数组不可缺失）
+- `breakfastInfo` — 子文档, 可选, 默认 `{}`
+- `auditInfo` — 子文档, 可选, 默认 `{}`
+- timestamps: `createdAt`, `updatedAt`
+
+**baseInfo（房型核心信息）**
+- `type` — String, **必填**
+- `price` — Number, **必填**, min: `0`
+- `images` — String[], **必填**
+- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`
+- `maxOccupancy` — Number (整数), **必填**, min: `0`
+
+**headInfo（房间属性）**
+- `size` — String, **必填**（如 `25 sqm`）
+- `floor` — String, **必填**
+- `wifi` — Boolean, **必填**
+- `windowAvailable` — Boolean, **必填**
+- `smokingAllowed` — Boolean, **必填**
+
+**bedInfo（床型数组）**
+- 每项：
+  - `bedType` — String, **必填**
+  - `bedNumber` — Number, **必填**
+  - `bedSize` — String, **必填**
+
+**breakfastInfo（房间早餐）**
+- `breakfastType` — String, 可选
+- `cuisine` — String, 可选
+- `bussinessTime` — String, 可选
+- `addBreakfast` — String, 可选
+
+**auditInfo（房间审核）**
+- `auditedBy` — ObjectId, 可选, ref: `AdminProfile`, **带索引 (index)**, default: `null`
+- `auditedAt` — Date, 可选, default: `null`
+- `rejectReason` — String, 可选
+
+---
+
+### AuditLog — 审计日志表 (`AuditLog`) 🔍
+
+- 维护：仅 `createdAt`（timestamps）
+- `targetType` — String, **必填**, enum: `['hotel','merchant','room']`
+- `targetId` — ObjectId, **必填**, **带索引 (index)**, ref: 对应集合主键
+- `action` — String, **必填**, enum: `['approve','reject','offline']`
+- `operatorId` — ObjectId, **必填**, ref: `AdminProfile`, **带索引 (index)**
+- `reason` — String, 可选
+
+---
+
