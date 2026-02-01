@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100vw; /* Ensure the auth layout spans the full viewport width */
+}
+
+.left {
+  flex: 0 0 60%; /* 60% width column */
+  padding: 0 20vw;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+  min-width: 320px;
+  box-sizing: border-box;
+}
+
+.left h1 {
+  font-size: 36px;
+  margin: 0 0 16px 0;
+}
+
+.left p {
+  font-size: 18px;
+  opacity: 0.9;
+  max-width: 520px;
+}
+
+.right {
+  flex: 0 0 40%; /* 40% width column */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+    width: 100%;
+  }
+  .left,
+  .right {
+    flex: none;
+    width: 100%;
+    padding: 32px;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}
+
+.card {
+  width: 520px; /* wider card for larger inputs */
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(11, 18, 32, 0.10);
+  background: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .card {
+    width: 100%;
+    padding: 20px;
+  }
+}

@@ -1,0 +1,96 @@
+.formContainer {
+  padding: 12px 0;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.headerIcon {
+  font-size: 22px;
+  margin-right: 10px;
+  color: #0b1220;
+}
+
+.formContainer :global(.ant-form-item-label > label) {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Ensure wrapper is a flex container and vertically centers children */
+.formContainer :global(.ant-input-affix-wrapper) {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px; /* left/right padding */
+  background: transparent; /* remove gray fill */
+  border-color: #e6e6e6;
+}
+
+.formContainer :global(.ant-input) {
+  height: auto;
+  font-size: 16px;
+  padding: 10px 0;
+  line-height: 1.2;
+  background: transparent;
+  color: #111827;
+}
+
+.formContainer :global(.ant-input::placeholder) {
+  color: #9ca3af;
+}
+
+.formContainer :global(.ant-input-password) {
+  height: 52px;
+  background: transparent;
+}
+
+.formContainer :global(.ant-input-prefix) {
+  color: #0b1220;
+}
+
+.submitButton {
+  height: 52px;
+  background-color: #0b1220 !important;
+  border-color: #0b1220 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  border-radius: 6px;
+}
+
+@media (max-width: 900px) {
+  .formContainer :global(.ant-input),
+  .formContainer :global(.ant-input-affix-wrapper),
+  .formContainer :global(.ant-input-password) {
+    height: 48px;
+    font-size: 15px;
+  }
+}
+
+/* Remove browser autofill background and ensure text remains correctly colored */
+.formContainer :global(input:-webkit-autofill),
+.formContainer :global(input:-webkit-autofill:hover),
+.formContainer :global(input:-webkit-autofill:focus),
+.formContainer :global(input:-webkit-autofill:active) {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+.formContainer :global(textarea:-webkit-autofill),
+.formContainer :global(input[type='password']:-webkit-autofill) {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  background-color: transparent !important;
+}
+
+.formContainer :global(.ant-input-affix-wrapper):focus-within {
+  border-color: #0b1220 !important;
+  box-shadow: 0 0 0 4px rgba(11,18,32,0.06);
+} 
