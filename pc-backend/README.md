@@ -1,4 +1,3 @@
-
 ## ✨ 项目简介
 
 这是 E‑Stay 酒店预订平台的 **PC 管理后台（后端）实现**，用于平台治理（账号管理、商户与酒店管理、审核与审计日志等）。
@@ -67,11 +66,10 @@ README.md
 ---
 
 需要我把这段拆分出独立的 `docs/structure.md`，或把每个模块的示例请求（curl）补充到 README/Docs 中吗？
+
 ## 快速开始（本地开发）
 
 > 接口与使用方法见：`docs/API.md`（包含请求示例与测试说明）
-
-
 
 先决条件：Node.js v18+, pnpm, MongoDB
 
@@ -120,6 +118,7 @@ pnpm start
 ### User — 用户表 (`User`) ✅
 
 **顶级字段**
+
 - `_id` — ObjectId, **主键、唯一、非空**, 文档唯一标识
 - `email` — String, **唯一、非空**, 用户邮箱，用于登录
 - `password` — String, **非空**, 加密后的用户密码
@@ -132,6 +131,7 @@ pnpm start
 ### MerchantProfile — 商户资料表 (`MerchantProfile`) ✅
 
 **顶级字段**
+
 - `userId` — ObjectId, **必填**, ref: `User`
 - `baseInfo` — 子文档, **必填**
 - `qualificationInfo` — 子文档, 可选, 默认 `{}`
@@ -139,17 +139,20 @@ pnpm start
 - timestamps: `createdAt`, `updatedAt`
 
 **baseInfo（商户基础联系信息）**
+
 - `merchantName` — String, **必填**
 - `contactName` — String, **必填**
 - `contactPhone` — String, **必填**
 - `contactEmail` — String, **必填**
 
 **qualificationInfo（资质 / 实名）**
+
 - `businessLicenseNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
 - `idCardNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
 - `realNameStatus` — String, **必填**, enum: `['unverified','verified','rejected']`, default: `'unverified'`
 
 **auditInfo（审核状态）**
+
 - `verifyStatus` — String, **必填**, enum: `['unverified','pending','verified','rejected']`, default: `'unverified'`
 - `rejectReason` — String, 可选
 
@@ -158,11 +161,13 @@ pnpm start
 ### AdminProfile — 管理员资料表 (`AdminProfile`) 🛡️
 
 **顶级字段**
+
 - `userId` — ObjectId, **必填**, ref: `User`
 - `baseInfo` — 子文档, **必填**
 - timestamps: **仅维护** `createdAt`
 
 **baseInfo（管理员信息）**
+
 - `name` — String, **必填**
 - `employeeNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
 
@@ -171,6 +176,7 @@ pnpm start
 ### Hotel — 酒店主表 (`Hotel`) 🏨
 
 **顶级字段**
+
 - `merchantId` — ObjectId, **必填**, ref: `MerchantProfile`
 - `baseInfo` — 子文档, **必填**
 - `checkinInfo` — 子文档, 可选, 默认 `{}`
@@ -178,6 +184,7 @@ pnpm start
 - timestamps: `createdAt`, `updatedAt`
 
 **baseInfo（酒店基础信息）**
+
 - `nameCn` — String, **必填**
 - `nameEn` — String, 可选
 - `address` — String, **必填**
@@ -190,12 +197,14 @@ pnpm start
 - `images` — String[], **必填**
 
 **checkinInfo（入住 / 早餐）**
+
 - `checkinTime` — String, **必填**
 - `checkoutTime` — String, **必填**
 - `breakfastType` — String, 可选
 - `breakfastPrice` — Number, 可选
 
 **auditInfo（酒店审核）**
+
 - `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`, default: `'draft'`
 - `auditedBy` — ObjectId, 可选, ref: `AdminProfile`, **带索引 (index)**, default: `null`
 - `auditedAt` — Date, 可选, default: `null`
@@ -206,6 +215,7 @@ pnpm start
 ### Room — 房间主表 (`Room`) 🛏️
 
 **顶级字段**
+
 - `hotelId` — ObjectId, **必填**, ref: `Hotel`, **带索引 (index)**
 - `baseInfo` — 子文档, **必填**
 - `headInfo` — 子文档, **必填**
@@ -215,6 +225,7 @@ pnpm start
 - timestamps: `createdAt`, `updatedAt`
 
 **baseInfo（房型核心信息）**
+
 - `type` — String, **必填**
 - `price` — Number, **必填**, min: `0`
 - `images` — String[], **必填**
@@ -222,6 +233,7 @@ pnpm start
 - `maxOccupancy` — Number (整数), **必填**, min: `0`
 
 **headInfo（房间属性）**
+
 - `size` — String, **必填**（如 `25 sqm`）
 - `floor` — String, **必填**
 - `wifi` — Boolean, **必填**
@@ -229,18 +241,21 @@ pnpm start
 - `smokingAllowed` — Boolean, **必填**
 
 **bedInfo（床型数组）**
+
 - 每项：
   - `bedType` — String, **必填**
   - `bedNumber` — Number, **必填**
   - `bedSize` — String, **必填**
 
 **breakfastInfo（房间早餐）**
+
 - `breakfastType` — String, 可选
 - `cuisine` — String, 可选
 - `bussinessTime` — String, 可选
 - `addBreakfast` — String, 可选
 
 **auditInfo（房间审核）**
+
 - `auditedBy` — ObjectId, 可选, ref: `AdminProfile`, **带索引 (index)**, default: `null`
 - `auditedAt` — Date, 可选, default: `null`
 - `rejectReason` — String, 可选
@@ -257,4 +272,3 @@ pnpm start
 - `reason` — String, 可选
 
 ---
-

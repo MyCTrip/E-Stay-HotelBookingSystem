@@ -22,20 +22,22 @@ const Register: React.FC = () => {
   return (
     <AuthLayout>
       <div className={styles.formContainer}>
-        <h2 className={styles.formHeader}><UserAddOutlined className={styles.headerIcon}/> 商户注册</h2>
+        <h2 className={styles.formHeader}>
+          <UserAddOutlined className={styles.headerIcon} /> 商户注册
+        </h2>
         <Form onFinish={onFinish} layout="vertical">
-          <Form.Item label="邮箱" name="email" rules={[{ required: true, type: 'email' }]}> 
+          <Form.Item label="邮箱" name="email" rules={[{ required: true, type: 'email' }]}>
             <Input prefix={<MailOutlined />} />
           </Form.Item>
 
-          <Form.Item label="密码" name="password" rules={[{ required: true, min: 6 }]}> 
+          <Form.Item label="密码" name="password" rules={[{ required: true, min: 6 }]}>
             <Input.Password prefix={<LockOutlined />} />
           </Form.Item>
 
           <Form.Item
             label="确认密码"
             name="confirm"
-            dependencies={["password"]}
+            dependencies={['password']}
             rules={[
               { required: true },
               ({ getFieldValue }) => ({
@@ -48,7 +50,7 @@ const Register: React.FC = () => {
               }),
             ]}
           >
-            <Input.Password prefix={<LockOutlined />}/>
+            <Input.Password prefix={<LockOutlined />} />
           </Form.Item>
 
           <Button className={styles.submitButton} htmlType="submit" block>

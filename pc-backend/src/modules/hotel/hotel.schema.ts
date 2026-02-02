@@ -10,18 +10,18 @@ const baseInfoSchema = z.object({
   roomTotal: z.number().int().min(0).optional(),
   phone: z.string().optional(),
   description: z.string().optional(),
-  images: z.array(z.string()).optional()
+  images: z.array(z.string()).optional(),
 });
 
 export const createHotelSchema = z.object({
   baseInfo: baseInfoSchema,
-  checkinInfo: z.any().optional()
+  checkinInfo: z.any().optional(),
 });
 
 export const updateHotelSchema = z.object({
   baseInfo: baseInfoSchema.partial().optional(),
   checkinInfo: z.any().optional(),
-  auditInfo: z.any().optional()
+  auditInfo: z.any().optional(),
 });
 
 export type CreateHotelInput = z.infer<typeof createHotelSchema>;

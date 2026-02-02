@@ -46,21 +46,25 @@ const BaseInfoSchema = new Schema<IHotelBaseInfo>({
   roomTotal: { type: Number, required: true },
   phone: { type: String, required: true },
   description: { type: String, required: true },
-  images: { type: [String], required: true }
+  images: { type: [String], required: true },
 });
 
 const CheckinSchema = new Schema<IHotelCheckinInfo>({
   checkinTime: { type: String, required: true },
   checkoutTime: { type: String, required: true },
   breakfastType: String,
-  breakfastPrice: Number
+  breakfastPrice: Number,
 });
 
 const AuditInfoSchema = new Schema<IHotelAuditInfo>({
-  status: { type: String, enum: ['draft', 'pending', 'approved', 'rejected', 'offline'], default: 'draft' },
+  status: {
+    type: String,
+    enum: ['draft', 'pending', 'approved', 'rejected', 'offline'],
+    default: 'draft',
+  },
   auditedBy: { type: Schema.Types.ObjectId, ref: 'AdminProfile', index: true, default: null },
   auditedAt: { type: Date, default: null },
-  rejectReason: String
+  rejectReason: String,
 });
 
 const HotelSchema = new Schema<IHotel>(
@@ -68,7 +72,7 @@ const HotelSchema = new Schema<IHotel>(
     merchantId: { type: Schema.Types.ObjectId, ref: 'MerchantProfile', required: true },
     baseInfo: { type: BaseInfoSchema, required: true },
     checkinInfo: { type: CheckinSchema, default: {} },
-    auditInfo: { type: AuditInfoSchema, default: {} }
+    auditInfo: { type: AuditInfoSchema, default: {} },
   },
   { timestamps: true }
 );

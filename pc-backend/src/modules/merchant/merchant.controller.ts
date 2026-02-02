@@ -24,7 +24,12 @@ export const submitProfile = async (req: Request, res: Response) => {
   try {
     const profile = await merchantService.submitByUserId(user.id);
     // write audit log (operatorId == user submitting)
-    await AuditLog.create({ targetType: 'merchant', targetId: profile._id, action: 'submit', operatorId: user.id });
+    await AuditLog.create({
+      targetType: 'merchant',
+      targetId: profile._id,
+      action: 'submit',
+      operatorId: user.id,
+    });
     // return fresh doc
     const fresh = await merchantService.findById(profile._id.toString());
     res.json(fresh);
@@ -39,7 +44,13 @@ export const adminApproveMerchant = async (req: Request, res: Response) => {
   const user = (req as any).user; // admin
   try {
     const profile = await merchantService.setVerifyStatus(id, 'verified');
-    await AuditLog.create({ targetType: 'merchant', targetId: profile._id, action: 'approve', operatorId: user.id, reason });
+    await AuditLog.create({
+      targetType: 'merchant',
+      targetId: profile._id,
+      action: 'approve',
+      operatorId: user.id,
+      reason,
+    });
     res.json(profile);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -52,7 +63,13 @@ export const adminRejectMerchant = async (req: Request, res: Response) => {
   const user = (req as any).user; // admin
   try {
     const profile = await merchantService.setVerifyStatus(id, 'rejected', reason);
-    await AuditLog.create({ targetType: 'merchant', targetId: profile._id, action: 'reject', operatorId: user.id, reason });
+    await AuditLog.create({
+      targetType: 'merchant',
+      targetId: profile._id,
+      action: 'reject',
+      operatorId: user.id,
+      reason,
+    });
     res.json(profile);
   } catch (err: any) {
     res.status(400).json({ message: err.message });

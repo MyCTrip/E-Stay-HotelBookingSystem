@@ -4,9 +4,9 @@ import type { TagProps } from 'antd';
 export const HOTEL_STATUS_MAP: Record<string, { text: string; color: TagProps['color'] }> = {
   draft: { text: '草稿', color: 'default' },
   pending: { text: '待审核', color: 'processing' }, // Blue
-  approved: { text: '已发布', color: 'success' },   // Green
-  rejected: { text: '已驳回', color: 'error' },     // Red
-  offline: { text: '已下架', color: 'warning' },    // Orange
+  approved: { text: '已发布', color: 'success' }, // Green
+  rejected: { text: '已驳回', color: 'error' }, // Red
+  offline: { text: '已下架', color: 'warning' }, // Orange
 };
 
 // 审核动作映射

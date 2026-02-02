@@ -17,7 +17,9 @@ export const authService = {
     if (!user) throw new Error('Invalid credentials');
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) throw new Error('Invalid credentials');
-    const token = jwt.sign({ id: user._id, role: user.role, email: user.email }, jwtSecret, { expiresIn: jwtExpiresIn });
+    const token = jwt.sign({ id: user._id, role: user.role, email: user.email }, jwtSecret, {
+      expiresIn: jwtExpiresIn,
+    });
     return token;
-  }
+  },
 };

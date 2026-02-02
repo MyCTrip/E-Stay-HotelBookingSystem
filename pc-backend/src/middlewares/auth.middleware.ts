@@ -16,7 +16,8 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     // Fetch fresh user from DB and attach (without password)
     const user = await User.findById(payload.id).select('-password');
     if (!user) return res.status(401).json({ message: 'Unauthorized' });
-    if ((user as any).status !== 'active') return res.status(403).json({ message: 'Account disabled' });
+    if ((user as any).status !== 'active')
+      return res.status(403).json({ message: 'Account disabled' });
     req.user = { id: user._id.toString(), email: user.email, role: user.role };
     next();
   } catch (err) {

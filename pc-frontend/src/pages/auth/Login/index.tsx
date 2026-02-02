@@ -37,13 +37,15 @@ const Login: React.FC = () => {
   return (
     <AuthLayout>
       <div className={styles.formContainer}>
-        <h2 className={styles.formHeader}><UserOutlined className={styles.headerIcon}/> 登录</h2>
+        <h2 className={styles.formHeader}>
+          <UserOutlined className={styles.headerIcon} /> 登录
+        </h2>
         <Form onFinish={onFinish} layout="vertical">
-          <Form.Item label="邮箱" name="email" rules={[{ required: true, type: 'email' }]}> 
+          <Form.Item label="邮箱" name="email" rules={[{ required: true, type: 'email' }]}>
             <Input prefix={<MailOutlined />} />
           </Form.Item>
 
-          <Form.Item label="密码" name="password" rules={[{ required: true }]}> 
+          <Form.Item label="密码" name="password" rules={[{ required: true }]}>
             <Input.Password prefix={<LockOutlined />} />
           </Form.Item>
 

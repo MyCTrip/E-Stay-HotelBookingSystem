@@ -20,7 +20,10 @@ const ensureAdmin = async () => {
     // Ensure there is an AdminProfile linked to this user
     const profile = await AdminProfile.findOne({ userId: user._id });
     if (!profile) {
-      await AdminProfile.create({ userId: user._id, baseInfo: { name: 'System Administrator', employeeNo: 'ADM001' } });
+      await AdminProfile.create({
+        userId: user._id,
+        baseInfo: { name: 'System Administrator', employeeNo: 'ADM001' },
+      });
       console.log('AdminProfile created for admin user.');
     }
   } catch (err) {

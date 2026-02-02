@@ -50,15 +50,19 @@ export interface IRoom extends Document {
 const BedSchema = new Schema<IBedInfo>({
   bedType: { type: String, required: true },
   bedNumber: { type: Number, required: true },
-  bedSize: { type: String, required: true }
+  bedSize: { type: String, required: true },
 });
 
 const BaseInfoSchema = new Schema<IRoomBaseInfo>({
   type: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
   images: { type: [String], required: true },
-  status: { type: String, enum: ['draft', 'pending', 'approved', 'rejected', 'offline'], required: true },
-  maxOccupancy: { type: Number, required: true, min: 0 }
+  status: {
+    type: String,
+    enum: ['draft', 'pending', 'approved', 'rejected', 'offline'],
+    required: true,
+  },
+  maxOccupancy: { type: Number, required: true, min: 0 },
 });
 
 const HeadInfoSchema = new Schema<IRoomHeadInfo>({
@@ -66,21 +70,25 @@ const HeadInfoSchema = new Schema<IRoomHeadInfo>({
   floor: { type: String, required: true },
   wifi: { type: Boolean, required: true },
   windowAvailable: { type: Boolean, required: true },
-  smokingAllowed: { type: Boolean, required: true }
+  smokingAllowed: { type: Boolean, required: true },
 });
 
 const BreakfastSchema = new Schema<IBreakfastInfo>({
   breakfastType: String,
   cuisine: String,
   bussinessTime: String,
-  addBreakfast: String
+  addBreakfast: String,
 });
 
 const AuditSchema = new Schema<IRoomAuditInfo>({
-  status: { type: String, enum: ['draft', 'pending', 'approved', 'rejected', 'offline'], default: 'draft' },
+  status: {
+    type: String,
+    enum: ['draft', 'pending', 'approved', 'rejected', 'offline'],
+    default: 'draft',
+  },
   auditedBy: { type: Schema.Types.ObjectId, ref: 'AdminProfile', index: true, default: null },
   auditedAt: { type: Date, default: null },
-  rejectReason: String
+  rejectReason: String,
 });
 
 const RoomSchema = new Schema<IRoom>(
@@ -90,7 +98,7 @@ const RoomSchema = new Schema<IRoom>(
     headInfo: { type: HeadInfoSchema, required: true },
     bedInfo: { type: [BedSchema], required: true },
     breakfastInfo: { type: BreakfastSchema, default: {} },
-    auditInfo: { type: AuditSchema, default: {} }
+    auditInfo: { type: AuditSchema, default: {} },
   },
   { timestamps: true }
 );

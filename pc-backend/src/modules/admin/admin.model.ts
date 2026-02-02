@@ -13,12 +13,15 @@ export interface IAdmin extends Document {
 
 const BaseInfoSchema = new Schema<IAdminBaseInfo>({
   name: { type: String, required: true },
-  employeeNo: { type: String, unique: true, sparse: true }
+  employeeNo: { type: String, unique: true, sparse: true },
 });
 
-const AdminSchema = new Schema<IAdmin>({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  baseInfo: { type: BaseInfoSchema, required: true }
-}, { timestamps: { createdAt: true, updatedAt: false } });
+const AdminSchema = new Schema<IAdmin>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    baseInfo: { type: BaseInfoSchema, required: true },
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
 
 export const AdminProfile = model<IAdmin>('AdminProfile', AdminSchema);

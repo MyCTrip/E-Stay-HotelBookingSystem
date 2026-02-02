@@ -1,8 +1,8 @@
-import { 
-  DashboardOutlined, 
-  ShopOutlined, 
-  SafetyCertificateOutlined, 
-  FileTextOutlined 
+import {
+  DashboardOutlined,
+  ShopOutlined,
+  SafetyCertificateOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 
 // 商户菜单

@@ -1,5 +1,3 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import RouterConfig from './router'; // 引入我们刚才写好的路由配置
 
 const App: React.FC = () => {

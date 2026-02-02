@@ -16,7 +16,7 @@ const AuditSchema = new Schema<IAudit>(
     // include 'submit' to record submissions as well as admin actions
     action: { type: String, enum: ['submit', 'approve', 'reject', 'offline'], required: true },
     operatorId: { type: Schema.Types.ObjectId, ref: 'AdminProfile', required: true, index: true },
-    reason: String
+    reason: String,
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
