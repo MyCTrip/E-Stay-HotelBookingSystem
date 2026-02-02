@@ -14,9 +14,11 @@
 - Node.js (>=18) + TypeScript
 - Express
 - MongoDB + Mongoose
-- JWT（鉴权）
-- Zod（校验，可选）
+- JWT
+- Zod
 
+## 接口与使用方法
+`docs/API/README.md`（包含请求示例与测试说明）
 ## 📁 目录结构
 
 ```
@@ -65,11 +67,7 @@ README.md
 
 ---
 
-需要我把这段拆分出独立的 `docs/structure.md`，或把每个模块的示例请求（curl）补充到 README/Docs 中吗？
-
 ## 快速开始（本地开发）
-
-> 接口与使用方法见：`docs/API.md`（包含请求示例与测试说明）
 
 先决条件：Node.js v18+, pnpm, MongoDB
 
