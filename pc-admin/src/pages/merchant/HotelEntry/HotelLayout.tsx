@@ -24,7 +24,11 @@ const HotelLayout: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       {/* 白色卡片容器，贯穿整个右侧区域 */}
-      <Card bordered={false} bodyStyle={{ padding: 0, minHeight: '80vh' }}>
+      <Card
+        variant="borderless"  
+        styles={{ body: { padding: 0, minHeight: '80vh' } }} 
+      >
+
         
         {/* === 顶部 Tab 区域 === */}
         <div style={{ 

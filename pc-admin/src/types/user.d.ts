@@ -1,28 +1,34 @@
-// 对应后端 User Model
-export type UserRole = 'merchant' | 'admin';
-export type UserStatus = 'active' | 'disabled';
+// src/types/user.d.ts
 
-export interface User {
-  _id: string;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// 对应后端 MerchantProfile Model
-export type VerifyStatus = 'unverified' | 'pending' | 'verified' | 'rejected';
-
+// 对应 MerchantProfile
 export interface MerchantProfile {
   _id: string;
-  userId: string; // 关联 User
-  merchantName: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  businessLicenseNo?: string;
-  idCardNo?: string;
-  verifyStatus: VerifyStatus;
-  rejectReason?: string;
+  userId: string;
+  // 必须嵌套
+  baseInfo: {
+    merchantName: string;
+    contactName: string;
+    contactPhone: string;
+    contactEmail: string;
+  };
+  qualificationInfo?: {
+    businessLicenseNo?: string;
+    realNameStatus: 'unverified' | 'verified' | 'rejected';
+  };
+  auditInfo?: {
+    verifyStatus: 'unverified' | 'pending' | 'verified' | 'rejected';
+  };
+  createdAt: string;
+}
+
+// 对应 AdminProfile
+export interface AdminProfile {
+  _id: string;
+  userId: string;
+  // 嵌套
+  baseInfo: {
+    name: string;
+    employeeNo?: string;
+  };
+  createdAt: string;
 }
