@@ -4,14 +4,17 @@ import { HomeOutlined, CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutl
 
 // 简单的统计卡片组件
 const StatCard = ({ title, value, icon, color }: any) => (
-  <Card bordered={false} style={{ height: '100%', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-    <Statistic 
-      title={<span style={{ fontSize: 14, color: '#888' }}>{title}</span>}
-      value={value}
-      valueStyle={{ fontSize: 24, fontWeight: 600, color }}
-      prefix={icon}
-    />
-  </Card>
+    <Card 
+      variant="borderless" 
+      style={{ height: '100%', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+    >
+        <Statistic 
+          title={<span style={{ fontSize: 14, color: '#888' }}>{title}</span>}
+          value={value}
+          valueStyle={{ fontSize: 24, fontWeight: 600, color }}
+          prefix={icon}
+        />
+    </Card>
 );
 
 const Manage: React.FC = () => {

@@ -252,7 +252,7 @@ const HotelForm: React.FC = () => {
       <Form form={form} layout="vertical" onFinish={onFinish} scrollToFirstError>
         
         {/* === 1. 基础信息 (Card + Icons) === */}
-        <Card title={<Space><HomeOutlined /><span>基础信息</span></Space>} bordered={false} style={styles.card}>
+        <Card title={<Space><HomeOutlined /><span>基础信息</span></Space>} variant="borderless" style={styles.card}>
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item label="酒店中文名称" name="nameCn" rules={[{ required: true, message: '必填' }]}>
@@ -304,7 +304,7 @@ const HotelForm: React.FC = () => {
         </Card>
 
         {/* === 2. 入住政策 (New Feature) === */}
-        <Card title={<Space><ClockCircleOutlined /><span>入住政策</span></Space>} bordered={false} style={styles.card}>
+        <Card title={<Space><ClockCircleOutlined /><span>入住政策</span></Space>} variant="borderless" style={styles.card}>
            <Row gutter={24}>
              <Col span={6}>
                 <Form.Item label="最早入住时间" name={['checkinInfo', 'checkinTime']} rules={[{ required: true, message: '必填' }]}>
@@ -330,7 +330,7 @@ const HotelForm: React.FC = () => {
         </Card>
 
         {/* === 3. 营销信息 (结构化录入) === */}
-        <Card title={<Space><CompassOutlined /><span>周边与优惠 (辅助生成简介)</span></Space>} bordered={false} style={styles.card}>
+        <Card title={<Space><CompassOutlined /><span>周边与优惠 (辅助生成简介)</span></Space>} variant="borderless" style={styles.card}>
             <Row gutter={24}>
                 {/* 左栏：周边 */}
                 <Col span={12}>
@@ -376,7 +376,7 @@ const HotelForm: React.FC = () => {
         {/* === 4. 房型管理 (High-end UX) === */}
         <Card 
           title={<Space><TagOutlined /><span>房型管理</span></Space>} 
-          bordered={false} 
+          variant="borderless"
           style={styles.card}
           extra={<span style={{fontSize: 12, color: '#999'}}>* 至少录入一种房型，未使用的房型请删除</span>}
         >

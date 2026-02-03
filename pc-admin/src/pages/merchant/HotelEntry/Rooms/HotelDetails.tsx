@@ -64,7 +64,7 @@ const HotelDetails: React.FC = () => {
             编辑酒店
           </Button>
         }
-        bordered={false}
+        variant="borderless"
       >
         <Descriptions bordered column={3}>
           {/* 图片展示: 改为从 baseInfo 读取 */}

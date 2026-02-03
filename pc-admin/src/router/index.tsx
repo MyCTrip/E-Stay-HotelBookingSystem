@@ -6,9 +6,10 @@ import MainLayout from '@/layouts/MainLayout';
 import HotelLayout from '@/pages/merchant/HotelEntry/HotelLayout';
 import Manage from '@/pages/merchant/HotelEntry/Manage';
 
+// ✅ 1. 引入新创建的 Profile 页面 (一定要检查路径是否正确)
+import Profile from '@/pages/merchant/Profile'; 
 
 import HotelEntry from '@/pages/merchant/HotelEntry'; 
-
 import HotelList from '@/pages/merchant/HotelEntry/Rooms/HotelList';
 import HotelForm from '@/pages/merchant/HotelEntry/HotelForm';
 import HotelDetails from '@/pages/merchant/HotelEntry/Rooms/HotelDetails';
@@ -20,14 +21,15 @@ const RouterConfig: React.FC = () => {
       path: '/',
       element: <MainLayout />,
       children: [
-        // 默认跳转：你可以决定是跳去 manage 还是 entry
-        { index: true, element: <Navigate to="/merchant/entry" replace /> },
+        { index: true, element: <Navigate to="/merchant/manage" replace /> },
 
-        // /merchant/entry 访问
+        // 现有的 Dashboard / Entry
         { path: 'merchant/entry', element: <HotelEntry /> },
-
-        // Manage 统计页
         { path: 'merchant/manage', element: <Manage /> },
+
+        // ✅ 2. 在这里添加 Profile 路由！
+        // 访问 /merchant/profile 时，渲染 Profile 组件
+        { path: 'merchant/profile', element: <Profile /> },
 
         // Hotel Rooms 模块
         {

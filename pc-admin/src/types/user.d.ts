@@ -4,6 +4,8 @@
 export interface MerchantProfile {
   _id: string;
   userId: string;
+  email: string;
+  avatar?: string;
   // 必须嵌套
   baseInfo: {
     merchantName: string;
@@ -13,6 +15,7 @@ export interface MerchantProfile {
   };
   qualificationInfo?: {
     businessLicenseNo?: string;
+    licenseImage?: string[];    //营业执照图片 (数组)
     realNameStatus: 'unverified' | 'verified' | 'rejected';
   };
   auditInfo?: {
