@@ -193,8 +193,21 @@ pnpm start
 - `phone` — String, **必填**
 - `description` — String, **必填**
 - `images` — String[], **必填**
-- `facilities` — Array of { category: String (required), content: String (required, HTML) } — **必填且非空**，用于按分类展示酒店设施
-- `policies` — Array of { policyType: String (required), content: String (required, HTML) } — **必填且非空**，记录酒店整体政策（如 `petAllowed`）
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，用于按分类展示酒店设施。*Facility* 对象结构：
+  - `category` — String **必填**（例如："公共","房内"）
+  - `summary` — String 可选（短摘要，供列表/搜索使用）
+  - `icon` — String 可选（图标标识或路径）
+  - `order` — Number 可选（用于排序）
+  - `visible` — Boolean 可选（默认 true，表示是否展示）
+  - `items` — Array 可选，项为 { `item`: String **必填**, `content`: String **必填**, HTML 富文本 }（用于列出细分设施）
+  - 说明：`content` / `items[].content` 为 HTML 富文本，系统在展示前应做必要的富文本安全处理与富文本编辑支持。
+- `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，记录酒店整体政策。*Policy* 对象结构：
+  - `policyType` — String **必填**（如 `petAllowed` / `cancellation`）
+  - `summary` — String 可选（简短描述）
+  - `content` — String **必填**，HTML 富文本（策略详情）
+  - `flags` — String[] 可选（用于快速筛选/标签）
+  - `effectiveFrom` — String 可选（ISO 日期，表示生效时间）
+  - 说明：`content` 为富文本，建议使用编辑器（富文本/HTML）创建并在后端做校验与 XSS 防护。
 
 **checkinInfo（入住 / 早餐）**
 
@@ -222,9 +235,9 @@ pnpm start
 - `images` — String[], **必填**
 - `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`
 - `maxOccupancy` — Number, **必填**
-- `facilities` — Array of { category: String, content: String } — **必填且非空**，房间级别设施展示（支持 HTML）
-- `policies` — Array of { policyType: String, content: String } — **必填且非空**，房间专属政策（支持 HTML）
-- `bedRemark` — Array of String — **必填且非空**，记录成人加床、床型特殊说明等轻量备注信息
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示（支持 HTML）。结构与 Hotel 中的 *Facility* 类似：每项包含 `category`, 可选 `items`（细项含 `item` 与 HTML `content`），以及 `summary`/`icon`/`order`/`visible` 等辅助字段。
+- `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策（支持 HTML），结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking` / `extraBed` 等房间级别策略。
+- `bedRemark` — Array of String — **必填且非空**，记录成人加床、床型特殊说明等轻量备注信息（例如：`["成人加床：免费，需提前申请"]`）
 - `breakfastType` — String, 可选
 - `breakfastPrice` — Number, 可选
 

@@ -264,10 +264,3 @@
 - 手动 smoke：`pnpm run test:api`（`scripts/test-api.js`），可配置环境变量以在真实 Mongo 上测试（建议先使用测试库或备份）。
 
 ---
-
-如需，我可以：
-- 生成 OpenAPI (Swagger) 或 Postman 集合；
-- 将每个接口生成示例请求/响应的 JSON 文件放到 `docs/examples/`；
-- 或者把这些接口自动导出为 README 中的可下载文档（包括 curl 示例）。
-
-请选择下一步（回复 `openapi` / `postman` / `examples` / `done`）。
