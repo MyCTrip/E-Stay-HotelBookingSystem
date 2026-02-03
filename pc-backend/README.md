@@ -104,7 +104,7 @@ pnpm start
 
 ## 🔑 默认管理员账号（开发用）
 
-- Email: `admin@local`
+- Email: `admin@local.com`
 - Password: `admin123`
 
 ## 📚 数据表结构设计
@@ -193,11 +193,38 @@ pnpm start
 - `phone` — String, **必填**
 - `description` — String, **必填**
 - `images` — String[], **必填**
+- `facilities` — Array of { category: String (required), content: String (required, HTML) } — **必填且非空**，用于按分类展示酒店设施
+- `policies` — Array of { policyType: String (required), content: String (required, HTML) } — **必填且非空**，记录酒店整体政策（如 `petAllowed`）
 
 **checkinInfo（入住 / 早餐）**
 
 - `checkinTime` — String, **必填**
 - `checkoutTime` — String, **必填**
+
+---
+
+### Room — 房型表 (`Room`) 🛏️
+
+**顶级字段**
+
+- `hotelId` — ObjectId, **必填**, ref: `Hotel`
+- `baseInfo` — 子文档, **必填**
+- `headInfo` — 子文档, **必填**
+- `bedInfo` — 子文档数组, **必填**
+- `breakfastInfo` — 子文档, 可选, 默认 `{}`
+- `auditInfo` — 子文档, 可选, 默认 `{}`
+- timestamps: `createdAt`, `updatedAt`
+
+**baseInfo（房型基础信息）**
+
+- `type` — String, **必填**
+- `price` — Number, **必填**
+- `images` — String[], **必填**
+- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`
+- `maxOccupancy` — Number, **必填**
+- `facilities` — Array of { category: String, content: String } — **必填且非空**，房间级别设施展示（支持 HTML）
+- `policies` — Array of { policyType: String, content: String } — **必填且非空**，房间专属政策（支持 HTML）
+- `bedRemark` — Array of String — **必填且非空**，记录成人加床、床型特殊说明等轻量备注信息
 - `breakfastType` — String, 可选
 - `breakfastPrice` — Number, 可选
 

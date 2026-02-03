@@ -1,5 +1,30 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
+export interface IFacilityItem {
+  name: string;
+  description?: string;
+  icon?: string;
+  available?: boolean;
+}
+
+export interface IFacility {
+  category: string;
+  content: string; // HTML rich text
+  items?: IFacilityItem[];
+  summary?: string;
+  icon?: string;
+  order?: number;
+  visible?: boolean;
+}
+
+export interface IPolicy {
+  policyType: string;
+  content: string; // HTML rich text
+  summary?: string;
+  flags?: Record<string, any>;
+  effectiveFrom?: Date;
+}
+
 export interface IHotelBaseInfo {
   nameCn: string;
   nameEn?: string;
@@ -11,6 +36,8 @@ export interface IHotelBaseInfo {
   phone: string;
   description: string;
   images: string[];
+  facilities: IFacility[];
+  policies: IPolicy[];
 }
 
 export interface IHotelCheckinInfo {
@@ -36,6 +63,31 @@ export interface IHotel extends Document {
   updatedAt: Date;
 }
 
+const FacilityItemSchema = new Schema<IFacilityItem>({
+  name: { type: String, required: true },
+  description: String,
+  icon: String,
+  available: { type: Boolean, default: true },
+});
+
+const FacilitySchema = new Schema<IFacility>({
+  category: { type: String, required: true },
+  content: { type: String, required: true },
+  items: { type: [FacilityItemSchema], default: [] },
+  summary: String,
+  icon: String,
+  order: { type: Number, default: 0 },
+  visible: { type: Boolean, default: true },
+});
+
+const PolicySchema = new Schema<IPolicy>({
+  policyType: { type: String, required: true },
+  content: { type: String, required: true },
+  summary: String,
+  flags: { type: Schema.Types.Mixed, default: {} },
+  effectiveFrom: Date,
+});
+
 const BaseInfoSchema = new Schema<IHotelBaseInfo>({
   nameCn: { type: String, required: true },
   nameEn: String,
@@ -47,6 +99,16 @@ const BaseInfoSchema = new Schema<IHotelBaseInfo>({
   phone: { type: String, required: true },
   description: { type: String, required: true },
   images: { type: [String], required: true },
+  facilities: {
+    type: [FacilitySchema],
+    required: true,
+    validate: { validator: (v: any[]) => Array.isArray(v) && v.length > 0, message: 'facilities must be a non-empty array' },
+  },
+  policies: {
+    type: [PolicySchema],
+    required: true,
+    validate: { validator: (v: any[]) => Array.isArray(v) && v.length > 0, message: 'policies must be a non-empty array' },
+  },
 });
 
 const CheckinSchema = new Schema<IHotelCheckinInfo>({

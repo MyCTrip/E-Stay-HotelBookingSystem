@@ -15,7 +15,11 @@ export const createRoom = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Forbidden' });
     const room = await Room.create({
       hotelId,
-      baseInfo: baseInfo || {},
+      baseInfo: baseInfo || {
+        facilities: (req.body as any).facilities || [],
+        policies: (req.body as any).policies || [],
+        bedRemark: (req.body as any).bedRemark || [],
+      },
       headInfo: headInfo || {},
       bedInfo: bedInfo || [],
       breakfastInfo: breakfastInfo || {},

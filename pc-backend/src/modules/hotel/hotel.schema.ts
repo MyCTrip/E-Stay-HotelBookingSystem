@@ -1,5 +1,30 @@
 import { z } from 'zod';
 
+const facilityItemSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  available: z.boolean().optional().default(true),
+});
+
+const facilitySchema = z.object({
+  category: z.string().min(1),
+  content: z.string().min(1), // supports HTML rich text
+  items: z.array(facilityItemSchema).optional(),
+  summary: z.string().optional(),
+  icon: z.string().optional(),
+  order: z.number().optional(),
+  visible: z.boolean().optional(),
+});
+
+const policySchema = z.object({
+  policyType: z.string().min(1),
+  content: z.string().min(1), // supports HTML rich text
+  summary: z.string().optional(),
+  flags: z.record(z.any()).optional(),
+  effectiveFrom: z.string().optional(),
+});
+
 const baseInfoSchema = z.object({
   nameCn: z.string().min(1),
   nameEn: z.string().optional(),
@@ -11,6 +36,8 @@ const baseInfoSchema = z.object({
   phone: z.string().optional(),
   description: z.string().optional(),
   images: z.array(z.string()).optional(),
+  facilities: z.array(facilitySchema).nonempty(),
+  policies: z.array(policySchema).nonempty(),
 });
 
 export const createHotelSchema = z.object({

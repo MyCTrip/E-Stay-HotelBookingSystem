@@ -6,6 +6,30 @@ const bedSchema = z.object({
   bedSize: z.string().min(1),
 });
 
+const facilityItemSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  available: z.boolean().optional().default(true),
+});
+
+const facilitySchema = z.object({
+  category: z.string().min(1),
+  content: z.string().min(1),
+  items: z.array(facilityItemSchema).optional(),
+  summary: z.string().optional(),
+  icon: z.string().optional(),
+  order: z.number().optional(),
+  visible: z.boolean().optional(),
+});
+
+const policySchema = z.object({
+  policyType: z.string().min(1),
+  content: z.string().min(1),
+  summary: z.string().optional(),
+  flags: z.record(z.any()).optional(),
+});
+
 export const createRoomSchema = z.object({
   hotelId: z.string().min(1).optional(),
   baseInfo: z.object({
@@ -14,6 +38,9 @@ export const createRoomSchema = z.object({
     images: z.array(z.string()).optional(),
     status: z.enum(['draft', 'pending', 'approved', 'rejected', 'offline']).optional(),
     maxOccupancy: z.number().int().min(1),
+    facilities: z.array(facilitySchema).nonempty(),
+    policies: z.array(policySchema).nonempty(),
+    bedRemark: z.array(z.string().min(1)).nonempty(),
   }),
   headInfo: z.object({
     size: z.string().min(1),

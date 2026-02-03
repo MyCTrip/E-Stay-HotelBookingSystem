@@ -14,6 +14,9 @@ export interface Room {
     images: string[];
     status: AuditStatus;
     maxOccupancy: number;
+    facilities: { category: string; content: string }[];
+    policies: { policyType: string; content: string }[];
+    bedRemark: string[];
   };
   headInfo: {
     size: string;
@@ -42,6 +45,8 @@ export interface Hotel {
     phone: string;
     description: string; // 之前报错缺少的字段在这里！
     images: string[];
+    facilities: { category: string; content: string }[];
+    policies: { policyType: string; content: string }[];
   };
 
   // ✅ 对应数据库的 auditInfo 子文档

@@ -109,6 +109,8 @@ test('full end-to-end flow', async () => {
         phone: 'p',
         description: 'd',
         images: [],
+        facilities: [{ category: '基础设施', content: '<p>WiFi</p>' }],
+        policies: [{ policyType: 'petAllowed', content: '<p>no</p>' }],
       },
       checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' },
     })
@@ -133,7 +135,7 @@ test('full end-to-end flow', async () => {
     .post(`/api/hotels/${hotelId}/rooms`)
     .set('Authorization', `Bearer ${token}`)
     .send({
-      baseInfo: { type: 'Std', price: 100, images: [], status: 'draft', maxOccupancy: 2 },
+      baseInfo: { type: 'Std', price: 100, images: [], status: 'draft', maxOccupancy: 2, facilities: [{ category: '房内', content: '<p>空调</p>' }], policies: [{ policyType: 'noSmoking', content: '<p>No smoking</p>' }], bedRemark: ['成人加床说明'] },
       headInfo: {
         size: '20',
         floor: '1',
@@ -191,7 +193,7 @@ test('full end-to-end flow', async () => {
     .post(`/api/hotels/${hotelId}/rooms`)
     .set('Authorization', `Bearer ${token}`)
     .send({
-      baseInfo: { type: 'Deluxe', price: 200, images: [], status: 'draft', maxOccupancy: 2 },
+      baseInfo: { type: 'Deluxe', price: 200, images: [], status: 'draft', maxOccupancy: 2, facilities: [{ category: '房内', content: '<p>电视</p>' }], policies: [{ policyType: 'petAllowed', content: '<p>yes</p>' }], bedRemark: ['床型特别说明'] },
       headInfo: {
         size: '25',
         floor: '2',
@@ -345,6 +347,8 @@ test('merchant can list own hotels and hotel rooms; admin can list pending merch
         phone: 'p',
         description: 'd',
         images: [],
+        facilities: [{ category: '基础', content: '<p>WiFi</p>' }],
+        policies: [{ policyType: 'petAllowed', content: '<p>no</p>' }],
       },
       checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' },
     })
@@ -365,6 +369,8 @@ test('merchant can list own hotels and hotel rooms; admin can list pending merch
         phone: 'p',
         description: 'd',
         images: [],
+        facilities: [{ category: '基础', content: '<p>停车</p>' }],
+        policies: [{ policyType: 'petAllowed', content: '<p>no</p>' }],
       },
       checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' },
     })
@@ -409,7 +415,7 @@ test('merchant can list own hotels and hotel rooms; admin can list pending merch
     .post(`/api/hotels/${hotel2._id}/rooms`)
     .set('Authorization', `Bearer ${token}`)
     .send({
-      baseInfo: { type: 'Std', price: 100, images: [], status: 'draft', maxOccupancy: 2 },
+      baseInfo: { type: 'Std', price: 100, images: [], status: 'draft', maxOccupancy: 2, facilities: [{ category: '房内', content: '<p>空调</p>' }], policies: [{ policyType: 'noSmoking', content: '<p>No smoking</p>' }], bedRemark: ['成人加床说明'] },
       headInfo: {
         size: '20',
         floor: '1',
