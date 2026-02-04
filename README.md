@@ -1,11 +1,11 @@
 Markdown
 
-# 🏨 E-Stay 易宿酒店预订平台 - 商家管理后台hlx (PC Admin)
+# 🏨 E-Stay 易宿酒店预订平台 - 商家管理后台 (PC Admin)
 
 > 第五期前端训练营大作业 - 商家与管理员端 PC 站点
 
 本项目是“易宿酒店预订平台”的 **PC 端管理后台**。主要服务于 **酒店商户**（录入房源）和 **平台管理员**（审核房源）。采用 React + TypeScript + Vite 最新技术栈开发。
-
+ 
 ## 🛠 技术栈 (Tech Stack)
 
 - **核心框架**: [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
@@ -43,7 +43,7 @@ src/
 │   │   ├── Profile/        # 商户资料 (Create/Read/Update)
 │   │   └── HotelEntry/     # 酒店录入/编辑 (Hotel CRUD)
 │   ├── admin/              # >> 对应后端 admin.routes.ts
-│       ├── HotelAudit/     # 酒店审核列表# 审计日志 (GET /api/admin/audit-logs)
+│       ├── HotelAudit/     # 酒店审核列表，审计日志 (GET /api/admin/audit-logs)
 │             └──Audit3     # 三种审核，merchants/hotels/rooms
 │             └──           # dashboard，日志页面
 ├── router/                 # 路由配置
