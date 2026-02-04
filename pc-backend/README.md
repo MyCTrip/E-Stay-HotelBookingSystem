@@ -213,6 +213,15 @@ pnpm start
 
 - `checkinTime` — String, **必填**
 - `checkoutTime` — String, **必填**
+  
+- `surroundings` — Array（可选），记录酒店周边重要点（如地铁 / 景点 / 商圈）。每项结构：
+  - `surType` — String，枚举：`metro` | `attraction` | `business`（地铁 / 景点 / 商圈）
+  - `surName` — String，名称
+  - `distance` — Number，距离（米）
+- `discounts` — Array（可选），记录酒店可用的促销信息。每项结构：
+  - `title` — String
+  - `type` — String，枚举：`discount` | `instant`（折扣 / 立减）
+  - `content` — String，描述
 
 ---
 

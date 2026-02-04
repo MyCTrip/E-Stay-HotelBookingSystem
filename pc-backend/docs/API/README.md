@@ -112,6 +112,10 @@
       - 每项：{ `category`: string (required), `content`: string (required, HTML) }
     - 新增：`policies` (Array<Object>, required, non-empty)
       - 每项：{ `policyType`: string (required), `content`: string (required, HTML) }
+    - 新增（可选）：`surroundings` (Array<Object>)
+      - 每项: { `surType`: 'metro'|'attraction'|'business', `surName`: string, `distance`: number }
+    - 新增（可选）：`discounts` (Array<Object>)
+      - 每项: { `title`: string, `type`: 'discount'|'instant', `content`: string }
   - `checkinInfo` (optional): `{ checkinTime, checkoutTime }`
 - 示例请求体：
   ```json
@@ -125,7 +129,9 @@
       "description":"说明",
       "images":[],
       "facilities":[{"category":"公共","content":"<p>WiFi</p>"}],
-      "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}]
+      "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}],
+      "surroundings":[{"surType":"metro","surName":"地铁1号线","distance":500}],
+      "discounts":[{"title":"首单立减","type":"instant","content":"首单减10元"}]
     }
   }
   ```

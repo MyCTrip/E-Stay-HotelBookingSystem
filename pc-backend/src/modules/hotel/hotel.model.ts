@@ -25,6 +25,18 @@ export interface IPolicy {
   effectiveFrom?: Date;
 }
 
+export interface ISurrounding {
+  surType: 'metro' | 'attraction' | 'business';
+  surName: string;
+  distance: number; // meters
+}
+
+export interface IDiscount {
+  title: string;
+  type: 'discount' | 'instant';
+  content: string;
+}
+
 export interface IHotelBaseInfo {
   nameCn: string;
   nameEn?: string;
@@ -38,6 +50,8 @@ export interface IHotelBaseInfo {
   images: string[];
   facilities: IFacility[];
   policies: IPolicy[];
+  surroundings?: ISurrounding[];
+  discounts?: IDiscount[];
 }
 
 export interface IHotelCheckinInfo {
@@ -88,6 +102,18 @@ const PolicySchema = new Schema<IPolicy>({
   effectiveFrom: Date,
 });
 
+const SurroundingSchema = new Schema<ISurrounding>({
+  surType: { type: String, enum: ['metro', 'attraction', 'business'], required: true },
+  surName: { type: String, required: true },
+  distance: { type: Number, required: true },
+});
+
+const DiscountSchema = new Schema<IDiscount>({
+  title: { type: String, required: true },
+  type: { type: String, enum: ['discount', 'instant'], required: true },
+  content: { type: String, required: true },
+});
+
 const BaseInfoSchema = new Schema<IHotelBaseInfo>({
   nameCn: { type: String, required: true },
   nameEn: String,
@@ -109,6 +135,8 @@ const BaseInfoSchema = new Schema<IHotelBaseInfo>({
     required: true,
     validate: { validator: (v: any[]) => Array.isArray(v) && v.length > 0, message: 'policies must be a non-empty array' },
   },
+  surroundings: { type: [SurroundingSchema], default: [] },
+  discounts: { type: [DiscountSchema], default: [] },
 });
 
 const CheckinSchema = new Schema<IHotelCheckinInfo>({

@@ -25,6 +25,18 @@ const policySchema = z.object({
   effectiveFrom: z.string().optional(),
 });
 
+const surroundingSchema = z.object({
+  surType: z.enum(['metro', 'attraction', 'business']),
+  surName: z.string().min(1),
+  distance: z.number().nonnegative(),
+});
+
+const discountSchema = z.object({
+  title: z.string().min(1),
+  type: z.enum(['discount', 'instant']),
+  content: z.string().min(1),
+});
+
 const baseInfoSchema = z.object({
   nameCn: z.string().min(1),
   nameEn: z.string().optional(),
@@ -38,6 +50,8 @@ const baseInfoSchema = z.object({
   images: z.array(z.string()).optional(),
   facilities: z.array(facilitySchema).nonempty(),
   policies: z.array(policySchema).nonempty(),
+  surroundings: z.array(surroundingSchema).optional(),
+  discounts: z.array(discountSchema).optional(),
 });
 
 export const createHotelSchema = z.object({
