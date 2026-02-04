@@ -11,27 +11,63 @@ export const approveHotel = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const reason = req.body.reason;
   try {
-    const updated = await Hotel.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          'auditInfo.status': 'approved',
-          'auditInfo.auditedBy': user.id,
-          'auditInfo.auditedAt': new Date(),
-          'auditInfo.rejectReason': undefined,
-        },
-      },
-      { new: true }
-    );
-    if (!updated) return res.status(404).json({ message: 'Not found' });
+    const hotel = await Hotel.findById(id);
+    if (!hotel) return res.status(404).json({ message: 'Not found' });
+
+    // debug: log auditInfo before applying
+    // eslint-disable-next-line no-console
+    console.log('approveHotel before apply auditInfo:', JSON.stringify(hotel.auditInfo));
+
+    // If there are pendingChanges, apply them
+    // eslint-disable-next-line no-console
+    console.log('approveHotel, pendingChanges:', JSON.stringify(hotel.pendingChanges));
+    if (hotel.pendingChanges) {
+      if (hotel.pendingChanges.baseInfo) {
+        Object.keys(hotel.pendingChanges.baseInfo).forEach((k) => {
+          // @ts-ignore
+          hotel.baseInfo[k] = hotel.pendingChanges.baseInfo[k];
+        });
+      }
+      if (hotel.pendingChanges.checkinInfo) {
+        Object.keys(hotel.pendingChanges.checkinInfo).forEach((k) => {
+          // @ts-ignore
+          hotel.checkinInfo[k] = hotel.pendingChanges.checkinInfo[k];
+        });
+      }
+      hotel.pendingChanges = null;
+    }
+
+    // set fields explicitly to ensure mongoose tracks changes
+    hotel.auditInfo = hotel.auditInfo || ({} as any);
+    // @ts-ignore
+    hotel.auditInfo.status = 'approved';
+    // @ts-ignore
+    hotel.auditInfo.auditedBy = user.id;
+    // @ts-ignore
+    hotel.auditInfo.auditedAt = new Date();
+    // @ts-ignore
+    hotel.auditInfo.rejectReason = undefined;
+    hotel.markModified('auditInfo');
+
+    await hotel.save();
+    console.log('hotel after approve baseInfo:', JSON.stringify(hotel.baseInfo));
+    // debug: log auditInfo after approving
+    // eslint-disable-next-line no-console
+    console.log('hotel auditInfo after approve:', JSON.stringify(hotel.auditInfo));
+
+    // re-read from DB and log auditInfo to ensure persisted
+    const fresh = await Hotel.findById(id);
+    // eslint-disable-next-line no-console
+    console.log('hotel auditInfo reloaded:', JSON.stringify(fresh?.auditInfo));
+
     await AuditLog.create({
       targetType: 'hotel',
-      targetId: updated._id,
+      targetId: hotel._id,
       action: 'approve',
       operatorId: user.id,
       reason,
     });
-    res.json(updated);
+    res.json(hotel);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
@@ -167,27 +203,51 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
   const { reason } = req.body;
   const user = (req as any).user;
   try {
-    const updated = await Room.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          'auditInfo.status': 'approved',
-          'auditInfo.auditedBy': user.id,
-          'auditInfo.auditedAt': new Date(),
-          'auditInfo.rejectReason': undefined,
-        },
-      },
-      { new: true }
-    );
-    if (!updated) return res.status(404).json({ message: 'Not found' });
+    const room = await Room.findById(id);
+    if (!room) return res.status(404).json({ message: 'Not found' });
+
+    // Apply pending changes if any
+    if (room.pendingChanges) {
+      if (room.pendingChanges.baseInfo) {
+        Object.keys(room.pendingChanges.baseInfo).forEach((k) => {
+          // @ts-ignore
+          room.baseInfo[k] = room.pendingChanges.baseInfo[k];
+        });
+      }
+      if (room.pendingChanges.headInfo) {
+        Object.keys(room.pendingChanges.headInfo).forEach((k) => {
+          // @ts-ignore
+          room.headInfo[k] = room.pendingChanges.headInfo[k];
+        });
+      }
+      if (room.pendingChanges.bedInfo) room.bedInfo = room.pendingChanges.bedInfo;
+      if (room.pendingChanges.breakfastInfo) {
+        Object.keys(room.pendingChanges.breakfastInfo).forEach((k) => {
+          // @ts-ignore
+          room.breakfastInfo[k] = room.pendingChanges.breakfastInfo[k];
+        });
+      }
+      room.pendingChanges = null;
+    }
+
+    room.auditInfo = {
+      ...room.auditInfo,
+      status: 'approved',
+      auditedBy: user.id,
+      auditedAt: new Date(),
+      rejectReason: undefined,
+    } as any;
+
+    await room.save();
+
     await AuditLog.create({
       targetType: 'room',
-      targetId: updated._id,
+      targetId: room._id,
       action: 'approve',
       operatorId: user.id,
       reason,
     });
-    res.json(updated);
+    res.json(room);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }

@@ -43,12 +43,38 @@ export const updateRoom = async (req: Request, res: Response) => {
     if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
       return res.status(403).json({ message: 'Forbidden' });
 
-    if (updates.baseInfo) room.baseInfo = { ...room.baseInfo, ...updates.baseInfo };
-    if (updates.headInfo) room.headInfo = { ...room.headInfo, ...updates.headInfo };
-    if (updates.bedInfo) room.bedInfo = updates.bedInfo;
-    if (updates.breakfastInfo)
-      room.breakfastInfo = { ...room.breakfastInfo, ...updates.breakfastInfo };
+    // Admin may directly apply changes
+    if (user.role === 'admin') {
+      if (updates.baseInfo) room.baseInfo = { ...room.baseInfo, ...updates.baseInfo };
+      if (updates.headInfo) room.headInfo = { ...room.headInfo, ...updates.headInfo };
+      if (updates.bedInfo) room.bedInfo = updates.bedInfo;
+      if (updates.breakfastInfo)
+        room.breakfastInfo = { ...room.breakfastInfo, ...updates.breakfastInfo };
+      room.pendingChanges = null;
+      await room.save();
+      return res.json(room);
+    }
+
+    // Merchant update: save as pendingChanges and set status to pending
+    const allowed: any = {};
+    if (updates.baseInfo) allowed.baseInfo = updates.baseInfo;
+    if (updates.headInfo) allowed.headInfo = updates.headInfo;
+    if (updates.bedInfo) allowed.bedInfo = updates.bedInfo;
+    if (updates.breakfastInfo) allowed.breakfastInfo = updates.breakfastInfo;
+    if (Object.keys(allowed).length === 0)
+      return res.status(400).json({ message: 'No updatable fields provided' });
+
+    room.pendingChanges = { ...(room.pendingChanges || {}), ...allowed };
+    room.auditInfo = { ...room.auditInfo, status: 'pending' } as any;
     await room.save();
+
+    await AuditLog.create({
+      targetType: 'room',
+      targetId: room._id,
+      action: 'update_request',
+      operatorId: user.id,
+    });
+
     res.json(room);
   } catch (err: any) {
     res.status(400).json({ message: err.message });

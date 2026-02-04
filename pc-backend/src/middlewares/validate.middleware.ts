@@ -7,6 +7,7 @@ export const validateBody = (schema: ZodSchema) => {
       req.body = schema.parse(req.body);
       next();
     } catch (err: any) {
+      console.error('Validation error:', err);
       return res.status(400).json({ message: err.errors?.[0]?.message || err.message });
     }
   };

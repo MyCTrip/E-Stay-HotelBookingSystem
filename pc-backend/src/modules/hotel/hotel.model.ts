@@ -73,6 +73,8 @@ export interface IHotel extends Document {
   baseInfo: IHotelBaseInfo;
   checkinInfo: IHotelCheckinInfo;
   auditInfo: IHotelAuditInfo;
+  // pendingChanges stores merchant-submitted updates awaiting admin approval
+  pendingChanges?: Record<string, any> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -163,6 +165,7 @@ const HotelSchema = new Schema<IHotel>(
     baseInfo: { type: BaseInfoSchema, required: true },
     checkinInfo: { type: CheckinSchema, default: {} },
     auditInfo: { type: AuditInfoSchema, default: {} },
+    pendingChanges: { type: Schema.Types.Mixed, default: null },
   },
   { timestamps: true }
 );

@@ -70,6 +70,8 @@ export interface IRoom extends Document {
   bedInfo: IBedInfo[];
   breakfastInfo?: IBreakfastInfo;
   auditInfo?: IRoomAuditInfo;
+  // pendingChanges stores merchant-submitted updates awaiting admin approval
+  pendingChanges?: Record<string, any> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -165,6 +167,7 @@ const RoomSchema = new Schema<IRoom>(
     bedInfo: { type: [BedSchema], required: true },
     breakfastInfo: { type: BreakfastSchema, default: {} },
     auditInfo: { type: AuditSchema, default: {} },
+    pendingChanges: { type: Schema.Types.Mixed, default: null },
   },
   { timestamps: true }
 );

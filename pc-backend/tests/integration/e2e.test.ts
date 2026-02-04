@@ -130,6 +130,29 @@ test('full end-to-end flow', async () => {
     .send({ reason: 'ok' })
     .expect(200);
 
+  // Merchant updates hotel -> becomes pendingChanges and status pending
+  const updateRes = await request(app)
+    .put(`/api/hotels/${hotelId}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { nameCn: 'H Updated' } })
+    .expect(200);
+  expect(updateRes.body.auditInfo.status).toBe('pending');
+  expect(updateRes.body.pendingChanges).toBeDefined();
+  expect(updateRes.body.pendingChanges.baseInfo.nameCn).toBe('H Updated');
+
+  // Admin approves the update -> pendingChanges applied
+  await request(app)
+    .post(`/api/admin/hotels/${hotelId}/approve`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ reason: 'approve update' })
+    .expect(200);
+
+  const myHotelsAfterUpdate = await request(app)
+    .get('/api/hotels/my')
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  expect(myHotelsAfterUpdate.body.data.find((h: any) => h._id === hotelId).baseInfo.nameCn).toBe('H Updated');
+
   // create room
   const roomRes = await request(app)
     .post(`/api/hotels/${hotelId}/rooms`)
@@ -215,6 +238,30 @@ test('full end-to-end flow', async () => {
     .set('Authorization', `Bearer ${adminToken}`)
     .send({ reason: 'ok' })
     .expect(200);
+
+  // Merchant updates the approved room -> becomes pendingChanges and status pending
+  const roomUpdateRes = await request(app)
+    .put(`/api/rooms/${roomId2}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { price: 180 } })
+    .expect(200);
+  expect(roomUpdateRes.body.auditInfo.status).toBe('pending');
+  expect(roomUpdateRes.body.pendingChanges).toBeDefined();
+  expect(roomUpdateRes.body.pendingChanges.baseInfo.price).toBe(180);
+
+  // Admin approves the room update
+  await request(app)
+    .post(`/api/admin/rooms/${roomId2}/approve`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ reason: 'approve room update' })
+    .expect(200);
+
+  // Fetch rooms for hotel and verify price updated
+  const roomsAfter = await request(app)
+    .get(`/api/hotels/${hotelId}/rooms`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  expect(roomsAfter.body.data.find((r: any) => r._id === roomId2).baseInfo.price).toBe(180);
 
   // bulk offline rooms
   const bulkRes = await request(app)

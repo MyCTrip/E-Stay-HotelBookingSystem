@@ -157,11 +157,14 @@
 
 ### PUT /api/hotels/:id
 
-- 功能：更新酒店（部分字段可变）
+- 功能：更新酒店（部分字段可变）。**注意：商户提交更新将不会立即生效，会被保存为待审核变更（`pendingChanges`）并把 `auditInfo.status` 设为 `pending`，需要管理员批准后才会应用到正式数据。**
 - 权限：`Authorization`，仅 owner 或 admin
 - Path：`:id` (hotelId)
-- 请求体：同 POST（部分字段可选）
-- 成功响应：200 `{ id: <id>, baseInfo: {...} }`
+- 请求体：同 POST（部分字段可选，如 `baseInfo` / `checkinInfo`）
+- 行为：
+  - 若发起人为商户（owner）：更新被保存到 `pendingChanges`，`auditInfo.status='pending'`，并写入 `AuditLog(action='update_request')`；管理员批准后，`pendingChanges` 会被合并到正式字段并清除。
+  - 若发起人为管理员（admin）：变更立即生效（直接合并到 `baseInfo` / `checkinInfo`），并清除任何 `pendingChanges`。
+- 成功响应：200 `{ id: <id>, baseInfo: {...}, pendingChanges?: {...}, auditInfo: {...} }`
 
 ### POST /api/hotels/:id/submit
 
@@ -196,11 +199,14 @@
 
 ### PUT /api/rooms/:id
 
-- 功能：更新房型（部分字段）
-- 权限：`Authorization`（仅 owner）
+- 功能：更新房型（部分字段）。**注意：商户提交更新将不会立即生效，会被保存为待审核变更（`pendingChanges`）并把 `auditInfo.status` 设为 `pending`，需要管理员批准后才会应用到正式数据。**
+- 权限：`Authorization`（仅 owner 或 admin）
 - Path：`:id` (roomId)
 - 请求体：允许更新 `baseInfo`、`headInfo`、`bedInfo` 等
-- 成功响应：200 `{ id: <id>, baseInfo: {...} }`
+- 行为：
+  - 若发起人为商户（owner）：更新被保存到 `pendingChanges`，`auditInfo.status='pending'`，并写入 `AuditLog(action='update_request')`；管理员批准后，`pendingChanges` 会被合并到正式字段并清除。
+  - 若发起人为管理员（admin）：变更立即生效（直接合并到字段），并清除任何 `pendingChanges`。
+- 成功响应：200 `{ id: <id>, baseInfo: {...}, pendingChanges?: {...}, auditInfo: {...} }`
 
 ### POST /api/rooms/:id/submit
 
@@ -216,8 +222,10 @@
 
 ### 单体审批接口（例）
 
-- POST `/api/admin/hotels/:id/approve` — 批准酒店
-- POST `/api/admin/hotels/:id/reject` — 驳回酒店 `{ reason?: string }`
+- POST `/api/admin/hotels/:id/approve` — 批准酒店（若存在 `pendingChanges`，会在批准时将其合并到 `Hotel` 正式字段并清除 `pendingChanges`）
+- POST `/api/admin/hotels/:id/reject` — 驳回酒店 `{ reason?: string }`（若驳回，`auditInfo.status` 会被置为 `rejected`，`rejectReason` 中保存原因）
+- POST `/api/admin/rooms/:id/approve` — 批准房型（若存在 `pendingChanges`，会在批准时将其合并到 `Room` 正式字段并清除 `pendingChanges`）
+- POST `/api/admin/rooms/:id/reject` — 驳回房型 `{ reason?: string }`
 - POST `/api/admin/hotels/:id/offline` — 下线酒店 `{ reason?: string }`
 
 - POST `/api/admin/rooms/:id/approve|reject|offline` — 操作房型
