@@ -45,7 +45,8 @@ src/
 │   ├── admin/              # >> 对应后端 admin.routes.ts
 │       ├── HotelAudit/     # 酒店审核列表，审计日志 (GET /api/admin/audit-logs)
 │             └──Audit3     # 三种审核，merchants/hotels/rooms
-│             └──           # dashboard，日志页面
+│             └──dashboard  # dashboard仪表盘
+│             └──logs       # 日志页面
 ├── router/                 # 路由配置
 │   └── index.tsx           # 集中式路由定义
 ├── services/               # API 接口层 (Axios 封装)
