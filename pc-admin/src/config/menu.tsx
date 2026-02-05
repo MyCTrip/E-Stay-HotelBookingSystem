@@ -4,30 +4,44 @@ import {
   HomeOutlined,
   FileProtectOutlined,
   UserOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  BankOutlined,     // 新图标建议：用于酒店信息
+  AppstoreOutlined  // 新图标建议：用于房间信息
 } from '@ant-design/icons';
 
-// 商户端菜单
 export const MERCHANT_MENU = [
   {
     key: '/merchant/dashboard',
     icon: <DashboardOutlined />,
-    label: '仪表盘 (Dashboard)'
+    label: '仪表盘'
   },
+  // 👇 修改这里：变成二级菜单
   {
-    key: '/merchant/hotels',
+    key: 'hotel-management', // 父级菜单的 key，只要唯一即可
     icon: <HomeOutlined />,
-    label: '酒店管理 (Hotel Rooms)'
+    label: '酒店管理',
+    children: [
+      {
+        key: '/merchant/manage', // 对应路由: 酒店信息 (Manage.tsx 或 HotelDetails)
+        icon: <BankOutlined />,
+        label: '酒店信息'
+      },
+      {
+        key: '/merchant/hotels', // 对应路由: 房间列表 (HotelList.tsx)
+        icon: <AppstoreOutlined />,
+        label: '房间信息'
+      }
+    ]
   },
   {
     key: '/merchant/orders',
     icon: <FileProtectOutlined />,
-    label: '订单管理 (Orders)'
+    label: '订单管理'
   },
   {
     key: '/merchant/profile',
     icon: <UserOutlined />,
-    label: '个人资料 (Profile)'
+    label: '个人资料'
   },
   {
     key: 'logout',

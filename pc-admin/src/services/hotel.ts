@@ -7,6 +7,7 @@ interface PageResult<T> {
   total: number;
   current_page: number;
   total_page: number;
+  result: number;
 }
 
 export const hotelApi = {
@@ -24,4 +25,7 @@ export const hotelApi = {
   
   // Get List (支持分页查询)
   getList: (params: any) => request.get<PageResult<Hotel>>('/hotel', { params }),
+
+  // 对应后端: router.get('/my', ...)
+  getMyHotels: () => request.get<PageResult<Hotel>>('/hotel/my'),
 };

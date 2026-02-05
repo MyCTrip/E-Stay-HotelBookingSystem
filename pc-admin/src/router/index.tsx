@@ -4,7 +4,7 @@ import { useRoutes, Navigate } from 'react-router-dom';
 import Login from '@/pages/auth/Login';
 import MainLayout from '@/layouts/MainLayout';
 import HotelLayout from '@/pages/merchant/HotelEntry/HotelLayout';
-import Manage from '@/pages/merchant/HotelEntry/Manage';
+import Manage from '@/pages/merchant/HotelEntry/HotelManage';
 
 // ✅ 1. 引入新创建的 Profile 页面 (一定要检查路径是否正确)
 import Profile from '@/pages/merchant/Profile'; 
