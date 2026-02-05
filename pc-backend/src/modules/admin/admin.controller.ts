@@ -5,6 +5,8 @@ import { merchantService } from '../merchant/merchant.service';
 import { adminService } from './admin.service';
 import { Room } from '../room/room.model';
 import { AuditLog } from '../audit/audit.model';
+import { Notification } from '../notification/notification.model';
+import { hotelService } from '../hotel/hotel.service';
 
 export const approveHotel = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -18,56 +20,13 @@ export const approveHotel = async (req: Request, res: Response) => {
     // eslint-disable-next-line no-console
     console.log('approveHotel before apply auditInfo:', JSON.stringify(hotel.auditInfo));
 
-    // If there are pendingChanges, apply them
-    // eslint-disable-next-line no-console
-    console.log('approveHotel, pendingChanges:', JSON.stringify(hotel.pendingChanges));
-    if (hotel.pendingChanges) {
-      if (hotel.pendingChanges.baseInfo) {
-        Object.keys(hotel.pendingChanges.baseInfo).forEach((k) => {
-          // @ts-ignore
-          hotel.baseInfo[k] = hotel.pendingChanges.baseInfo[k];
-        });
-      }
-      if (hotel.pendingChanges.checkinInfo) {
-        Object.keys(hotel.pendingChanges.checkinInfo).forEach((k) => {
-          // @ts-ignore
-          hotel.checkinInfo[k] = hotel.pendingChanges.checkinInfo[k];
-        });
-      }
-      hotel.pendingChanges = null;
+    try {
+      const applied = await hotelService.applyPendingChanges(id, user.id, reason);
+      res.json(applied);
+    } catch (err: any) {
+      if (err && err.status) return res.status(err.status).json({ message: err.message });
+      return res.status(400).json({ message: err.message });
     }
-
-    // set fields explicitly to ensure mongoose tracks changes
-    hotel.auditInfo = hotel.auditInfo || ({} as any);
-    // @ts-ignore
-    hotel.auditInfo.status = 'approved';
-    // @ts-ignore
-    hotel.auditInfo.auditedBy = user.id;
-    // @ts-ignore
-    hotel.auditInfo.auditedAt = new Date();
-    // @ts-ignore
-    hotel.auditInfo.rejectReason = undefined;
-    hotel.markModified('auditInfo');
-
-    await hotel.save();
-    console.log('hotel after approve baseInfo:', JSON.stringify(hotel.baseInfo));
-    // debug: log auditInfo after approving
-    // eslint-disable-next-line no-console
-    console.log('hotel auditInfo after approve:', JSON.stringify(hotel.auditInfo));
-
-    // re-read from DB and log auditInfo to ensure persisted
-    const fresh = await Hotel.findById(id);
-    // eslint-disable-next-line no-console
-    console.log('hotel auditInfo reloaded:', JSON.stringify(fresh?.auditInfo));
-
-    await AuditLog.create({
-      targetType: 'hotel',
-      targetId: hotel._id,
-      action: 'approve',
-      operatorId: user.id,
-      reason,
-    });
-    res.json(hotel);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
@@ -78,6 +37,24 @@ export const rejectHotel = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const reason = req.body.reason;
   try {
+    const hotel = await Hotel.findById(id);
+    if (!hotel) return res.status(404).json({ message: 'Not found' });
+
+    // clear pendingDeletion if present when rejecting
+    if (hotel.pendingDeletion) {
+      hotel.pendingDeletion = false;
+      hotel.auditInfo = { ...hotel.auditInfo, status: 'rejected', auditedBy: user.id, auditedAt: new Date(), rejectReason: reason } as any;
+      await hotel.save();
+      await AuditLog.create({
+        targetType: 'hotel',
+        targetId: hotel._id,
+        action: 'reject',
+        operatorId: user.id,
+        reason,
+      });
+      return res.json(hotel);
+    }
+
     const updated = await Hotel.findByIdAndUpdate(
       id,
       {
@@ -99,6 +76,23 @@ export const rejectHotel = async (req: Request, res: Response) => {
       reason,
     });
     res.json(updated);
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const adminApproveDeleteHotel = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+  const user = (req as any).user;
+  try {
+    try {
+      const applied = await hotelService.approveDelete(id, user.id, reason);
+      return res.json(applied);
+    } catch (err: any) {
+      if (err && err.status) return res.status(err.status).json({ message: err.message });
+      return res.status(400).json({ message: err.message });
+    }
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
@@ -253,6 +247,40 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
   }
 };
 
+export const adminApproveDeleteRoom = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+  const user = (req as any).user;
+  try {
+    const room = await Room.findById(id);
+    if (!room) return res.status(404).json({ message: 'Not found' });
+    if (!room.pendingDeletion) return res.status(400).json({ message: 'No pending delete request' });
+
+    room.pendingDeletion = false;
+    room.deletedAt = new Date();
+    room.auditInfo = {
+      ...room.auditInfo,
+      status: 'offline',
+      auditedBy: user.id,
+      auditedAt: new Date(),
+    } as any;
+
+    await room.save();
+
+    await AuditLog.create({
+      targetType: 'room',
+      targetId: room._id,
+      action: 'delete',
+      operatorId: user.id,
+      reason,
+    });
+
+    res.json(room);
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 export const adminRejectRoom = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { reason } = req.body;
@@ -290,6 +318,16 @@ export const getProfile = async (req: Request, res: Response) => {
     const profile = await adminService.findByUserId(user.id);
     if (!profile) return res.status(404).json({ message: 'Not found' });
     res.json(profile);
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const listNotifications = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  try {
+    const data = await Notification.find({ userId: user.id }).sort({ createdAt: -1 }).limit(100);
+    res.json({ data });
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }

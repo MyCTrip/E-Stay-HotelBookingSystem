@@ -32,8 +32,11 @@ src/
 │  ├─ merchant/          # 商户资料：upsert / submit / admin approve/reject
 │  ├─ hotel/             # 酒店：创建 / 提交 / 管理审批 / 下线
 │  ├─ room/              # 房型：创建 / 提交 / 管理审批
+│  └─ upload/            # 图片上传接口（upload.controller.ts / upload.routes.ts）
 │  ├─ admin/             # 管理端：单体审批 / 批量审批 / 审计日志接口
 │  └─ audit/             # 审计日志模型与查询接口
+
+uploads/                # 本地图片存储目录（自动创建，已加入 .gitignore，静态服务 /uploads 路径）
 ├─ utils/                # 通用工具（logger、格式化等）
 └─ tests/                # 集成测试（Jest + supertest + mongodb-memory-server）
 

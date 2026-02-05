@@ -11,6 +11,7 @@ import {
   adminApproveRoom,
   adminRejectRoom,
   listRoomsForHotel,
+  requestDeleteRoom,
 } from './room.controller';
 import { createRoomSchema, updateRoomSchema } from './room.schema';
 
@@ -36,6 +37,7 @@ router.get(
 );
 router.put('/rooms/:id', authenticate, requireRole('merchant'), updateRoom);
 router.post('/rooms/:id/submit', authenticate, requireRole('merchant'), submitRoom);
+router.post('/rooms/:id/delete-request', authenticate, requireRole('merchant'), requestDeleteRoom);
 
 // 管理员审核 room
 router.post('/rooms/:id/approve', authenticate, requireRole('admin'), adminApproveRoom);

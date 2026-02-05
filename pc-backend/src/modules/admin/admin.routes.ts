@@ -15,6 +15,9 @@ import {
   listMerchants,
   listHotels,
   listRooms,
+  listNotifications,
+  adminApproveDeleteHotel,
+  adminApproveDeleteRoom,
 } from './admin.controller';
 import { auditActionSchema, bulkActionSchema } from './admin.schema';
 import { merchantService } from '../merchant/merchant.service';
@@ -41,6 +44,7 @@ router.post(
   rejectHotel
 );
 router.post('/hotels/:id/offline', authenticate, requireRole('admin'), offlineHotel);
+router.post('/hotels/:id/approve-delete', authenticate, requireRole('admin'), validateBody(auditActionSchema), adminApproveDeleteHotel);
 
 // Merchant approval
 router.post(
@@ -80,6 +84,7 @@ router.post(
   validateBody(auditActionSchema),
   offlineRoom
 );
+router.post('/rooms/:id/approve-delete', authenticate, requireRole('admin'), validateBody(auditActionSchema), adminApproveDeleteRoom);
 
 // Bulk actions
 router.post(
@@ -137,6 +142,8 @@ router.post(
 router.get('/merchants', authenticate, requireRole('admin'), listMerchants);
 router.get('/hotels', authenticate, requireRole('admin'), listHotels);
 router.get('/rooms', authenticate, requireRole('admin'), listRooms);
+// admin notifications
+router.get('/notifications', authenticate, requireRole('admin'), listNotifications);
 
 router.post(
   '/hotels/bulk',

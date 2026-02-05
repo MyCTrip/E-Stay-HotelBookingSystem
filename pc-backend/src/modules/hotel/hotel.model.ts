@@ -75,6 +75,9 @@ export interface IHotel extends Document {
   auditInfo: IHotelAuditInfo;
   // pendingChanges stores merchant-submitted updates awaiting admin approval
   pendingChanges?: Record<string, any> | null;
+  // deletion request flag and deletion timestamp
+  pendingDeletion?: boolean;
+  deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -166,8 +169,11 @@ const HotelSchema = new Schema<IHotel>(
     checkinInfo: { type: CheckinSchema, default: {} },
     auditInfo: { type: AuditInfoSchema, default: {} },
     pendingChanges: { type: Schema.Types.Mixed, default: null },
+    // merchant-requested delete flag
+    pendingDeletion: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true, optimisticConcurrency: true }
 );
 
 export const Hotel = model<IHotel>('Hotel', HotelSchema);

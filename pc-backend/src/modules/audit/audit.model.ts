@@ -14,7 +14,7 @@ const AuditSchema = new Schema<IAudit>(
     targetType: { type: String, enum: ['hotel', 'merchant', 'room'], required: true },
     targetId: { type: Schema.Types.ObjectId, required: true, index: true },
     // actions to track resource lifecycle and requests
-    action: { type: String, enum: ['submit', 'approve', 'reject', 'offline', 'update_request', 'delete_request'], required: true },
+    action: { type: String, enum: ['submit', 'approve', 'reject', 'offline', 'update_request', 'delete_request', 'delete'], required: true },
     operatorId: { type: Schema.Types.ObjectId, ref: 'AdminProfile', required: true, index: true },
     reason: String,
   },

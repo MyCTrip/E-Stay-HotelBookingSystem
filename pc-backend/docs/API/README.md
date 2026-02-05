@@ -62,6 +62,39 @@
 
 ---
 
+### POST /api/upload
+
+- 功能：上传单张图片，返回图片 URL
+- 权限：需要 `Authorization`（登录用户均可）
+- 请求类型：`multipart/form-data`，字段名 `file`
+- 请求体：
+  - `file` (required) 图片文件（jpg/png/gif/webp）
+- 成功响应：200
+  ```json
+  { "url": "/uploads/1707123456789-abcdef12.jpg", "filename": "1707123456789-abcdef12.jpg", "size": 123456 }
+  ```
+- 错误示例：
+  - 415（类型不支持）
+    ```json
+    { "message": "仅支持图片类型 (jpg/png/gif/webp)" }
+    ```
+  - 413（文件过大）
+    ```json
+    { "message": "图片大小不能超过 5MB" }
+    ```
+  - 400（未收到文件）
+    ```json
+    { "message": "未收到文件" }
+    ```
+- 示例（curl）：
+  ```bash
+  curl -X POST http://localhost:3000/api/upload \
+    -H "Authorization: Bearer <token>" \
+    -F "file=@/path/to/image.jpg"
+  ```
+
+---
+
 ## Merchant（商户） 🏬
 
 说明：商户用户在平台上维护自己的 `MerchantProfile`（baseInfo、qualificationInfo、auditInfo）。

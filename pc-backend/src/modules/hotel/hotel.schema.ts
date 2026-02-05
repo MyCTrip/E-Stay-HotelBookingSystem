@@ -63,6 +63,9 @@ export const updateHotelSchema = z.object({
   baseInfo: baseInfoSchema.partial().optional(),
   checkinInfo: z.any().optional(),
   auditInfo: z.any().optional(),
+  // allow clients to pass optimistic concurrency fields
+  __v: z.number().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export type CreateHotelInput = z.infer<typeof createHotelSchema>;

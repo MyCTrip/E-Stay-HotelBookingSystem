@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { Hotel } from './hotel.model';
 import { AuditLog } from '../audit/audit.model';
+import { notificationService } from '../notification/notification.service';
+import { hotelService, ServiceError } from './hotel.service';
+
 
 export const createHotel = async (req: Request, res: Response) => {
   const user = (req as any).user;
@@ -43,6 +46,13 @@ export const updateHotel = async (req: Request, res: Response) => {
     if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
       return res.status(403).json({ message: 'Forbidden' });
 
+    try {
+      hotelService.checkOptimisticVersion(hotel, updates);
+    } catch (err: any) {
+      if (err && err.status === 409) return res.status(409).json({ message: 'Version conflict' });
+      if (err && err.status === 404) return res.status(404).json({ message: 'Not found' });
+    }
+
     // Admins may directly apply changes
     if (user.role === 'admin') {
       if (updates.baseInfo) hotel.baseInfo = { ...hotel.baseInfo, ...updates.baseInfo };
@@ -54,48 +64,55 @@ export const updateHotel = async (req: Request, res: Response) => {
       return res.json(hotel);
     }
 
-    // Merchant update: save as pendingChanges and set status to pending
-    const allowed: any = {};
-    if (updates.baseInfo) allowed.baseInfo = updates.baseInfo;
-    if (updates.checkinInfo) allowed.checkinInfo = updates.checkinInfo;
-    if (Object.keys(allowed).length === 0)
-      return res.status(400).json({ message: 'No updatable fields provided' });
-
-    hotel.pendingChanges = { ...(hotel.pendingChanges || {}), ...allowed };
-    hotel.auditInfo = hotel.auditInfo || ({} as any);
-    // explicitly set fields so mongoose tracks changes
-    // @ts-ignore
-    hotel.auditInfo.status = 'pending';
-    // clear previous audit info
-    // @ts-ignore
-    hotel.auditInfo.auditedBy = null;
-    // @ts-ignore
-    hotel.auditInfo.auditedAt = null;
-    hotel.markModified('auditInfo');
-
-    console.log('Saving hotel with pendingChanges:', JSON.stringify(hotel.pendingChanges));
-    try {
-      await hotel.save();
-    } catch (err: any) {
-      console.error('hotel.save error:', err);
-      return res.status(400).json({ message: err.message });
+    // Merchant update: delegate to service to save pending changes
+    if (user.role !== 'admin') {
+      const allowed: any = {};
+      if (updates.baseInfo) allowed.baseInfo = updates.baseInfo;
+      if (updates.checkinInfo) allowed.checkinInfo = updates.checkinInfo;
+      if (Object.keys(allowed).length === 0) return res.status(400).json({ message: 'No updatable fields provided' });
+      try {
+        const updated = await hotelService.savePendingChanges(id, user.id, allowed);
+        return res.json(updated);
+      } catch (err: any) {
+        if (err && err.status) return res.status(err.status).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
+      }
     }
-
-    // debug: log auditInfo after merchant update
-    // eslint-disable-next-line no-console
-    console.log('hotel auditInfo after update_request:', JSON.stringify(hotel.auditInfo));
-
-    console.log('Creating AuditLog for update_request');
-    await AuditLog.create({
-      targetType: 'hotel',
-      targetId: hotel._id,
-      action: 'update_request',
-      operatorId: user.id,
-    });
-    console.log('Responding with hotel after update_request');
-    res.json(hotel);
   } catch (err: any) {
     console.error('updateHotel catch error:', err);
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const requestDeleteHotel = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = (req as any).user;
+  try {
+    const hotel = await Hotel.findById(id);
+    if (!hotel) return res.status(404).json({ message: 'Not found' });
+    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
+      return res.status(403).json({ message: 'Forbidden' });
+
+    // mark deletion request
+    hotel.pendingDeletion = true;
+    hotel.auditInfo = hotel.auditInfo || ({} as any);
+    // @ts-ignore
+    hotel.auditInfo.status = 'pending';
+    hotel.markModified('auditInfo');
+    await hotel.save();
+
+    const log = await AuditLog.create({
+      targetType: 'hotel',
+      targetId: hotel._id,
+      action: 'delete_request',
+      operatorId: user.id,
+    });
+
+    // notify admins
+    await notificationService.notifyAdmins(`Hotel delete requested: ${hotel._id}`, { auditId: log._id, type: 'delete_request' });
+
+    res.json(hotel);
+  } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
 };
