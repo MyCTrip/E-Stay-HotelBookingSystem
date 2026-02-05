@@ -39,7 +39,7 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
       </div>
 
       {/* 酒店相册 */}
-      <Card title="酒店相册" bordered={false} style={{ marginBottom: 24 }}>
+      <Card title="酒店相册" variant="borderless" style={{ marginBottom: 24 }}>
         <Image.PreviewGroup>
           <Space size="large" wrap>
             {data.baseInfo.images?.map((url, index) => (
@@ -50,7 +50,7 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
       </Card>
 
       {/* 基础详情 */}
-      <Card title={<><ShopOutlined /> 详细信息</>} bordered={false} style={{ marginBottom: 24 }}>
+      <Card title={<><ShopOutlined /> 详细信息</>} variant="borderless" style={{ marginBottom: 24 }}>
         <Descriptions column={2} bordered>
           <Descriptions.Item label="英文名称">{data.baseInfo.nameEn || '-'}</Descriptions.Item>
           <Descriptions.Item label="星级">{data.baseInfo.star} 星</Descriptions.Item>
@@ -67,7 +67,7 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
       </Card>
 
       {/* 房型列表预览 */}
-      <Card title="房型列表" bordered={false}>
+      <Card title="房型列表" variant="borderless">
         <Table 
           dataSource={data.rooms} 
           columns={roomColumns} 

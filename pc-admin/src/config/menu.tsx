@@ -11,7 +11,7 @@ import {
 
 export const MERCHANT_MENU = [
   {
-    key: '/merchant/dashboard',
+    key: '/merchant/overview',
     icon: <DashboardOutlined />,
     label: '仪表盘'
   },

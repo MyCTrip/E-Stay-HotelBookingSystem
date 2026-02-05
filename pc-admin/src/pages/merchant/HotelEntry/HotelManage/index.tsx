@@ -49,6 +49,53 @@ const HotelManage: React.FC = () => {
   const fetchMyHotel = async () => {
     setLoading(true);
     try {
+      // --- 👇 临时代码开始：假装后端返回了数据 👇 ---
+      // 模拟延迟 0.5 秒
+      // await new Promise(resolve => setTimeout(resolve, 500));
+
+      // const mockData: any = {
+      //   _id: 'mock-hotel-001',
+      //   baseInfo: {
+      //     nameCn: '易宿精选度假酒店 (测试)',
+      //     nameEn: 'E-Stay Luxury Resort',
+      //     city: '三亚',
+      //     address: '海棠湾路 88 号',
+      //     star: 5,
+      //     openTime: '2023-10-01',
+      //     description: '这是一家非常棒的度假酒店，拥有私人海滩和无边泳池...',
+      //     phone: '0898-88888888',
+      //     images: [
+      //       'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3', 
+      //       'https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3'
+      //     ]
+      //   },
+      //   checkinInfo: {
+      //     checkinTime: '15:00',
+      //     checkoutTime: '12:00',
+      //     breakfastType: '自助',
+      //     breakfastPrice: 128
+      //   },
+      //   rooms: [
+      //     {
+      //       _id: 'room-01',
+      //       baseInfo: { type: '海景大床房', price: 1299, stock: 5 },
+      //       headInfo: { size: '45', wifi: true, windowAvailable: true },
+      //       breakfastInfo: { hasBreakfast: true }
+      //     },
+      //     {
+      //       _id: 'room-02',
+      //       baseInfo: { type: '园景双床房', price: 899, stock: 10 },
+      //       headInfo: { size: '35', wifi: true, windowAvailable: true },
+      //       breakfastInfo: { hasBreakfast: false }
+      //     }
+      //   ]
+      // };
+
+      // setHotelData(mockData); // 强制写入数据
+      // setIsEditing(false);    // 强制进入“查看模式”
+      // --- 👆 临时代码结束 👆 ---
+
+      // 原来的真实代码先注释掉，等接后端时再解开
       // 调用新接口，获取当前商家的酒店列表
       const res: any = await hotelApi.getMyHotels();
       

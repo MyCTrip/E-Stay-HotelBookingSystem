@@ -1,5 +1,3 @@
-// src/types/hotel.d.ts
-
 /**
  * 通用审核状态
  * 对应数据库 enum: ['draft','pending','approved','rejected','offline']
@@ -7,14 +5,15 @@
 export type AuditStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
 
 // ==========================================
-// 1. 房间 (Room) - 严格对应 Schema
+// 1. 房间 (HotelRoom) - 对应后端 Room Schema
 // ==========================================
 
 export interface RoomBaseInfo {
   type: string;           // 房型名称
   price: number;          // 价格
+  stock: number;          // ✅ 补全：库存 (前端需要，建议后端也加上)
   images: string[];       // 图片
-  status: AuditStatus;    // 注意：Room 的 status 在 baseInfo 里
+  status: AuditStatus;    // 状态
   maxOccupancy: number;   // 最大入住人数
 }
 
@@ -33,6 +32,7 @@ export interface RoomBedInfo {
 }
 
 export interface RoomBreakfastInfo {
+  hasBreakfast?: boolean; // ✅ 前端辅助字段，后端可能没有直接对应，转换时处理
   breakfastType?: string;
   cuisine?: string;
   bussinessTime?: string;
@@ -40,19 +40,20 @@ export interface RoomBreakfastInfo {
 }
 
 export interface RoomAuditInfo {
-  auditedBy?: string;     // AdminProfile ID
-  auditedAt?: string;     // Date string
+  auditedBy?: string;     
+  auditedAt?: string;     
   rejectReason?: string;
 }
 
-export interface Room {
+// 💥 重命名 Room -> HotelRoom 以匹配组件引用
+export interface HotelRoom {
   _id: string;
   hotelId: string;
   
-  // ✅ 子文档嵌套
+  // 子文档嵌套
   baseInfo: RoomBaseInfo;
   headInfo: RoomHeadInfo;
-  bedInfo: RoomBedInfo[];        // 必须是数组
+  bedInfo: RoomBedInfo[];        
   breakfastInfo?: RoomBreakfastInfo;
   auditInfo?: RoomAuditInfo;
 
@@ -61,16 +62,16 @@ export interface Room {
 }
 
 // ==========================================
-// 2. 酒店 (Hotel) - 严格对应 Schema
+// 2. 酒店 (Hotel)
 // ==========================================
 
 export interface HotelBaseInfo {
   nameCn: string;
   nameEn?: string;
   address: string;
-  city: string;           // 带索引
+  city: string;       
   star: number;
-  openTime: string;       // 文本格式
+  openTime: string;      
   roomTotal: number;
   phone: string;
   description: string;
@@ -85,23 +86,22 @@ export interface HotelCheckinInfo {
 }
 
 export interface HotelAuditInfo {
-  status: AuditStatus;    // 注意：Hotel 的 status 在 auditInfo 里
-  auditedBy?: string;     // AdminProfile ID
-  auditedAt?: string;     // Date string
+  status: AuditStatus;   
+  auditedBy?: string;    
+  auditedAt?: string;    
   rejectReason?: string;
 }
 
 export interface Hotel {
   _id: string;
-  merchantId: string;     // MerchantProfile ID
+  merchantId: string;    
 
-  // ✅ 子文档嵌套
   baseInfo: HotelBaseInfo;
   checkinInfo?: HotelCheckinInfo;
   auditInfo?: HotelAuditInfo;
 
   // 虚拟字段：如果后端 populate 了 rooms，这里会有值
-  rooms?: Room[]; 
+  rooms?: HotelRoom[]; // ✅ 这里也要改引用
 
   createdAt: string;
   updatedAt: string;
@@ -110,20 +110,16 @@ export interface Hotel {
 // ==========================================
 // 3. 前端表单类型 (UI Layer)
 // ==========================================
-// 注意：Antd Form 还是偏向扁平化，提交时需要我们在 onFinish 里
-// 将这些扁平数据组装成上面的 Hotel 嵌套结构。
 export interface HotelFormValues {
-  // --- BaseInfo ---
   nameCn: string;
   nameEn?: string;
   address: string;
   city: string;
   star: number;
-  openTime: any; // dayjs object
+  openTime: any; 
   description: string;
-  images: any[]; // UploadFile[]
+  images: any[]; 
 
-  // --- CheckinInfo ---
   checkinInfo?: {
     checkinTime?: string;
     checkoutTime?: string;
@@ -131,11 +127,9 @@ export interface HotelFormValues {
     breakfastPrice?: number;
   };
 
-  // --- 辅助字段 (用于生成 description 的周边/优惠信息) ---
   nearbyList?: { type?: string; name?: string; distance?: string }[];
   discountRules?: { title?: string; type?: string; value?: string }[];
   
-  // --- Rooms (Form List) ---
   rooms?: Array<{
     name: string;
     price: number;

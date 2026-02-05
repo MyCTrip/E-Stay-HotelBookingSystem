@@ -1,5 +1,5 @@
 import request from './request';
-import type { Hotel } from '@/types/hotel';
+import type { Hotel, HotelRoom } from '@/types/hotel';
 
 // 定义一个通用的分页响应结构 
 interface PageResult<T> {
@@ -28,4 +28,17 @@ export const hotelApi = {
 
   // 对应后端: router.get('/my', ...)
   getMyHotels: () => request.get<PageResult<Hotel>>('/hotel/my'),
+
+  // === 🆕 房间管理接口 ===
+// 获取当前酒店的所有房间
+  getRooms: (hotelId: string) => request.get<PageResult<HotelRoom>>(`/hotel/${hotelId}/rooms`),
+  
+  // 添加房间
+  addRoom: (hotelId: string, data: Partial<HotelRoom>) => request.post(`/hotel/${hotelId}/rooms`, data),
+  
+  // 更新房间
+  updateRoom: (hotelId: string, roomId: string, data: Partial<HotelRoom>) => request.put(`/hotel/${hotelId}/rooms/${roomId}`, data),
+  
+  // 删除房间
+  deleteRoom: (hotelId: string, roomId: string) => request.delete(`/hotel/${hotelId}/rooms/${roomId}`),
 };

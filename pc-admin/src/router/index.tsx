@@ -3,16 +3,19 @@ import { useRoutes, Navigate } from 'react-router-dom';
 
 import Login from '@/pages/auth/Login';
 import MainLayout from '@/layouts/MainLayout';
-import HotelLayout from '@/pages/merchant/HotelEntry/HotelLayout';
+// import HotelLayout from '@/pages/merchant/HotelEntry/HotelLayout';
+import Dashboard from '@/pages/merchant/overview';
 import Manage from '@/pages/merchant/HotelEntry/HotelManage';
 
-// ✅ 1. 引入新创建的 Profile 页面 (一定要检查路径是否正确)
 import Profile from '@/pages/merchant/Profile'; 
 
 import HotelEntry from '@/pages/merchant/HotelEntry'; 
-import HotelList from '@/pages/merchant/HotelEntry/Rooms/HotelList';
-import HotelForm from '@/pages/merchant/HotelEntry/HotelForm';
-import HotelDetails from '@/pages/merchant/HotelEntry/Rooms/HotelDetails';
+// import HotelList from '@/pages/merchant/HotelEntry/Rooms/HotelList';
+// import HotelForm from '@/pages/merchant/HotelEntry/HotelForm';
+// import HotelDetails from '@/pages/merchant/HotelEntry/Rooms/HotelDetails';
+
+import RoomManage from '@/pages/merchant/HotelEntry/RoomManage';
+
 
 const RouterConfig: React.FC = () => {
   return useRoutes([
@@ -21,10 +24,12 @@ const RouterConfig: React.FC = () => {
       path: '/',
       element: <MainLayout />,
       children: [
-        { index: true, element: <Navigate to="/merchant/manage" replace /> },
+        { index: true, element: <Navigate to="/merchant/overview" replace /> },
+
+        { path: 'merchant/overview', element: <Dashboard /> },
 
         // 现有的 Dashboard / Entry
-        { path: 'merchant/entry', element: <HotelEntry /> },
+        // { path: 'merchant/entry', element: <HotelEntry /> },
         { path: 'merchant/manage', element: <Manage /> },
 
         // ✅ 2. 在这里添加 Profile 路由！
@@ -33,14 +38,8 @@ const RouterConfig: React.FC = () => {
 
         // Hotel Rooms 模块
         {
-          path: 'merchant/hotels',
-          element: <HotelLayout />,
-          children: [
-            { index: true, element: <HotelList /> },
-            { path: 'new', element: <HotelForm /> },       
-            { path: ':id/edit', element: <HotelForm /> },  
-            { path: ':id', element: <HotelDetails /> },
-          ]
+          path: 'merchant/hotels', // 对应侧边栏的“房间信息”
+          element: <RoomManage /> 
         },
       ]
     },
