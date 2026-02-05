@@ -8,6 +8,7 @@ import {
   submitHotel,
   listApprovedHotels,
   listMyHotels,
+  requestDeleteHotel,
 } from './hotel.controller';
 import { createHotelSchema, updateHotelSchema } from './hotel.schema';
 import { requireMerchantVerified } from '../../middlewares/merchant.middleware';
@@ -34,6 +35,15 @@ router.post(
   requireRole('merchant'),
   requireMerchantVerified,
   submitHotel
+);
+
+// 商户发起删除请求（不立即物理删除）
+router.post(
+  '/:id/delete-request',
+  authenticate,
+  requireRole('merchant'),
+  requireMerchantVerified,
+  requestDeleteHotel
 );
 router.get('/', listApprovedHotels);
 

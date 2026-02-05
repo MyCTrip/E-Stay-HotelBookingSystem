@@ -19,6 +19,7 @@ const Login: React.FC = () => {
       setToken(token);
       // 请求当前用户信息以判断角色
       const me = await authService.me();
+      localStorage.setItem('user', JSON.stringify(me));
       const role = (me as Record<string, unknown>).role as string | undefined;
       message.success('登录成功');
       if (role === 'admin') {

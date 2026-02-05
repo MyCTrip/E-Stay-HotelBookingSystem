@@ -1,13 +1,14 @@
-import { Layout, Spin } from 'antd';
+import React from 'react'
+import { Layout, Spin } from 'antd'
 
-const { Content } = Layout;
+const { Content } = Layout
 
 function PageLoader() {
   return (
-    <Content className="page-loader" style={{ textAlign: 'center', padding: 48 }}>
-      <Spin size="large" tip="加载中..." />
+    <Content className='page-loader'>
+      <Spin size='large' tip='Loading...' />
     </Content>
-  );
+  )
 }
 
-export default PageLoader;
+export default PageLoader

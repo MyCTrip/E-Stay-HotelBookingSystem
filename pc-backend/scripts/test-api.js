@@ -168,6 +168,10 @@ async function run() {
       phone: '123',
       description: 'desc',
       images: [],
+      facilities: [{ category: '公共', content: '<p>WiFi</p>' }],
+      policies: [{ policyType: 'default', content: '<p>未填写</p>' }],
+      surroundings: [{ surType: 'metro', surName: '地铁示例站', distance: 400 }],
+      discounts: [{ title: '首单立减', type: 'instant', content: '立减10元' }],
     },
     checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' },
   };

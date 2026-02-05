@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Card } from 'antd';
 
-const HotelLayout: React.FC = () => {
+const Audit: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,33 +24,33 @@ const HotelLayout: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       {/* 白色卡片容器，贯穿整个右侧区域 */}
-      <Card
-        variant="borderless"  
-        styles={{ body: { padding: 0, minHeight: '80vh' } }} 
-      >
-
-        
+      <Card variant="borderless" styles={{ body: { padding: 0, minHeight: '80vh' } }}>
         {/* === 顶部 Tab 区域 === */}
-        <div style={{ 
-          display: 'flex', 
-          borderBottom: '1px solid #f0f0f0', 
-          marginBottom: 24,
-          padding: '0 12px' 
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            borderBottom: '1px solid #f0f0f0',
+            marginBottom: 24,
+            padding: '0 12px',
+          }}
+        >
           {/* Tab 1: 列表 */}
-          <div 
-            style={getTabStyle('/merchant/hotels')} 
-            onClick={() => navigate('/merchant/hotels')}
-          >
-            Rooms List
+          <div style={getTabStyle('/admin/Audit/merchants')} onClick={() => navigate('/admin/Audit/merchants')}>
+            商户资料审核
           </div>
 
           {/* Tab 2: 新建 (点击直接在下方显示表单) */}
-          <div 
-            style={getTabStyle('/merchant/hotels/new')} 
-            onClick={() => navigate('/merchant/hotels/new')}
+          <div
+            style={getTabStyle('/admin/Audit/hotels')}
+            onClick={() => navigate('/admin/Audit/hotels')}
           >
-            Create Room
+            酒店信息审核
+          </div>
+          <div
+            style={getTabStyle('/admin/Audit/rooms')}
+            onClick={() => navigate('/admin/Audit/rooms')}
+          >
+            房间信息审核
           </div>
         </div>
 
@@ -59,10 +59,9 @@ const HotelLayout: React.FC = () => {
         <div style={{ padding: '0 24px 24px 24px' }}>
           <Outlet />
         </div>
-
       </Card>
     </div>
   );
 };
 
-export default HotelLayout;
+export default Audit;

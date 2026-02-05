@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { Hotel } from './hotel.model';
 import { AuditLog } from '../audit/audit.model';
+import { notificationService } from '../notification/notification.service';
+import { hotelService, ServiceError } from './hotel.service';
+
 
 export const createHotel = async (req: Request, res: Response) => {
   const user = (req as any).user;
@@ -38,15 +41,76 @@ export const updateHotel = async (req: Request, res: Response) => {
   const user = (req as any).user;
   try {
     const hotel = await Hotel.findById(id);
+    console.log('updateHotel called, user:', user.id, 'role:', user.role, 'payload:', JSON.stringify(updates));
     if (!hotel) return res.status(404).json({ message: 'Not found' });
     if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
       return res.status(403).json({ message: 'Forbidden' });
-    // allow updating baseInfo/checkinInfo/auditInfo via body
-    if (updates.baseInfo) hotel.baseInfo = { ...hotel.baseInfo, ...updates.baseInfo };
-    if (updates.checkinInfo) hotel.checkinInfo = { ...hotel.checkinInfo, ...updates.checkinInfo };
-    if (updates.auditInfo && user.role === 'admin')
-      hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
+
+    try {
+      hotelService.checkOptimisticVersion(hotel, updates);
+    } catch (err: any) {
+      if (err && err.status === 409) return res.status(409).json({ message: 'Version conflict' });
+      if (err && err.status === 404) return res.status(404).json({ message: 'Not found' });
+    }
+
+    // Admins may directly apply changes
+    if (user.role === 'admin') {
+      if (updates.baseInfo) hotel.baseInfo = { ...hotel.baseInfo, ...updates.baseInfo };
+      if (updates.checkinInfo) hotel.checkinInfo = { ...hotel.checkinInfo, ...updates.checkinInfo };
+      if (updates.auditInfo) hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
+      // If admin applies changes, also clear pendingChanges
+      hotel.pendingChanges = null;
+      await hotel.save();
+      return res.json(hotel);
+    }
+
+    // Merchant update: delegate to service to save pending changes
+    if (user.role !== 'admin') {
+      const allowed: any = {};
+      if (updates.baseInfo) allowed.baseInfo = updates.baseInfo;
+      if (updates.checkinInfo) allowed.checkinInfo = updates.checkinInfo;
+      if (Object.keys(allowed).length === 0) return res.status(400).json({ message: 'No updatable fields provided' });
+      try {
+        const updated = await hotelService.savePendingChanges(id, user.id, allowed);
+        return res.json(updated);
+      } catch (err: any) {
+        if (err && err.status) return res.status(err.status).json({ message: err.message });
+        return res.status(400).json({ message: err.message });
+      }
+    }
+  } catch (err: any) {
+    console.error('updateHotel catch error:', err);
+    res.status(400).json({ message: err.message });
+  }
+};
+
+export const requestDeleteHotel = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = (req as any).user;
+  try {
+    const hotel = await Hotel.findById(id);
+    if (!hotel) return res.status(404).json({ message: 'Not found' });
+    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
+      return res.status(403).json({ message: 'Forbidden' });
+
+    // mark deletion request
+    hotel.pendingDeletion = true;
+    hotel.auditInfo = hotel.auditInfo || ({} as any);
+    // @ts-ignore
+    hotel.auditInfo.status = 'pending';
+    hotel.markModified('auditInfo');
     await hotel.save();
+
+    const log = await AuditLog.create({
+      targetType: 'hotel',
+      targetId: hotel._id,
+      action: 'delete_request',
+      operatorId: user.id,
+    });
+
+    // notify admins
+    await notificationService.notifyAdmins(`Hotel delete requested: ${hotel._id}`, { auditId: log._id, type: 'delete_request' });
+
     res.json(hotel);
   } catch (err: any) {
     res.status(400).json({ message: err.message });

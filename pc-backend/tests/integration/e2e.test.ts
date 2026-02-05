@@ -130,6 +130,29 @@ test('full end-to-end flow', async () => {
     .send({ reason: 'ok' })
     .expect(200);
 
+  // Merchant updates hotel -> becomes pendingChanges and status pending
+  const updateRes = await request(app)
+    .put(`/api/hotels/${hotelId}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { nameCn: 'H Updated' } })
+    .expect(200);
+  expect(updateRes.body.auditInfo.status).toBe('pending');
+  expect(updateRes.body.pendingChanges).toBeDefined();
+  expect(updateRes.body.pendingChanges.baseInfo.nameCn).toBe('H Updated');
+
+  // Admin approves the update -> pendingChanges applied
+  await request(app)
+    .post(`/api/admin/hotels/${hotelId}/approve`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ reason: 'approve update' })
+    .expect(200);
+
+  const myHotelsAfterUpdate = await request(app)
+    .get('/api/hotels/my')
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  expect(myHotelsAfterUpdate.body.data.find((h: any) => h._id === hotelId).baseInfo.nameCn).toBe('H Updated');
+
   // create room
   const roomRes = await request(app)
     .post(`/api/hotels/${hotelId}/rooms`)
@@ -216,6 +239,30 @@ test('full end-to-end flow', async () => {
     .send({ reason: 'ok' })
     .expect(200);
 
+  // Merchant updates the approved room -> becomes pendingChanges and status pending
+  const roomUpdateRes = await request(app)
+    .put(`/api/rooms/${roomId2}`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { price: 180 } })
+    .expect(200);
+  expect(roomUpdateRes.body.auditInfo.status).toBe('pending');
+  expect(roomUpdateRes.body.pendingChanges).toBeDefined();
+  expect(roomUpdateRes.body.pendingChanges.baseInfo.price).toBe(180);
+
+  // Admin approves the room update
+  await request(app)
+    .post(`/api/admin/rooms/${roomId2}/approve`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ reason: 'approve room update' })
+    .expect(200);
+
+  // Fetch rooms for hotel and verify price updated
+  const roomsAfter = await request(app)
+    .get(`/api/hotels/${hotelId}/rooms`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+  expect(roomsAfter.body.data.find((r: any) => r._id === roomId2).baseInfo.price).toBe(180);
+
   // bulk offline rooms
   const bulkRes = await request(app)
     .post('/api/admin/rooms/bulk')
@@ -225,6 +272,95 @@ test('full end-to-end flow', async () => {
   expect(bulkRes.body.updated.length).toBeGreaterThanOrEqual(1);
 });
 
+test('merchant can request deletion and admin approve delete; notifications & audit logged', async () => {
+  const merchantEmail = `delm@test.local`;
+  const merchantPwd = 'Merchant1!';
+  await register(merchantEmail, merchantPwd).expect(201);
+  const token = await login(merchantEmail, merchantPwd);
+
+  // create merchant profile
+  await request(app)
+    .post('/api/merchants')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { merchantName: 'DM', contactName: 'D', contactPhone: '123', contactEmail: 'd@test.com' } })
+    .expect(200);
+  await request(app).post('/api/merchants/submit').set('Authorization', `Bearer ${token}`).expect(200);
+
+  // admin approve merchant
+  const adminToken = await login('admin@local.com', 'admin123');
+  const mp = await request(app).get('/api/merchants').set('Authorization', `Bearer ${token}`);
+  const merchantId = mp.body._id;
+  await request(app).post(`/api/admin/merchants/${merchantId}/approve`).set('Authorization', `Bearer ${adminToken}`).send({ reason: 'ok' }).expect(200);
+
+  // create and approve hotel
+  const hotelRes = await request(app)
+    .post('/api/hotels')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { nameCn: 'DelHotel', address: 'A', city: 'C', star: 3, openTime: '24/7', roomTotal: 1, phone: 'p', description: 'd', images: [], facilities: [{ category: '基础', content: '<p>WiFi</p>' }], policies: [{ policyType: 'petAllowed', content: '<p>no</p>' }] }, checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' } })
+    .expect(201);
+  const hotelId = hotelRes.body._id;
+  await request(app).post(`/api/hotels/${hotelId}/submit`).set('Authorization', `Bearer ${token}`).expect(200);
+  await request(app).post(`/api/admin/hotels/${hotelId}/approve`).set('Authorization', `Bearer ${adminToken}`).send({ reason: 'ok' }).expect(200);
+
+  // merchant requests delete
+  const delReq = await request(app).post(`/api/hotels/${hotelId}/delete-request`).set('Authorization', `Bearer ${token}`).expect(200);
+  expect(delReq.body.pendingDeletion).toBe(true);
+
+  // admin should see audit log and receive notification
+  const logs = await AuditLog.find({ targetType: 'hotel', targetId: hotelId, action: 'delete_request' });
+  expect(logs.length).toBeGreaterThanOrEqual(1);
+
+  const notifs = await request(app).get('/api/admin/notifications').set('Authorization', `Bearer ${adminToken}`).expect(200);
+  expect(Array.isArray(notifs.body.data)).toBe(true);
+  expect(notifs.body.data.length).toBeGreaterThanOrEqual(1);
+
+  // admin approves delete
+  await request(app).post(`/api/admin/hotels/${hotelId}/approve-delete`).set('Authorization', `Bearer ${adminToken}`).send({ reason: 'ok' }).expect(200);
+
+  // hotel should be offline/deletedAt set
+  const h = await request(app).get('/api/hotels/my').set('Authorization', `Bearer ${token}`).expect(200);
+  const found = h.body.data.find((x: any) => x._id === hotelId);
+  expect(found.auditInfo.status).toBe('offline');
+  expect(found.deletedAt).toBeDefined();
+
+  // cannot create room under deleted/offline hotel
+  await request(app)
+    .post(`/api/hotels/${hotelId}/rooms`)
+    .set('Authorization', `Bearer ${token}`)
+    .send({ baseInfo: { type: 'Std', price: 100, images: [], status: 'draft', maxOccupancy: 2, facilities: [{ category: '房内', content: '<p>空调</p>' }], policies: [{ policyType: 'noSmoking', content: '<p>No smoking</p>' }], bedRemark: ['备注'] }, headInfo: { size: '20', floor: '1', wifi: true, windowAvailable: true, smokingAllowed: false }, bedInfo: [{ bedType: 'King', bedNumber: 1, bedSize: '2m' }], breakfastInfo: {} })
+    .expect(403);
+});
+
+test('optimistic concurrency prevents stale merchant updates', async () => {
+  const merchantEmail = `conc@test.local`;
+  const merchantPwd = 'Merchant1!';
+  await register(merchantEmail, merchantPwd).expect(201);
+  const token = await login(merchantEmail, merchantPwd);
+
+  // create merchant and hotel approved
+  await request(app).post('/api/merchants').set('Authorization', `Bearer ${token}`).send({ baseInfo: { merchantName: 'C', contactName: 'C', contactPhone: '1', contactEmail: 'c@test.com' } }).expect(200);
+  await request(app).post('/api/merchants/submit').set('Authorization', `Bearer ${token}`).expect(200);
+  const adminToken = await login('admin@local.com', 'admin123');
+  const mp = await request(app).get('/api/merchants').set('Authorization', `Bearer ${token}`);
+  const merchantId = mp.body._id;
+  await request(app).post(`/api/admin/merchants/${merchantId}/approve`).set('Authorization', `Bearer ${adminToken}`).send({ reason: 'ok' }).expect(200);
+
+  const hotelRes = await request(app).post('/api/hotels').set('Authorization', `Bearer ${token}`).send({ baseInfo: { nameCn: 'ConcHotel', address: 'A', city: 'C', star: 3, openTime: '24/7', roomTotal: 1, phone: 'p', description: 'd', images: [], facilities: [{ category: '基础', content: '<p>WiFi</p>' }], policies: [{ policyType: 'petAllowed', content: '<p>no</p>' }] }, checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' } }).expect(201);
+  const hotelId = hotelRes.body._id;
+  await request(app).post(`/api/hotels/${hotelId}/submit`).set('Authorization', `Bearer ${token}`).expect(200);
+  await request(app).post(`/api/admin/hotels/${hotelId}/approve`).set('Authorization', `Bearer ${adminToken}`).send({ reason: 'ok' }).expect(200);
+
+  // fetch hotel with version
+  const myHotels = await request(app).get('/api/hotels/my').set('Authorization', `Bearer ${token}`).expect(200);
+  const h = myHotels.body.data.find((x: any) => x._id === hotelId);
+  const v = h.__v;
+
+  // first update with correct version
+  await request(app).put(`/api/hotels/${hotelId}`).set('Authorization', `Bearer ${token}`).send({ baseInfo: { nameCn: 'ConcUpdated1' }, __v: v }).expect(200);
+
+  // second update using the same old version should conflict
+  await request(app).put(`/api/hotels/${hotelId}`).set('Authorization', `Bearer ${token}`).send({ baseInfo: { nameCn: 'ConcUpdated2' }, __v: v }).expect(409);
+});
 test('bulk approve merchants and audit log entries', async () => {
   const token1 = await (async () => {
     await register('bm1@test.com', 'password1');

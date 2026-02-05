@@ -10,7 +10,7 @@ const AuthLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
         <p>面向商家与管理员的酒店管理与审核平台</p>
       </div>
       <div className={styles.right}>
-        <Card className={styles.card} bordered={false}>
+        <Card className={styles.card} variant="borderless">
           {children}
         </Card>
       </div>

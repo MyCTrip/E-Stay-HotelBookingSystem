@@ -32,8 +32,11 @@ src/
 │  ├─ merchant/          # 商户资料：upsert / submit / admin approve/reject
 │  ├─ hotel/             # 酒店：创建 / 提交 / 管理审批 / 下线
 │  ├─ room/              # 房型：创建 / 提交 / 管理审批
+│  └─ upload/            # 图片上传接口（upload.controller.ts / upload.routes.ts）
 │  ├─ admin/             # 管理端：单体审批 / 批量审批 / 审计日志接口
 │  └─ audit/             # 审计日志模型与查询接口
+
+uploads/                # 本地图片存储目录（自动创建，已加入 .gitignore，静态服务 /uploads 路径）
 ├─ utils/                # 通用工具（logger、格式化等）
 └─ tests/                # 集成测试（Jest + supertest + mongodb-memory-server）
 
@@ -213,6 +216,18 @@ pnpm start
 
 - `checkinTime` — String, **必填**
 - `checkoutTime` — String, **必填**
+
+**商户侧更新说明**
+
+- 商户对 `Hotel` / `Room` 的更新通过 `PUT` 提交后 **不会立即生效**。商户提交的更改会保存到 `pendingChanges` 字段，并把 `auditInfo.status` 设为 `pending`，管理员需通过现有的审批接口（`/api/admin/hotels/:id/approve` 或 `/api/admin/rooms/:id/approve`）审核通过后，系统会把 `pendingChanges` 合并到正式字段并清除 `pendingChanges`；若管理员驳回，`auditInfo.status` 将被置为 `rejected` 并记录 `rejectReason`，商户需重新修改后再次提交审核。  
+- `surroundings` — Array（可选），记录酒店周边重要点（如地铁 / 景点 / 商圈）。每项结构：
+  - `surType` — String，枚举：`metro` | `attraction` | `business`（地铁 / 景点 / 商圈）
+  - `surName` — String，名称
+  - `distance` — Number，距离（米）
+- `discounts` — Array（可选），记录酒店可用的促销信息。每项结构：
+  - `title` — String
+  - `type` — String，枚举：`discount` | `instant`（折扣 / 立减）
+  - `content` — String，描述
 
 ---
 

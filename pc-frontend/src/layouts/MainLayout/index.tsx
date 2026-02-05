@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { Layout, Menu, Button } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -7,10 +7,12 @@ import {
   HomeOutlined,
   UserOutlined,
   LogoutOutlined,
+  SafetyCertificateOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 
 // 如果你需要保留管理员菜单，可以保留这个 import，否则可以删掉
-import { ADMIN_MENU } from '@/config/menu';
+// import { ADMIN_MENU } from '@/config/menu';
 
 const { Header, Sider, Content } = Layout;
 
@@ -28,7 +30,7 @@ function MainLayout() {
       if (user?.role) role = user.role;
     }
   } catch (err) {
-    // ignore
+    console.error('Failed to parse user from localStorage', err); 
   }
 
   // 2. 定义最新的商户菜单 (完全对应我们的新开发计划)
@@ -63,7 +65,29 @@ function MainLayout() {
       danger: true, // 红色文字，表示危险操作
     },
   ];
-
+  const ADMIN_MENU = [
+    {
+      key: '/admin/dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '/admin/Audit',
+      icon: <SafetyCertificateOutlined />,
+      label: 'Audit',
+    },
+    {
+      key: '/admin/logs',
+      icon: <FileTextOutlined />,
+      label: 'Logs',
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      danger: true, // 红色文字，表示危险操作
+    },
+  ]
   // 3. 根据角色选择菜单
   const menuItems: any = role === 'admin' ? ADMIN_MENU : NEW_MERCHANT_MENU;
 

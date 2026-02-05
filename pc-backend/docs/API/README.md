@@ -62,6 +62,39 @@
 
 ---
 
+### POST /api/upload
+
+- 功能：上传单张图片，返回图片 URL
+- 权限：需要 `Authorization`（登录用户均可）
+- 请求类型：`multipart/form-data`，字段名 `file`
+- 请求体：
+  - `file` (required) 图片文件（jpg/png/gif/webp）
+- 成功响应：200
+  ```json
+  { "url": "/uploads/1707123456789-abcdef12.jpg", "filename": "1707123456789-abcdef12.jpg", "size": 123456 }
+  ```
+- 错误示例：
+  - 415（类型不支持）
+    ```json
+    { "message": "仅支持图片类型 (jpg/png/gif/webp)" }
+    ```
+  - 413（文件过大）
+    ```json
+    { "message": "图片大小不能超过 5MB" }
+    ```
+  - 400（未收到文件）
+    ```json
+    { "message": "未收到文件" }
+    ```
+- 示例（curl）：
+  ```bash
+  curl -X POST http://localhost:3000/api/upload \
+    -H "Authorization: Bearer <token>" \
+    -F "file=@/path/to/image.jpg"
+  ```
+
+---
+
 ## Merchant（商户） 🏬
 
 说明：商户用户在平台上维护自己的 `MerchantProfile`（baseInfo、qualificationInfo、auditInfo）。
@@ -112,6 +145,10 @@
       - 每项：{ `category`: string (required), `content`: string (required, HTML) }
     - 新增：`policies` (Array<Object>, required, non-empty)
       - 每项：{ `policyType`: string (required), `content`: string (required, HTML) }
+    - 新增（可选）：`surroundings` (Array<Object>)
+      - 每项: { `surType`: 'metro'|'attraction'|'business', `surName`: string, `distance`: number }
+    - 新增（可选）：`discounts` (Array<Object>)
+      - 每项: { `title`: string, `type`: 'discount'|'instant', `content`: string }
   - `checkinInfo` (optional): `{ checkinTime, checkoutTime }`
 - 示例请求体：
   ```json
@@ -125,7 +162,9 @@
       "description":"说明",
       "images":[],
       "facilities":[{"category":"公共","content":"<p>WiFi</p>"}],
-      "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}]
+      "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}],
+      "surroundings":[{"surType":"metro","surName":"地铁1号线","distance":500}],
+      "discounts":[{"title":"首单立减","type":"instant","content":"首单减10元"}]
     }
   }
   ```
@@ -151,11 +190,14 @@
 
 ### PUT /api/hotels/:id
 
-- 功能：更新酒店（部分字段可变）
+- 功能：更新酒店（部分字段可变）。**注意：商户提交更新将不会立即生效，会被保存为待审核变更（`pendingChanges`）并把 `auditInfo.status` 设为 `pending`，需要管理员批准后才会应用到正式数据。**
 - 权限：`Authorization`，仅 owner 或 admin
 - Path：`:id` (hotelId)
-- 请求体：同 POST（部分字段可选）
-- 成功响应：200 `{ id: <id>, baseInfo: {...} }`
+- 请求体：同 POST（部分字段可选，如 `baseInfo` / `checkinInfo`）
+- 行为：
+  - 若发起人为商户（owner）：更新被保存到 `pendingChanges`，`auditInfo.status='pending'`，并写入 `AuditLog(action='update_request')`；管理员批准后，`pendingChanges` 会被合并到正式字段并清除。
+  - 若发起人为管理员（admin）：变更立即生效（直接合并到 `baseInfo` / `checkinInfo`），并清除任何 `pendingChanges`。
+- 成功响应：200 `{ id: <id>, baseInfo: {...}, pendingChanges?: {...}, auditInfo: {...} }`
 
 ### POST /api/hotels/:id/submit
 
@@ -190,11 +232,14 @@
 
 ### PUT /api/rooms/:id
 
-- 功能：更新房型（部分字段）
-- 权限：`Authorization`（仅 owner）
+- 功能：更新房型（部分字段）。**注意：商户提交更新将不会立即生效，会被保存为待审核变更（`pendingChanges`）并把 `auditInfo.status` 设为 `pending`，需要管理员批准后才会应用到正式数据。**
+- 权限：`Authorization`（仅 owner 或 admin）
 - Path：`:id` (roomId)
 - 请求体：允许更新 `baseInfo`、`headInfo`、`bedInfo` 等
-- 成功响应：200 `{ id: <id>, baseInfo: {...} }`
+- 行为：
+  - 若发起人为商户（owner）：更新被保存到 `pendingChanges`，`auditInfo.status='pending'`，并写入 `AuditLog(action='update_request')`；管理员批准后，`pendingChanges` 会被合并到正式字段并清除。
+  - 若发起人为管理员（admin）：变更立即生效（直接合并到字段），并清除任何 `pendingChanges`。
+- 成功响应：200 `{ id: <id>, baseInfo: {...}, pendingChanges?: {...}, auditInfo: {...} }`
 
 ### POST /api/rooms/:id/submit
 
@@ -210,8 +255,10 @@
 
 ### 单体审批接口（例）
 
-- POST `/api/admin/hotels/:id/approve` — 批准酒店
-- POST `/api/admin/hotels/:id/reject` — 驳回酒店 `{ reason?: string }`
+- POST `/api/admin/hotels/:id/approve` — 批准酒店（若存在 `pendingChanges`，会在批准时将其合并到 `Hotel` 正式字段并清除 `pendingChanges`）
+- POST `/api/admin/hotels/:id/reject` — 驳回酒店 `{ reason?: string }`（若驳回，`auditInfo.status` 会被置为 `rejected`，`rejectReason` 中保存原因）
+- POST `/api/admin/rooms/:id/approve` — 批准房型（若存在 `pendingChanges`，会在批准时将其合并到 `Room` 正式字段并清除 `pendingChanges`）
+- POST `/api/admin/rooms/:id/reject` — 驳回房型 `{ reason?: string }`
 - POST `/api/admin/hotels/:id/offline` — 下线酒店 `{ reason?: string }`
 
 - POST `/api/admin/rooms/:id/approve|reject|offline` — 操作房型

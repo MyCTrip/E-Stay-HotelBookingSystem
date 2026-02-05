@@ -8,6 +8,9 @@ export const requireHotelApproved = async (req: AuthRequest, res: Response, next
   try {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
+    // debug: print auditInfo for investigation
+    // eslint-disable-next-line no-console
+    console.log('requireHotelApproved check:', hotelId, JSON.stringify(hotel.auditInfo));
     if (hotel.auditInfo?.status !== 'approved')
       return res.status(403).json({ message: 'Hotel not approved' });
     next();

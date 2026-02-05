@@ -21,19 +21,19 @@ const HotelEntry: React.FC = () => {
         <Col span={16}>
           <Card title="快捷操作" className={styles.card}>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <Button
-                type="primary"
-                size="large"
-                icon={<PlusOutlined />}
+              <Button 
+                type="primary" 
+                size="large" 
+                icon={<PlusOutlined />} 
                 onClick={() => navigate('/merchant/hotels/new')}
                 style={{ height: '80px', width: '200px', fontSize: '16px' }}
               >
                 发布新酒店
               </Button>
-
-              <Button
-                size="large"
-                icon={<UnorderedListOutlined />}
+              
+              <Button 
+                size="large" 
+                icon={<UnorderedListOutlined />} 
                 onClick={() => navigate('/merchant/hotels')}
                 style={{ height: '80px', width: '200px', fontSize: '16px' }}
               >

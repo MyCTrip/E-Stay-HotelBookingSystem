@@ -15,7 +15,9 @@ const ImageUpload: React.FC = () => {
           <div style={{ marginTop: 8 }}>上传图片</div>
         </div>
       </Upload>
-      <div style={{ color: '#999', fontSize: 12 }}>(开发阶段：暂未对接后端OSS，仅做UI展示)</div>
+      <div style={{ color: '#999', fontSize: 12 }}>
+        (开发阶段：暂未对接后端OSS，仅做UI展示)
+      </div>
     </>
   );
 };
