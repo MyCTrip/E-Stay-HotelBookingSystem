@@ -32,7 +32,7 @@ src/
 ├── hooks/                  # [全局] 自定义 Hooks
 │   └── useAuth.ts          # 获取当前用户信息, 处理 Login/Logout
 ├── layouts/                # 布局组件
-│   ├── MainLayout/         # 主后台布局 (Sider + Header + Content)
+│   ├── MainLayout/index.tsx # 主后台布局 (Sider + Header + Content)
 │   └── UserLayout/         # 登录/注册页布局
 ├── pages/                  # [核心] 页面视图 (与后端 modules 对应)
 │   ├── auth/               # >> 对应后端 auth.routes.ts
@@ -40,7 +40,7 @@ src/
 │   │   └── Register/       # 注册 (商户/管理员)
 │   ├── merchant/           # >> 对应后端 merchant.routes.ts
 │   │   ├── Profile/        # 商户资料 (Create/Read/Update)
-│   │   └── HotelEntry/     # 酒店录入/编辑 (Hotel CRUD)
+│   │   └── HotelEntry/rooms/{HotelForm.tsx、HotelLayout.tsx、index.tsx、Manage.tsx、index.module.scss}   # 酒店录入/编辑 (Hotel CRUD)
 │   ├── admin/              # >> 对应后端 admin.routes.ts
 │   │   ├── HotelAudit/     # 酒店审核列表
 │   │   ├── AuditLog/       # 审计日志 (GET /api/admin/audit-logs)

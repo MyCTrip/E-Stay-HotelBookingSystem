@@ -6,7 +6,7 @@ import MainLayout from '@/layouts/MainLayout';
 // import HotelLayout from '@/pages/merchant/HotelEntry/HotelLayout';
 import Dashboard from '@/pages/merchant/overview';
 import Manage from '@/pages/merchant/HotelEntry/HotelManage';
-
+import OrderManage from '@/pages/merchant/Orders';
 import Profile from '@/pages/merchant/Profile'; 
 
 import HotelEntry from '@/pages/merchant/HotelEntry'; 
@@ -41,6 +41,10 @@ const RouterConfig: React.FC = () => {
           path: 'merchant/hotels', // 对应侧边栏的“房间信息”
           element: <RoomManage /> 
         },
+
+        // ✅ 3. 在这里添加 Orders 路由！
+        // 访问 /merchant/orders 时，渲染 OrderManage 组件
+        { path: 'merchant/orders', element: <OrderManage /> },
       ]
     },
     { path: '*', element: <div>404 Not Found</div> }
