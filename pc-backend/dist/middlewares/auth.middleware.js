@@ -20,7 +20,7 @@ const authenticate = async (req, res, next) => {
             return res.status(401).json({ message: 'Unauthorized' });
         if (user.status !== 'active')
             return res.status(403).json({ message: 'Account disabled' });
-        req.user = { id: user._id.toString(), email: user.email, role: user.role };
+        req.user = { id: user._id.toString(), email: user.email, role: user.role, createdAt: user.createdAt, updatedAt: user.updatedAt };
         next();
     }
     catch (err) {

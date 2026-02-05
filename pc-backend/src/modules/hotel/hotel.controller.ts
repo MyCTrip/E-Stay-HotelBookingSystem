@@ -4,6 +4,7 @@ import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
 import { hotelService, ServiceError } from './hotel.service';
 import { sanitizeObject } from '../../utils/htmlSanitizer';
+import { hotDataService } from '../../services/hotData.service';
 
 
 export const createHotel = async (req: Request, res: Response) => {
@@ -34,6 +35,10 @@ export const createHotel = async (req: Request, res: Response) => {
       baseInfo: sanitizedBase,
       checkinInfo: sanitizedCheckin,
     });
+    
+    // 清除相关缓存
+    await hotDataService.clearHotelCache();
+    
     res.status(201).json(hotel);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -60,20 +65,24 @@ export const updateHotel = async (req: Request, res: Response) => {
 
     // Admins may directly apply changes
     if (user.role === 'admin') {
-      if (updates.baseInfo) {
-        const sanitizedBase = sanitizeObject(updates.baseInfo);
-        hotel.baseInfo = { ...hotel.baseInfo, ...sanitizedBase };
+        if (updates.baseInfo) {
+          const sanitizedBase = sanitizeObject(updates.baseInfo);
+          hotel.baseInfo = { ...hotel.baseInfo, ...sanitizedBase };
+        }
+        if (updates.checkinInfo) {
+          const sanitizedCheckin = sanitizeObject(updates.checkinInfo);
+          hotel.checkinInfo = { ...hotel.checkinInfo, ...sanitizedCheckin };
+        }
+        if (updates.auditInfo) hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
+        // If admin applies changes, also clear pendingChanges
+        hotel.pendingChanges = null;
+        await hotel.save();
+        
+        // 清除相关缓存
+        await hotDataService.clearHotelCache();
+        
+        return res.json(hotel);
       }
-      if (updates.checkinInfo) {
-        const sanitizedCheckin = sanitizeObject(updates.checkinInfo);
-        hotel.checkinInfo = { ...hotel.checkinInfo, ...sanitizedCheckin };
-      }
-      if (updates.auditInfo) hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
-      // If admin applies changes, also clear pendingChanges
-      hotel.pendingChanges = null;
-      await hotel.save();
-      return res.json(hotel);
-    }
 
     // Merchant update: delegate to service to save pending changes
     if (user.role !== 'admin') {
@@ -89,6 +98,10 @@ export const updateHotel = async (req: Request, res: Response) => {
       if (Object.keys(allowed).length === 0) return res.status(400).json({ message: 'No updatable fields provided' });
       try {
         const updated = await hotelService.savePendingChanges(id, user.id, allowed);
+        
+        // 清除相关缓存
+        await hotDataService.clearHotelCache();
+        
         return res.json(updated);
       } catch (err: any) {
         if (err && err.status) return res.status(err.status).json({ message: err.message });
@@ -162,8 +175,39 @@ export const submitHotel = async (req: Request, res: Response) => {
 };
 
 export const listApprovedHotels = async (req: Request, res: Response) => {
-  const hotels = await Hotel.find({ 'auditInfo.status': 'approved' });
-  res.json(hotels);
+  const { city, star, search, page = 1, limit = 20 } = req.query as any;
+  const filter: any = { 'auditInfo.status': 'approved' };
+  
+  if (city) filter['baseInfo.city'] = city;
+  if (star) filter['baseInfo.star'] = parseInt(star, 10);
+  
+  // 使用MongoDB全文搜索功能
+  if (search) {
+    filter.$text = { $search: search };
+  }
+  
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const limitNum = Math.min(parseInt(limit, 10) || 20, 100);
+  const skip = (pageNum - 1) * limitNum;
+  
+  const total = await Hotel.countDocuments(filter);
+  
+  // 构建查询
+  let query = Hotel.find(filter);
+  
+  // 如果使用了全文搜索，按相关性排序
+  if (search) {
+    query = query.sort({ score: { $meta: 'textScore' } });
+  } else {
+    // 否则按创建时间排序
+    query = query.sort({ createdAt: -1 });
+  }
+  
+  const hotels = await query
+    .skip(skip)
+    .limit(limitNum);
+  
+  res.json({ data: hotels, meta: { total, page: pageNum, limit: limitNum } });
 };
 
 export const listMyHotels = async (req: Request, res: Response) => {
@@ -172,12 +216,13 @@ export const listMyHotels = async (req: Request, res: Response) => {
   const limit = Math.min(parseInt((req.query.limit as any) || '100', 10) || 100, 500);
   const page = Math.max(parseInt((req.query.page as any) || '1', 10) || 1, 1);
   const filter: any = { merchantId: user.id };
+  
   if (status) filter['auditInfo.status'] = status;
-  if (search)
-    filter.$or = [
-      { 'baseInfo.nameCn': new RegExp(search, 'i') },
-      { 'baseInfo.nameEn': new RegExp(search, 'i') },
-    ];
+  
+  // 使用MongoDB全文搜索功能
+  if (search) {
+    filter.$text = { $search: search };
+  }
 
   const total = await Hotel.countDocuments(filter);
   const data = await Hotel.find(filter)
@@ -185,4 +230,31 @@ export const listMyHotels = async (req: Request, res: Response) => {
     .skip((page - 1) * limit)
     .limit(limit);
   res.json({ data, meta: { total, page, limit } });
+};
+
+/**
+ * 获取热门酒店
+ */
+export const getHotHotels = async (req: Request, res: Response) => {
+  const { limit } = req.query as any;
+  const limitNum = Math.min(parseInt(limit || '10', 10) || 10, 50);
+  
+  try {
+    const hotels = await hotDataService.getHotHotels(limitNum);
+    res.json(hotels);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * 获取城市列表
+ */
+export const getCities = async (req: Request, res: Response) => {
+  try {
+    const cities = await hotDataService.getCities();
+    res.json(cities);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
 };

@@ -1,5 +1,6 @@
 import app from './app';
 import './config/db';
+import { initializeRedis } from './config/redis';
 import { User } from './modules/user/user.model';
 import { AdminProfile } from './modules/admin/admin.model';
 import bcrypt from 'bcryptjs';
@@ -31,8 +32,24 @@ const ensureAdmin = async () => {
   }
 };
 
-ensureAdmin().finally(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-});
+// 初始化应用
+const initializeApp = async () => {
+  try {
+    // 初始化Redis连接
+    await initializeRedis();
+    
+    // 确保默认管理员存在
+    await ensureAdmin();
+    
+    // 启动服务器
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    process.exit(1);
+  }
+};
+
+// 启动应用
+initializeApp();

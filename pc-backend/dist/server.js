@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 require("./config/db");
+const redis_1 = require("./config/redis");
 const user_model_1 = require("./modules/user/user.model");
 const admin_model_1 = require("./modules/admin/admin.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -34,9 +35,23 @@ const ensureAdmin = async () => {
         console.error('Error creating default admin or profile', err);
     }
 };
-ensureAdmin().finally(() => {
-    app_1.default.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-});
+// 初始化应用
+const initializeApp = async () => {
+    try {
+        // 初始化Redis连接
+        await (0, redis_1.initializeRedis)();
+        // 确保默认管理员存在
+        await ensureAdmin();
+        // 启动服务器
+        app_1.default.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    }
+    catch (error) {
+        console.error('Failed to initialize app:', error);
+        process.exit(1);
+    }
+};
+// 启动应用
+initializeApp();
 //# sourceMappingURL=server.js.map

@@ -176,4 +176,17 @@ const RoomSchema = new Schema<IRoom>(
   { timestamps: true, optimisticConcurrency: true }
 );
 
+// 添加复合索引
+// 用于查询指定酒店的房型列表，按创建时间排序
+RoomSchema.index({ hotelId: 1, createdAt: -1 });
+
+// 用于查询已审核通过的房型
+RoomSchema.index({ 'auditInfo.status': 1, createdAt: -1 });
+
+// 用于按房型状态和酒店ID查询
+RoomSchema.index({ 'auditInfo.status': 1, hotelId: 1 });
+
+// 用于按价格排序查询
+RoomSchema.index({ 'baseInfo.price': 1 });
+
 export const Room = model<IRoom>('Room', RoomSchema);

@@ -8,6 +8,12 @@
 - 商户与酒店的 CRUD 与审核流程
 - 审计日志记录平台操作与审核行为
 - 基于 TypeScript 的结构化代码与中间件支持
+- API 请求频率限制，防止暴力破解和 API 滥用
+- Redis 缓存机制，提升查询性能和响应速度
+- 图片自动压缩和尺寸调整，减少存储空间和传输时间
+- MongoDB 复合索引和全文搜索，优化数据库查询性能
+- 商户资料完整性验证（营业执照号、身份证号格式验证）
+- XSS 防护，使用 DOMPurify 净化 HTML 富文本内容
 
 ## 🔧 技术栈
 
@@ -17,6 +23,8 @@
 - JWT
 - Zod
 - DOMPurify + jsdom
+- Redis (缓存和频率限制)
+- Sharp (图片处理)
 
 ## 接口与使用方法
 `docs/API/README.md`（包含请求示例与测试说明）
@@ -324,5 +332,87 @@ pnpm start
 - `action` — String, **必填**, enum: `['approve','reject','offline']`
 - `operatorId` — ObjectId, **必填**, ref: `AdminProfile`, **带索引 (index)**
 - `reason` — String, 可选
+
+---
+
+## 🚀 性能优化与安全特性
+
+### API 请求频率限制
+
+系统实现了基于 Redis 的 API 请求频率限制，防止暴力破解和 API 滥用：
+
+**特性：**
+- 双重存储机制：Redis 为主，内存为备，确保高可用性
+- 基于 IP 和用户 ID 的双重限制，提供更准确的频率控制
+- 多层次的限制规则：
+  - 全局 API 限制：每分钟 60 次请求
+  - 敏感接口限制：每分钟 10 次请求
+  - 登录接口限制：每分钟 5 次请求
+  - 注册接口限制：每分钟 3 次请求
+- 详细的响应头信息：`X-RateLimit-Limit`、`X-RateLimit-Remaining`、`X-RateLimit-Reset`
+
+### Redis 缓存机制
+
+使用 Redis 缓存热点数据，显著提升查询性能和响应速度：
+
+**特性：**
+- 查询结果缓存：减少数据库访问，提升响应速度
+- 热点数据缓存：热门酒店、城市列表等数据缓存
+- 智能缓存策略：根据数据类型设置不同的过期时间
+  - 酒店列表缓存：5 分钟
+  - 热门酒店缓存：1 小时
+  - 城市列表缓存：24 小时
+- 缓存过期策略：数据变更时自动清除相关缓存，确保数据一致性
+- 高可用性：Redis 不可用时自动切换到内存存储
+
+### 图片处理优化
+
+实现了图片自动压缩和尺寸调整，减少存储空间和传输时间：
+
+**特性：**
+- 自动压缩：上传图片时自动压缩，最大宽度 1920px，质量 80%
+- 多格式支持：支持 JPEG、PNG、GIF、WebP 等格式
+- 异步处理：图片压缩不阻塞上传响应，提升用户体验
+- 批量处理：支持多图片上传的批量压缩
+
+**实现文件：**
+- `src/services/image.service.ts` - 图片处理服务
+- `src/middlewares/upload.middleware.ts` - 上传中间件（已集成压缩功能）
+
+### 数据库索引优化
+
+为常用查询添加了复合索引和全文搜索索引，显著提升查询性能：
+
+**酒店模型索引：**
+- 单字段索引：`city`、`star`、`merchantId`
+- 复合索引：
+  - `{ merchantId: 1, createdAt: -1 }` - 商户酒店列表查询
+  - `{ 'auditInfo.status': 1, createdAt: -1 }` - 按状态和时间排序
+  - `{ 'baseInfo.city': 1, 'baseInfo.star': -1 }` - 城市和星级筛选
+  - `{ 'auditInfo.status': 1, 'baseInfo.city': 1 }` - 状态和城市筛选
+- 全文搜索索引：
+  - 字段：`baseInfo.nameCn`、`baseInfo.nameEn`、`baseInfo.description`
+  - 权重：名称权重高于描述
+  - 语言：中文
+
+**房型模型索引：**
+- 单字段索引：`hotelId`、`auditedBy`、`baseInfo.price`
+- 复合索引：
+  - `{ hotelId: 1, createdAt: -1 }` - 酒店房型列表查询
+  - `{ 'auditInfo.status': 1, createdAt: -1 }` - 按状态和时间排序
+  - `{ 'auditInfo.status': 1, hotelId: 1 }` - 状态和酒店筛选
+
+**搜索优化：**
+- 使用 MongoDB 的 `$text` 操作符替代正则表达式，提升搜索性能
+- 支持按相关性排序，搜索结果更准确
+
+### XSS 防护
+
+使用 DOMPurify 净化 HTML 富文本内容，防止 XSS 攻击：
+
+**特性：**
+- 自动净化：在存储和显示 HTML 富文本内容时自动净化
+- 安全标签：只允许安全的 HTML 标签和属性
+- 测试环境适配：测试环境中使用简化实现，避免 ESM 模块问题
 
 ---

@@ -25,6 +25,8 @@ exports.authService = {
         const ok = await bcryptjs_1.default.compare(password, user.password);
         if (!ok)
             throw new Error('Invalid credentials');
+        // Update last login time (updatedAt)
+        await user_model_1.User.findByIdAndUpdate(user._id, { updatedAt: new Date() });
         const token = jsonwebtoken_1.default.sign({ id: user._id, role: user.role, email: user.email }, jwt_1.jwtSecret, {
             expiresIn: jwt_1.jwtExpiresIn,
         });

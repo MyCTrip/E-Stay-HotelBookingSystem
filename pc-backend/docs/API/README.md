@@ -179,7 +179,49 @@
 - 功能：列出公开已批准的酒店（用于前端展示）
 - 权限：公开
 - Query 参数（可选）：`city`, `search`, `limit`, `page`
+- 缓存说明：该接口使用 Redis 缓存，缓存时间为 5 分钟（300 秒）。当酒店数据变更时，相关缓存会自动清除。
 - 成功响应：200 `{ data: Hotel[], meta: { total, page, limit } }`
+
+### GET /api/hotels/hot
+
+- 功能：获取热门酒店列表
+- 权限：公开
+- Query 参数（可选）：
+  - `limit` (number, 默认 10, 最大 50) - 返回的热门酒店数量(最近审核通过的n个酒店，后续采集用户行为后可调整)
+- 缓存说明：该接口使用 Redis 缓存，缓存时间为 1 小时（3600 秒）。热门酒店按创建时间倒序排序，仅包含已审核通过的酒店。
+- 成功响应：200
+  ```json
+  [
+    {
+      "_id": "<hotelId>",
+      "baseInfo": {
+        "nameCn": "酒店名称",
+        "city": "城市",
+        "star": 4,
+        "images": ["图片URL"],
+        "description": "描述"
+      }
+    }
+  ]
+  ```
+- 示例（curl）：
+  ```bash
+  curl http://localhost:3000/api/hotels/hot?limit=10
+  ```
+
+### GET /api/hotels/cities
+
+- 功能：获取所有有酒店的城市列表
+- 权限：公开
+- 缓存说明：该接口使用 Redis 缓存，缓存时间为 24 小时（86400 秒）。仅返回有已审核通过酒店的城市名称。
+- 成功响应：200
+  ```json
+  ["北京", "上海", "广州", "深圳"]
+  ```
+- 示例（curl）：
+  ```bash
+  curl http://localhost:3000/api/hotels/cities
+  ```
 
 ### GET /api/hotels/my
 
@@ -289,19 +331,6 @@
 
 - GET `/api/admin/audit-logs` 支持 `targetType`, `action`, `operatorId`, `startDate`, `endDate`, `limit`, `page`
 - 返回：`{ data: AuditLog[], meta: { total, page, limit } }`（按 `createdAt` 倒序）
-
----
-
-## 迁移脚本说明 🛠️
-
-- 路径：`scripts/migrate-fill-facility-policy.js`
-- 功能：扫描 `hotels` 与 `rooms` 集合，为缺失或空的 `facilities` / `policies` / `bedRemark` 填充安全占位值（如 `<p>未填写</p>` / `['无']`），以满足新增的非空校验。脚本支持：
-  - `--dry-run`（只报告将被更新的文档）
-  - `--apply`（执行写入）
-  - `--batch-size=<n>`（批量刷新通知频率）
-  - `--log=<path>`（写入 JSONL 审计日志）
-  - `--resume`（基于日志跳过已处理项）
-- 使用建议：先在 staging 执行 `--dry-run` 并核对差异，确认后在维护窗口执行 `--apply`，并先做好备份。
 
 ---
 

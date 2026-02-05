@@ -124,7 +124,7 @@ const BaseInfoSchema = new Schema<IHotelBaseInfo>({
   nameEn: String,
   address: { type: String, required: true },
   city: { type: String, required: true, index: true },
-  star: { type: Number, required: true },
+  star: { type: Number, required: true, index: true },
   openTime: { type: String, required: true },
   roomTotal: { type: Number, required: true },
   phone: { type: String, required: true },
@@ -164,7 +164,7 @@ const AuditInfoSchema = new Schema<IHotelAuditInfo>({
 
 const HotelSchema = new Schema<IHotel>(
   {
-    merchantId: { type: Schema.Types.ObjectId, ref: 'MerchantProfile', required: true },
+    merchantId: { type: Schema.Types.ObjectId, ref: 'MerchantProfile', required: true, index: true },
     baseInfo: { type: BaseInfoSchema, required: true },
     checkinInfo: { type: CheckinSchema, default: {} },
     auditInfo: { type: AuditInfoSchema, default: {} },
@@ -174,6 +174,36 @@ const HotelSchema = new Schema<IHotel>(
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true, optimisticConcurrency: true }
+);
+
+// 添加复合索引
+// 用于查询指定商户的酒店列表
+HotelSchema.index({ merchantId: 1, createdAt: -1 });
+
+// 用于查询已审核通过的酒店，按创建时间排序
+HotelSchema.index({ 'auditInfo.status': 1, createdAt: -1 });
+
+// 用于按城市和星级筛选酒店
+HotelSchema.index({ 'baseInfo.city': 1, 'baseInfo.star': -1 });
+
+// 用于按状态和城市筛选酒店
+HotelSchema.index({ 'auditInfo.status': 1, 'baseInfo.city': 1 });
+
+// 添加全文搜索索引，用于酒店名称和描述的搜索
+HotelSchema.index(
+  {
+    'baseInfo.nameCn': 'text',
+    'baseInfo.nameEn': 'text',
+    'baseInfo.description': 'text'
+  },
+  {
+    weights: {
+      'baseInfo.nameCn': 10,
+      'baseInfo.nameEn': 8,
+      'baseInfo.description': 5
+    },
+    default_language: 'chinese'
+  }
 );
 
 export const Hotel = model<IHotel>('Hotel', HotelSchema);
