@@ -16,6 +16,7 @@
 - MongoDB + Mongoose
 - JWT
 - Zod
+- DOMPurify + jsdom
 
 ## 接口与使用方法
 `docs/API/README.md`（包含请求示例与测试说明）

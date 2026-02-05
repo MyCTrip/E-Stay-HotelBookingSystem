@@ -24,5 +24,5 @@ export const login = async (req: Request, res: Response) => {
 export const me = async (req: Request, res: Response) => {
   const user = (req as any).user;
   if (!user) return res.status(401).json({ message: 'Unauthorized' });
-  res.json({ id: user.id || user._id, email: user.email, role: user.role });
+  res.json({ id: user.id || user._id, email: user.email, role: user.role, updatedAt: user.updatedAt });
 };

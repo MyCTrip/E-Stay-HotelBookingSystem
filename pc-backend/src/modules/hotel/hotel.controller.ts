@@ -3,6 +3,7 @@ import { Hotel } from './hotel.model';
 import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
 import { hotelService, ServiceError } from './hotel.service';
+import { sanitizeObject } from '../../utils/htmlSanitizer';
 
 
 export const createHotel = async (req: Request, res: Response) => {
@@ -24,10 +25,14 @@ export const createHotel = async (req: Request, res: Response) => {
   };
 
   try {
+    // 净化HTML富文本内容，防止XSS攻击
+    const sanitizedBase = sanitizeObject(normalizedBase);
+    const sanitizedCheckin = sanitizeObject(checkinInfo || {});
+    
     const hotel = await Hotel.create({
       merchantId: user.id,
-      baseInfo: normalizedBase,
-      checkinInfo: checkinInfo || {},
+      baseInfo: sanitizedBase,
+      checkinInfo: sanitizedCheckin,
     });
     res.status(201).json(hotel);
   } catch (err: any) {
@@ -55,8 +60,14 @@ export const updateHotel = async (req: Request, res: Response) => {
 
     // Admins may directly apply changes
     if (user.role === 'admin') {
-      if (updates.baseInfo) hotel.baseInfo = { ...hotel.baseInfo, ...updates.baseInfo };
-      if (updates.checkinInfo) hotel.checkinInfo = { ...hotel.checkinInfo, ...updates.checkinInfo };
+      if (updates.baseInfo) {
+        const sanitizedBase = sanitizeObject(updates.baseInfo);
+        hotel.baseInfo = { ...hotel.baseInfo, ...sanitizedBase };
+      }
+      if (updates.checkinInfo) {
+        const sanitizedCheckin = sanitizeObject(updates.checkinInfo);
+        hotel.checkinInfo = { ...hotel.checkinInfo, ...sanitizedCheckin };
+      }
       if (updates.auditInfo) hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
       // If admin applies changes, also clear pendingChanges
       hotel.pendingChanges = null;
@@ -67,8 +78,14 @@ export const updateHotel = async (req: Request, res: Response) => {
     // Merchant update: delegate to service to save pending changes
     if (user.role !== 'admin') {
       const allowed: any = {};
-      if (updates.baseInfo) allowed.baseInfo = updates.baseInfo;
-      if (updates.checkinInfo) allowed.checkinInfo = updates.checkinInfo;
+      if (updates.baseInfo) {
+        const sanitizedBase = sanitizeObject(updates.baseInfo);
+        allowed.baseInfo = sanitizedBase;
+      }
+      if (updates.checkinInfo) {
+        const sanitizedCheckin = sanitizeObject(updates.checkinInfo);
+        allowed.checkinInfo = sanitizedCheckin;
+      }
       if (Object.keys(allowed).length === 0) return res.status(400).json({ message: 'No updatable fields provided' });
       try {
         const updated = await hotelService.savePendingChanges(id, user.id, allowed);

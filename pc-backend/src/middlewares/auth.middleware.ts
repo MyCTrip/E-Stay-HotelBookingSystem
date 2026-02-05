@@ -18,7 +18,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     if (!user) return res.status(401).json({ message: 'Unauthorized' });
     if ((user as any).status !== 'active')
       return res.status(403).json({ message: 'Account disabled' });
-    req.user = { id: user._id.toString(), email: user.email, role: user.role };
+    req.user = { id: user._id.toString(), email: user.email, role: user.role, createdAt: user.createdAt ,updatedAt: user.updatedAt };
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid token' });
