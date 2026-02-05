@@ -8,6 +8,8 @@
 - 商户与酒店的 CRUD 与审核流程
 - 审计日志记录平台操作与审核行为
 - 基于 TypeScript 的结构化代码与中间件支持
+- 商户资料格式验证（营业执照号、身份证号）
+- HTML 富文本内容 XSS 防护（使用 DOMPurify）
 
 ## 🔧 技术栈
 
@@ -16,6 +18,7 @@
 - MongoDB + Mongoose
 - JWT
 - Zod
+- DOMPurify + jsdom (HTML 净化，防止 XSS 攻击)
 
 ## 接口与使用方法
 `docs/API/README.md`（包含请求示例与测试说明）

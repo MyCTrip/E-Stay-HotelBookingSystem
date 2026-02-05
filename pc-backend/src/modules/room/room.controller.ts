@@ -3,6 +3,7 @@ import { Room } from './room.model';
 import { Hotel } from '../hotel/hotel.model';
 import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
+import { sanitizeObject } from '../../utils/htmlSanitizer';
 
 export const createRoom = async (req: Request, res: Response) => {
   const user = (req as any).user;
@@ -14,16 +15,22 @@ export const createRoom = async (req: Request, res: Response) => {
     // only owner merchant can create rooms
     if (hotel.merchantId.toString() !== user.id)
       return res.status(403).json({ message: 'Forbidden' });
+    // 净化HTML富文本内容，防止XSS攻击
+    const sanitizedBase = sanitizeObject(baseInfo || {
+      facilities: (req.body as any).facilities || [],
+      policies: (req.body as any).policies || [],
+      bedRemark: (req.body as any).bedRemark || [],
+    });
+    const sanitizedHead = sanitizeObject(headInfo || {});
+    const sanitizedBed = sanitizeObject(bedInfo || []);
+    const sanitizedBreakfast = sanitizeObject(breakfastInfo || {});
+    
     const room = await Room.create({
       hotelId,
-      baseInfo: baseInfo || {
-        facilities: (req.body as any).facilities || [],
-        policies: (req.body as any).policies || [],
-        bedRemark: (req.body as any).bedRemark || [],
-      },
-      headInfo: headInfo || {},
-      bedInfo: bedInfo || [],
-      breakfastInfo: breakfastInfo || {},
+      baseInfo: sanitizedBase,
+      headInfo: sanitizedHead,
+      bedInfo: sanitizedBed,
+      breakfastInfo: sanitizedBreakfast,
       auditInfo: { status: 'draft' },
     });
     res.status(201).json(room);
@@ -54,11 +61,22 @@ export const updateRoom = async (req: Request, res: Response) => {
 
     // Admin may directly apply changes
     if (user.role === 'admin') {
-      if (updates.baseInfo) room.baseInfo = { ...room.baseInfo, ...updates.baseInfo };
-      if (updates.headInfo) room.headInfo = { ...room.headInfo, ...updates.headInfo };
-      if (updates.bedInfo) room.bedInfo = updates.bedInfo;
-      if (updates.breakfastInfo)
-        room.breakfastInfo = { ...room.breakfastInfo, ...updates.breakfastInfo };
+      if (updates.baseInfo) {
+        const sanitizedBase = sanitizeObject(updates.baseInfo);
+        room.baseInfo = { ...room.baseInfo, ...sanitizedBase };
+      }
+      if (updates.headInfo) {
+        const sanitizedHead = sanitizeObject(updates.headInfo);
+        room.headInfo = { ...room.headInfo, ...sanitizedHead };
+      }
+      if (updates.bedInfo) {
+        const sanitizedBed = sanitizeObject(updates.bedInfo);
+        room.bedInfo = sanitizedBed;
+      }
+      if (updates.breakfastInfo) {
+        const sanitizedBreakfast = sanitizeObject(updates.breakfastInfo);
+        room.breakfastInfo = { ...room.breakfastInfo, ...sanitizedBreakfast };
+      }
       room.pendingChanges = null;
       await room.save();
       return res.json(room);
@@ -66,10 +84,22 @@ export const updateRoom = async (req: Request, res: Response) => {
 
     // Merchant update: save as pendingChanges and set status to pending
     const allowed: any = {};
-    if (updates.baseInfo) allowed.baseInfo = updates.baseInfo;
-    if (updates.headInfo) allowed.headInfo = updates.headInfo;
-    if (updates.bedInfo) allowed.bedInfo = updates.bedInfo;
-    if (updates.breakfastInfo) allowed.breakfastInfo = updates.breakfastInfo;
+    if (updates.baseInfo) {
+      const sanitizedBase = sanitizeObject(updates.baseInfo);
+      allowed.baseInfo = sanitizedBase;
+    }
+    if (updates.headInfo) {
+      const sanitizedHead = sanitizeObject(updates.headInfo);
+      allowed.headInfo = sanitizedHead;
+    }
+    if (updates.bedInfo) {
+      const sanitizedBed = sanitizeObject(updates.bedInfo);
+      allowed.bedInfo = sanitizedBed;
+    }
+    if (updates.breakfastInfo) {
+      const sanitizedBreakfast = sanitizeObject(updates.breakfastInfo);
+      allowed.breakfastInfo = sanitizedBreakfast;
+    }
     if (Object.keys(allowed).length === 0)
       return res.status(400).json({ message: 'No updatable fields provided' });
 
