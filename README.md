@@ -6,13 +6,15 @@ E-Stay Mobile — 项目说明
 
 - 框架：React 18 + TypeScript
 - 打包/开发工具：Vite
-- 路由：react-router-dom
-- 服务端状态与缓存：@tanstack/react-query
-- 本地状态：Zustand
-- 列表优化：react-window
+- 路由：react-router-dom（Data Router 架构规范化设计）
+- 服务端状态与缓存：@tanstack/react-query（智能缓存 + 自动重试）
+- 本地状态：Zustand（持久化到 localStorage）
+- 列表优化：react-window（虚拟滚动）
 - 样式：TailwindCSS + PostCSS + Autoprefixer
-- 网络请求：axios（在 `src/services/api.ts` 中封装）
-- 代码规范：ESLint + Prettier（项目已有配置建议补充）
+- 网络请求：axios（在 `src/services/` 中平台无关设计）
+- 代码规范：ESLint + Prettier
+
+---
 
 **二、快速开始（本地运行）**
 前提：确保 `pc-backend` 在 `http://localhost:3000` 运行以便 API 可用。
@@ -33,6 +35,7 @@ pnpm preview
 
 **三、项目结构（重要文件/目录）**
 
+```
 mobile/
 ├── package.json # 依赖与脚本
 ├── vite.config.ts # Vite 配置
@@ -59,14 +62,18 @@ mobile/
 ├── README.md # 本文件
 └── .gitignore
 
+```
+
 **四、各目录/文件说明与开发指引**
 
 - `src/pages/`：页面级组件，每个页面使用独立子目录（便于路由、样式、测试集中管理）。
+
   - `Home`：实现顶部 Banner、核心查询区（城市/日期/人数/关键字）、快捷标签与“查询”按钮。
   - `HotelList`：实现顶部筛选 Summary、筛选面板、虚拟列表（`react-window`）、上拉分页（或无限加载）、列表项卡片（`components/HotelCard`）。
   - `HotelDetail`：酒店大图轮播、基础信息（名称/星级/地址）、设施/政策入口、房型列表（按价格升序）、房间详情入口。
 
 - `src/components/`：小而美的可复用组件库。
+
   - `HotelCard`：列表项卡片，包含缩略图、名称、地址、评分、最低价和优惠标签。
   - `RoomCard`：房型卡片，展示房名、床型、面积、容纳人数、价格与订购按钮。
   - `DatePicker`：移动端友好的日期范围选择器（建议使用自研或轻量第三方，需禁用过去日期并展示夜数）。
@@ -81,6 +88,7 @@ mobile/
 - `src/styles/index.css`：Tailwind 指令与一些容器/安全区样式，`tailwind.config.cjs` 中配置内容扫描路径。
 
 - `vite.config.ts`：开发服务器端口、插件（`@vitejs/plugin-react`）等，开发时可添加 proxy 以转发 API 请求到后端：
+
   ```ts
   // vite.config.ts 中可配置
   server: {
@@ -102,7 +110,11 @@ mobile/
 - 使用 `@tanstack/react-query` 管理服务端数据缓存，设置合理的 `staleTime` 与 `retry` 策略，配合 `react-window` 做长列表虚拟化。
 - 将搜索条件（城市/日期/人数/标签）放入 `zustand`，并持久化到 `localStorage`（短期缓存），以便页面间共享与回退。
 - 图片使用缩略图作为列表占位，详情页再加载高分辨率图片，结合 `useLazyImage` 实现懒加载与占位模糊效果。
-- 想要高分：把时间投入到 1) 列表虚拟化与稳定的分页；2) React Query 的缓存与价格刷新；3) 移动端视觉细节（骨架屏、流畅动效、间距与安全区）。
+- 把时间投入到 1) 列表虚拟化与稳定的分页；2) React Query 的缓存与价格刷新；3) 移动端视觉细节（骨架屏、流畅动效、间距与安全区）。
+- 所有接口调用都在 `src/services/` 统一管理（`hotel.ts`、`room.ts`）
+- **零 DOM 操作**，不涉及浏览器 API，日后接 Taro 不需改动
+- `useHotelList`、`useCities` 等 hooks 封装 React Query 逻辑
+- 每个页面都通过 hooks 获取数据，缓存策略集中管理
 
 **七、常见命令**
 
