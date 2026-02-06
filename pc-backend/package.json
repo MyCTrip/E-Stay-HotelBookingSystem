@@ -10,7 +10,6 @@
     "format": "prettier --write .",
     "typecheck": "tsc -p . --noEmit",
     "test:api": "node scripts/test-api.js",
-    "migrate:fill-facility-policy": "ts-node scripts/migrate-fill-facility-policy.ts",
     "test": "jest --runInBand"
   },
   "engines": {
