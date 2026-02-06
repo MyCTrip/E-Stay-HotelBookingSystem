@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Button, Space, message, Spin } from 'antd';
 import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { hotelApi } from '@/services/hotel';
 import type { Hotel, AuditStatus } from '@/types/hotel';
 import type { UploadFile } from 'antd/es/upload/interface';
 
 // 引入的公共组件
-import { BaseInfoCard } from '@/components/PageLoader/BaseInfoCard';
-import { PolicyCard } from '@/components/PageLoader/PolicyCard';
-import { MarketingCard } from '@/components/PageLoader/MarketingCard';
+import { BaseInfoCard } from '@/components/hotel/BaseInfoCard';
+import { PolicyCard } from '@/components/hotel/PolicyCard';
+import { MarketingCard } from '@/components/hotel/MarketingCard';
 import { RoomListCard } from '@/components/rooms/RoomListCard';
 import { HotelDetailsView } from '@/components/hotel/HotelDetailsView'; // 酒店详情查看组件
 
@@ -36,7 +36,7 @@ interface HotelFormValues {
 }
 
 const HotelManage: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [form] = Form.useForm<HotelFormValues>();
 
   // === 状态管理核心 ===

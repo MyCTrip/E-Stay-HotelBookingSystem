@@ -15,7 +15,7 @@ export const WelcomeCard: React.FC = () => {
             早安，商户管理员，祝你开心每一天！
           </h2>
           <p style={{ color: '#888', margin: 0 }}>
-            交互专家 | 易宿精选酒店集团－产品部
+            易宿精选酒店集团－产品部
           </p>
         </div>
       </div>

@@ -86,24 +86,51 @@ const MainLayout: React.FC = () => {
       <Layout style={{ marginLeft: collapsed ? 80 : 250, transition: 'all 0.2s' }}>
         
         {/* 顶部 Header */}
-        <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {/* 收缩按钮 */}
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: '16px', width: 64, height: 64 }}
-          />
+        <Header style={{ 
+          padding: '0 24px', 
+          background: '#fff', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center' 
+        }}>
+          {/* 左侧：收缩按钮 + 全屏按钮 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ fontSize: '16px', width: 64, height: 64 }}
+            />
+            <Tooltip title={isFullscreen ? "退出全屏" : "全屏"}>
+              <Button 
+                icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} 
+                onClick={toggleFullScreen}
+                style={{ width: 40, height: 40 }} // 调整按钮大小和收缩按钮适配
+              />
+            </Tooltip>
+          </div>
 
-          {/* 右侧工具栏 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-             <Tooltip title={isFullscreen ? "退出全屏" : "全屏"}>
-               <Button 
-                 icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} 
-                 onClick={toggleFullScreen}
-               />
-             </Tooltip>
-             <span>Admin User</span>
+          {/* 右侧：欢迎回来 + 退出登录 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 16,
+            color: '#999' 
+          }}>
+            <span>欢迎回来</span>
+            <span 
+              style={{ 
+                color: '#f04141', 
+                cursor: 'pointer', 
+                textDecoration: 'underline' 
+              }}
+              onClick={() => {
+                localStorage.removeItem('token');
+                navigate('/login');
+              }}
+            >
+              退出登录
+            </span>
           </div>
         </Header>
 

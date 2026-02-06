@@ -27,7 +27,7 @@ export const CheckInModal: React.FC<Props> = ({ open, order, onCancel, onSubmit,
       onOk={handleOk}
       onCancel={onCancel}
       confirmLoading={loading}
-      destroyOnClose
+      destroyOnHidden={true}
     >
       <p>正在为客人 <b>{order?.userInfo.name}</b> 办理入住</p>
       <p>预订房型：{order?.roomInfo.roomType}</p>

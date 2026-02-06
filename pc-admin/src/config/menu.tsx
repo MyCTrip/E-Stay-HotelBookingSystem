@@ -5,8 +5,8 @@ import {
   FileProtectOutlined,
   UserOutlined,
   LogoutOutlined,
-  BankOutlined,     // 新图标建议：用于酒店信息
-  AppstoreOutlined  // 新图标建议：用于房间信息
+  BankOutlined,     
+  AppstoreOutlined  
 } from '@ant-design/icons';
 
 export const MERCHANT_MENU = [
