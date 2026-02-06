@@ -1,68 +1,68 @@
-import React from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Card } from 'antd';
+// import React from 'react';
+// import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+// import { Card } from 'antd';
 
-const HotelLayout: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+// const HotelLayout: React.FC = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
 
-  // 定义 Tab 的样式逻辑
-  // 这种写法完全复刻了 Beach Resort 的简洁风格
-  const getTabStyle = (path: string) => {
-    const isActive = location.pathname === path;
-    return {
-      padding: '12px 24px',
-      cursor: 'pointer',
-      fontSize: '16px',
-      fontWeight: isActive ? 600 : 500,
-      color: isActive ? '#1890ff' : '#666',
-      borderBottom: isActive ? '3px solid #1890ff' : '3px solid transparent',
-      transition: 'all 0.3s',
-    };
-  };
+//   // 定义 Tab 的样式逻辑
+//   // 这种写法完全复刻了 Beach Resort 的简洁风格
+//   const getTabStyle = (path: string) => {
+//     const isActive = location.pathname === path;
+//     return {
+//       padding: '12px 24px',
+//       cursor: 'pointer',
+//       fontSize: '16px',
+//       fontWeight: isActive ? 600 : 500,
+//       color: isActive ? '#1890ff' : '#666',
+//       borderBottom: isActive ? '3px solid #1890ff' : '3px solid transparent',
+//       transition: 'all 0.3s',
+//     };
+//   };
 
-  return (
-    <div style={{ padding: 24 }}>
-      {/* 白色卡片容器，贯穿整个右侧区域 */}
-      <Card
-        variant="borderless"  
-        styles={{ body: { padding: 0, minHeight: '80vh' } }} 
-      >
+//   return (
+//     <div style={{ padding: 24 }}>
+//       {/* 白色卡片容器，贯穿整个右侧区域 */}
+//       <Card
+//         variant="borderless"  
+//         styles={{ body: { padding: 0, minHeight: '80vh' } }} 
+//       >
 
         
-        {/* === 顶部 Tab 区域 === */}
-        <div style={{ 
-          display: 'flex', 
-          borderBottom: '1px solid #f0f0f0', 
-          marginBottom: 24,
-          padding: '0 12px' 
-        }}>
-          {/* Tab 1: 列表 */}
-          <div 
-            style={getTabStyle('/merchant/hotels')} 
-            onClick={() => navigate('/merchant/hotels')}
-          >
-            Rooms List
-          </div>
+//         {/* === 顶部 Tab 区域 === */}
+//         <div style={{ 
+//           display: 'flex', 
+//           borderBottom: '1px solid #f0f0f0', 
+//           marginBottom: 24,
+//           padding: '0 12px' 
+//         }}>
+//           {/* Tab 1: 列表 */}
+//           <div 
+//             style={getTabStyle('/merchant/hotels')} 
+//             onClick={() => navigate('/merchant/hotels')}
+//           >
+//             Rooms List
+//           </div>
 
-          {/* Tab 2: 新建 (点击直接在下方显示表单) */}
-          <div 
-            style={getTabStyle('/merchant/hotels/new')} 
-            onClick={() => navigate('/merchant/hotels/new')}
-          >
-            Create Room
-          </div>
-        </div>
+//           {/* Tab 2: 新建 (点击直接在下方显示表单) */}
+//           <div 
+//             style={getTabStyle('/merchant/hotels/new')} 
+//             onClick={() => navigate('/merchant/hotels/new')}
+//           >
+//             Create Room
+//           </div>
+//         </div>
 
-        {/* === 内容渲染区域 (Outlet) === */}
-        {/* 这里的 Outlet 会根据路由自动变成 HotelList 或 HotelForm */}
-        <div style={{ padding: '0 24px 24px 24px' }}>
-          <Outlet />
-        </div>
+//         {/* === 内容渲染区域 (Outlet) === */}
+//         {/* 这里的 Outlet 会根据路由自动变成 HotelList 或 HotelForm */}
+//         <div style={{ padding: '0 24px 24px 24px' }}>
+//           <Outlet />
+//         </div>
 
-      </Card>
-    </div>
-  );
-};
+//       </Card>
+//     </div>
+//   );
+// };
 
-export default HotelLayout;
+// export default HotelLayout;

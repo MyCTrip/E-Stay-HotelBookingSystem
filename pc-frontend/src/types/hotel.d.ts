@@ -1,81 +1,143 @@
-// src/types/hotel.d.ts
-
-// 1. 审核状态枚举
+/**
+ * 通用审核状态
+ * 对应数据库 enum: ['draft','pending','approved','rejected','offline']
+ */
 export type AuditStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
 
-// 2. 房间 (Room) - 对应数据库 Schema
-export interface Room {
-  _id: string;
-  hotelId: string;
-  // 数据库里是 baseInfo
-  baseInfo: {
-    type: string;
-    price: number;
-    images: string[];
-    status: AuditStatus;
-    maxOccupancy: number;
-    facilities: { category: string; content: string }[];
-    policies: { policyType: string; content: string }[];
-    bedRemark: string[];
-  };
-  headInfo: {
-    size: string;
-    floor: string;
-    wifi: boolean;
-    windowAvailable: boolean;
-    smokingAllowed: boolean;
-  };
-  // ... 其他子文档按需添加
+// ==========================================
+// 1. 房间 (HotelRoom) - 对应后端 Room Schema
+// ==========================================
+
+export interface RoomBaseInfo {
+  type: string;           // 房型名称
+  price: number;          // 价格
+  stock: number;          // ✅ 补全：库存 (前端需要，建议后端也加上)
+  images: string[];       // 图片
+  status: AuditStatus;    // 状态
+  maxOccupancy: number;   // 最大入住人数
 }
 
-// 3. 酒店 (Hotel) - 对应数据库 Schema
+export interface RoomHeadInfo {
+  size: string;           // 面积 (如 25 sqm)
+  floor: string;          // 楼层
+  wifi: boolean;
+  windowAvailable: boolean;
+  smokingAllowed: boolean;
+}
+
+export interface RoomBedInfo {
+  bedType: string;        // 床型
+  bedNumber: number;      // 数量
+  bedSize: string;        // 尺寸
+}
+
+export interface RoomBreakfastInfo {
+  hasBreakfast?: boolean; // ✅ 前端辅助字段，后端可能没有直接对应，转换时处理
+  breakfastType?: string;
+  cuisine?: string;
+  bussinessTime?: string;
+  addBreakfast?: string;
+}
+
+export interface RoomAuditInfo {
+  auditedBy?: string;     
+  auditedAt?: string;     
+  rejectReason?: string;
+}
+
+// 💥 重命名 Room -> HotelRoom 以匹配组件引用
+export interface HotelRoom {
+  _id: string;
+  hotelId: string;
+  
+  // 子文档嵌套
+  baseInfo: RoomBaseInfo;
+  headInfo: RoomHeadInfo;
+  bedInfo: RoomBedInfo[];        
+  breakfastInfo?: RoomBreakfastInfo;
+  auditInfo?: RoomAuditInfo;
+
+  createdAt: string;
+  updatedAt: string;
+
+  bedInfo: Array<{ bedType: string; bedNumber: number; bedSize: string }>;
+}
+
+// ==========================================
+// 2. 酒店 (Hotel)
+// ==========================================
+
+export interface HotelBaseInfo {
+  nameCn: string;
+  nameEn?: string;
+  address: string;
+  city: string;       
+  star: number;
+  openTime: string;      
+  roomTotal: number;
+  phone: string;
+  description: string;
+  images: string[];
+}
+
+export interface HotelCheckinInfo {
+  checkinTime: string;
+  checkoutTime: string;
+  breakfastType?: string;
+  breakfastPrice?: number;
+}
+
+export interface HotelAuditInfo {
+  status: AuditStatus;   
+  auditedBy?: string;    
+  auditedAt?: string;    
+  rejectReason?: string;
+}
+
 export interface Hotel {
   _id: string;
-  merchantId: string;
+  merchantId: string;    
 
-  // ✅ 核心：对应数据库的 baseInfo 子文档
-  baseInfo: {
-    nameCn: string;
-    nameEn?: string;
-    address: string;
-    city: string;
-    star: number;
-    openTime: string;
-    roomTotal: number;
-    phone: string;
-    description: string; // 之前报错缺少的字段在这里！
-    images: string[];
-    facilities: { category: string; content: string }[];
-    policies: { policyType: string; content: string }[];
-  };
+  baseInfo: HotelBaseInfo;
+  checkinInfo?: HotelCheckinInfo;
+  auditInfo?: HotelAuditInfo;
 
-  // ✅ 对应数据库的 auditInfo 子文档
-  auditInfo?: {
-    status: AuditStatus;
-    rejectReason?: string;
-    auditedBy?: string;
-    auditedAt?: string;
-  };
+  // 虚拟字段：如果后端 populate 了 rooms，这里会有值
+  rooms?: HotelRoom[]; // ✅ 这里也要改引用
 
-  // ✅ 对应数据库的 checkinInfo 子文档
-  checkinInfo?: {
-    checkinTime: string;
-    checkoutTime: string;
-  };
-
-  rooms?: Room[]; // 如果后端 Populate 了房间
   createdAt: string;
   updatedAt: string;
 }
 
-// 4. 前端表单用的扁平类型 (仅用于 Form 组件的 values)
+// ==========================================
+// 3. 前端表单类型 (UI Layer)
+// ==========================================
 export interface HotelFormValues {
   nameCn: string;
   nameEn?: string;
   address: string;
   city: string;
   star: number;
-  openTime: any;
+  openTime: any; 
   description: string;
-  images: any[];
+  images: any[]; 
+
+  checkinInfo?: {
+    checkinTime?: string;
+    checkoutTime?: string;
+    breakfastType?: string;
+    breakfastPrice?: number;
+  };
+
+  nearbyList?: { type?: string; name?: string; distance?: string }[];
+  discountRules?: { title?: string; type?: string; value?: string }[];
+  
+  rooms?: Array<{
+    name: string;
+    price: number;
+    stock: number;
+    size?: number;
+    facilities?: string[];
+    hasBreakfast?: boolean;
+  }>;
 }

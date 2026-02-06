@@ -1,169 +1,177 @@
-// import React from 'react';
-import { Layout, Menu, Button } from 'antd';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import {
-  DashboardOutlined,
-  AppstoreOutlined,
-  HomeOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  SafetyCertificateOutlined,
-  FileTextOutlined
+import React, { useState } from 'react';
+import { Layout, Menu, Button, Tooltip, Avatar } from 'antd';
+import { 
+  MenuUnfoldOutlined, 
+  MenuFoldOutlined, 
+  FullscreenOutlined, 
+  FullscreenExitOutlined 
 } from '@ant-design/icons';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { MERCHANT_MENU , ADMIN_MENU } from '@/config/menu'; // 引入刚才抽离的菜单
 
-// 如果你需要保留管理员菜单，可以保留这个 import，否则可以删掉
-// import { ADMIN_MENU } from '@/config/menu';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
-function MainLayout() {
+const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 1. 获取用户角色
-  let role = 'merchant';
+  // 读取用户角色
+  let role: 'merchant' | 'admin' = 'merchant';
   try {
-    const userStr =
-      localStorage.getItem('user') || localStorage.getItem('BEACH-RESORT-USER-STORAGE');
+    const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      if (user?.role) role = user.role;
+      if (user?.role === 'admin') role = 'admin';
     }
-  } catch (err) {
-    console.error('Failed to parse user from localStorage', err); 
-  }
+  } catch {}
 
-  // 2. 定义最新的商户菜单 (完全对应我们的新开发计划)
-  const NEW_MERCHANT_MENU = [
-    {
-      key: '/merchant/entry', // 之前的仪表盘，或者 '/dashboard'
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-    },
-    {
-      key: '/merchant/manage', // ✅ 新增: Manage (对应图中的 User/Manage)
-      icon: <AppstoreOutlined />,
-      label: 'Manage',
-    },
-    {
-      key: '/merchant/hotels', // ✅ 核心: Hotel Rooms (带 Tab 的容器)
-      icon: <HomeOutlined />,
-      label: 'Hotel Rooms',
-    },
-    {
-      key: '/merchant/profile', // 个人资料 (保留占位)
-      icon: <UserOutlined />,
-      label: 'Profile',
-    },
-    {
-      type: 'divider', // 分割线
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Logout',
-      danger: true, // 红色文字，表示危险操作
-    },
-  ];
-  const ADMIN_MENU = [
-    {
-      key: '/admin/dashboard',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-    },
-    {
-      key: '/admin/Audit',
-      icon: <SafetyCertificateOutlined />,
-      label: 'Audit',
-    },
-    {
-      key: '/admin/logs',
-      icon: <FileTextOutlined />,
-      label: 'Logs',
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Logout',
-      danger: true, // 红色文字，表示危险操作
-    },
-  ]
-  // 3. 根据角色选择菜单
-  const menuItems: any = role === 'admin' ? ADMIN_MENU : NEW_MERCHANT_MENU;
+  const menuItems = role === 'admin' ? ADMIN_MENU : MERCHANT_MENU;
 
-  // 4. 计算当前选中的菜单 Key (支持子路由高亮)
-  // 比如访问 /merchant/hotels/new 时，也能高亮 /merchant/hotels
-  const activeKey =
-    menuItems.find((m: any) => m.key && location.pathname.startsWith(m.key))?.key || '';
+  /** 自动匹配当前高亮菜单（支持二级菜单） */
+  const findActiveMenu = (menus: any[], pathname: string): string | null => {
+    for (const item of menus) {
+      if (item.children) {
+        const childMatch = findActiveMenu(item.children, pathname);
+        if (childMatch) return childMatch;
+      }
+      if (item.key && pathname.startsWith(item.key)) {
+        return item.key;
+      }
+    }
+    return null;
+  };
 
-  // 5. 处理菜单点击
+  const selectedKey = findActiveMenu(menuItems, location.pathname);
+
+  // 全屏切换逻辑
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+
+
+  // 菜单点击处理
   const handleMenuClick = (e: any) => {
     if (e.key === 'logout') {
+      // 处理退出逻辑
       localStorage.removeItem('token');
-      localStorage.removeItem('user');
       navigate('/login');
     } else {
+      // 路由跳转
       navigate(e.key);
     }
   };
 
   return (
-    <Layout style={{ height: '100vh', width: '100%', overflow: 'hidden' }}>
-      {/* 左侧边栏 */}
-      <Sider width={240} breakpoint="lg" collapsedWidth="0" style={{ height: '100vh' }}>
-        <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 18,
-          }}
-        >
-          易宿后台
-        </div>
+    <Layout style={{ minHeight: '100vh' }}>
+      {/* === 侧边栏 === */}
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed}
+        width={250}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 100
+        }}
+      >
+        
+        {/* 用户简略信息 (参考代码里的 UserBox) */}
+        {!collapsed && (
+          <div style={{ padding: '0 20px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
+             <Avatar size={64} src="https://ui-avatars.com/api/?name=Admin" />
+             <div style={{ marginTop: 10 }}>欢迎回来</div>
+          </div>
+        )}
+
         <Menu
           theme="dark"
           mode="inline"
+          selectedKeys={selectedKey ? [selectedKey] : []}
           items={menuItems}
-          selectedKeys={[activeKey]}
           onClick={handleMenuClick}
         />
       </Sider>
 
-      {/* 右侧主体 */}
-      <Layout style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100vh' }}>
+      {/* === 右侧主体 === */}
+      <Layout style={{ marginLeft: collapsed ? 80 : 250, transition: 'all 0.2s' }}>
+        
         {/* 顶部 Header */}
-        <Header
-          style={{
-            background: '#fff',
-            padding: '0 24px',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            borderBottom: '1px solid #f0f0f0',
-          }}
-        >
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <span style={{ color: '#999' }}>欢迎回来</span>
-            <Button type="link" danger onClick={() => handleMenuClick({ key: 'logout' })}>
+        <Header style={{ 
+          padding: '0 24px', 
+          background: '#fff', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center' 
+        }}>
+          {/* 左侧：收缩按钮 + 全屏按钮 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ fontSize: '16px', width: 64, height: 64 }}
+            />
+            <Tooltip title={isFullscreen ? "退出全屏" : "全屏"}>
+              <Button 
+                icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />} 
+                onClick={toggleFullScreen}
+                style={{ width: 40, height: 40 }} // 调整按钮大小和收缩按钮适配
+              />
+            </Tooltip>
+          </div>
+
+          {/* 右侧：欢迎回来 + 退出登录 */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 16,
+            color: '#999' 
+          }}>
+            <span>欢迎回来</span>
+            <span 
+              style={{ 
+                color: '#f04141', 
+                cursor: 'pointer', 
+                textDecoration: 'underline' 
+              }}
+              onClick={() => {
+                localStorage.removeItem('token');
+                navigate('/login');
+              }}
+            >
               退出登录
-            </Button>
+            </span>
           </div>
         </Header>
 
-        {/* 内容区域 (Scrollable) */}
-        <Content style={{ margin: 16, overflowY: 'auto', flex: 1, position: 'relative' }}>
-          {/* 使用 100% 宽高确保 Outlet 里的容器能撑开 */}
-          <div style={{ minHeight: '100%' }}>
-            <Outlet />
-          </div>
+        {/* 内容区域 (核心变化：使用 Outlet) */}
+        <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280, borderRadius: 8 }}>
+          {/* 👇 这里是神奇的地方，子路由的内容会自动显示在这里 */}
+          <Outlet />
         </Content>
+
+        <Footer style={{ textAlign: 'center' }}>
+          E-Stay Hotel System ©2026 Created by Frontend Team
+        </Footer>
       </Layout>
     </Layout>
   );
-}
+};
 
 export default MainLayout;
