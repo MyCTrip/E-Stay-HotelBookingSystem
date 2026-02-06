@@ -33,6 +33,7 @@ pnpm preview
 
 **三、项目结构（重要文件/目录）**
 
+```
 mobile/
 ├── package.json # 依赖与脚本
 ├── vite.config.ts # Vite 配置
@@ -58,6 +59,7 @@ mobile/
 │ └── types/ # TypeScript 类型声明（如 api.d.ts）
 ├── README.md # 本文件
 └── .gitignore
+```
 
 **四、各目录/文件说明与开发指引**
 
