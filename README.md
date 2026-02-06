@@ -61,6 +61,7 @@ mobile/
 │ └── types/ # TypeScript 类型声明（如 api.d.ts）
 ├── README.md # 本文件
 └── .gitignore
+```
 
 ```
 
