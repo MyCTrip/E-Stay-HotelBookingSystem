@@ -11,34 +11,36 @@ interface PageResult<T> {
 }
 
 export const hotelApi = {
+    // 对应后端: router.get('/my', ...)
+  getMyHotels: () => request.get<PageResult<Hotel>>('/hotels/my'),
+
   // Merchant: Create Hotel
-  create: (data: Partial<Hotel>) => request.post('/hotel', data),
+  create: (data: Partial<Hotel>) => request.post('/hotels', data),
   
   // Merchant: Update Hotel
-  update: (id: string, data: Partial<Hotel>) => request.put(`/hotel/${id}`, data),
+  update: (id: string, data: Partial<Hotel>) => request.put(`/hotels/${id}`, data),
   
   // Merchant: Submit for Audit (触发状态流转 draft -> pending)
-  submitAudit: (id: string) => request.post(`/hotel/${id}/submit`),
+  submitAudit: (id: string) => request.post(`/hotels/${id}/submit`),
   
   // Get Detail
-  getDetail: (id: string) => request.get<Hotel>(`/hotel/${id}`),
+  getDetail: (id: string) => request.get<Hotel>(`/hotels/${id}`),
   
   // Get List (支持分页查询)
-  getList: (params: any) => request.get<PageResult<Hotel>>('/hotel', { params }),
+  getList: (params: any) => request.get<PageResult<Hotel>>('/hotels', { params }),
 
-  // 对应后端: router.get('/my', ...)
-  getMyHotels: () => request.get<PageResult<Hotel>>('/hotel/my'),
+
 
   // === 🆕 房间管理接口 ===
 // 获取当前酒店的所有房间
-  getRooms: (hotelId: string) => request.get<PageResult<HotelRoom>>(`/hotel/${hotelId}/rooms`),
+  getRooms: (hotelId: string) => request.get<PageResult<HotelRoom>>(`/hotels/${hotelId}/rooms`),
   
   // 添加房间
-  addRoom: (hotelId: string, data: Partial<HotelRoom>) => request.post(`/hotel/${hotelId}/rooms`, data),
+  addRoom: (hotelId: string, data: Partial<HotelRoom>) => request.post(`/hotels/${hotelId}/rooms`, data),
   
   // 更新房间
-  updateRoom: (hotelId: string, roomId: string, data: Partial<HotelRoom>) => request.put(`/hotel/${hotelId}/rooms/${roomId}`, data),
+  updateRoom: (hotelId: string, roomId: string, data: Partial<HotelRoom>) => request.put(`/hotels/${hotelId}/rooms/${roomId}`, data),
   
   // 删除房间
-  deleteRoom: (hotelId: string, roomId: string) => request.delete(`/hotel/${hotelId}/rooms/${roomId}`),
+  deleteRoom: (hotelId: string, roomId: string) => request.delete(`/hotels/${hotelId}/rooms/${roomId}`),
 };

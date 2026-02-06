@@ -59,6 +59,8 @@ export interface HotelRoom {
 
   createdAt: string;
   updatedAt: string;
+
+  bedInfo: Array<{ bedType: string; bedNumber: number; bedSize: string }>;
 }
 
 // ==========================================

@@ -7,7 +7,7 @@ import {
   FullscreenExitOutlined 
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { MERCHANT_MENU } from '@/config/menu'; // 引入刚才抽离的菜单
+import { MERCHANT_MENU , ADMIN_MENU } from '@/config/menu'; // 引入刚才抽离的菜单
 
 
 const { Header, Sider, Content, Footer } = Layout;
@@ -18,8 +18,33 @@ const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 根据当前 URL 自动选中菜单项
-  const selectedKey = location.pathname;
+  // 读取用户角色
+  let role: 'merchant' | 'admin' = 'merchant';
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user?.role === 'admin') role = 'admin';
+    }
+  } catch {}
+
+  const menuItems = role === 'admin' ? ADMIN_MENU : MERCHANT_MENU;
+
+  /** 自动匹配当前高亮菜单（支持二级菜单） */
+  const findActiveMenu = (menus: any[], pathname: string): string | null => {
+    for (const item of menus) {
+      if (item.children) {
+        const childMatch = findActiveMenu(item.children, pathname);
+        if (childMatch) return childMatch;
+      }
+      if (item.key && pathname.startsWith(item.key)) {
+        return item.key;
+      }
+    }
+    return null;
+  };
+
+  const selectedKey = findActiveMenu(menuItems, location.pathname);
 
   // 全屏切换逻辑
   const toggleFullScreen = () => {
@@ -33,6 +58,7 @@ const MainLayout: React.FC = () => {
       }
     }
   };
+
 
   // 菜单点击处理
   const handleMenuClick = (e: any) => {
@@ -69,15 +95,15 @@ const MainLayout: React.FC = () => {
         {!collapsed && (
           <div style={{ padding: '0 20px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
              <Avatar size={64} src="https://ui-avatars.com/api/?name=Admin" />
-             <div style={{ marginTop: 10 }}>欢迎回来, 商户</div>
+             <div style={{ marginTop: 10 }}>欢迎回来</div>
           </div>
         )}
 
         <Menu
           theme="dark"
           mode="inline"
-          selectedKeys={[selectedKey]}
-          items={MERCHANT_MENU}
+          selectedKeys={selectedKey ? [selectedKey] : []}
+          items={menuItems}
           onClick={handleMenuClick}
         />
       </Sider>

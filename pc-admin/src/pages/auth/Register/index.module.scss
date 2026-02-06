@@ -15,9 +15,8 @@
   color: #0b1220;
 }
 
-/* Increase label and input sizes (Ant components are global classes) */
 .formContainer :global(.ant-form-item-label > label) {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -26,33 +25,29 @@
   height: 52px;
   display: flex;
   align-items: center;
-  padding: 0 12px; /* keep left/right padding but let inner input center */
+  padding: 0 12px; /* left/right padding */
   background: transparent; /* remove gray fill */
-  border-color: #e6e6e6; /* keep a subtle border */
+  border-color: #e6e6e6;
 }
 
-/* Make the internal input auto height so it centers within wrapper */
 .formContainer :global(.ant-input) {
   height: auto;
-  font-size: 20px;
+  font-size: 16px;
   padding: 10px 0;
   line-height: 1.2;
-  background: transparent; /* ensure internal input has no background */
+  background: transparent;
   color: #111827;
 }
 
-/* Placeholder color */
 .formContainer :global(.ant-input::placeholder) {
   color: #9ca3af;
 }
 
-/* Password component still uses affix wrapper; keep explicit height for narrow cases */
 .formContainer :global(.ant-input-password) {
   height: 52px;
   background: transparent;
 }
 
-/* Icon color */
 .formContainer :global(.ant-input-prefix) {
   color: #0b1220;
 }
@@ -72,7 +67,7 @@
   .formContainer :global(.ant-input-affix-wrapper),
   .formContainer :global(.ant-input-password) {
     height: 48px;
-    font-size: 18px;
+    font-size: 15px;
   }
 }
 
@@ -88,7 +83,6 @@
   transition: background-color 5000s ease-in-out 0s !important;
 }
 
-/* Also handle textarea/password related autofill */
 .formContainer :global(textarea:-webkit-autofill),
 .formContainer :global(input[type='password']:-webkit-autofill) {
   -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
@@ -96,7 +90,6 @@
   background-color: transparent !important;
 }
 
-/* subtle focus style */
 .formContainer :global(.ant-input-affix-wrapper):focus-within {
   border-color: #0b1220 !important;
   box-shadow: 0 0 0 4px rgba(11, 18, 32, 0.06);

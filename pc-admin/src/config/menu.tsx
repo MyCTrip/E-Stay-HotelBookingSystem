@@ -1,4 +1,5 @@
 // src/config/menu.tsx
+import type { MenuProps } from 'antd'
 import {
   DashboardOutlined,
   HomeOutlined,
@@ -6,10 +7,14 @@ import {
   UserOutlined,
   LogoutOutlined,
   BankOutlined,     
-  AppstoreOutlined  
+  AppstoreOutlined,
+  SafetyCertificateOutlined,
+  FileTextOutlined  
 } from '@ant-design/icons';
 
-export const MERCHANT_MENU = [
+type MenuItem = Required<MenuProps>['items'][number]
+
+export const MERCHANT_MENU: MenuItem[] = [
   {
     key: '/merchant/overview',
     icon: <DashboardOutlined />,
@@ -43,6 +48,7 @@ export const MERCHANT_MENU = [
     icon: <UserOutlined />,
     label: '个人资料'
   },
+  { type: 'divider' },
   {
     key: 'logout',
     icon: <LogoutOutlined />,
@@ -52,4 +58,29 @@ export const MERCHANT_MENU = [
 ];
 
 // 如果有管理员端，也可以写在这里
-export const ADMIN_MENU = [ ];
+export const ADMIN_MENU: MenuItem[] = [ 
+    {
+    key: '/admin/dashboard',
+    icon: <DashboardOutlined />,
+    label: '仪表盘',
+  },
+  {
+    key: '/admin/audit',
+    icon: <SafetyCertificateOutlined />,
+    label: '审核管理',
+  },
+  {
+    key: '/admin/logs',
+    icon: <FileTextOutlined />,
+    label: '系统日志',
+  },
+  {
+    type: 'divider',
+  },
+  {
+    key: 'logout',
+    icon: <LogoutOutlined />,
+    label: '退出登录',
+    danger: true,
+  },
+];
