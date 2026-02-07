@@ -7,6 +7,7 @@ interface RateLimitConfig {
   max: number; // 时间窗口内的最大请求数
   message?: string; // 超过限制时的错误消息
   headers?: boolean; // 是否在响应头中包含限制信息
+  keyGenerator?: (req: Request) => string; // 自定义键生成器函数
 }
 
 // 内存存储接口
@@ -113,7 +114,11 @@ export const rateLimit = (config: Partial<RateLimitConfig> = {}) => {
         return;
       }
 
-      const key = generateKey(req, 'rate_limit');
+      // 使用自定义的键生成器，如果没有则使用默认的
+      const key = mergedConfig.keyGenerator 
+        ? mergedConfig.keyGenerator(req)
+        : generateKey(req, 'rate_limit');
+      
       let current = 0;
       let resetTime = Date.now() + mergedConfig.windowMs;
 
@@ -190,11 +195,29 @@ export const sensitiveRateLimit = () => {
 };
 
 // 登录接口频率限制中间件
+// 基于邮箱而不是用户ID来限制，防止同一用户多次登录被限制
 export const loginRateLimit = () => {
-  return rateLimit(loginConfig);
+  return rateLimit({
+    ...loginConfig,
+    keyGenerator: (req: Request) => {
+      const ip = getClientIP(req);
+      // 从请求体中获取邮箱作为用户标识
+      const email = (req.body?.email || 'unknown').toLowerCase().trim();
+      return `login:${ip}:${email}`;
+    },
+  });
 };
 
 // 注册接口频率限制中间件
+// 基于邮箱而不是用户ID来限制，防止不同用户从同一IP注册被互相限制
 export const registerRateLimit = () => {
-  return rateLimit(registerConfig);
+  return rateLimit({
+    ...registerConfig,
+    keyGenerator: (req: Request) => {
+      const ip = getClientIP(req);
+      // 从请求体中获取邮箱作为用户标识
+      const email = (req.body?.email || 'unknown').toLowerCase().trim();
+      return `register:${ip}:${email}`;
+    },
+  });
 };
