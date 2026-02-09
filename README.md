@@ -1,124 +1,193 @@
-E-Stay Mobile — 项目说明
+# E-Stay 酒店预订系统 - 移动端项目
 
-本文档简要说明 `mobile/` 子项目的技术栈、项目结构、各目录/文件作用以及本地运行方法，便于团队成员快速上手开发与扩展。
+## 📱 项目概述
 
-**一、技术栈**
+E-Stay 移动端是一个跨平台酒店预订应用，目标支持 **Web H5** 和 **微信小程序** 两个平台。项目采用 **monorepo 架构**，使用 `pnpm workspaces` 管理依赖，通过共享业务层（shared）实现两个平台间的代码复用。
 
-- 框架：React 18 + TypeScript
-- 打包/开发工具：Vite
-- 路由：react-router-dom（Data Router 架构规范化设计）
-- 服务端状态与缓存：@tanstack/react-query（智能缓存 + 自动重试）
-- 本地状态：Zustand（持久化到 localStorage）
-- 列表优化：react-window（虚拟滚动）
-- 样式：TailwindCSS + PostCSS + Autoprefixer
-- 网络请求：axios（在 `src/services/` 中平台无关设计）
-- 代码规范：ESLint + Prettier
+### 关键特性
+
+✅ **单一代码库** - Web、小程序共用一套业务逻辑和 UI 组件  
+✅ **平台适配** - 自动适配不同平台的 API（localStorage vs Taro.storage）  
+✅ **工厂函数模式** - 所有服务（API、Store、Hook）都支持依赖注入  
+✅ **完整功能** - 城市搜索、酒店列表、详情查看、排序筛选
 
 ---
 
-**二、快速开始（本地运行）**
-前提：确保 `pc-backend` 在 `http://localhost:3000` 运行以便 API 可用。
-
-```bash
-cd mobile
-pnpm install
-pnpm dev
-# 在浏览器打开 http://localhost:5173/
-```
-
-打包生产：
-
-```bash
-pnpm build
-pnpm preview
-```
-
-**三、项目结构（重要文件/目录）**
+## 📁 项目结构
 
 ```
 mobile/
-├── package.json # 依赖与脚本
-├── vite.config.ts # Vite 配置
-├── tsconfig.json # TypeScript 配置
-├── tailwind.config.cjs # Tailwind 配置
-├── postcss.config.cjs # PostCSS 配置
-├── index.html # 入口 HTML
-├── src/
-│ ├── main.tsx # 应用入口（挂载 React Query / Router）
-│ ├── App.tsx # 路由入口与顶层布局
-│ ├── styles/ # 全局样式与 Tailwind 引用
-│ │ └── index.css
-│ ├── pages/ # 页面目录（按页面拆分子目录）
-│ │ ├── Home/ # 首页（搜索入口、Banner）
-│ │ ├── HotelList/ # 酒店列表页（分页/筛选/卡片）
-│ │ └── HotelDetail/ # 酒店详情页（图片轮播、房型列表、设施/政策）
-│ ├── components/ # 可复用 UI 组件（HotelCard、RoomCard、DatePicker 等）
-│ ├── services/ # API 封装
-│ │ └── api.ts # axios 实例（baseURL 指向后端）
-│ ├── stores/ # 全局轻量状态（Zustand）
-│ ├── hooks/ # 自定义 Hook（useLazyImage、usePriceRefresh 等）
-│ ├── utils/ # 工具函数（format、cache、geo 等）
-│ └── types/ # TypeScript 类型声明（如 api.d.ts）
-├── README.md # 本文件
-└── .gitignore
+├── shared/          # 共享业务层（两平台通用）
+├── web/             # Web H5 应用（React + Vite）
+├── taro/            # WeChat 小程序（Taro 3 + React）
+├── package.json     # 根包配置（pnpm workspaces）
+├── pnpm-workspace.yaml
+└── README.md        # 本文件
 ```
 
-**四、各目录/文件说明与开发指引**
+### 各子项目功能一览
 
-- `src/pages/`：页面级组件，每个页面使用独立子目录（便于路由、样式、测试集中管理）。
+| 项目 | 技术栈 | 用途 | 平台 |
+|------|--------|------|------|
+| **shared** | TypeScript, Zustand, React Query | 共享业务逻辑、API、数据管理 | 两平台通用 |
+| **web** | React 18, Vite, React Router | Web H5 用户界面与交互 | 浏览器 |
+| **taro** | Taro 3, React, WeChat SDK | 小程序用户界面与交互 | 微信小程序 |
 
-  - `Home`：实现顶部 Banner、核心查询区（城市/日期/人数/关键字）、快捷标签与“查询”按钮。
-  - `HotelList`：实现顶部筛选 Summary、筛选面板、虚拟列表（`react-window`）、上拉分页（或无限加载）、列表项卡片（`components/HotelCard`）。
-  - `HotelDetail`：酒店大图轮播、基础信息（名称/星级/地址）、设施/政策入口、房型列表（按价格升序）、房间详情入口。
+---
 
-- `src/components/`：小而美的可复用组件库。
+## 🚀 快速开始
 
-  - `HotelCard`：列表项卡片，包含缩略图、名称、地址、评分、最低价和优惠标签。
-  - `RoomCard`：房型卡片，展示房名、床型、面积、容纳人数、价格与订购按钮。
-  - `DatePicker`：移动端友好的日期范围选择器（建议使用自研或轻量第三方，需禁用过去日期并展示夜数）。
-  - `ImageGallery`：图片轮播组件，可用现成库或基于 CSS 做简单实现。
+### 前置条件
 
-- `src/services/api.ts`：axios 实例，默认 baseURL 指向 `http://localhost:3000/api`。所有后端请求统一在 `src/services/*` 中封装，便于添加 token 拦截器、错误统一处理与重试逻辑。
+- **Node.js** >= 16  
+- **pnpm** >= 8.0（推荐使用，自动支持 workspaces）
 
-- `src/stores/`：使用 `zustand` 管理本地搜索条件、收藏列表、UI 状态（模态框展开/折叠）等轻量级状态。跨页面共享状态（如搜索条件）放这里。
+### 安装依赖
 
-- `src/hooks/`：自定义 hook 集中地。例如 `useLazyImage`（懒加载）、`usePriceRefresh`（定时或 WebSocket 的价格刷新）、`useInfiniteHotels`（结合 React Query 的分页钩子）。
+```bash
+# 在 mobile 目录下
+cd mobile
+pnpm install
+```
 
-- `src/styles/index.css`：Tailwind 指令与一些容器/安全区样式，`tailwind.config.cjs` 中配置内容扫描路径。
+### 开发启动
 
-- `vite.config.ts`：开发服务器端口、插件（`@vitejs/plugin-react`）等，开发时可添加 proxy 以转发 API 请求到后端：
+**启动 Web H5 开发服务器：**
+```bash
+pnpm dev:web
+# 访问 http://localhost:5174
+```
 
-  ```ts
-  // vite.config.ts 中可配置
-  server: {
-  	proxy: { '/api': 'http://localhost:3000' }
-  }
+**启动 Taro 小程序编译（watch 模式）：**
+```bash
+pnpm dev:taro
+# 使用微信开发者工具打开 taro/dist 目录
+```
 
-**五、与后端接口对接要点（参考 `pc-backend` 已实现接口）**
+**构建 Shared 共享层：**
+```bash
+pnpm build:shared
+# 生成 shared/dist 目录
+```
 
-- 城市列表：`GET /api/hotels/cities`（缓存 24 小时）
-- 热门酒店（首页）：`GET /api/hotels/hot?limit=10`（缓存 1 小时）
-- 酒店列表：`GET /api/hotels?city=&search=&limit=&page=`（缓存 5 分钟）
-- 酒店详情/房型：`GET /api/hotels/:id`、`GET /api/hotels/:id/rooms`
+### 生产构建
 
-前端注意：后端模型中 `Hotel.baseInfo` 与 `Room.baseInfo` 中已经包含 `facilities` 与 `policies` 的 HTML 内容，前端渲染富文本时仍应使用安全策略（例如 DOMPurify）或 React 的受控渲染方式，避免 XSS。后端已做净化，但前端加一层更稳妥。
+```bash
+# Web 生产构建
+pnpm build:web
 
-**六、开发建议与最佳实践**
+# Taro 小程序生产构建
+pnpm build:taro
 
-- 使用 `@tanstack/react-query` 管理服务端数据缓存，设置合理的 `staleTime` 与 `retry` 策略，配合 `react-window` 做长列表虚拟化。
-- 将搜索条件（城市/日期/人数/标签）放入 `zustand`，并持久化到 `localStorage`（短期缓存），以便页面间共享与回退。
-- 图片使用缩略图作为列表占位，详情页再加载高分辨率图片，结合 `useLazyImage` 实现懒加载与占位模糊效果。
-- 把时间投入到 1) 列表虚拟化与稳定的分页；2) React Query 的缓存与价格刷新；3) 移动端视觉细节（骨架屏、流畅动效、间距与安全区）。
-- 所有接口调用都在 `src/services/` 统一管理（`hotel.ts`、`room.ts`）
-- **零 DOM 操作**，不涉及浏览器 API，日后接 Taro 不需改动
-- `useHotelList`、`useCities` 等 hooks 封装 React Query 逻辑
-- 每个页面都通过 hooks 获取数据，缓存策略集中管理
+# Shared 类库构建
+pnpm build:shared
+```
 
-**七、常见命令**
+---
 
-- 安装依赖：`pnpm install`
-- 启动开发：`pnpm dev`
-- 生成生产：`pnpm build`
-- 本地预览：`pnpm preview`
+## 📋 开发注意事项
+
+### 1. 依赖管理
+
+- **shared** 中的改动会影响 web 和 taro，务必测试两个平台
+- 安装新依赖应该在对应子项目目录内运行：`pnpm add -D <package>`
+- 工作区依赖默认链接，无需发布 npm
+
+### 2. 环境变量
+
+**Web 项目** (`web/.env`)：
+```
+VITE_API_URL=http://localhost:3000/api
+```
+
+**Taro 项目** (`taro/config/index.js`)：
+```javascript
+API_BASE_URL: () => process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:3000/api'
+  : 'https://api.estay.com/api'
+```
+
+### 3. 图片/资源
+
+- **Web**: 放在 `web/src/assets/` 或 `web/public/`
+- **Taro**: 放在 `taro/src/assets/`，编译时自动处理
+
+### 4. 样式
+
+- **Web**: 使用 CSS Modules + Tailwind CSS
+- **Taro**: 使用纯 CSS，自动生成 `.wxss` 小程序样式文件
+
+### 5. API 调用
+
+所有 API 调用通过 `shared/src/services/api.ts` 中的工厂函数：
+```typescript
+import { createApiInstance } from '@estay/shared'
+
+// Web 中
+const api = createApiInstance(baseUrl, localStorage)
+
+// Taro 中
+const api = createApiInstance(baseUrl, taroStorage)
+```
+
+### 6. 状态管理
+
+使用 Zustand store，支持持久化适配器：
+```typescript
+// 自动持久化到平台对应的存储
+const searchStore = createPersistentSearchStore(storage)
+```
+
+---
+
+## 🔧 常见问题
+
+**Q: 修改 shared 后 web/taro 没有更新**  
+A: shared 使用 TypeScript 编译到 dist，修改后需运行 `pnpm build:shared`
+
+**Q: Taro 编译错误 "找不到页面实例"**  
+A: 确保页面组件正确导出且在 `app.config.ts` 的 pages 数组中声明
+
+**Q: Web 中的样式在 Taro 中失效**  
+A: Taro 不支持所有 CSS 特性，需要转换为小程序兼容的样式（参见各自 README）
+
+**Q: API 请求超时**  
+A: 检查后端服务是否运行，后端应该在 http://localhost:3000
+
+---
+
+## 📚 详细文档
+
+- [**shared/** 详细说明](./shared/README.md) - 业务逻辑层架构
+- [**web/** 详细说明](./web/README.md) - Web 项目结构与组件
+- [**taro/** 详细说明](./taro/README.md) - Taro 小程序项目结构
+
+---
+
+## 🎯 项目规划
+
+### 已完成
+
+✅ 共享业务层（API、Store、Hook、工具函数）  
+✅ Web H5 完整页面实现  
+✅ Taro 小程序完整页面实现  
+✅ 两平台功能及样式对齐
+
+### 待优化
+
+- [ ] 图片加载优化（懒加载、CDN）
+- [ ] 性能监控与错误上报
+- [ ] 离线模式支持
+- [ ] PWA 支持（Web）
+- [ ] 测试覆盖（单元、E2E）
+
+---
+
+## 🤝 协作规范
+
+1. 在 shared 中实现通用逻辑，确保两个平台都能使用
+2. Platform-specific 代码放在各自 `src/adapters/` 目录
+3. Commit 前运行 `pnpm type-check` 检查 TypeScript 错误
+4. Pull Request 需要两个平台都测试通过
 
 ---
