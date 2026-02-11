@@ -1,3 +1,5 @@
+import Taro from '@tarojs/taro'
+
 /**
  * 小程序应用路由配置
  *
@@ -105,14 +107,12 @@ export const getPageInfo = (key: keyof typeof ROUTE_CONFIG): PageRoute => {
 /**
  * 导航辅助函数
  * 提供类型安全的页面跳转方法
- * 这些函数在运行时导入Taro，避免在编译器加载app.config.ts时执行Taro代码
  */
 export const navigate = {
   /**
    * 导航到首页（Tab 页面）
    */
   toHome: () => {
-    const Taro = require('@tarojs/taro').default
     Taro.switchTab({ url: ROUTES.HOME })
   },
 
@@ -120,7 +120,6 @@ export const navigate = {
    * 导航到搜索结果页面
    */
   toSearchResult: () => {
-    const Taro = require('@tarojs/taro').default
     Taro.navigateTo({ url: ROUTES.SEARCH_RESULT })
   },
 
@@ -128,7 +127,6 @@ export const navigate = {
    * 导航到酒店详情页
    */
   toHotelDetail: (id: string) => {
-    const Taro = require('@tarojs/taro').default
     Taro.navigateTo({ url: `${ROUTES.HOTEL_DETAIL}?id=${id}` })
   },
 
@@ -136,7 +134,6 @@ export const navigate = {
    * 导航到房间详情页
    */
   toRoomDetail: (id: string) => {
-    const Taro = require('@tarojs/taro').default
     Taro.navigateTo({ url: `${ROUTES.ROOM_DETAIL}?id=${id}` })
   },
 
@@ -144,7 +141,6 @@ export const navigate = {
    * 导航到 404 页面
    */
   toNotFound: () => {
-    const Taro = require('@tarojs/taro').default
     Taro.navigateTo({ url: ROUTES.NOT_FOUND })
   },
 
@@ -152,7 +148,6 @@ export const navigate = {
    * 通用导航方法 - 自动判断是否为 Tab 页面
    */
   go: (key: keyof typeof ROUTES, params?: Record<string, any>) => {
-    const Taro = require('@tarojs/taro').default
     const pageRoute = ROUTE_CONFIG[key as keyof typeof ROUTE_CONFIG]
     const path = ROUTES[key]
 
@@ -169,7 +164,6 @@ export const navigate = {
    * 返回上一页
    */
   back: (delta: number = 1) => {
-    const Taro = require('@tarojs/taro').default
     Taro.navigateBack({ delta })
   },
 
@@ -177,7 +171,6 @@ export const navigate = {
    * 重定向到首页
    */
   redirect: () => {
-    const Taro = require('@tarojs/taro').default
     Taro.switchTab({ url: ROUTES.HOME })
   },
 } as const

@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react'
 import Taro, { useLaunch } from '@tarojs/taro'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   registerStorage,
   createTaroStorageImpl,
@@ -11,6 +12,16 @@ import {
 } from '@estay/shared'
 
 import './app.scss'
+
+// 创建 QueryClient 实例
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5分钟
+    },
+  },
+})
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
@@ -45,10 +56,13 @@ function App({ children }: PropsWithChildren<any>) {
     initHotelStore(api)
   })
 
-  // 在 Taro 4.x 中，App 组件需要返回 children
-  return children
+  // 在 Taro 4.x 中，App 组件需要返回 children，并使用 QueryClientProvider 包装
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  )
 }
-
 
 
 export default App
