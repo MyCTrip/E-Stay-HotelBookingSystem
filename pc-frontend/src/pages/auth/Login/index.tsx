@@ -25,7 +25,7 @@ const Login: React.FC = () => {
       if (role === 'admin') {
         navigate('/admin/audit', { replace: true });
       } else {
-        navigate('/merchant/entry', { replace: true });
+        navigate('/merchant/overview', { replace: true });
       }
     } catch {
       removeToken();

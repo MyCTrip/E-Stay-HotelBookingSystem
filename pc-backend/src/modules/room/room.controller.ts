@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Room } from './room.model';
 import { Hotel } from '../hotel/hotel.model';
+import { Merchant } from '../merchant/merchant.model';
 import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
 import { sanitizeObject } from '../../utils/htmlSanitizer';
@@ -12,9 +13,13 @@ export const createRoom = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
-    // only owner merchant can create rooms
-    if (hotel.merchantId.toString() !== user.id)
+    
+    // only owner merchant can create rooms - verify by checking merchantId
+    const merchantProfile = await Merchant.findOne({ userId: user.id });
+    if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
       return res.status(403).json({ message: 'Forbidden' });
+    }
+    
     // 净化HTML富文本内容，防止XSS攻击
     const sanitizedBase = sanitizeObject(baseInfo || {
       facilities: (req.body as any).facilities || [],
@@ -48,8 +53,14 @@ export const updateRoom = async (req: Request, res: Response) => {
     if (!room) return res.status(404).json({ message: 'Not found' });
     const hotel = await Hotel.findById(room.hotelId);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
-    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-      return res.status(403).json({ message: 'Forbidden' });
+    
+    // Check authorization - allow admin or owner merchant
+    if (user.role !== 'admin') {
+      const merchantProfile = await Merchant.findOne({ userId: user.id });
+      if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+    }
 
     // Check optimistic concurrency if client provided __v or updatedAt
     if (updates.__v !== undefined && updates.__v !== room.__v) {
@@ -163,8 +174,13 @@ export const submitRoom = async (req: Request, res: Response) => {
     if (!room) return res.status(404).json({ message: 'Not found' });
     const hotel = await Hotel.findById(room.hotelId);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
-    if (hotel.merchantId.toString() !== user.id)
+    
+    // Check authorization - only owner merchant can submit
+    const merchantProfile = await Merchant.findOne({ userId: user.id });
+    if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
       return res.status(403).json({ message: 'Forbidden' });
+    }
+    
     const updated = await Room.findByIdAndUpdate(
       id,
       { $set: { 'auditInfo.status': 'pending' } },
@@ -177,6 +193,15 @@ export const submitRoom = async (req: Request, res: Response) => {
       action: 'submit',
       operatorId: user.id,
     });
+    
+    // notify admins about pending audit
+    const resourceName = updated.baseInfo.type || '房间';
+    await notificationService.notifyAdminsAuditPending('room', updated._id.toString(), resourceName, {
+      roomId: updated._id,
+      roomType: resourceName,
+      hotelId: room.hotelId,
+    });
+    
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ message: err.message });

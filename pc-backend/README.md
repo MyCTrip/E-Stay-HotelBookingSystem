@@ -163,8 +163,8 @@ pnpm start
 
 **auditInfo（审核状态）**
 
-- `verifyStatus` — String, **必填**, enum: `['unverified','pending','verified','rejected']`, default: `'unverified'`
-- `rejectReason` — String, 可选
+- `status` — String, **必填**, enum: `['unverified','pending','verified','rejected']`, default: `'unverified'` — 商户账户审核状态
+- `rejectReason` — String, 可选 — 审核驳回原因
 
 ---
 
@@ -191,6 +191,9 @@ pnpm start
 - `baseInfo` — 子文档, **必填**
 - `checkinInfo` — 子文档, 可选, 默认 `{}`
 - `auditInfo` — 子文档, 可选, 默认 `{}`
+- `pendingChanges` — Mixed, 可选, 默认 `null` — 临时存储商户提交但待审批的更新内容
+- `pendingDeletion` — Boolean, 可选, 默认 `false` — 删除请求标记
+- `deletedAt` — Date, 可选, 默认 `null`
 - timestamps: `createdAt`, `updatedAt`
 
 **baseInfo（酒店基础信息）**
@@ -199,44 +202,84 @@ pnpm start
 - `nameEn` — String, 可选
 - `address` — String, **必填**
 - `city` — String, **必填**, **带索引 (index)**
-- `star` — Number, **必填**
-- `openTime` — String, **必填**（文本）
-- `roomTotal` — Number, **必填**
+- `star` — Number, **必填**, 0~5 之间的整数
+- `openTime` — String, **必填**（文本，如 "2020-01-01"）
+- `roomTotal` — Number, **必填**, 最小值 0
 - `phone` — String, **必填**
 - `description` — String, **必填**
 - `images` — String[], **必填**
 - `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，用于按分类展示酒店设施。*Facility* 对象结构：
-  - `category` — String **必填**（例如："公共","房内"）
+  - `category` — String **必填**（例如："公共设施"）
+  - `content` — String **必填**，HTML 富文本（分类的整体描述）
   - `summary` — String 可选（短摘要，供列表/搜索使用）
   - `icon` — String 可选（图标标识或路径）
-  - `order` — Number 可选（用于排序）
-  - `visible` — Boolean 可选（默认 true，表示是否展示）
-  - `items` — Array 可选，项为 { `item`: String **必填**, `content`: String **必填**, HTML 富文本 }（用于列出细分设施）
-  - 说明：`content` / `items[].content` 为 HTML 富文本，系统在展示前应做必要的富文本安全处理与富文本编辑支持。
+  - `order` — Number 可选，默认 0（用于排序）
+  - `visible` — Boolean 可选，默认 true（是否展示）
+  - `items` — Array 可选，用于列出分类下的细分设施。每项结构：
+    - `name` — String **必填**（设施名称，如"免费WiFi"）
+    - `description` — String 可选（设施说明，支持HTML）
+    - `icon` — String 可选（设施图标）
+    - `available` — Boolean 可选，默认 true（设施是否可用）
+  - 说明：`content` 支持 HTML 富文本，系统在存储和显示前应做 XSS 防护处理。
 - `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，记录酒店整体政策。*Policy* 对象结构：
   - `policyType` — String **必填**（如 `petAllowed` / `cancellation`）
-  - `summary` — String 可选（简短描述）
   - `content` — String **必填**，HTML 富文本（策略详情）
-  - `flags` — String[] 可选（用于快速筛选/标签）
-  - `effectiveFrom` — String 可选（ISO 日期，表示生效时间）
-  - 说明：`content` 为富文本，建议使用编辑器（富文本/HTML）创建并在后端做校验与 XSS 防护。
+  - `summary` — String 可选（简短描述，用于列表显示）
+  - `flags` — Record<string, any> 可选，JSON 对象（用于快速筛选/标签，如 `{type:'pet', allowed:true}` ...）
+  - `effectiveFrom` — Date 可选（生效日期）
+  - 说明：`content` 为 HTML 富文本，建议使用编辑器创建并在后端做 XSS 防护。
+- `surroundings` — Array 可选，记录酒店周边重要点。每项结构：
+  - `surType` — String, 枚举：`'metro'` | `'attraction'` | `'business'`（地铁 / 景点 / 商圈）
+  - `surName` — String **必填**（名称）
+  - `distance` — Number **必填**（距离，单位米）
+- `discounts` — Array 可选，记录酒店可用促销。每项结构：
+  - `title` — String **必填**（促销标题）
+  - `type` — String **必填**，枚举：`'discount'` | `'instant'`（折扣 / 立减）
+  - `content` — String **必填**（促销描述）
 
 **checkinInfo（入住 / 早餐）**
 
 - `checkinTime` — String, **必填**
 - `checkoutTime` — String, **必填**
 
+**checkinInfo（入住 / 早餐）**
+
+- `checkinTime` — String, **必填**（如 "14:00"）
+- `checkoutTime` — String, **必填**（如 "11:00"）
+- `breakfastType` — String, 可选（早餐类型）
+- `breakfastPrice` — Number, 可选（早餐价格）
+
+**auditInfo（审核状态）**
+
+- `status` — String, **必填**, 枚举：`'draft'` | `'pending'` | `'approved'` | `'rejected'` | `'offline'`, 默认 `'draft'`
+- `auditedBy` — ObjectId, 可选, ref: `User`, **带索引 (index)**, 默认 `null`
+- `auditedAt` — Date, 可选, 默认 `null`
+- `rejectReason` — String, 可选（驳回原因）
+
 **商户侧更新说明**
 
-- 商户对 `Hotel` / `Room` 的更新通过 `PUT` 提交后 **不会立即生效**。商户提交的更改会保存到 `pendingChanges` 字段，并把 `auditInfo.status` 设为 `pending`，管理员需通过现有的审批接口（`/api/admin/hotels/:id/approve` 或 `/api/admin/rooms/:id/approve`）审核通过后，系统会把 `pendingChanges` 合并到正式字段并清除 `pendingChanges`；若管理员驳回，`auditInfo.status` 将被置为 `rejected` 并记录 `rejectReason`，商户需重新修改后再次提交审核。  
-- `surroundings` — Array（可选），记录酒店周边重要点（如地铁 / 景点 / 商圈）。每项结构：
-  - `surType` — String，枚举：`metro` | `attraction` | `business`（地铁 / 景点 / 商圈）
-  - `surName` — String，名称
-  - `distance` — Number，距离（米）
-- `discounts` — Array（可选），记录酒店可用的促销信息。每项结构：
-  - `title` — String
-  - `type` — String，枚举：`discount` | `instant`（折扣 / 立减）
-  - `content` — String，描述
+- 商户对 `Hotel` / `Room` 的更新通过 `PUT` 提交后 **不会立即生效**。商户提交的更改会保存到 `pendingChanges` 字段，并把 `auditInfo.status` 设为 `pending`，管理员需通过现有的审批接口（`/api/admin/hotels/:id/approve` 或 `/api/admin/rooms/:id/approve`）审核通过后，系统会把 `pendingChanges` 合并到正式字段并清除 `pendingChanges`；若管理员驳回，`auditInfo.status` 将被置为 `rejected` 并记录 `rejectReason`，商户需重新修改后再次提交审核。
+- `breakfastInfo` — 子文档, 可选, 默认 `{}`
+- `auditInfo` — 子文档, 可选, 默认 `{}`
+- timestamps: `createdAt`, `updatedAt`
+
+**baseInfo（房型基础信息）**
+
+- `type` — String, **必填**（房间类型名称，如"标准间"、"豪华间"）
+- `price` — Number, **必填**（每晚价格，最小值 0）
+- `images` — String[], **必填**（房间图片URL列表）
+- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`, 默认 `'draft'`
+- `maxOccupancy` — Number, **必填**（最多容纳人数，最小值 1）
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同：包含 `category`、`content`（HTML富文本）、可选 `items` 数组（细项含 `name`/`description`/`icon`/`available`），以及 `summary`/`icon`/`order`/`visible` 等辅助字段。
+- `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策（支持 HTML），结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking` | `breakfast` 等房间级别策略。
+- `bedRemark` — Array of String — **必填且非空**，记录成人加床、床型特殊说明等轻量备注信息（例如：`["成人加床：免费，需提前申请"]`）
+
+**auditInfo（酒店审核）**
+
+- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`, default: `'draft'`
+- `auditedBy` — ObjectId, 可选, ref: `User`, **带索引 (index)**, default: `null`
+- `auditedAt` — Date, 可选, default: `null`
+- `rejectReason` — String, 可选（驳回原因）
 
 ---
 
@@ -244,98 +287,125 @@ pnpm start
 
 **顶级字段**
 
-- `hotelId` — ObjectId, **必填**, ref: `Hotel`
-- `baseInfo` — 子文档, **必填**
-- `headInfo` — 子文档, **必填**
-- `bedInfo` — 子文档数组, **必填**
-- `breakfastInfo` — 子文档, 可选, 默认 `{}`
-- `auditInfo` — 子文档, 可选, 默认 `{}`
-- timestamps: `createdAt`, `updatedAt`
-
-**baseInfo（房型基础信息）**
-
-- `type` — String, **必填**
-- `price` — Number, **必填**
-- `images` — String[], **必填**
-- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`
-- `maxOccupancy` — Number, **必填**
-- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示（支持 HTML）。结构与 Hotel 中的 *Facility* 类似：每项包含 `category`, 可选 `items`（细项含 `item` 与 HTML `content`），以及 `summary`/`icon`/`order`/`visible` 等辅助字段。
-- `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策（支持 HTML），结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking` / `extraBed` 等房间级别策略。
-- `bedRemark` — Array of String — **必填且非空**，记录成人加床、床型特殊说明等轻量备注信息（例如：`["成人加床：免费，需提前申请"]`）
-- `breakfastType` — String, 可选
-- `breakfastPrice` — Number, 可选
-
-**auditInfo（酒店审核）**
-
-- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`, default: `'draft'`
-- `auditedBy` — ObjectId, 可选, ref: `AdminProfile`, **带索引 (index)**, default: `null`
-- `auditedAt` — Date, 可选, default: `null`
-- `rejectReason` — String, 可选
-
----
-
-### Room — 房间主表 (`Room`) 🛏️
-
-**顶级字段**
-
 - `hotelId` — ObjectId, **必填**, ref: `Hotel`, **带索引 (index)**
 - `baseInfo` — 子文档, **必填**
 - `headInfo` — 子文档, **必填**
-- `bedInfo` — 子文档数组, **必填**（至少为空数组不可缺失）
+- `bedInfo` — 子文档数组, **必填**（至少为空数组 `[]` 不可缺失）
 - `breakfastInfo` — 子文档, 可选, 默认 `{}`
 - `auditInfo` — 子文档, 可选, 默认 `{}`
+- `pendingChanges` — Mixed, 可选, 默认 `null` — 临时存储商户提交但待审批的更新内容
+- `pendingDeletion` — Boolean, 可选, 默认 `false` — 删除请求标记
+- `deletedAt` — Date, 可选, 默认 `null`
 - timestamps: `createdAt`, `updatedAt`
 
 **baseInfo（房型核心信息）**
 
-- `type` — String, **必填**
-- `price` — Number, **必填**, min: `0`
-- `images` — String[], **必填**
-- `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`
-- `maxOccupancy` — Number (整数), **必填**, min: `0`
+- `type` — String, **必填**（房间类型名称，如"标准间"、"豪华间"）
+- `price` — Number, **必填**, 最小值 0（每晚价格）
+- `images` — String[], **必填**（房间图片URL列表）
+- `status` — String, **必填**, 枚举：`'draft'` | `'pending'` | `'approved'` | `'rejected'` | `'offline'`, 默认 `'draft'`
+- `maxOccupancy` — Number (整数), **必填**, 最小值 1（最多容纳人数）
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同（含 category、content、items 等字段），常用于展示房间内的浴缸、空调等设施。
+- `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策。结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking`、`extraBed`、`breakfast` 等房间级别政策。
+- `bedRemark` — Array of String — **必填且非空**，房间床铺的轻量备注信息（非结构化文本）。示例：`["成人加床：免费，需提前申请", "儿童可免费入住"]`
 
 **headInfo（房间属性）**
 
-- `size` — String, **必填**（如 `25 sqm`）
-- `floor` — String, **必填**
-- `wifi` — Boolean, **必填**
-- `windowAvailable` — Boolean, **必填**
-- `smokingAllowed` — Boolean, **必填**
+- `size` — String, **必填**（房间面积，如 "25 sqm"）
+- `floor` — String, **必填**（楼层）
+- `wifi` — Boolean, **必填**（是否有WiFi）
+- `windowAvailable` — Boolean, **必填**（是否有窗户）
+- `smokingAllowed` — Boolean, **必填**（是否允许吸烟）
 
 **bedInfo（床型数组）**
 
 - 每项：
-  - `bedType` — String, **必填**
-  - `bedNumber` — Number, **必填**
-  - `bedSize` — String, **必填**
+  - `bedType` — String, **必填**（床类型，如"大床"、"双床")
+  - `bedNumber` — Number, **必填**（该床型的数量）
+  - `bedSize` — String, **必填**（床尺寸，如 "1.5m x 2m"）
 
 **breakfastInfo（房间早餐）**
 
-- `breakfastType` — String, 可选
-- `cuisine` — String, 可选
-- `bussinessTime` — String, 可选
-- `addBreakfast` — String, 可选
+- `breakfastType` — String, 可选（早餐类型，如"自助"、"套餐"）
+- `cuisine` — String, 可选（餐食风格，如"中式"、"西式"）
+- `bussinessTime` — String, 可选（营业时间，如 "06:00-10:00"）
+- `addBreakfast` — String, 可选（额外早餐说明）
 
 **auditInfo（房间审核）**
 
-- `auditedBy` — ObjectId, 可选, ref: `AdminProfile`, **带索引 (index)**, default: `null`
-- `auditedAt` — Date, 可选, default: `null`
-- `rejectReason` — String, 可选
+- `status` — String, 可选, 枚举：`'draft'` | `'pending'` | `'approved'` | `'rejected'` | `'offline'`, 默认 `'draft'`
+- `auditedBy` — ObjectId, 可选, ref: `User`, **带索引 (index)**, 默认 `null` — 审批者用户ID
+- `auditedAt` — Date, 可选, 默认 `null` — 审批时间
+- `rejectReason` — String, 可选（驳回原因）
 
 ---
 
 ### AuditLog — 审计日志表 (`AuditLog`) 🔍
 
 - 维护：仅 `createdAt`（timestamps）
-- `targetType` — String, **必填**, enum: `['hotel','merchant','room']`
-- `targetId` — ObjectId, **必填**, **带索引 (index)**, ref: 对应集合主键
-- `action` — String, **必填**, enum: `['approve','reject','offline']`
-- `operatorId` — ObjectId, **必填**, ref: `AdminProfile`, **带索引 (index)**
-- `reason` — String, 可选
+- `targetType` — String, **必填**, 枚举：`'hotel'` | `'merchant'` | `'room'`
+- `targetId` — ObjectId, **必填**, **带索引 (index)**, 指向对应资源的主键
+- `action` — String, **必填**, 枚举：`'submit'` | `'approve'` | `'reject'` | `'offline'` | `'delete_request'` | `'update_request'`
+- `operatorId` — ObjectId, **必填**, ref: `User`, **带索引 (index)**
+- `reason` — String, 可选（操作原因，如驳回原因）
 
 ---
 
-## 🚀 性能优化与安全特性
+### Notification — 通知表 (`Notification`) 🔔
+
+用于记录系统通知，支持商户、管理员的双向消息推送。主要场景：
+- 商户提交资料/酒店/房间 -> 管理员收到审核待处理通知
+- 管理员批准/驳回审核 -> 商户收到审核反馈通知
+
+**顶级字段**
+
+- `userId` — ObjectId, **必填**, ref: `User`, **带索引 (index)** — 通知接收者 ID（admin 或 merchant user）
+- `senderType` — String, **必填**, 枚举：`'admin'` | `'system'`, 默认 `'system'` — 发送方类型
+- `type` — String, **必填**, 枚举：`'audit_pending'` | `'audit_approved'` | `'audit_rejected'` | `'update_request'` — 通知类型
+- `targetType` — String, **必填**, 枚举：`'merchant'` | `'hotel'` | `'room'` — 目标资源类型
+- `targetId` — ObjectId, **必填**, **带索引 (index)** — 目标资源 ID（指向 Merchant/Hotel/Room 主键）
+- `message` — String, **必填**（通知文案，用于前端展示）
+- `meta` — Mixed, 可选, 默认 `{}` — 元数据，JSON 对象。常用字段：
+  - `resourceName` — String（资源名称，如酒店名称）
+  - `reason` — String（驳回原因，仅 audit_rejected 类型）
+  - `operatorId` — ObjectId（操作者用户ID，仅当操作者为管理员时）
+  - 其他业务相关字段（如 `roomId`、`hotelId` 等）
+- `read` — Boolean, 可选, 默认 `false` — 已读标记
+- timestamps: `createdAt`（仅维护创建时间，无 updatedAt）
+
+**通知类型说明**
+
+| 类型 | 触发条件 | 接收者 | 说明 |
+|------|--------|------|------|
+| `audit_pending` | 商户提交 (submit) | 所有 admin | 商户提交审核时通知管理员审核 |
+| `audit_approved` | 管理员批准 (approve) | 对应 merchant | 管理员审核通过后通知商户 |
+| `audit_rejected` | 管理员驳回 (reject) | 对应 merchant | 管理员审核驳回时通知商户并附上驳回原因 |
+| `update_request` | 商户更新请求 | 所有 admin | 商户对已审批资源的更新申请 |
+
+**索引**
+
+- `{ userId: 1, read: 1, createdAt: -1 }` — 用户查询未读通知排序
+
+
+### 验证中间件说明
+
+所有需要请求体验证的路由都使用 `validateBody(schema)` 中间件：
+
+```typescript
+// 示例
+router.post('/hotels', 
+  requireAuth,
+  requireRole('merchant'),
+  validateBody(createHotelSchema), // 自动验证请求体
+  hotelController.createHotel
+);
+```
+
+**验证失败处理：** 当请求体不符合 schema 时，中间件返回 `400 Bad Request`，包含详细的验证错误信息。
+
+---
+
+## �🚀 性能优化与安全特性
 
 ### API 请求频率限制
 

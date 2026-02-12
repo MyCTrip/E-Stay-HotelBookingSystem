@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Hotel } from './hotel.model';
+import { Merchant } from '../merchant/merchant.model';
 import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
 import { hotelService, ServiceError } from './hotel.service';
@@ -30,8 +31,14 @@ export const createHotel = async (req: Request, res: Response) => {
     const sanitizedBase = sanitizeObject(normalizedBase);
     const sanitizedCheckin = sanitizeObject(checkinInfo || {});
     
+    // 查找商户档案，以获取正确的 merchantId
+    const merchantProfile = await Merchant.findOne({ userId: user.id });
+    if (!merchantProfile) {
+      return res.status(400).json({ message: '商户档案未找到' });
+    }
+    
     const hotel = await Hotel.create({
-      merchantId: user.id,
+      merchantId: merchantProfile._id,
       baseInfo: sanitizedBase,
       checkinInfo: sanitizedCheckin,
     });
@@ -53,8 +60,14 @@ export const updateHotel = async (req: Request, res: Response) => {
     const hotel = await Hotel.findById(id);
     console.log('updateHotel called, user:', user.id, 'role:', user.role, 'payload:', JSON.stringify(updates));
     if (!hotel) return res.status(404).json({ message: 'Not found' });
-    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-      return res.status(403).json({ message: 'Forbidden' });
+    
+    // Check authorization - allow admin or owner merchant
+    if (user.role !== 'admin') {
+      const merchantProfile = await Merchant.findOne({ userId: user.id });
+      if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+    }
 
     try {
       hotelService.checkOptimisticVersion(hotel, updates);
@@ -120,8 +133,14 @@ export const requestDeleteHotel = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
-    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-      return res.status(403).json({ message: 'Forbidden' });
+    
+    // Check authorization
+    if (user.role !== 'admin') {
+      const merchantProfile = await Merchant.findOne({ userId: user.id });
+      if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+    }
 
     // mark deletion request
     hotel.pendingDeletion = true;
@@ -153,8 +172,13 @@ export const submitHotel = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
-    if (hotel.merchantId.toString() !== user.id)
+    
+    // Check authorization - only owner merchant can submit
+    const merchantProfile = await Merchant.findOne({ userId: user.id });
+    if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
       return res.status(403).json({ message: 'Forbidden' });
+    }
+    
     const updated = await Hotel.findByIdAndUpdate(
       id,
       { $set: { 'auditInfo.status': 'pending' } },
@@ -168,6 +192,14 @@ export const submitHotel = async (req: Request, res: Response) => {
       action: 'submit',
       operatorId: user.id,
     });
+    
+    // notify admins about pending audit
+    const resourceName = updated.baseInfo.nameCn || '酒店';
+    await notificationService.notifyAdminsAuditPending('hotel', updated._id.toString(), resourceName, {
+      hotelId: updated._id,
+      hotelName: resourceName,
+    });
+    
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -215,21 +247,32 @@ export const listMyHotels = async (req: Request, res: Response) => {
   const { status, search } = req.query as any;
   const limit = Math.min(parseInt((req.query.limit as any) || '100', 10) || 100, 500);
   const page = Math.max(parseInt((req.query.page as any) || '1', 10) || 1, 1);
-  const filter: any = { merchantId: user.id };
   
-  if (status) filter['auditInfo.status'] = status;
-  
-  // 使用MongoDB全文搜索功能
-  if (search) {
-    filter.$text = { $search: search };
-  }
+  try {
+    // Get merchant profile to find correct merchantId
+    const merchantProfile = await Merchant.findOne({ userId: user.id });
+    if (!merchantProfile) {
+      return res.status(400).json({ message: '商户档案未找到' });
+    }
+    
+    const filter: any = { merchantId: merchantProfile._id };
+    
+    if (status) filter['auditInfo.status'] = status;
+    
+    // 使用MongoDB全文搜索功能
+    if (search) {
+      filter.$text = { $search: search };
+    }
 
-  const total = await Hotel.countDocuments(filter);
-  const data = await Hotel.find(filter)
+    const total = await Hotel.countDocuments(filter);
+    const data = await Hotel.find(filter)
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
-  res.json({ data, meta: { total, page, limit } });
+    res.json({ data, meta: { total, page, limit } });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
 };
 
 /**

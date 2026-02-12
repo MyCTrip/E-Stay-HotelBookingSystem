@@ -1,6 +1,6 @@
 # API 文档（pc-admin-backend）
 
-此文档为后端管理系统（PC 管理后台）的接口参考，覆盖认证、商户、酒店、房型与管理员操作。每个接口包含：功能说明、URL/HTTP 方法、权限、请求参数（Path/Query/Body）、示例请求与示例成功/错误响应。
+此文档为后端管理系统（PC 管理后台）的接口参考，覆盖认证、商户、酒店、房型、管理员操作与通知管理。每个接口包含：功能说明、URL/HTTP 方法、权限、请求参数（Path/Query/Body）、示例请求与示例成功/错误响应。
 
 通用说明：
 
@@ -332,7 +332,134 @@
 - GET `/api/admin/audit-logs` 支持 `targetType`, `action`, `operatorId`, `startDate`, `endDate`, `limit`, `page`
 - 返回：`{ data: AuditLog[], meta: { total, page, limit } }`（按 `createdAt` 倒序）
 
+### 通知管理（管理员端） 🔔
+
+**说明：** 管理员接收来自商户提交（审核待处理）的通知，以及可以查看、标记已读通知。
+
+#### GET /api/admin/notifications
+
+- 功能：获取当前管理员的通知列表
+- 权限：`Authorization` (admin)
+- Query 参数（可选）：
+  - `type` (string) - 通知类型筛选：`audit_pending` | `audit_approved` | `audit_rejected` | `update_request`
+  - `read` (string) - 已读状态筛选：`true` | `false`
+  - `limit` (number, 默认 20, 最大 100) - 每页数量
+  - `page` (number, 默认 1) - 页码
+- 成功响应：200
+  ```json
+  {
+    "data": [
+      {
+        "_id": "<notificationId>",
+        "userId": "<adminUserId>",
+        "senderType": "system",
+        "type": "audit_pending",
+        "targetType": "hotel",
+        "targetId": "<hotelId>",
+        "message": "酒店「示例酒店」已提交审核，请及时处理",
+        "meta": {
+          "resourceName": "示例酒店",
+          "hotelId": "<hotelId>"
+        },
+        "read": false,
+        "createdAt": "2026-02-12T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "total": 15,
+      "page": 1,
+      "limit": 20,
+      "unreadCount": 5
+    }
+  }
+  ```
+
+#### PATCH /api/admin/notifications/:id/read
+
+- 功能：标记指定通知为已读
+- 权限：`Authorization` (admin)
+- Path：`:id` (notificationId)
+- 请求体：{}
+- 成功响应：200
+  ```json
+  {
+    "_id": "<notificationId>",
+    "read": true,
+    "updatedAt": "2026-02-12T10:05:00Z"
+  }
+  ```
+
+#### PATCH /api/admin/notifications/read-all
+
+- 功能：标记管理员的所有通知为已读
+- 权限：`Authorization` (admin)
+- 请求体：{}
+- 成功响应：200
+  ```json
+  { "message": "所有通知已标记为已读", "updatedCount": 5 }
+  ```
+
 ---
+
+## 通知管理（商户端） 📬
+
+**说明：** 商户可以查看来自管理员的审核反馈通知（批准或驳回），以及标记已读。
+
+#### GET /api/merchants/notifications
+
+- 功能：获取当前商户的通知列表
+- 权限：`Authorization` (merchant)
+- Query 参数（可选）：
+  - `type` (string) - 通知类型筛选：`audit_pending` | `audit_approved` | `audit_rejected` | `update_request`
+  - `read` (string) - 已读状态筛选：`true` | `false`
+  - `limit` (number, 默认 20, 最大 100) - 每页数量
+  - `page` (number, 默认 1) - 页码
+- 成功响应：200
+  ```json
+  {
+    "data": [
+      {
+        "_id": "<notificationId>",
+        "userId": "<merchantUserId>",
+        "senderType": "admin",
+        "type": "audit_approved",
+        "targetType": "hotel",
+        "targetId": "<hotelId>",
+        "message": "您的酒店「示例酒店」已通过审核，已发布在线",
+        "meta": {
+          "resourceName": "示例酒店",
+          "operatorId": "<adminId>"
+        },
+        "read": false,
+        "createdAt": "2026-02-12T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "total": 8,
+      "page": 1,
+      "limit": 20,
+      "unreadCount": 2
+    }
+  }
+  ```
+
+#### PATCH /api/merchants/notifications/:id/read
+
+- 功能：标记指定通知为已读
+- 权限：`Authorization` (merchant)
+- Path：`:id` (notificationId)
+- 请求体：{}
+- 成功响应：200
+  ```json
+  {
+    "_id": "<notificationId>",
+    "read": true,
+    "updatedAt": "2026-02-12T10:05:00Z"
+  }
+  ```
+
+---
+
 
 ## 测试说明 🧪
 
