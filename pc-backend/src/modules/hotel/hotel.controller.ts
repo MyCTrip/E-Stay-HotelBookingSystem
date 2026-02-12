@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Hotel } from './hotel.model';
+import { Room } from '../room/room.model';
 import { Merchant } from '../merchant/merchant.model';
 import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
@@ -7,10 +8,53 @@ import { hotelService, ServiceError } from './hotel.service';
 import { sanitizeObject } from '../../utils/htmlSanitizer';
 import { hotDataService } from '../../services/hotData.service';
 
+// 辅助函数：根据 propertyType 初始化 typeConfig
+const initializeTypeConfig = (propertyType: string = 'hotel', provided?: any) => {
+  switch(propertyType) {
+    case 'hourlyHotel':
+      return {
+        hourly: {
+          baseConfig: {
+            pricePerHour: provided?.hourly?.baseConfig?.pricePerHour,
+            minimumHours: provided?.hourly?.baseConfig?.minimumHours || 2,
+            timeSlots: provided?.hourly?.baseConfig?.timeSlots || [],
+            cleaningTime: provided?.hourly?.baseConfig?.cleaningTime || 45,
+            maxBookingsPerDay: provided?.hourly?.baseConfig?.maxBookingsPerDay || 4,
+          },
+        },
+      };
+    case 'homeStay':
+      return {
+        homestay: {
+          hostName: provided?.homestay?.hostName,
+          hostPhone: provided?.homestay?.hostPhone,
+          responseTimeHours: provided?.homestay?.responseTimeHours || 24,
+          instantBooking: provided?.homestay?.instantBooking ?? true,
+          minStay: provided?.homestay?.minStay || 1,
+          maxStay: provided?.homestay?.maxStay,
+          cancellationPolicy: provided?.homestay?.cancellationPolicy || 'moderate',
+          securityDeposit: provided?.homestay?.securityDeposit,
+          amenityTags: provided?.homestay?.amenityTags || [],
+        },
+      };
+    default: // hotel
+      return {};
+  }
+};
+
+// 辅助函数：propertyType 转 roomCategory
+const propertyTypeToRoomCategory = (propertyType: string = 'hotel'): string => {
+  const map: any = {
+    'hotel': 'standard',
+    'hourlyHotel': 'hourly',
+    'homeStay': 'homestay'
+  };
+  return map[propertyType] || 'standard';
+};
 
 export const createHotel = async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const { baseInfo, checkinInfo } = req.body;
+  const { baseInfo, checkinInfo, typeConfig } = req.body;
 
   // allow legacy flat fields for convenience
   const normalizedBase = baseInfo || {
@@ -37,10 +81,32 @@ export const createHotel = async (req: Request, res: Response) => {
       return res.status(400).json({ message: '商户档案未找到' });
     }
     
+    // 提取并验证 propertyType
+    const propertyType = sanitizedBase.propertyType || 'hotel';
+    
+    // 验证钟点房和民宿的必填字段
+    if (propertyType === 'hourlyHotel' && !typeConfig?.hourly?.baseConfig?.timeSlots?.length) {
+      return res.status(400).json({
+        status: 'error',
+        message: '钟点房必须提供 typeConfig.hourly.baseConfig.timeSlots 配置'
+      });
+    }
+    
+    if (propertyType === 'homeStay' && !typeConfig?.homestay?.hostName) {
+      return res.status(400).json({
+        status: 'error',
+        message: '民宿必须提供房东信息'
+      });
+    }
+    
+    // 初始化 typeConfig
+    const initializedTypeConfig = initializeTypeConfig(propertyType, typeConfig);
+    
     const hotel = await Hotel.create({
       merchantId: merchantProfile._id,
       baseInfo: sanitizedBase,
       checkinInfo: sanitizedCheckin,
+      typeConfig: initializedTypeConfig,
     });
     
     // 清除相关缓存
@@ -77,6 +143,10 @@ export const updateHotel = async (req: Request, res: Response) => {
       if (err && err.status === 404) return res.status(404).json({ message: 'Not found' });
     }
 
+    // 检查是否更改了 propertyType，如果是则需要同步更新房间
+    const oldPropertyType = hotel.baseInfo.propertyType || 'hotel';
+    const newPropertyType = updates.baseInfo?.propertyType || oldPropertyType;
+    
     // Admins may directly apply changes
     if (user.role === 'admin') {
         if (updates.baseInfo) {
@@ -87,10 +157,22 @@ export const updateHotel = async (req: Request, res: Response) => {
           const sanitizedCheckin = sanitizeObject(updates.checkinInfo);
           hotel.checkinInfo = { ...hotel.checkinInfo, ...sanitizedCheckin };
         }
+        if (updates.typeConfig) {
+          hotel.typeConfig = initializeTypeConfig(newPropertyType, updates.typeConfig);
+        }
         if (updates.auditInfo) hotel.auditInfo = { ...hotel.auditInfo, ...updates.auditInfo };
         // If admin applies changes, also clear pendingChanges
         hotel.pendingChanges = null;
         await hotel.save();
+        
+        // 如果 propertyType 变更，同时更新所有该酒店的房间
+        if (newPropertyType !== oldPropertyType) {
+          const newCategory = propertyTypeToRoomCategory(newPropertyType);
+          await Room.updateMany(
+            { hotelId: id },
+            { $set: { 'baseInfo.category': newCategory } }
+          );
+        }
         
         // 清除相关缓存
         await hotDataService.clearHotelCache();
@@ -209,11 +291,12 @@ export const submitHotel = async (req: Request, res: Response) => {
 };
 
 export const listApprovedHotels = async (req: Request, res: Response) => {
-  const { city, star, search, page = 1, limit = 20 } = req.query as any;
+  const { city, star, search, page = 1, limit = 20, propertyType } = req.query as any;
   const filter: any = { 'auditInfo.status': 'approved' };
   
   if (city) filter['baseInfo.city'] = city;
   if (star) filter['baseInfo.star'] = parseInt(star, 10);
+  if (propertyType) filter['baseInfo.propertyType'] = propertyType; // 新增
   
   // 使用MongoDB全文搜索功能
   if (search) {

@@ -37,6 +37,41 @@ const discountSchema = z.object({
   content: z.string().min(1),
 });
 
+// ============ 钟点房时间段 Schema ============
+const hourlyTimeSlotSchema = z.object({
+  dayOfWeek: z.number().int().min(0).max(6),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/),
+  minStayHours: z.number().positive(),
+  content: z.string().min(1),
+  maxBookingsPerSlot: z.number().positive().optional(),
+});
+
+// ============ 酒店 typeConfig Schema ============
+const hotelTypeConfigSchema = z.object({
+  hourly: z.object({
+    baseConfig: z.object({
+      pricePerHour: z.number().positive().optional(),
+      minimumHours: z.number().positive().optional(),
+      timeSlots: z.array(hourlyTimeSlotSchema).optional(),
+      cleaningTime: z.number().nonnegative().optional(),
+      maxBookingsPerDay: z.number().positive().optional(),
+    }).optional(),
+  }).optional(),
+  
+  homestay: z.object({
+    hostName: z.string().optional(),
+    hostPhone: z.string().optional(),
+    responseTimeHours: z.number().nonnegative().optional(),
+    instantBooking: z.boolean().optional(),
+    minStay: z.number().positive().optional(),
+    maxStay: z.number().positive().optional(),
+    cancellationPolicy: z.enum(['flexible', 'moderate', 'strict', 'non_refundable']).optional(),
+    securityDeposit: z.number().nonnegative().optional(),
+    amenityTags: z.array(z.string()).optional(),
+  }).optional(),
+}).optional();
+
 const baseInfoSchema = z.object({
   nameCn: z.string().min(1),
   nameEn: z.string().optional(),
@@ -52,16 +87,25 @@ const baseInfoSchema = z.object({
   policies: z.array(policySchema).nonempty(),
   surroundings: z.array(surroundingSchema).optional(),
   discounts: z.array(discountSchema).optional(),
+  
+  // 新增字段
+  propertyType: z.enum(['hotel', 'hourlyHotel', 'homeStay']).optional(),
+  location: z.object({
+    type: z.literal('Point').optional(),
+    coordinates: z.tuple([z.number(), z.number()]).optional(),
+  }).optional(),
 });
 
 export const createHotelSchema = z.object({
   baseInfo: baseInfoSchema,
   checkinInfo: z.any().optional(),
+  typeConfig: hotelTypeConfigSchema,
 });
 
 export const updateHotelSchema = z.object({
   baseInfo: baseInfoSchema.partial().optional(),
   checkinInfo: z.any().optional(),
+  typeConfig: hotelTypeConfigSchema,
   auditInfo: z.any().optional(),
   // allow clients to pass optimistic concurrency fields
   __v: z.number().optional(),

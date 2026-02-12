@@ -508,12 +508,13 @@ export const listMerchants = async (req: Request, res: Response) => {
 };
 
 export const listHotels = async (req: Request, res: Response) => {
-  const { status, search, merchantId } = req.query as any;
+  const { status, search, merchantId, propertyType } = req.query as any;
   const limit = Math.min(parseInt((req.query.limit as any) || '100', 10) || 100, 500);
   const page = Math.max(parseInt((req.query.page as any) || '1', 10) || 1, 1);
   const filter: any = {};
   if (status) filter['auditInfo.status'] = status;
   if (merchantId) filter['merchantId'] = merchantId;
+  if (propertyType) filter['baseInfo.propertyType'] = propertyType; // 新增
   if (search)
     filter.$or = [
       { 'baseInfo.nameCn': new RegExp(search, 'i') },

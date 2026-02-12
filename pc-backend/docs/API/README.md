@@ -145,7 +145,7 @@
 
 ## Hotel（商户侧） 🏨
 
-说明：酒店（Hotel）由商户创建并提交给管理员审批。`baseInfo` 新增了 `facilities` 与 `policies` 字段（均为非空数组，`content` 为 HTML 富文本）。
+说明：酒店（Hotel）由商户创建并提交给管理员审批。支持三种房型：**hotel（标准酒店）**、**hourlyHotel（钟点房）**、**homeStay（民宿）**。
 
 ### POST /api/hotels
 
@@ -154,6 +154,8 @@
 - 请求体：
   - `baseInfo` (required):
     - 常见字段：`nameCn`(string), `address`(string), `city`(string), `star`(number), `phone`(string), `description`(string), `images`(string[])
+    - **新增：`propertyType`** (string, optional) — 房型类型：`'hotel'` | `'hourlyHotel'` | `'homeStay'`, 默认 `'hotel'`
+    - 新增：`location` (object, optional) — GeoJSON Point，用于地理位置查询 `{ type: 'Point', coordinates: [lng, lat] }`
     - 新增：`facilities` (Array<Object>, required, non-empty)
       - 每项：{ `category`: string (required), `content`: string (required, HTML) }
     - 新增：`policies` (Array<Object>, required, non-empty)
@@ -162,8 +164,24 @@
       - 每项: { `surType`: 'metro'|'attraction'|'business', `surName`: string, `distance`: number }
     - 新增（可选）：`discounts` (Array<Object>)
       - 每项: { `title`: string, `type`: 'discount'|'instant', `content`: string }
+  - **`typeConfig`** (object, optional) — 房型特定配置（根据 propertyType 自动初始化）
+    - 若 `propertyType='hourlyHotel'`，包含：
+      ```json
+      {
+        "hourly": {
+          "baseConfig": {"pricePerHour": 88, "minimumHours": 2, "cleaningTime": 45, "maxBookingsPerDay": 4},
+          "timeSlots": [{"dayOfWeek": 0, "startTime": "08:00", "endTime": "22:00", "minStayHours": 2}]
+        }
+      }
+      ```
+    - 若 `propertyType='homeStay'`，包含：
+      ```json
+      {
+        "homestay": {"hostName": "...", "hostPhone": "...", "responseTimeHours": 2, "instantBooking": true, "minStay": 1, "securityDeposit": 100}
+      }
+      ```
   - `checkinInfo` (optional): `{ checkinTime, checkoutTime }`
-- 示例请求体：
+- 示例请求体（标准酒店）：
   ```json
   {
     "baseInfo": {
@@ -174,10 +192,61 @@
       "phone":"010-12345678",
       "description":"说明",
       "images":[],
+      "propertyType":"hotel",
       "facilities":[{"category":"公共","content":"<p>WiFi</p>"}],
       "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}],
       "surroundings":[{"surType":"metro","surName":"地铁1号线","distance":500}],
       "discounts":[{"title":"首单立减","type":"instant","content":"首单减10元"}]
+    }
+  }
+  ```
+- 示例请求体（钟点房 hourlyHotel）：
+  ```json
+  {
+    "baseInfo": {
+      "nameCn":"示例钟点房酒店",
+      "address":"示例地址",
+      "city":"Shanghai",
+      "star":4,
+      "phone":"021-87654321",
+      "description":"短租特色酒店",
+      "images":[],
+      "propertyType":"hourlyHotel"
+    },
+    "typeConfig": {
+      "hourly": {
+        "baseConfig": {"pricePerHour": 88, "minimumHours": 2, "cleaningTime": 45, "maxBookingsPerDay": 4},
+        "timeSlots": [
+          {"dayOfWeek": 0, "startTime": "08:00", "endTime": "22:00", "minStayHours": 2, "maxBookingsPerSlot": 5}
+        ]
+      }
+    }
+  }
+  ```
+- 示例请求体（民宿 homeStay）：
+  ```json
+  {
+    "baseInfo": {
+      "nameCn":"示例民宿",
+      "address":"示例地址",
+      "city":"Hangzhou",
+      "star":4,
+      "phone":"0571-12345678",
+      "description":"温馨民宿",
+      "images":[],
+      "propertyType":"homeStay"
+    },
+    "typeConfig": {
+      "homestay": {
+        "hostName":"小王",
+        "hostPhone":"13800138000",
+        "responseTimeHours": 2,
+        "instantBooking": true,
+        "minStay": 1,
+        "maxStay": 30,
+        "securityDeposit": 100,
+        "amenityTags": ["厨房", "WiFi", "拖鞋"]
+      }
     }
   }
   ```
@@ -191,7 +260,7 @@
 
 - 功能：列出公开已批准的酒店（用于前端展示）
 - 权限：公开
-- Query 参数（可选）：`city`, `search`, `limit`, `page`
+- Query 参数（可选）：`city`, `search`, `limit`, `page`, **`propertyType`** (可按房型过滤：`hotel` | `hourlyHotel` | `homeStay`)
 - 缓存说明：该接口使用 Redis 缓存，缓存时间为 5 分钟（300 秒）。当酒店数据变更时，相关缓存会自动清除。
 - 成功响应：200 `{ data: Hotel[], meta: { total, page, limit } }`
 
@@ -271,7 +340,7 @@
 
 ## Room（房型） 🛏️
 
-说明：房型使用 `baseInfo.facilities` / `baseInfo.policies` / `baseInfo.bedRemark` 三个新增字段。
+说明：房型自动继承所在酒店的 `propertyType`，并自动映射为相应的 `category`（`standard` | `hourly` | `homestay`）。每个房型可配置类型特定的 `typeConfig`（如时间段配置、定价、规则等）。
 
 ### POST /api/hotels/:hotelId/rooms
 
@@ -280,8 +349,13 @@
 - Path：`:hotelId` (required)
 - 请求体：
   - `baseInfo` (required): `type`, `price`, `images`, `status`, `maxOccupancy`, **`facilities`(non-empty)**, **`policies`(non-empty)**, **`bedRemark`(non-empty)**
+    - **新增：`category`** (string, auto-derived) — 自动根据所属酒店的 `propertyType` 派生：`'standard'` | `'hourly'` | `'homestay'`（无需手动指定）
   - `headInfo` (required): `size`, `floor`, `wifi`, `windowAvailable`, `smokingAllowed`
   - `bedInfo` (required array): 每项 `{ bedType, bedNumber, bedSize }`
+  - **`typeConfig`** (object, optional) — 房型级别的类型特定配置（根据 category 自动初始化）
+    - 若 category=`'standard'`：`{"standard": {"cancellationDeadlineHours": 24, "extensionAllowed": true}}`
+    - 若 category=`'hourly'`：`{"hourly": {"pricePerHour": ..., "minimumHours": 2, "availableTimeSlots": [...], "cleaningTime": 45, "hourlyTiers": [...]}}`
+    - 若 category=`'homestay'`：`{"homestay": {"pricePerNight": ..., "weeklyDiscount": 5, "monthlyDiscount": 10, "cleaningFee": 50, "minimumStay": 1, "maxGuests": 4, "instantly": true}}`
 - 示例请求体：见上文
 - 成功响应：201 `{ id: <roomId>, baseInfo: {...} }`
 

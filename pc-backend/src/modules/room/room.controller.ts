@@ -6,9 +6,62 @@ import { AuditLog } from '../audit/audit.model';
 import { notificationService } from '../notification/notification.service';
 import { sanitizeObject } from '../../utils/htmlSanitizer';
 
+// 辅助函数：propertyType 转 roomCategory
+const propertyTypeToRoomCategory = (propertyType: string = 'hotel'): string => {
+  const map: any = {
+    'hotel': 'standard',
+    'hourlyHotel': 'hourly',
+    'homeStay': 'homestay'
+  };
+  return map[propertyType] || 'standard';
+};
+
+// 辅助函数：初始化 room typeConfig
+const initializeRoomTypeConfig = (category: string = 'standard', provided?: any) => {
+  switch(category) {
+    case 'hourly':
+      return {
+        hourly: {
+          pricePerHour: provided?.hourly?.pricePerHour,
+          minimumHours: provided?.hourly?.minimumHours || 2,
+          availableTimeSlots: provided?.hourly?.availableTimeSlots || [],
+          cleaningTime: provided?.hourly?.cleaningTime || 45,
+          maxBookingsPerDay: provided?.hourly?.maxBookingsPerDay || 4,
+          hourlyTiers: provided?.hourly?.hourlyTiers || [],
+          peakHours: provided?.hourly?.peakHours || [],
+        },
+      };
+    case 'homestay':
+      return {
+        homestay: {
+          pricePerNight: provided?.homestay?.pricePerNight,
+          weeklyDiscount: provided?.homestay?.weeklyDiscount,
+          monthlyDiscount: provided?.homestay?.monthlyDiscount,
+          cleaningFee: provided?.homestay?.cleaningFee,
+          securityDeposit: provided?.homestay?.securityDeposit,
+          minimumStay: provided?.homestay?.minimumStay || 1,
+          maxStay: provided?.homestay?.maxStay,
+          maxGuests: provided?.homestay?.maxGuests,
+          instantBooking: provided?.homestay?.instantBooking ?? true,
+          bedrooms: provided?.homestay?.bedrooms,
+          bathrooms: provided?.homestay?.bathrooms,
+          area: provided?.homestay?.area,
+          cancellationPolicy: provided?.homestay?.cancellationPolicy || 'moderate',
+        },
+      };
+    default: // standard
+      return {
+        standard: {
+          cancellationDeadlineHours: provided?.standard?.cancellationDeadlineHours || 24,
+          extensionAllowed: provided?.standard?.extensionAllowed ?? true,
+        },
+      };
+  }
+};
+
 export const createRoom = async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const { baseInfo, headInfo, bedInfo, breakfastInfo } = req.body;
+  const { baseInfo, headInfo, bedInfo, breakfastInfo, typeConfig } = req.body;
   const hotelId = req.params.hotelId || req.body.hotelId;
   try {
     const hotel = await Hotel.findById(hotelId);
@@ -18,6 +71,14 @@ export const createRoom = async (req: Request, res: Response) => {
     const merchantProfile = await Merchant.findOne({ userId: user.id });
     if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
       return res.status(403).json({ message: 'Forbidden' });
+    }
+    
+    // Verify hotel is approved
+    if (hotel.auditInfo.status !== 'approved') {
+      return res.status(400).json({
+        status: 'error',
+        message: '只有通过审核的酒店才能添加房间'
+      });
     }
     
     // 净化HTML富文本内容，防止XSS攻击
@@ -30,12 +91,20 @@ export const createRoom = async (req: Request, res: Response) => {
     const sanitizedBed = sanitizeObject(bedInfo || []);
     const sanitizedBreakfast = sanitizeObject(breakfastInfo || {});
     
+    // 根据 hotel.propertyType 自动设置 category
+    const propertyType = hotel.baseInfo.propertyType || 'hotel';
+    const category = propertyTypeToRoomCategory(propertyType);
+    
+    // 初始化 typeConfig
+    const initializedTypeConfig = initializeRoomTypeConfig(category, typeConfig);
+    
     const room = await Room.create({
       hotelId,
-      baseInfo: sanitizedBase,
+      baseInfo: { ...sanitizedBase, category },
       headInfo: sanitizedHead,
       bedInfo: sanitizedBed,
       breakfastInfo: sanitizedBreakfast,
+      typeConfig: initializedTypeConfig,
       auditInfo: { status: 'draft' },
     });
     res.status(201).json(room);

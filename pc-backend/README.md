@@ -5,6 +5,10 @@
 ## ✅ 核心特性
 
 - 用户认证（JWT）与角色权限（Admin / Merchant）
+- **三种房型支持**：标准酒店 (`hotel`) 、钟点房 (`hourlyHotel`) 、民宿 (`homeStay`)，使用 `propertyType` 区别器模式
+- 个性化第三方配置（`typeConfig`）：支持类型特定的时间槽配置、它例定价、规则配置
+- 房型自动继承：Room 的 `category` 自动与 Hotel 的 `propertyType` 保持同步
+- 日历管理（RoomAvailability）：蓼旼接发管理、供需数额制上限管理
 - 商户与酒店的 CRUD 与审核流程
 - 审计日志记录平台操作与审核行为
 - 基于 TypeScript 的结构化代码与中间件支持
@@ -189,6 +193,7 @@ pnpm start
 
 - `merchantId` — ObjectId, **必填**, ref: `MerchantProfile`
 - `baseInfo` — 子文档, **必填**
+- **`typeConfig`** — Mixed, 可选, 默认 `{}` — 房型类型特定配置（根据 propertyType 存储）
 - `checkinInfo` — 子文档, 可选, 默认 `{}`
 - `auditInfo` — 子文档, 可选, 默认 `{}`
 - `pendingChanges` — Mixed, 可选, 默认 `null` — 临时存储商户提交但待审批的更新内容
@@ -202,6 +207,8 @@ pnpm start
 - `nameEn` — String, 可选
 - `address` — String, **必填**
 - `city` — String, **必填**, **带索引 (index)**
+- **`propertyType`** — String, 可选, enum: `'hotel'` | `'hourlyHotel'` | `'homeStay'`, 默认 `'hotel'` — 房型类型标识符，用于区分酒店类型
+- **`location`** — Object, 可选, GeoJSON Point `{ type: 'Point', coordinates: [lng, lat] }`, **带 2dsphere 索引** — 地理位置查询
 - `star` — Number, **必填**, 0~5 之间的整数
 - `openTime` — String, **必填**（文本，如 "2020-01-01"）
 - `roomTotal` — Number, **必填**, 最小值 0
@@ -285,10 +292,14 @@ pnpm start
 
 ### Room — 房型表 (`Room`) 🛏️
 
+说明：房型通过自动映射继承所在酒店的 `propertyType`，并自动派生相应的 `category`（`standard` | `hourly` | `homestay`）。每个房型可配置类型特定的 `typeConfig`（如时间段配置、定价、规则等）。
+
 **顶级字段**
 
 - `hotelId` — ObjectId, **必填**, ref: `Hotel`, **带索引 (index)**
 - `baseInfo` — 子文档, **必填**
+- **`category`** — String, **必填**, enum: `'standard'` | `'hourly'` | `'homestay'`, **自动派生** — 根据酒店 Hotel.baseInfo.propertyType（无需手动指定）
+- **`typeConfig`** — Mixed, 可选, 默认 `{}` — 房型类型特定配置（根据 category 自动初始化）
 - `headInfo` — 子文档, **必填**
 - `bedInfo` — 子文档数组, **必填**（至少为空数组 `[]` 不可缺失）
 - `breakfastInfo` — 子文档, 可选, 默认 `{}`
@@ -337,6 +348,28 @@ pnpm start
 - `auditedBy` — ObjectId, 可选, ref: `User`, **带索引 (index)**, 默认 `null` — 审批者用户ID
 - `auditedAt` — Date, 可选, 默认 `null` — 审批时间
 - `rejectReason` — String, 可选（驳回原因）
+
+---
+
+### RoomAvailability — 房型日历/库存表 (`RoomAvailability`) 🗓️ **NEW**
+
+说明：管理房型的日期库存、预订状态、价格覆盖等信息。主要用于供需库存管理、批量设定、库存查询。
+
+**顶级字段**
+
+- `roomId` — ObjectId, **必填**, ref: `Room`, **带索引 (index)**
+- `date` — Date, **必填**, **唯一索引 (unique) {roomId, date}** — UTC 日期
+- `status` — String, **必填**, enum: `'available'` | `'booked'` | `'blocked'`, 默认 `'available'` — 可用、已预订、已锁定
+- `priceOverride` — Number, 可选 — 该日期的价格覆盖（若设置，优先使用此价格）
+- `availableCount` — Number, 可选, 默认 1 — 可用房间数（用于多单位民宿等场景）
+- `notes` — String, 可选 — 备注信息
+- timestamps: `createdAt`, `updatedAt`
+
+**索引**
+
+- `{ roomId: 1, date: 1 }` — 唯一索引，确保每天每房间只有一条记录
+- `{ date: 1, status: 1 }` — 用于按日期和状态查询
+- `{ roomId: 1, date: -1 }` — 用于按房间和日期倒序查询
 
 ---
 
