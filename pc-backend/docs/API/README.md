@@ -121,6 +121,19 @@
   { "id": "<merchantId>", "baseInfo": {...} }
   ```
 
+### PUT /api/merchants
+
+- 功能：更新商户资料（同 POST，用于表示更新操作）
+- 权限：`Authorization` (merchant)
+- 请求体：
+  - `baseInfo` (object, optional) 包含需要更新的字段
+  - `qualificationInfo` (object, optional) 包含需要更新的字段
+- 校验失败示例：400
+- 成功响应：200
+  ```json
+  { "id": "<merchantId>", "baseInfo": {...}, "qualificationInfo": {...} }
+  ```
+
 ### POST /api/merchants/submit
 
 - 功能：将商户资料提交审核（auditInfo.verifyStatus -> 'pending'），并写入 AuditLog(action='submit')

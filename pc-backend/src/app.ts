@@ -28,7 +28,6 @@ app.use(morgan('dev'));
 
 // 全局API频率限制
 app.use('/api', rateLimit());
-
 // 静态文件服务，访问 /uploads/xxx.jpg
 app.use(UPLOAD_URL_PATH, express.static(UPLOAD_DIR));
 

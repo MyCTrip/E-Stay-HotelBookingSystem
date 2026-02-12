@@ -141,8 +141,12 @@ export const requestDeleteRoom = async (req: Request, res: Response) => {
     if (!room) return res.status(404).json({ message: 'Not found' });
     const hotel = await Hotel.findById(room.hotelId);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
-    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-      return res.status(403).json({ message: 'Forbidden' });
+    if (user.role !== 'admin') {
+      const merchantProfile = await Merchant.findOne({ userId: user.id });
+      if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+    }
 
     room.pendingDeletion = true;
     room.auditInfo = room.auditInfo || ({} as any);
@@ -217,8 +221,12 @@ export const listRoomsForHotel = async (req: Request, res: Response) => {
   try {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) return res.status(404).json({ message: 'Hotel not found' });
-    if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-      return res.status(403).json({ message: 'Forbidden' });
+    if (user.role !== 'admin') {
+      const merchantProfile = await Merchant.findOne({ userId: user.id });
+      if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+    }
     const filter: any = { hotelId };
     if (status) filter['auditInfo.status'] = status;
     if (search) filter['baseInfo.type'] = new RegExp(search, 'i');

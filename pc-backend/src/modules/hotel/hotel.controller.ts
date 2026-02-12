@@ -62,8 +62,9 @@ export const updateHotel = async (req: Request, res: Response) => {
     if (!hotel) return res.status(404).json({ message: 'Not found' });
     
     // Check authorization - allow admin or owner merchant
+    let merchantProfile: any = null;
     if (user.role !== 'admin') {
-      const merchantProfile = await Merchant.findOne({ userId: user.id });
+      merchantProfile = await Merchant.findOne({ userId: user.id });
       if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
         return res.status(403).json({ message: 'Forbidden' });
       }
@@ -110,7 +111,8 @@ export const updateHotel = async (req: Request, res: Response) => {
       }
       if (Object.keys(allowed).length === 0) return res.status(400).json({ message: 'No updatable fields provided' });
       try {
-        const updated = await hotelService.savePendingChanges(id, user.id, allowed);
+        const merchantIdToUse = merchantProfile?._id?.toString() || user.id;
+        const updated = await hotelService.savePendingChanges(id, merchantIdToUse, allowed);
         
         // 清除相关缓存
         await hotDataService.clearHotelCache();
