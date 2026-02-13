@@ -66,6 +66,7 @@ export interface HotelBaseInfo {
   policies: Policy[]
   surroundings?: Surrounding[]
   discounts?: Discount[]
+  propertyType?: PropertyType
 }
 
 /**
@@ -97,6 +98,8 @@ export interface Hotel {
   rooms?: Room[]
   createdAt?: string
   updatedAt?: string
+  // 通用类型配置，按 propertyType 区分具体字段
+  typeConfig?: TypeConfig
 }
 
 /**
@@ -158,6 +161,21 @@ export interface Room {
   }
   createdAt?: string
   updatedAt?: string
+  // 房间类别，如 standard/hourly/homestay 等
+  category?: string
+  typeConfig?: TypeConfig
+}
+
+/**
+ * 属性类型识别符
+ */
+export type PropertyType = 'hotel' | 'hourlyHotel' | 'homeStay'
+
+/**
+ * 按 propertyType 存放的可选配置项（后端以对象形式返回，前端可按类型断言）
+ */
+export interface TypeConfig {
+  [key: string]: any
 }
 
 /**
@@ -170,6 +188,7 @@ export interface HotelQuery {
   page?: number
   checkIn?: string
   checkOut?: string
+  propertyType?: PropertyType
 }
 
 /**

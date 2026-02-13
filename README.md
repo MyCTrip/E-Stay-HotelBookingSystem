@@ -78,21 +78,45 @@ mobile/
 │   │   │   │
 │   │   │   ├── pages/               # 5 个页面（与 web-h5 对标）
 │   │   │   │   ├── Home/
-│   │   │   │   │   ├── index.tsx            # 首页搜索表单
-│   │   │   │   │   ├── index.module.scss    # 首页样式
-│   │   │   │   │   └── index.config.ts     # 页面配置
+│   │   │   │   │   ├── hotel/               # 酒店首页
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── hourlyHotel/         # 钟点房首页
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── homeStay/            # 民宿首页
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
 │   │   │   │   ├── SearchResult/
-│   │   │   │   │   ├── index.tsx            # 搜索结果列表
-│   │   │   │   │   ├── index.module.scss
-│   │   │   │   │   └── index.config.ts
+│   │   │   │   │   ├── hotel/               # 酒店搜索结果
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── hourlyHotel/         # 钟点房搜索结果
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── homeStay/            # 民宿搜索结果
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
 │   │   │   │   ├── HotelDetail/
-│   │   │   │   │   ├── index.tsx            # 酒店详情
-│   │   │   │   │   ├── index.module.scss
-│   │   │   │   │   └── index.config.ts
+│   │   │   │   │   ├── hotel/               # 酒店详情
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── hourlyHotel/         # 钟点房详情
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── homeStay/            # 民宿详情
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
 │   │   │   │   ├── RoomDetail/
-│   │   │   │   │   ├── index.tsx            # 房间详情
-│   │   │   │   │   ├── index.module.scss
-│   │   │   │   │   └── index.config.ts
+│   │   │   │   │   ├── hotel/               # 酒店房间详情
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── hourlyHotel/         # 钟点房房间详情
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
+│   │   │   │   │   ├── homeStay/            # 民宿房间详情
+│   │   │   │   │   │   ├── index.tsx
+│   │   │   │   │   │   └── index.module.scss
 │   │   │   │   └── NotFound/
 │   │   │   │       ├── index.tsx            # 404 页面
 │   │   │   │       ├── index.module.scss
@@ -121,12 +145,48 @@ mobile/
 │       │   │
 │       │   ├── pages/               # 5 个页面（与 mini-program 对标）
 │       │   │   ├── Home/
-│       │   │   │   ├── index.tsx
-│       │   │   │   └── index.module.css
+│       │   │   │   ├── hotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── hourlyHotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── homeStay/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
 │       │   │   ├── SearchResult/
+│       │   │   │   ├── hotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── hourlyHotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── homeStay/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
 │       │   │   ├── HotelDetail/
+│       │   │   │   ├── hotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── hourlyHotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── homeStay/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
 │       │   │   ├── RoomDetail/
+│       │   │   │   ├── hotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── hourlyHotel/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
+│       │   │   │   ├── homeStay/
+│       │   │   │   │   ├── index.tsx
+│       │   │   │   │   └── index.module.css
 │       │   │   └── NotFound/
+│       │   │       ├── index.tsx
+│       │   │       └── index.module.css
 │       │   │
 │       │   ├── components/          # 可复用组件
 │       │   │   ├── HotelCard.tsx
@@ -381,10 +441,18 @@ Web H5 (React Router 6)          Mini-Program (Taro Pages)
 
 | 功能 | Web H5 | Mini-Program | 共享状态 |
 |------|--------|--------------|---------|
-| 首页搜索 | Home | Home | ✅ useHotelStore |
-| 列表展示 | SearchResult | SearchResult | ✅ useHotelStore |
-| 酒店详情 | HotelDetail | HotelDetail | ✅ useHotelStore |
-| 房间详情 | RoomDetail | RoomDetail | ✅ useHotelStore |
+| 酒店首页 | Home/hotel | Home/hotel | ✅ useHotelStore |
+| 钟点房首页 | Home/hourlyHotel | Home/hourlyHotel | ✅ useHotelStore |
+| 民宿首页 | Home/homeStay | Home/homeStay | ✅ useHotelStore |
+| 酒店搜索结果 | SearchResult/hotel | SearchResult/hotel | ✅ useHotelStore |
+| 钟点房搜索结果 | SearchResult/hourlyHotel | SearchResult/hourlyHotel | ✅ useHotelStore |
+| 民宿搜索结果 | SearchResult/homeStay | SearchResult/homeStay | ✅ useHotelStore |
+| 酒店详情 | HotelDetail/hotel | HotelDetail/hotel | ✅ useHotelStore |
+| 钟点房详情 | HotelDetail/hourlyHotel | HotelDetail/hourlyHotel | ✅ useHotelStore |
+| 民宿详情 | HotelDetail/homeStay | HotelDetail/homeStay | ✅ useHotelStore |
+| 酒店房间详情 | RoomDetail/hotel | RoomDetail/hotel | ✅ useHotelStore |
+| 钟点房房间详情 | RoomDetail/hourlyHotel | RoomDetail/hourlyHotel | ✅ useHotelStore |
+| 民宿房间详情 | RoomDetail/homeStay | RoomDetail/homeStay | ✅ useHotelStore |
 | 404 页面 | NotFound | NotFound | ✅ React Router |
 
 
@@ -399,7 +467,9 @@ Web H5 (React Router 6)          Mini-Program (Taro Pages)
 5. ✅ 业务逻辑一致性 - 两端使用相同的 Store 和 API 层
 6. ✅ 统一路由配置 - Router 配置集中管理（ROUTE_CONFIG, ROUTES, PAGE_ROUTES）
 7. ✅ MainLayout 集成 - 所有 5 页面完整包装（Header+Main+Footer+MobileNav）
-8. ✅ Build 成功 - 248 modules, 20.32s（无错误）
+8. ✅ 住宿类型拆分 - 按酒店、钟点房、民宿拆分页面结构
+9. ✅ 样式统一 - 三个类型页面样式对齐，保持各自配色
+10. ✅ Build 成功 - 281 modules, 8.95s（无错误）
 
 
 ## 🎨 MainLayout 集成说明
@@ -428,11 +498,12 @@ export default function HomePage() {
 ```tsx
 <MainLayout>
   ├── Header (导航栏)
-  │   └── Logo + Category Tabs
+  │   ├── Logo
+  │   └── Category Tabs (国内/酒店、钟点房、民宿)
   ├── Main (主内容区)
   │   └── {children} ← 每个页面的内容
   ├── MobileNav (移动导航)
-  │   └── Category Icons
+  │   └── Category Icons (国内/酒店、钟点房、民宿)
   └── Footer (页脚)
       └── Copyright
 </MainLayout>

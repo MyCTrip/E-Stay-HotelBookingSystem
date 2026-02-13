@@ -1,12 +1,13 @@
 import axios, { AxiosInstance } from 'axios'
 import { IStorage } from '../adapters/storage'
+import { HotelQuery } from '../types'
 
 /**
  * API 服务接口定义
  */
 export interface IApiService {
   // 酒店接口
-  getHotels: (query: any) => Promise<any>
+  getHotels: (query: HotelQuery) => Promise<any>
   getHotHotels: (limit?: number) => Promise<any>
   getHotelDetail: (id: string) => Promise<any>
   getRoomsByHotel: (hotelId: string, params?: any) => Promise<any>
@@ -108,7 +109,7 @@ export function createApiService(config: ApiConfig): IApiService {
 
   // 返回 API 方法集合
   return {
-    getHotels: (query) => instance.get('/hotels', { params: query }),
+    getHotels: (query: HotelQuery) => instance.get('/hotels', { params: query }),
     getHotHotels: (limit = 10) => instance.get('/hotels/hot', { params: { limit } }),
     getHotelDetail: (id) => instance.get(`/hotels/${id}`),
     getRoomsByHotel: (hotelId, params) => instance.get(`/hotels/${hotelId}/rooms`, { params }),

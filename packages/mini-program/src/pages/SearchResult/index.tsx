@@ -15,6 +15,8 @@ export default function SearchResultPage() {
   const hotelStore = useHotelStore()
   const [searchParams, setSearchParams] = useState<any>(null)
 
+  const propertyType = hotelStore.getState().searchParams?.propertyType
+
   useEffect(() => {
     const params = Taro.getStorageSync('lastSearchQuery')
     setSearchParams(params || {})
@@ -25,7 +27,7 @@ export default function SearchResultPage() {
   const checkOut = searchParams?.checkOut || ''
 
   const { data: hotels = [] } = useQuery({
-    queryKey: ['hotels', { city, checkIn, checkOut }],
+    queryKey: ['hotels', { city, checkIn, checkOut, propertyType }],
     queryFn: async () => {
       try {
         await hotelStore.getState().fetchHotels({ city, checkIn, checkOut })
@@ -75,7 +77,7 @@ export default function SearchResultPage() {
                 <View className={styles.image}>
                   <Image
                     src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/300x200'}
-                    alt={hotel.baseInfo?.nameCn}
+
                     className={styles.img}
                     mode="aspectFill"
                   />

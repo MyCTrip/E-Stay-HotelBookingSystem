@@ -32,11 +32,23 @@ export interface PageRoute {
  * 这是一个纯数据对象，不依赖于框架运行时
  */
 export const ROUTE_CONFIG = {
-  HOME: {
-    path: 'pages/Home/index',
-    name: 'Home',
-    isTabPage: true,
-    description: '首页',
+  HOME_HOTEL: {
+    path: 'pages/Home/hotel/index',
+    name: 'HomeHotel',
+    isTabPage: false,
+    description: '首页 - 酒店',
+  },
+  HOME_HOURLY: {
+    path: 'pages/Home/hourlyHotel/index',
+    name: 'HomeHourly',
+    isTabPage: false,
+    description: '首页 - 钟点房',
+  },
+  HOME_HOMESTAY: {
+    path: 'pages/Home/homeStay/index',
+    name: 'HomeHomeStay',
+    isTabPage: false,
+    description: '首页 - 民宿',
   },
   SEARCH_RESULT: {
     path: 'pages/SearchResult/index',
@@ -44,17 +56,71 @@ export const ROUTE_CONFIG = {
     isTabPage: false,
     description: '搜索结果页',
   },
+  SEARCH_HOTEL: {
+    path: 'pages/SearchResult/hotel/index',
+    name: 'SearchResultHotel',
+    isTabPage: false,
+    description: '搜索结果 - 酒店',
+  },
+  SEARCH_HOURLY: {
+    path: 'pages/SearchResult/hourlyHotel/index',
+    name: 'SearchResultHourly',
+    isTabPage: false,
+    description: '搜索结果 - 钟点房',
+  },
+  SEARCH_HOMESTAY: {
+    path: 'pages/SearchResult/homeStay/index',
+    name: 'SearchResultHomeStay',
+    isTabPage: false,
+    description: '搜索结果 - 民宿',
+  },
   HOTEL_DETAIL: {
     path: 'pages/HotelDetail/index',
     name: 'HotelDetail',
     isTabPage: false,
     description: '酒店详情页',
   },
+  HOTEL_DETAIL_HOTEL: {
+    path: 'pages/HotelDetail/hotel/index',
+    name: 'HotelDetailHotel',
+    isTabPage: false,
+    description: '酒店详情 - 酒店',
+  },
+  HOTEL_DETAIL_HOURLY: {
+    path: 'pages/HotelDetail/hourlyHotel/index',
+    name: 'HotelDetailHourly',
+    isTabPage: false,
+    description: '酒店详情 - 钟点房',
+  },
+  HOTEL_DETAIL_HOMESTAY: {
+    path: 'pages/HotelDetail/homeStay/index',
+    name: 'HotelDetailHomeStay',
+    isTabPage: false,
+    description: '酒店详情 - 民宿',
+  },
   ROOM_DETAIL: {
     path: 'pages/RoomDetail/index',
     name: 'RoomDetail',
     isTabPage: false,
     description: '房间详情页',
+  },
+  ROOM_DETAIL_HOTEL: {
+    path: 'pages/RoomDetail/hotel/index',
+    name: 'RoomDetailHotel',
+    isTabPage: false,
+    description: '房间详情 - 酒店',
+  },
+  ROOM_DETAIL_HOURLY: {
+    path: 'pages/RoomDetail/hourlyHotel/index',
+    name: 'RoomDetailHourly',
+    isTabPage: false,
+    description: '房间详情 - 钟点房',
+  },
+  ROOM_DETAIL_HOMESTAY: {
+    path: 'pages/RoomDetail/homeStay/index',
+    name: 'RoomDetailHomeStay',
+    isTabPage: false,
+    description: '房间详情 - 民宿',
   },
   NOT_FOUND: {
     path: 'pages/NotFound/index',
@@ -70,10 +136,21 @@ export const ROUTE_CONFIG = {
  * 注意：导航时需要加上 / 前缀
  */
 export const ROUTES = {
-  HOME: `/${ROUTE_CONFIG.HOME.path}`,
+  HOME_HOTEL: `/${ROUTE_CONFIG.HOME_HOTEL?.path}`,
+  HOME_HOURLY: `/${ROUTE_CONFIG.HOME_HOURLY?.path}`,
+  HOME_HOMESTAY: `/${ROUTE_CONFIG.HOME_HOMESTAY?.path}`,
   SEARCH_RESULT: `/${ROUTE_CONFIG.SEARCH_RESULT.path}`,
+  SEARCH_HOTEL: `/${ROUTE_CONFIG.SEARCH_HOTEL?.path}`,
+  SEARCH_HOURLY: `/${ROUTE_CONFIG.SEARCH_HOURLY?.path}`,
+  SEARCH_HOMESTAY: `/${ROUTE_CONFIG.SEARCH_HOMESTAY?.path}`,
   HOTEL_DETAIL: `/${ROUTE_CONFIG.HOTEL_DETAIL.path}`,
+  HOTEL_DETAIL_HOTEL: `/${ROUTE_CONFIG.HOTEL_DETAIL_HOTEL?.path}`,
+  HOTEL_DETAIL_HOURLY: `/${ROUTE_CONFIG.HOTEL_DETAIL_HOURLY?.path}`,
+  HOTEL_DETAIL_HOMESTAY: `/${ROUTE_CONFIG.HOTEL_DETAIL_HOMESTAY?.path}`,
   ROOM_DETAIL: `/${ROUTE_CONFIG.ROOM_DETAIL.path}`,
+  ROOM_DETAIL_HOTEL: `/${ROUTE_CONFIG.ROOM_DETAIL_HOTEL?.path}`,
+  ROOM_DETAIL_HOURLY: `/${ROUTE_CONFIG.ROOM_DETAIL_HOURLY?.path}`,
+  ROOM_DETAIL_HOMESTAY: `/${ROUTE_CONFIG.ROOM_DETAIL_HOMESTAY?.path}`,
   NOT_FOUND: `/${ROUTE_CONFIG.NOT_FOUND.path}`,
 } as const
 
@@ -81,14 +158,14 @@ export const ROUTES = {
  * 页面路由数组 - app.config.ts 中的 pages 配置
  * 注意：这里保存的是不带前导 / 的路径
  */
-export const PAGE_ROUTES = Object.values(ROUTE_CONFIG).map((route) => route.path) as const
+export const PAGE_ROUTES = Object.values(ROUTE_CONFIG).map((route) => route.path)
 
 /**
  * Tab 页面路由数组
  */
 export const TAB_ROUTES = Object.values(ROUTE_CONFIG)
   .filter((route) => route.isTabPage)
-  .map((route) => route.path) as const
+  .map((route) => route.path)
 
 /**
  * 获取页面路径
@@ -109,13 +186,6 @@ export const getPageInfo = (key: keyof typeof ROUTE_CONFIG): PageRoute => {
  * 提供类型安全的页面跳转方法
  */
 export const navigate = {
-  /**
-   * 导航到首页（Tab 页面）
-   */
-  toHome: () => {
-    Taro.switchTab({ url: ROUTES.HOME })
-  },
-
   /**
    * 导航到搜索结果页面
    */
@@ -156,7 +226,13 @@ export const navigate = {
     } else {
       const queryString = params ? new URLSearchParams(params).toString() : ''
       const finalUrl = queryString ? `${path}?${queryString}` : path
-      Taro.navigateTo({ url: finalUrl })
+
+      // 对于首页相关的路由，使用 redirectTo 避免页面栈溢出
+      if (key === 'HOME_HOTEL' || key === 'HOME_HOURLY' || key === 'HOME_HOMESTAY') {
+        Taro.redirectTo({ url: finalUrl })
+      } else {
+        Taro.navigateTo({ url: finalUrl })
+      }
     }
   },
 
@@ -165,13 +241,6 @@ export const navigate = {
    */
   back: (delta: number = 1) => {
     Taro.navigateBack({ delta })
-  },
-
-  /**
-   * 重定向到首页
-   */
-  redirect: () => {
-    Taro.switchTab({ url: ROUTES.HOME })
   },
 } as const
 

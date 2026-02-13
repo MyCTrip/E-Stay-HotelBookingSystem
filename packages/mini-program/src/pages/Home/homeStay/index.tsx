@@ -1,26 +1,25 @@
 import { useState } from 'react'
-import Taro from '@tarojs/taro'
 import { View, Text, Input, Picker, Button } from '@tarojs/components'
-import MainLayout from '../../layouts/MainLayout'
-import { navigate } from '../../router'
+import Taro from '@tarojs/taro'
+import MainLayout from '../../../layouts/MainLayout'
 import styles from './index.module.scss'
 
 /**
- * 首页
- * 业务逻辑与web-h5完全相同
+ * 民宿首页
  */
-export default function HomePage() {
+export default function HomeHomeStayPage() {
   const [formData, setFormData] = useState({
     city: 'Beijing',
     checkIn: new Date().toISOString().split('T')[0],
     checkOut: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     guests: 2,
+    rooms: 1,
+    beds: 1,
+    baths: 1,
   })
 
   const cities = ['Beijing', 'Shanghai', 'Guangzhou', 'Shenzhen', 'Chengdu', 'Xian']
   const cityLabels = ['北京', '上海', '广州', '深圳', '成都', '西安']
-  const guestOptions = Array.from({ length: 8 }, (_, i) => ({ label: String(i + 1), value: String(i + 1) }))
-
   const cityIndex = cities.indexOf(formData.city)
 
   const handleCityChange = (e: any) => {
@@ -30,31 +29,23 @@ export default function HomePage() {
     }))
   }
 
-  const handleCheckInChange = (e: any) => {
+  const handleInputChange = (e: any, name: string) => {
     setFormData((prev) => ({
       ...prev,
-      checkIn: e.detail.value,
-    }))
-  }
-
-  const handleCheckOutChange = (e: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      checkOut: e.detail.value,
-    }))
-  }
-
-  const handleGuestsChange = (e: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      guests: parseInt(e.detail.value) || 1,
+      [name]: parseInt(e.detail.value),
     }))
   }
 
   const handleSearch = () => {
-    // 通过storage传递参数（Taro URL参数传递有长度限制）
-    Taro.setStorageSync('lastSearchQuery', formData)
-    navigate.toSearchResult()
+    const params = new URLSearchParams(
+      Object.entries(formData).reduce((acc, [key, value]) => {
+        acc[key] = String(value)
+        return acc
+      }, {} as Record<string, string>)
+    )
+    Taro.navigateTo({
+      url: `/pages/SearchResult/homeStay/index?${params.toString()}`
+    })
   }
 
   return (
@@ -63,17 +54,14 @@ export default function HomePage() {
         {/* 首页横幅 */}
         <View className={styles.banner}>
           <View className={styles.bannerContent}>
-            <Text className={styles.bannerTitle}>发现您的下一个住处</Text>
-            <Text className={styles.bannerSubtitle}>
-              在全球数百万家酒店、客民宿和其他住处中搜索
-            </Text>
+            <Text className={styles.bannerTitle}>发现您的民宿</Text>
+            <Text className={styles.bannerSubtitle}>在全国多家民宿中搜索</Text>
           </View>
         </View>
 
         {/* 搜索表单 */}
         <View className={styles.searchSection}>
           <View className={styles.searchForm}>
-            {/* 目的地 */}
             <View className={styles.formGroup}>
               <Text className={styles.label}>目的地</Text>
               <Picker
@@ -86,44 +74,76 @@ export default function HomePage() {
               </Picker>
             </View>
 
-            {/* 入住日期 */}
             <View className={styles.formGroup}>
               <Text className={styles.label}>入住日期</Text>
               <Input
                 type="text"
-                placeholder="选择入住日期"
                 value={formData.checkIn}
-                onChange={handleCheckInChange}
+                onInput={(e) => handleInputChange(e, 'checkIn')}
                 className={styles.input}
+                placeholder="选择入住日期"
                 placeholderClass={styles.placeholder}
               />
             </View>
 
-            {/* 退房日期 */}
             <View className={styles.formGroup}>
               <Text className={styles.label}>退房日期</Text>
               <Input
                 type="text"
-                placeholder="选择退房日期"
                 value={formData.checkOut}
-                onChange={handleCheckOutChange}
+                onInput={(e) => handleInputChange(e, 'checkOut')}
                 className={styles.input}
+                placeholder="选择退房日期"
                 placeholderClass={styles.placeholder}
               />
             </View>
 
-            {/* 房客数 */}
             <View className={styles.formGroup}>
               <Text className={styles.label}>房客数</Text>
-              <Picker
-                mode="selector"
-                range={guestOptions}
-                rangeKey="label"
-                value={formData.guests - 1}
-                onChange={handleGuestsChange}
-              >
-                <View className={styles.input}>{formData.guests}人</View>
-              </Picker>
+              <Input
+                type="number"
+                value={formData.guests}
+                onInput={(e) => handleInputChange(e, 'guests')}
+                className={styles.input}
+                placeholder="请输入房客数"
+                placeholderClass={styles.placeholder}
+              />
+            </View>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>房间数</Text>
+              <Input
+                type="number"
+                value={formData.rooms}
+                onInput={(e) => handleInputChange(e, 'rooms')}
+                className={styles.input}
+                placeholder="请输入房间数"
+                placeholderClass={styles.placeholder}
+              />
+            </View>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>床位数</Text>
+              <Input
+                type="number"
+                value={formData.beds}
+                onInput={(e) => handleInputChange(e, 'beds')}
+                className={styles.input}
+                placeholder="请输入床位数"
+                placeholderClass={styles.placeholder}
+              />
+            </View>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>浴室数</Text>
+              <Input
+                type="number"
+                value={formData.baths}
+                onInput={(e) => handleInputChange(e, 'baths')}
+                className={styles.input}
+                placeholder="请输入浴室数"
+                placeholderClass={styles.placeholder}
+              />
             </View>
 
             <Button className={styles.searchButton} onClick={handleSearch}>
@@ -134,7 +154,7 @@ export default function HomePage() {
 
         {/* 特色推荐 */}
         <View className={styles.features}>
-          <Text className={styles.featuresTitle}>为什么选择 E-Stay？</Text>
+          <Text className={styles.featuresTitle}>为什么选择我们的民宿？</Text>
           <View className={styles.featureGrid}>
             <View className={styles.featureCard}>
               <Text className={styles.icon}>💰</Text>
@@ -153,7 +173,7 @@ export default function HomePage() {
             </View>
             <View className={styles.featureCard}>
               <Text className={styles.icon}>⭐</Text>
-              <Text className={styles.featureCardTitle}>酒店评论</Text>
+              <Text className={styles.featureCardTitle}>真实评价</Text>
               <Text className={styles.featureCardDesc}>真实客人的真实评价</Text>
             </View>
           </View>

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { IApiService } from '../api'
-import { Hotel, Room, HotelQuery } from '../types'
+import { Hotel, Room, HotelQuery, PropertyType } from '../types'
 
 /**
  * 搜索参数
@@ -17,12 +17,17 @@ export interface SearchParams {
   }
 }
 
+// 扩展 search params，支持 propertyType 以便不同类型页面自动注入
+export interface ExtendedSearchParams extends SearchParams {
+  propertyType?: PropertyType
+}
+
 /**
  * 酒店 Store 状态
  */
 interface HotelStoreState {
   // ===== 查询条件 =====
-  searchParams: SearchParams
+  searchParams: ExtendedSearchParams
 
   // ===== 列表数据 =====
   hotels: Hotel[]
@@ -48,7 +53,7 @@ interface HotelStoreState {
   error: string | null
 
   // ===== Actions =====
-  setSearchParams: (params: Partial<SearchParams>) => void
+  setSearchParams: (params: Partial<ExtendedSearchParams>) => void
   fetchHotels: (query: HotelQuery) => Promise<void>
   fetchMoreHotels: () => Promise<void>
   fetchHotelDetail: (id: string) => Promise<void>
@@ -68,6 +73,7 @@ export function createHotelStore(api: IApiService) {
       city: 'Beijing',
       keyword: '',
       filters: {},
+      propertyType: undefined,
     },
     hotels: [],
     hotelsPagination: {
@@ -84,15 +90,21 @@ export function createHotelStore(api: IApiService) {
     error: null,
 
     // ===== Actions =====
-    setSearchParams: (params: Partial<SearchParams>) =>
+    setSearchParams: (params: Partial<ExtendedSearchParams>) =>
       set((state: HotelStoreState) => ({
-        searchParams: { ...state.searchParams, ...params },
+        searchParams: { ...state.searchParams, ...(params as any) },
       })),
 
     fetchHotels: async (query: any) => {
       set({ loading: true, error: null })
       try {
-        const res = await api.getHotels(query)
+        // 如果调用方未传 propertyType，则优先从 store.searchParams 中注入
+        const state = get()
+        const mergedQuery = { ...(query || {}) }
+        if (!mergedQuery.propertyType && state.searchParams?.propertyType) {
+          mergedQuery.propertyType = state.searchParams.propertyType
+        }
+        const res = await api.getHotels(mergedQuery as HotelQuery)
         set({
           hotels: res.data,
           hotelsPagination: {
@@ -116,11 +128,12 @@ export function createHotelStore(api: IApiService) {
       set({ loading: true })
       try {
         const nextPage = state.hotelsPagination.page + 1
-        const res = await api.getHotels({
-          ...state.searchParams,
+        const merged = {
+          ...(state.searchParams as any),
           page: nextPage,
           limit: state.hotelsPagination.limit,
-        })
+        }
+        const res = await api.getHotels(merged as HotelQuery)
         set({
           hotels: [...state.hotels, ...res.data],
           hotelsPagination: {

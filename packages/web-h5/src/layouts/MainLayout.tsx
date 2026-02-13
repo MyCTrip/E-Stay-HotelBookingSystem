@@ -1,11 +1,13 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import styles from './MainLayout.module.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 /**
  * 主布局组件
  */
 export default function MainLayout() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [activeCategory, setActiveCategory] = useState('domestic')
 
   const categories = [
@@ -13,6 +15,17 @@ export default function MainLayout() {
     { id: 'hourly', label: '钟点房', icon: '⏰' },
     { id: 'homestay', label: '民宿', icon: '🏡' },
   ]
+
+  useEffect(() => {
+    // 根据当前路径设置 activeCategory
+    if (location.pathname.startsWith('/hourlyHotel') || location.pathname.includes('/hourlyHotel')) {
+      setActiveCategory('hourly')
+    } else if (location.pathname.startsWith('/homeStay') || location.pathname.includes('/homeStay')) {
+      setActiveCategory('homestay')
+    } else {
+      setActiveCategory('domestic')
+    }
+  }, [location.pathname])
 
   return (
     <div className={styles.container}>
@@ -27,7 +40,12 @@ export default function MainLayout() {
               <button
                 key={cat.id}
                 className={`${styles.navItem} ${activeCategory === cat.id ? styles.active : ''}`}
-                onClick={() => setActiveCategory(cat.id)}
+                onClick={() => {
+                  setActiveCategory(cat.id)
+                  if (cat.id === 'domestic') navigate('/hotel')
+                  if (cat.id === 'hourly') navigate('/hourlyHotel')
+                  if (cat.id === 'homestay') navigate('/homeStay')
+                }}
               >
                 <span className={styles.icon}>{cat.icon}</span>
                 {cat.label}
@@ -48,7 +66,12 @@ export default function MainLayout() {
           <button
             key={cat.id}
             className={`${styles.mobileNavItem} ${activeCategory === cat.id ? styles.active : ''}`}
-            onClick={() => setActiveCategory(cat.id)}
+            onClick={() => {
+              setActiveCategory(cat.id)
+              if (cat.id === 'domestic') navigate('/hotel')
+              if (cat.id === 'hourly') navigate('/hourlyHotel')
+              if (cat.id === 'homestay') navigate('/homeStay')
+            }}
             title={cat.label}
           >
             <span className={styles.mobileNavIcon}>{cat.icon}</span>

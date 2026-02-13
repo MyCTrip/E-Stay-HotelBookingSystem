@@ -22,9 +22,10 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@estay/shared": ["../../packages/shared/src"],
-      "@estay/shared/*": ["../../packages/shared/src/*"]
-    }
+      "@estay/shared": ["../../packages/shared/dist"],
+      "@estay/shared/*": ["../../packages/shared/dist/*"]
+    },
+    "skipLibCheck": true
   },
   "include": ["./src", "./types", "./config"],
   "compileOnSave": false

@@ -50,7 +50,7 @@ export default function HotelDetailPage() {
         <View className={styles.mainImage}>
           <Image
             src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/800x400'}
-            alt={hotel.baseInfo?.nameCn}
+
             mode="aspectFill"
           />
         </View>
@@ -60,7 +60,7 @@ export default function HotelDetailPage() {
               <Image
                 key={idx}
                 src={img}
-                alt={`Image ${idx}`}
+
                 className={idx === 0 ? styles.active : ''}
                 mode="aspectFill"
               />

@@ -1,9 +1,22 @@
 import { createBrowserRouter, RouterProviderProps } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
+import { Navigate } from 'react-router-dom'
 import HomePage from '../pages/Home'
+import HomeHotel from '../pages/Home/hotel'
+import HomeHourly from '../pages/Home/hourlyHotel'
+import HomeHomeStay from '../pages/Home/homeStay'
 import SearchResultPage from '../pages/SearchResult'
+import SearchResultHotel from '../pages/SearchResult/hotel'
+import SearchResultHourly from '../pages/SearchResult/hourlyHotel'
+import SearchResultHomeStay from '../pages/SearchResult/homeStay'
 import HotelDetailPage from '../pages/HotelDetail'
+import HotelDetailHotel from '../pages/HotelDetail/hotel'
+import HotelDetailHourly from '../pages/HotelDetail/hourlyHotel'
+import HotelDetailHomeStay from '../pages/HotelDetail/homeStay'
 import RoomDetailPage from '../pages/RoomDetail'
+import RoomDetailHotel from '../pages/RoomDetail/hotel'
+import RoomDetailHourly from '../pages/RoomDetail/hourlyHotel'
+import RoomDetailHomeStay from '../pages/RoomDetail/homeStay'
 import NotFoundPage from '../pages/NotFound'
 
 /**
@@ -16,20 +29,80 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     errorElement: <NotFoundPage />,
     children: [
       {
-        path: '',
-        element: <HomePage />,
+        path: "/",
+        element: <Navigate to="/hotel" replace />,
+      },
+      {
+        path: 'home/hotel',
+        element: <HomeHotel />,
+      },
+      {
+        path: 'hotel',
+        element: <HomeHotel />,
+      },
+      {
+        path: 'home/hourlyHotel',
+        element: <HomeHourly />,
+      },
+      {
+        path: 'hourlyHotel',
+        element: <HomeHourly />,
+      },
+      {
+        path: 'home/homeStay',
+        element: <HomeHomeStay />,
+      },
+      {
+        path: 'homeStay',
+        element: <HomeHomeStay />,
       },
       {
         path: 'search',
         element: <SearchResultPage />,
       },
       {
+        path: 'search/hotel',
+        element: <SearchResultHotel />,
+      },
+      {
+        path: 'search/hourlyHotel',
+        element: <SearchResultHourly />,
+      },
+      {
+        path: 'search/homeStay',
+        element: <SearchResultHomeStay />,
+      },
+      {
         path: 'hotel/:id',
         element: <HotelDetailPage />,
       },
       {
+        path: 'hotel/:id/hotel',
+        element: <HotelDetailHotel />,
+      },
+      {
+        path: 'hotel/:id/hourlyHotel',
+        element: <HotelDetailHourly />,
+      },
+      {
+        path: 'hotel/:id/homeStay',
+        element: <HotelDetailHomeStay />,
+      },
+      {
         path: 'room/:id',
         element: <RoomDetailPage />,
+      },
+      {
+        path: 'room/:id/hotel',
+        element: <RoomDetailHotel />,
+      },
+      {
+        path: 'room/:id/hourlyHotel',
+        element: <RoomDetailHourly />,
+      },
+      {
+        path: 'room/:id/homeStay',
+        element: <RoomDetailHomeStay />,
       },
       {
         path: '*',

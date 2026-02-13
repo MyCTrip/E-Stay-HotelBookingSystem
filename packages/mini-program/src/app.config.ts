@@ -1,9 +1,20 @@
 export default defineAppConfig({
   pages: [
-    'pages/Home/index',
+    'pages/Home/hotel/index',
+    'pages/Home/hourlyHotel/index',
+    'pages/Home/homeStay/index',
     'pages/SearchResult/index',
+    'pages/SearchResult/hotel/index',
+    'pages/SearchResult/hourlyHotel/index',
+    'pages/SearchResult/homeStay/index',
     'pages/HotelDetail/index',
+    'pages/HotelDetail/hotel/index',
+    'pages/HotelDetail/hourlyHotel/index',
+    'pages/HotelDetail/homeStay/index',
     'pages/RoomDetail/index',
+    'pages/RoomDetail/hotel/index',
+    'pages/RoomDetail/hourlyHotel/index',
+    'pages/RoomDetail/homeStay/index',
     'pages/NotFound/index',
   ],
   window: {

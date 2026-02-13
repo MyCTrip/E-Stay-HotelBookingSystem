@@ -56,7 +56,7 @@ export default function RoomDetailPage() {
         <View className={styles.gallery}>
           <Image
             src={room.baseInfo?.images?.[0] || 'https://via.placeholder.com/800x400'}
-            alt={room.baseInfo?.type}
+
             className={styles.mainImage}
             mode="aspectFill"
           />

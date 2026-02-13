@@ -9,12 +9,13 @@ import styles from './index.module.css';
 export default function SearchResultPage() {
     const [searchParams] = useSearchParams();
     const hotelStore = useHotelStore();
+    const propertyType = hotelStore.getState().searchParams?.propertyType;
     const city = searchParams.get('city') || '';
     const checkIn = searchParams.get('checkIn') || '';
     const checkOut = searchParams.get('checkOut') || '';
     // 从 store 获取酒店数据
     const { data: hotels = [] } = useQuery({
-        queryKey: ['hotels', { city, checkIn, checkOut }],
+        queryKey: ['hotels', { city, checkIn, checkOut, propertyType }],
         queryFn: async () => {
             try {
                 await hotelStore.getState().fetchHotels({ city, checkIn, checkOut });

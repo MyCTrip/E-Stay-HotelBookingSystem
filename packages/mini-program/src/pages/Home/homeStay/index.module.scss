@@ -4,8 +4,8 @@
 }
 
 .banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
   padding: 80rpx 40rpx;
   margin-bottom: 40rpx;
   border-radius: 8rpx;
@@ -65,8 +65,8 @@
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+    border-color: #a8edea;
+    box-shadow: 0 0 0 6rpx rgba(168, 237, 234, 0.1);
   }
 }
 
@@ -76,8 +76,8 @@
 
 .searchButton {
   padding: 15rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  color: white;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+  color: #333;
   border: none;
   border-radius: 8rpx;
   font-size: 20rpx;
