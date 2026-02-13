@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middlewares/auth.middleware';
 import { requireRole } from '../../middlewares/role.middleware';
 import { validateBody } from '../../middlewares/validate.middleware';
+import { cache } from '../../middlewares/cache.middleware';
 import {
   createHotel,
   updateHotel,
@@ -9,6 +10,8 @@ import {
   listApprovedHotels,
   listMyHotels,
   requestDeleteHotel,
+  getHotHotels,
+  getCities,
 } from './hotel.controller';
 import { createHotelSchema, updateHotelSchema } from './hotel.schema';
 import { requireMerchantVerified } from '../../middlewares/merchant.middleware';
@@ -45,6 +48,13 @@ router.post(
   requireMerchantVerified,
   requestDeleteHotel
 );
-router.get('/', listApprovedHotels);
+// 获取已审核通过的酒店列表（支持分页和筛选）
+router.get('/', cache({ expiration: 300, keyPrefix: 'hotel:' }), listApprovedHotels);
+
+// 获取热门酒店
+router.get('/hot', cache({ expiration: 3600, keyPrefix: 'hotel:' }), getHotHotels);
+
+// 获取城市列表
+router.get('/cities', cache({ expiration: 86400, keyPrefix: 'hotel:' }), getCities);
 
 export default router;

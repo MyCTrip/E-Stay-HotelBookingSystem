@@ -28,7 +28,7 @@ const me = async (req, res) => {
     const user = req.user;
     if (!user)
         return res.status(401).json({ message: 'Unauthorized' });
-    res.json({ id: user.id || user._id, email: user.email, role: user.role });
+    res.json({ id: user.id || user._id, email: user.email, role: user.role, updatedAt: user.updatedAt });
 };
 exports.me = me;
 //# sourceMappingURL=auth.controller.js.map

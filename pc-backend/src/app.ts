@@ -4,6 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { errorHandler } from './middlewares/error.middleware';
+import { rateLimit } from './middlewares/rateLimiter.middleware';
 
 import authRoutes from './modules/auth/auth.routes';
 import merchantRoutes from './modules/merchant/merchant.routes';
@@ -25,6 +26,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// 全局API频率限制
+app.use('/api', rateLimit());
 // 静态文件服务，访问 /uploads/xxx.jpg
 app.use(UPLOAD_URL_PATH, express.static(UPLOAD_DIR));
 

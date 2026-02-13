@@ -18,6 +18,8 @@ import {
   listNotifications,
   adminApproveDeleteHotel,
   adminApproveDeleteRoom,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
 } from './admin.controller';
 import { auditActionSchema, bulkActionSchema } from './admin.schema';
 import { merchantService } from '../merchant/merchant.service';
@@ -144,6 +146,8 @@ router.get('/hotels', authenticate, requireRole('admin'), listHotels);
 router.get('/rooms', authenticate, requireRole('admin'), listRooms);
 // admin notifications
 router.get('/notifications', authenticate, requireRole('admin'), listNotifications);
+router.patch('/notifications/:id/read', authenticate, markNotificationAsRead);
+router.patch('/notifications/read-all', authenticate, markAllNotificationsAsRead);
 
 router.post(
   '/hotels/bulk',

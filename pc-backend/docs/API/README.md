@@ -1,6 +1,6 @@
 # API 文档（pc-admin-backend）
 
-此文档为后端管理系统（PC 管理后台）的接口参考，覆盖认证、商户、酒店、房型与管理员操作。每个接口包含：功能说明、URL/HTTP 方法、权限、请求参数（Path/Query/Body）、示例请求与示例成功/错误响应。
+此文档为后端管理系统（PC 管理后台）的接口参考，覆盖认证、商户、酒店、房型、管理员操作与通知管理。每个接口包含：功能说明、URL/HTTP 方法、权限、请求参数（Path/Query/Body）、示例请求与示例成功/错误响应。
 
 通用说明：
 
@@ -121,6 +121,19 @@
   { "id": "<merchantId>", "baseInfo": {...} }
   ```
 
+### PUT /api/merchants
+
+- 功能：更新商户资料（同 POST，用于表示更新操作）
+- 权限：`Authorization` (merchant)
+- 请求体：
+  - `baseInfo` (object, optional) 包含需要更新的字段
+  - `qualificationInfo` (object, optional) 包含需要更新的字段
+- 校验失败示例：400
+- 成功响应：200
+  ```json
+  { "id": "<merchantId>", "baseInfo": {...}, "qualificationInfo": {...} }
+  ```
+
 ### POST /api/merchants/submit
 
 - 功能：将商户资料提交审核（auditInfo.verifyStatus -> 'pending'），并写入 AuditLog(action='submit')
@@ -132,7 +145,7 @@
 
 ## Hotel（商户侧） 🏨
 
-说明：酒店（Hotel）由商户创建并提交给管理员审批。`baseInfo` 新增了 `facilities` 与 `policies` 字段（均为非空数组，`content` 为 HTML 富文本）。
+说明：酒店（Hotel）由商户创建并提交给管理员审批。支持三种房型：**hotel（标准酒店）**、**hourlyHotel（钟点房）**、**homeStay（民宿）**。
 
 ### POST /api/hotels
 
@@ -141,6 +154,8 @@
 - 请求体：
   - `baseInfo` (required):
     - 常见字段：`nameCn`(string), `address`(string), `city`(string), `star`(number), `phone`(string), `description`(string), `images`(string[])
+    - **新增：`propertyType`** (string, optional) — 房型类型：`'hotel'` | `'hourlyHotel'` | `'homeStay'`, 默认 `'hotel'`
+    - 新增：`location` (object, optional) — GeoJSON Point，用于地理位置查询 `{ type: 'Point', coordinates: [lng, lat] }`
     - 新增：`facilities` (Array<Object>, required, non-empty)
       - 每项：{ `category`: string (required), `content`: string (required, HTML) }
     - 新增：`policies` (Array<Object>, required, non-empty)
@@ -149,8 +164,24 @@
       - 每项: { `surType`: 'metro'|'attraction'|'business', `surName`: string, `distance`: number }
     - 新增（可选）：`discounts` (Array<Object>)
       - 每项: { `title`: string, `type`: 'discount'|'instant', `content`: string }
+  - **`typeConfig`** (object, optional) — 房型特定配置（根据 propertyType 自动初始化）
+    - 若 `propertyType='hourlyHotel'`，包含：
+      ```json
+      {
+        "hourly": {
+          "baseConfig": {"pricePerHour": 88, "minimumHours": 2, "cleaningTime": 45, "maxBookingsPerDay": 4},
+          "timeSlots": [{"dayOfWeek": 0, "startTime": "08:00", "endTime": "22:00", "minStayHours": 2}]
+        }
+      }
+      ```
+    - 若 `propertyType='homeStay'`，包含：
+      ```json
+      {
+        "homestay": {"hostName": "...", "hostPhone": "...", "responseTimeHours": 2, "instantBooking": true, "minStay": 1, "securityDeposit": 100}
+      }
+      ```
   - `checkinInfo` (optional): `{ checkinTime, checkoutTime }`
-- 示例请求体：
+- 示例请求体（标准酒店）：
   ```json
   {
     "baseInfo": {
@@ -161,10 +192,61 @@
       "phone":"010-12345678",
       "description":"说明",
       "images":[],
+      "propertyType":"hotel",
       "facilities":[{"category":"公共","content":"<p>WiFi</p>"}],
       "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}],
       "surroundings":[{"surType":"metro","surName":"地铁1号线","distance":500}],
       "discounts":[{"title":"首单立减","type":"instant","content":"首单减10元"}]
+    }
+  }
+  ```
+- 示例请求体（钟点房 hourlyHotel）：
+  ```json
+  {
+    "baseInfo": {
+      "nameCn":"示例钟点房酒店",
+      "address":"示例地址",
+      "city":"Shanghai",
+      "star":4,
+      "phone":"021-87654321",
+      "description":"短租特色酒店",
+      "images":[],
+      "propertyType":"hourlyHotel"
+    },
+    "typeConfig": {
+      "hourly": {
+        "baseConfig": {"pricePerHour": 88, "minimumHours": 2, "cleaningTime": 45, "maxBookingsPerDay": 4},
+        "timeSlots": [
+          {"dayOfWeek": 0, "startTime": "08:00", "endTime": "22:00", "minStayHours": 2, "maxBookingsPerSlot": 5}
+        ]
+      }
+    }
+  }
+  ```
+- 示例请求体（民宿 homeStay）：
+  ```json
+  {
+    "baseInfo": {
+      "nameCn":"示例民宿",
+      "address":"示例地址",
+      "city":"Hangzhou",
+      "star":4,
+      "phone":"0571-12345678",
+      "description":"温馨民宿",
+      "images":[],
+      "propertyType":"homeStay"
+    },
+    "typeConfig": {
+      "homestay": {
+        "hostName":"小王",
+        "hostPhone":"13800138000",
+        "responseTimeHours": 2,
+        "instantBooking": true,
+        "minStay": 1,
+        "maxStay": 30,
+        "securityDeposit": 100,
+        "amenityTags": ["厨房", "WiFi", "拖鞋"]
+      }
     }
   }
   ```
@@ -178,8 +260,50 @@
 
 - 功能：列出公开已批准的酒店（用于前端展示）
 - 权限：公开
-- Query 参数（可选）：`city`, `search`, `limit`, `page`
+- Query 参数（可选）：`city`, `search`, `limit`, `page`, **`propertyType`** (可按房型过滤：`hotel` | `hourlyHotel` | `homeStay`)
+- 缓存说明：该接口使用 Redis 缓存，缓存时间为 5 分钟（300 秒）。当酒店数据变更时，相关缓存会自动清除。
 - 成功响应：200 `{ data: Hotel[], meta: { total, page, limit } }`
+
+### GET /api/hotels/hot
+
+- 功能：获取热门酒店列表
+- 权限：公开
+- Query 参数（可选）：
+  - `limit` (number, 默认 10, 最大 50) - 返回的热门酒店数量(最近审核通过的n个酒店，后续采集用户行为后可调整)
+- 缓存说明：该接口使用 Redis 缓存，缓存时间为 1 小时（3600 秒）。热门酒店按创建时间倒序排序，仅包含已审核通过的酒店。
+- 成功响应：200
+  ```json
+  [
+    {
+      "_id": "<hotelId>",
+      "baseInfo": {
+        "nameCn": "酒店名称",
+        "city": "城市",
+        "star": 4,
+        "images": ["图片URL"],
+        "description": "描述"
+      }
+    }
+  ]
+  ```
+- 示例（curl）：
+  ```bash
+  curl http://localhost:3000/api/hotels/hot?limit=10
+  ```
+
+### GET /api/hotels/cities
+
+- 功能：获取所有有酒店的城市列表
+- 权限：公开
+- 缓存说明：该接口使用 Redis 缓存，缓存时间为 24 小时（86400 秒）。仅返回有已审核通过酒店的城市名称。
+- 成功响应：200
+  ```json
+  ["北京", "上海", "广州", "深圳"]
+  ```
+- 示例（curl）：
+  ```bash
+  curl http://localhost:3000/api/hotels/cities
+  ```
 
 ### GET /api/hotels/my
 
@@ -216,7 +340,7 @@
 
 ## Room（房型） 🛏️
 
-说明：房型使用 `baseInfo.facilities` / `baseInfo.policies` / `baseInfo.bedRemark` 三个新增字段。
+说明：房型自动继承所在酒店的 `propertyType`，并自动映射为相应的 `category`（`standard` | `hourly` | `homestay`）。每个房型可配置类型特定的 `typeConfig`（如时间段配置、定价、规则等）。
 
 ### POST /api/hotels/:hotelId/rooms
 
@@ -225,8 +349,13 @@
 - Path：`:hotelId` (required)
 - 请求体：
   - `baseInfo` (required): `type`, `price`, `images`, `status`, `maxOccupancy`, **`facilities`(non-empty)**, **`policies`(non-empty)**, **`bedRemark`(non-empty)**
+    - **新增：`category`** (string, auto-derived) — 自动根据所属酒店的 `propertyType` 派生：`'standard'` | `'hourly'` | `'homestay'`（无需手动指定）
   - `headInfo` (required): `size`, `floor`, `wifi`, `windowAvailable`, `smokingAllowed`
   - `bedInfo` (required array): 每项 `{ bedType, bedNumber, bedSize }`
+  - **`typeConfig`** (object, optional) — 房型级别的类型特定配置（根据 category 自动初始化）
+    - 若 category=`'standard'`：`{"standard": {"cancellationDeadlineHours": 24, "extensionAllowed": true}}`
+    - 若 category=`'hourly'`：`{"hourly": {"pricePerHour": ..., "minimumHours": 2, "availableTimeSlots": [...], "cleaningTime": 45, "hourlyTiers": [...]}}`
+    - 若 category=`'homestay'`：`{"homestay": {"pricePerNight": ..., "weeklyDiscount": 5, "monthlyDiscount": 10, "cleaningFee": 50, "minimumStay": 1, "maxGuests": 4, "instantly": true}}`
 - 示例请求体：见上文
 - 成功响应：201 `{ id: <roomId>, baseInfo: {...} }`
 
@@ -290,20 +419,134 @@
 - GET `/api/admin/audit-logs` 支持 `targetType`, `action`, `operatorId`, `startDate`, `endDate`, `limit`, `page`
 - 返回：`{ data: AuditLog[], meta: { total, page, limit } }`（按 `createdAt` 倒序）
 
+### 通知管理（管理员端） 🔔
+
+**说明：** 管理员接收来自商户提交（审核待处理）的通知，以及可以查看、标记已读通知。
+
+#### GET /api/admin/notifications
+
+- 功能：获取当前管理员的通知列表
+- 权限：`Authorization` (admin)
+- Query 参数（可选）：
+  - `type` (string) - 通知类型筛选：`audit_pending` | `audit_approved` | `audit_rejected` | `update_request`
+  - `read` (string) - 已读状态筛选：`true` | `false`
+  - `limit` (number, 默认 20, 最大 100) - 每页数量
+  - `page` (number, 默认 1) - 页码
+- 成功响应：200
+  ```json
+  {
+    "data": [
+      {
+        "_id": "<notificationId>",
+        "userId": "<adminUserId>",
+        "senderType": "system",
+        "type": "audit_pending",
+        "targetType": "hotel",
+        "targetId": "<hotelId>",
+        "message": "酒店「示例酒店」已提交审核，请及时处理",
+        "meta": {
+          "resourceName": "示例酒店",
+          "hotelId": "<hotelId>"
+        },
+        "read": false,
+        "createdAt": "2026-02-12T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "total": 15,
+      "page": 1,
+      "limit": 20,
+      "unreadCount": 5
+    }
+  }
+  ```
+
+#### PATCH /api/admin/notifications/:id/read
+
+- 功能：标记指定通知为已读
+- 权限：`Authorization` (admin)
+- Path：`:id` (notificationId)
+- 请求体：{}
+- 成功响应：200
+  ```json
+  {
+    "_id": "<notificationId>",
+    "read": true,
+    "updatedAt": "2026-02-12T10:05:00Z"
+  }
+  ```
+
+#### PATCH /api/admin/notifications/read-all
+
+- 功能：标记管理员的所有通知为已读
+- 权限：`Authorization` (admin)
+- 请求体：{}
+- 成功响应：200
+  ```json
+  { "message": "所有通知已标记为已读", "updatedCount": 5 }
+  ```
+
 ---
 
-## 迁移脚本说明 🛠️
+## 通知管理（商户端） 📬
 
-- 路径：`scripts/migrate-fill-facility-policy.js`
-- 功能：扫描 `hotels` 与 `rooms` 集合，为缺失或空的 `facilities` / `policies` / `bedRemark` 填充安全占位值（如 `<p>未填写</p>` / `['无']`），以满足新增的非空校验。脚本支持：
-  - `--dry-run`（只报告将被更新的文档）
-  - `--apply`（执行写入）
-  - `--batch-size=<n>`（批量刷新通知频率）
-  - `--log=<path>`（写入 JSONL 审计日志）
-  - `--resume`（基于日志跳过已处理项）
-- 使用建议：先在 staging 执行 `--dry-run` 并核对差异，确认后在维护窗口执行 `--apply`，并先做好备份。
+**说明：** 商户可以查看来自管理员的审核反馈通知（批准或驳回），以及标记已读。
+
+#### GET /api/merchants/notifications
+
+- 功能：获取当前商户的通知列表
+- 权限：`Authorization` (merchant)
+- Query 参数（可选）：
+  - `type` (string) - 通知类型筛选：`audit_pending` | `audit_approved` | `audit_rejected` | `update_request`
+  - `read` (string) - 已读状态筛选：`true` | `false`
+  - `limit` (number, 默认 20, 最大 100) - 每页数量
+  - `page` (number, 默认 1) - 页码
+- 成功响应：200
+  ```json
+  {
+    "data": [
+      {
+        "_id": "<notificationId>",
+        "userId": "<merchantUserId>",
+        "senderType": "admin",
+        "type": "audit_approved",
+        "targetType": "hotel",
+        "targetId": "<hotelId>",
+        "message": "您的酒店「示例酒店」已通过审核，已发布在线",
+        "meta": {
+          "resourceName": "示例酒店",
+          "operatorId": "<adminId>"
+        },
+        "read": false,
+        "createdAt": "2026-02-12T10:00:00Z"
+      }
+    ],
+    "meta": {
+      "total": 8,
+      "page": 1,
+      "limit": 20,
+      "unreadCount": 2
+    }
+  }
+  ```
+
+#### PATCH /api/merchants/notifications/:id/read
+
+- 功能：标记指定通知为已读
+- 权限：`Authorization` (merchant)
+- Path：`:id` (notificationId)
+- 请求体：{}
+- 成功响应：200
+  ```json
+  {
+    "_id": "<notificationId>",
+    "read": true,
+    "updatedAt": "2026-02-12T10:05:00Z"
+  }
+  ```
 
 ---
+
 
 ## 测试说明 🧪
 

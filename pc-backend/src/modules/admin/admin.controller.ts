@@ -7,6 +7,7 @@ import { Room } from '../room/room.model';
 import { AuditLog } from '../audit/audit.model';
 import { Notification } from '../notification/notification.model';
 import { hotelService } from '../hotel/hotel.service';
+import { notificationService } from '../notification/notification.service';
 
 export const approveHotel = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -16,12 +17,22 @@ export const approveHotel = async (req: Request, res: Response) => {
     const hotel = await Hotel.findById(id);
     if (!hotel) return res.status(404).json({ message: 'Not found' });
 
-    // debug: log auditInfo before applying
-    // eslint-disable-next-line no-console
-    console.log('approveHotel before apply auditInfo:', JSON.stringify(hotel.auditInfo));
-
     try {
       const applied = await hotelService.applyPendingChanges(id, user.id, reason);
+      
+      // notify merchant about approval
+      const merchant = await Merchant.findById(hotel.merchantId);
+      if (merchant && merchant.userId) {
+        const resourceName = applied.baseInfo.nameCn || '酒店';
+        await notificationService.notifyMerchantAuditApproved(
+          merchant.userId.toString(),
+          'hotel',
+          applied._id.toString(),
+          resourceName,
+          user.id
+        );
+      }
+      
       res.json(applied);
     } catch (err: any) {
       if (err && err.status) return res.status(err.status).json({ message: err.message });
@@ -52,6 +63,21 @@ export const rejectHotel = async (req: Request, res: Response) => {
         operatorId: user.id,
         reason,
       });
+      
+      // notify merchant about rejection
+      const merchant = await Merchant.findById(hotel.merchantId);
+      if (merchant && merchant.userId) {
+        const resourceName = hotel.baseInfo.nameCn || '酒店';
+        await notificationService.notifyMerchantAuditRejected(
+          merchant.userId.toString(),
+          'hotel',
+          hotel._id.toString(),
+          resourceName,
+          reason || '酒店信息审核未通过',
+          user.id
+        );
+      }
+      
       return res.json(hotel);
     }
 
@@ -75,6 +101,21 @@ export const rejectHotel = async (req: Request, res: Response) => {
       operatorId: user.id,
       reason,
     });
+    
+    // notify merchant about rejection
+    const merchant = await Merchant.findById(hotel.merchantId);
+    if (merchant && merchant.userId) {
+      const resourceName = updated.baseInfo.nameCn || '酒店';
+      await notificationService.notifyMerchantAuditRejected(
+        merchant.userId.toString(),
+        'hotel',
+        updated._id.toString(),
+        resourceName,
+        reason || '酒店信息审核未通过',
+        user.id
+      );
+    }
+    
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -167,6 +208,17 @@ export const adminApproveMerchant = async (req: Request, res: Response) => {
       operatorId: user.id,
       reason,
     });
+    
+    // notify merchant about approval
+    const resourceName = profile.baseInfo.merchantName || '商户资料';
+    await notificationService.notifyMerchantAuditApproved(
+      profile.userId.toString(),
+      'merchant',
+      profile._id.toString(),
+      resourceName,
+      user.id
+    );
+    
     res.json(profile);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -186,6 +238,18 @@ export const adminRejectMerchant = async (req: Request, res: Response) => {
       operatorId: user.id,
       reason,
     });
+    
+    // notify merchant about rejection
+    const resourceName = profile.baseInfo.merchantName || '商户资料';
+    await notificationService.notifyMerchantAuditRejected(
+      profile.userId.toString(),
+      'merchant',
+      profile._id.toString(),
+      resourceName,
+      reason || '商户资料审核未通过',
+      user.id
+    );
+    
     res.json(profile);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -241,6 +305,23 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
       operatorId: user.id,
       reason,
     });
+    
+    // notify merchant about room approval
+    const hotel = await Hotel.findById(room.hotelId);
+    if (hotel) {
+      const merchant = await Merchant.findById(hotel.merchantId);
+      if (merchant && merchant.userId) {
+        const resourceName = room.baseInfo.type || '房间';
+        await notificationService.notifyMerchantAuditApproved(
+          merchant.userId.toString(),
+          'room',
+          room._id.toString(),
+          resourceName,
+          user.id
+        );
+      }
+    }
+    
     res.json(room);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -286,6 +367,9 @@ export const adminRejectRoom = async (req: Request, res: Response) => {
   const { reason } = req.body;
   const user = (req as any).user;
   try {
+    const room = await Room.findById(id);
+    if (!room) return res.status(404).json({ message: 'Not found' });
+    
     const updated = await Room.findByIdAndUpdate(
       id,
       {
@@ -306,6 +390,24 @@ export const adminRejectRoom = async (req: Request, res: Response) => {
       operatorId: user.id,
       reason,
     });
+    
+    // notify merchant about room rejection
+    const hotel = await Hotel.findById(room.hotelId);
+    if (hotel) {
+      const merchant = await Merchant.findById(hotel.merchantId);
+      if (merchant && merchant.userId) {
+        const resourceName = room.baseInfo.type || '房间';
+        await notificationService.notifyMerchantAuditRejected(
+          merchant.userId.toString(),
+          'room',
+          room._id.toString(),
+          resourceName,
+          reason || '房间信息审核未通过',
+          user.id
+        );
+      }
+    }
+    
     res.json(updated);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -325,9 +427,66 @@ export const getProfile = async (req: Request, res: Response) => {
 
 export const listNotifications = async (req: Request, res: Response) => {
   const user = (req as any).user;
+  const { read, type, limit = 20, page = 1 } = req.query as any;
   try {
-    const data = await Notification.find({ userId: user.id }).sort({ createdAt: -1 }).limit(100);
-    res.json({ data });
+    const filter: any = { userId: user.id };
+    
+    // 筛选已读状态
+    if (read !== undefined) {
+      filter.read = read === 'true' || read === '1';
+    }
+    
+    // 筛选通知类型
+    if (type) {
+      filter.type = type;
+    }
+    
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(parseInt(limit, 10) || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
+    
+    const total = await Notification.countDocuments(filter);
+    const data = await Notification.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
+    
+    // 获取未读通知数
+    const unreadCount = await notificationService.getUnreadCount(user.id);
+    
+    res.json({ data, meta: { total, page: pageNum, limit: limitNum, unreadCount } });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+/**
+ * 标记单个通知为已读
+ */
+export const markNotificationAsRead = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = (req as any).user;
+  try {
+    const notification = await Notification.findById(id);
+    if (!notification) return res.status(404).json({ message: 'Not found' });
+    if (notification.userId.toString() !== user.id) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    const updated = await notificationService.markAsRead(id);
+    res.json(updated);
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+/**
+ * 标记所有通知为已读
+ */
+export const markAllNotificationsAsRead = async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  try {
+    await Notification.updateMany({ userId: user.id, read: false }, { read: true });
+    res.json({ message: 'All notifications marked as read' });
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }
@@ -349,12 +508,13 @@ export const listMerchants = async (req: Request, res: Response) => {
 };
 
 export const listHotels = async (req: Request, res: Response) => {
-  const { status, search, merchantId } = req.query as any;
+  const { status, search, merchantId, propertyType } = req.query as any;
   const limit = Math.min(parseInt((req.query.limit as any) || '100', 10) || 100, 500);
   const page = Math.max(parseInt((req.query.page as any) || '1', 10) || 1, 1);
   const filter: any = {};
   if (status) filter['auditInfo.status'] = status;
   if (merchantId) filter['merchantId'] = merchantId;
+  if (propertyType) filter['baseInfo.propertyType'] = propertyType; // 新增
   if (search)
     filter.$or = [
       { 'baseInfo.nameCn': new RegExp(search, 'i') },

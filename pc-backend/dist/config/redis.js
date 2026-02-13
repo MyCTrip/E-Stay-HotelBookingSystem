@@ -3,36 +3,67 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.closeRedisConnection = exports.redisClient = void 0;
+exports.isRedisConnected = exports.closeRedis = exports.getRedisClient = exports.initializeRedis = void 0;
 const redis_1 = require("redis");
-const logger_1 = __importDefault(require("../utils/logger"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+// Redis连接配置
+const redisConfig = {
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
+    password: process.env.REDIS_PASSWORD || undefined,
+    database: parseInt(process.env.REDIS_DB || '0'),
+};
 // 创建Redis客户端
-const redisClient = (0, redis_1.createClient)({
-    url: process.env.REDIS_URI || 'redis://localhost:6379'
-});
-exports.redisClient = redisClient;
-// 连接Redis
-redisClient.connect().catch((error) => {
-    logger_1.default.error('Redis连接失败:', error);
-    // Redis连接失败不应该导致整个应用崩溃
-    // 频率限制功能会在Redis不可用时降级
-});
-// 监听Redis连接事件
-redisClient.on('connect', () => {
-    logger_1.default.info('Redis连接成功');
-});
-redisClient.on('error', (error) => {
-    logger_1.default.error('Redis错误:', error);
-});
-// 关闭Redis连接
-const closeRedisConnection = async () => {
+let redisClient;
+// 初始化Redis连接
+const initializeRedis = async () => {
     try {
-        await redisClient.disconnect();
-        logger_1.default.info('Redis连接已关闭');
+        redisClient = (0, redis_1.createClient)(redisConfig);
+        // 连接事件
+        redisClient.on('connect', () => {
+            console.log('Redis connected successfully');
+        });
+        // 错误事件
+        redisClient.on('error', (err) => {
+            console.error('Redis connection error:', err);
+        });
+        // 断开连接事件
+        redisClient.on('end', () => {
+            console.log('Redis connection ended');
+        });
+        // 连接到Redis
+        await redisClient.connect();
     }
     catch (error) {
-        logger_1.default.error('关闭Redis连接失败:', error);
+        console.error('Failed to initialize Redis:', error);
+        // Redis连接失败不应该阻止应用启动，使用内存存储作为后备
     }
 };
-exports.closeRedisConnection = closeRedisConnection;
+exports.initializeRedis = initializeRedis;
+// 获取Redis客户端
+const getRedisClient = () => {
+    return redisClient;
+};
+exports.getRedisClient = getRedisClient;
+// 关闭Redis连接
+const closeRedis = async () => {
+    if (redisClient) {
+        await redisClient.quit();
+    }
+};
+exports.closeRedis = closeRedis;
+// 检查Redis是否连接
+const isRedisConnected = () => {
+    if (!redisClient) {
+        return false;
+    }
+    // 检查客户端状态
+    try {
+        return redisClient.isReady;
+    }
+    catch (error) {
+        return false;
+    }
+};
+exports.isRedisConnected = isRedisConnected;
 //# sourceMappingURL=redis.js.map
