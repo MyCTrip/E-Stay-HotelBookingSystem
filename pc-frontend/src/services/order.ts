@@ -11,7 +11,7 @@ interface OrderListParams {
 
 export const orderApi = {
   // 获取订单列表
-  getList: (params: OrderListParams) => request.get('/orders/merchants/list', { params }),
+  getList: (params: OrderListParams) => request.get('/orders/merchant/list', { params }),
   
   // 办理入住 (分配房号)
   checkIn: (orderId: string, roomNumber: string) => request.post(`/orders/${orderId}/check-in`, { roomNumber }),

@@ -11,9 +11,10 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { BaseInfoCard } from '@/components/hotel/BaseInfoCard';
 import { PolicyCard } from '@/components/hotel/PolicyCard';
 import { MarketingCard } from '@/components/hotel/MarketingCard';
-import { RoomListCard } from '@/components/rooms/RoomListCard';
+// import { RoomListCard } from '@/components/rooms/RoomListCard';
 import { HotelDetailsView } from '@/components/hotel/HotelDetailsView'; // 酒店详情查看组件
 
+import { HOTEL_FACILITIES } from '@/config/hotelOptions';
 // 表单值类型定义（UI层）
 interface HotelFormValues {
   nameCn: string;
@@ -24,19 +25,27 @@ interface HotelFormValues {
   openTime?: any;
   description?: string;
   images?: UploadFile[];
+// 入住信息
   checkinInfo?: {
-    checkinTime?: string;
-    checkoutTime?: string;
+    checkinTime?: any; // UI层是 Dayjs 对象
+    checkoutTime?: any;
     breakfastType?: string;
     breakfastPrice?: number;
   };
+  // 动态字段 (UI层结构)
+  facilities?: Record<string, string[]>; 
+  policies?: {
+    pet?: string;
+    cancellation?: string;
+    other?: string;
+  };
   nearbyList?: any[];
   discountRules?: any[];
-  rooms?: any[];
+  // rooms?: any[];
 }
 
 const HotelManage: React.FC = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [form] = Form.useForm<HotelFormValues>();
 
   // === 状态管理核心 ===
@@ -49,56 +58,8 @@ const HotelManage: React.FC = () => {
   const fetchMyHotel = async () => {
     setLoading(true);
     try {
-      // --- 👇 临时代码开始：假装后端返回了数据 👇 ---
-      // 模拟延迟 0.5 秒
-      // await new Promise(resolve => setTimeout(resolve, 500));
-
-      // const mockData: any = {
-      //   _id: 'mock-hotel-001',
-      //   baseInfo: {
-      //     nameCn: '易宿精选度假酒店 (测试)',
-      //     nameEn: 'E-Stay Luxury Resort',
-      //     city: '三亚',
-      //     address: '海棠湾路 88 号',
-      //     star: 5,
-      //     openTime: '2023-10-01',
-      //     description: '这是一家非常棒的度假酒店，拥有私人海滩和无边泳池...',
-      //     phone: '0898-88888888',
-      //     images: [
-      //       'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3', 
-      //       'https://images.unsplash.com/photo-1582719508461-905c673771fd?ixlib=rb-4.0.3'
-      //     ]
-      //   },
-      //   checkinInfo: {
-      //     checkinTime: '15:00',
-      //     checkoutTime: '12:00',
-      //     breakfastType: '自助',
-      //     breakfastPrice: 128
-      //   },
-      //   rooms: [
-      //     {
-      //       _id: 'room-01',
-      //       baseInfo: { type: '海景大床房', price: 1299, stock: 5 },
-      //       headInfo: { size: '45', wifi: true, windowAvailable: true },
-      //       breakfastInfo: { hasBreakfast: true }
-      //     },
-      //     {
-      //       _id: 'room-02',
-      //       baseInfo: { type: '园景双床房', price: 899, stock: 10 },
-      //       headInfo: { size: '35', wifi: true, windowAvailable: true },
-      //       breakfastInfo: { hasBreakfast: false }
-      //     }
-      //   ]
-      // };
-
-      // setHotelData(mockData); // 强制写入数据
-      // setIsEditing(false);    // 强制进入“查看模式”
-      // --- 👆 临时代码结束 👆 ---
-
-      // 原来的真实代码先注释掉，等接后端时再解开
       // 调用新接口，获取当前商家的酒店列表
       const res: any = await hotelApi.getMyHotels();
-      
       // 数据格式适配（兼容接口返回数组/对象两种格式）
       const list = Array.isArray(res) ? res : (res.data || []);
 
@@ -111,8 +72,14 @@ const HotelManage: React.FC = () => {
         setHotelData(null);
         setIsEditing(true);
       }
-    } catch (err: any) {
-      // 特殊处理404异常（如果后端在「未找到酒店」时返回404状态码）
+  } catch (err: any) {
+      // ✅ 403 处理：商户资料缺失 -> 跳转去完善资料
+      if (err?.response?.status === 403) {
+        message.warning('请先完善商户资料');
+        navigate('/merchant/profile'); // 确保你的路由里有这个路径
+        return;
+      }
+
       if (err?.response?.status === 404) {
         setHotelData(null);
         setIsEditing(true);
@@ -132,9 +99,27 @@ const HotelManage: React.FC = () => {
   // === 2. 表单数据回填逻辑（进入编辑模式时触发） ===
   useEffect(() => {
     if (isEditing && hotelData) {
-      // --- 编辑模式：回填已有酒店数据 ---
+    // --- A. 数据转换 (后端 -> UI) ---
+      
+      // 1. Facilities 转换: [{category: '基础', content: 'WiFi, 停车'}] -> {'基础': ['WiFi', '停车']}
+      const facilitiesUI: any = {};
+      hotelData.baseInfo.facilities?.forEach((item: any) => {
+         if (item.content) {
+            facilitiesUI[item.category] = item.content.split(',').map((s: string) => s.trim());
+         }
+      });
+
+      // 2. Policies 转换
+      const policiesUI: any = {};
+      hotelData.baseInfo.policies?.forEach((item: any) => {
+         if (item.policyType === 'petAllowed') policiesUI.pet = item.content;
+         if (item.policyType === 'cancellation') policiesUI.cancellation = item.content;
+         if (item.policyType === 'other') policiesUI.other = item.content;
+      });
+
+      // 3. 图片转换
       const images = hotelData.baseInfo.images?.map((url, i) => ({
-         uid: String(i), name: `图片-${i}`, status: 'done', url 
+         uid: String(i), name: `img-${i}`, status: 'done', url 
       })) || [];
 
       form.setFieldsValue({
@@ -146,27 +131,43 @@ const HotelManage: React.FC = () => {
         openTime: hotelData.baseInfo.openTime ? dayjs(hotelData.baseInfo.openTime) : undefined,
         description: hotelData.baseInfo.description,
         images: images as any,
-        checkinInfo: hotelData.checkinInfo,
-        // 回填房间数据
-        rooms: hotelData.rooms?.map((r: any) => ({
-            name: r.baseInfo?.type || r.type,
-            price: r.baseInfo?.price || r.price,
-            stock: r.baseInfo?.stock || r.stock,
-            size: r.headInfo?.size ? parseFloat(r.headInfo.size) : 0,
-            facilities: [
-                r.headInfo?.wifi ? '无线网络' : '',
-                r.headInfo?.windowAvailable ? '有窗' : ''
-            ].filter(Boolean),
-            hasBreakfast: !!r.breakfastInfo?.hasBreakfast
-        }))
+// 4. CheckinInfo (字符串 -> Dayjs)
+        checkinInfo: {
+            ...hotelData.checkinInfo,
+            checkinTime: hotelData.checkinInfo?.checkinTime ? dayjs(hotelData.checkinInfo.checkinTime, 'HH:mm') : undefined,
+            checkoutTime: hotelData.checkinInfo?.checkoutTime ? dayjs(hotelData.checkinInfo.checkoutTime, 'HH:mm') : undefined,
+        },
+
+        // 5. 注入转换后的动态字段
+        facilities: facilitiesUI,
+        policies: policiesUI,
+        // 6. 回填房间数据
+        // rooms: hotelData.rooms?.map((r: any) => ({
+        //     name: r.baseInfo?.type || r.type,
+        //     price: r.baseInfo?.price || r.price,
+        //     stock: r.baseInfo?.stock || r.stock,
+        //     size: r.headInfo?.size ? parseFloat(r.headInfo.size) : 0,
+        //     facilities: [
+        //         r.headInfo?.wifi ? '无线网络' : '',
+        //         r.headInfo?.windowAvailable ? '有窗' : ''
+        //     ].filter(Boolean),
+        //     hasBreakfast: !!r.breakfastInfo?.hasBreakfast
+        // }))
       });
     } else if (isEditing && !hotelData) {
       // --- 新增模式：设置表单默认值 ---
       form.resetFields();
       form.setFieldsValue({
           star: 3,
-          checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' },
-          rooms: [{ name: '标准间', price: 299, stock: 10, size: 25 }]
+          checkinInfo: { 
+              checkinTime: dayjs('14:00', 'HH:mm'), 
+              checkoutTime: dayjs('12:00', 'HH:mm'),
+              breakfastType: '无'
+          },
+          facilities: { '基础设施': ['免费WiFi', '24小时前台'] },
+          nearbyList: [],
+          discountRules: [],
+          // rooms: [{ name: '标准间', price: 299, stock: 10, size: 25 }]
       });
     }
   }, [isEditing, hotelData, form]);
@@ -175,63 +176,127 @@ const HotelManage: React.FC = () => {
   const onFinish = async (values: HotelFormValues) => {
     setSubmitting(true);
     try {
-      let finalDesc = values.description || '';
-      if (values.nearbyList?.length) finalDesc += '\n\n【周边信息】...'; // 简化的周边信息拼接逻辑
-
-      // 提取图片URL（过滤无效值）
-      const imageList = values.images?.map(
+      // 1. 图片处理：文档要求 images (string[])
+      let imageList = values.images?.map(
         (f: any) => f.url || (f.response && f.response.url)
       ).filter(Boolean) || [];
 
-      // 构造接口提交参数
-      const payload: Partial<Hotel> = {
+      // 防御：文档隐含要求 images 可能非空，给一张默认图更安全
+      if (imageList.length === 0) {
+          imageList = ['https://via.placeholder.com/800x600?text=No+Image']; 
+      }
+
+      // 2. Facilities 转换 (UI -> DB)
+      // 文档要求：Array, required, non-empty, content 为 HTML
+      const facilitiesDB = Object.keys(values.facilities || {}).map(key => {
+          const contentText = (values.facilities as any)[key]?.join(', ') || '';
+          return {
+              category: key,
+              content: `<p>${contentText}</p>` // 包装成 HTML
+          };
+      }).filter(item => item.content !== '<p></p>'); // 过滤空项
+      
+      // 必填兜底
+      if (facilitiesDB.length === 0) {
+          facilitiesDB.push({ category: '基础服务', content: '<p>暂无详细信息</p>' });
+      }
+
+      // 3. Policies 转换 (UI -> DB)
+      // 文档要求：Array, required, non-empty, content 为 HTML
+      const policiesDB = [
+          { 
+            policyType: 'petAllowed', 
+            content: values.policies?.pet ? `<p>${values.policies.pet}</p>` : '<p>不可携带宠物</p>' 
+          },
+          { 
+            policyType: 'cancellation', 
+            content: values.policies?.cancellation ? `<p>${values.policies.cancellation}</p>` : '<p>详询酒店前台</p>' 
+          }
+          // 文档没提 flags，这里不传 flags
+      ].filter(item => item.content);
+
+      // 映射表：前端中文 -> 后端枚举
+      const surTypeMap: Record<string, string> = {
+          '地铁': 'metro',
+          '景点': 'attraction',
+          '商圈': 'business',
+          '交通': 'metro', // 兜底
+          'metro': 'metro',
+          'attraction': 'attraction',
+          'business': 'business'
+      };
+
+      const surroundingsDB = (values.nearbyList || []).map((item: any) => ({
+          surType: surTypeMap[item.type] || 'business', // 转换字段名 type -> surType，并转枚举
+          surName: item.name || '未知地点',            // 转换字段名 name -> surName
+          distance: Number(item.distance) || 100       // 确保是数字
+      }));
+
+      const discountTypeMap: Record<string, string> = {
+          '立减': 'instant',
+          '折扣': 'discount',
+          'instant': 'instant',
+          'discount': 'discount'
+      };
+      const discountsDB = (values.discountRules || []).map((item: any) => ({
+          title: item.title || '优惠',
+          type: discountTypeMap[item.type] || 'instant', // 转枚举
+          content: item.value || ''                      // 转换字段名 value -> content
+      }));
+
+      // 4. 构造严格符合文档的 Payload
+      // 文档结构：{ baseInfo: {...}, checkinInfo: {...} }
+      const payload: any = {
         baseInfo: {
           nameCn: values.nameCn,
-          nameEn: values.nameEn,
+          nameEn: values.nameEn, // optional
           address: values.address,
           city: values.city || '未填写',
           star: values.star ?? 3,
-          openTime: values.openTime ? dayjs(values.openTime).format('YYYY-MM-DD') : '',
-          description: finalDesc,
-          roomTotal: values.rooms?.length ?? 0,
-          phone: '待完善',
-          images: imageList as string[],
+          // 文档要求 phone 是 string
+          phone: '000-00000000', 
+          description: values.description || '暂无描述',
+          images: imageList,
+          
+          // 严格符合文档结构
+          facilities: facilitiesDB,
+          policies: policiesDB,
+          
+          // 文档提到的可选数组，显式传空数组
+          surroundings: surroundingsDB,
+          discounts: discountsDB
         },
-        // 入住政策参数（带默认值兜底）
-        checkinInfo: values.checkinInfo?.checkinTime ? {
-            checkinTime: values.checkinInfo.checkinTime,
-            checkoutTime: values.checkinInfo.checkoutTime || '12:00',
-            breakfastType: values.checkinInfo.breakfastType,
-            breakfastPrice: values.checkinInfo.breakfastPrice
-        } : undefined,
         
-        auditInfo: { status: 'draft' as AuditStatus }, // 审核状态默认设为草稿
-        
-        // 房间数据构造
-        rooms: values.rooms?.map(room => ({
-          baseInfo: { type: room.name, price: room.price, stock: room.stock, images: [], status: 'draft', maxOccupancy: 2 },
-          headInfo: { size: String(room.size || 0), floor: '1-10', wifi: room.facilities?.includes('无线网络') || false, windowAvailable: true, smokingAllowed: false },
-          breakfastInfo: room.hasBreakfast ? { hasBreakfast: true } : {},
-          bedInfo: [] 
-        })) as any
+        // checkinInfo 是 optional，但如果有内容则必须包含 checkinTime/checkoutTime
+        checkinInfo: {
+            checkinTime: values.checkinInfo?.checkinTime ? (values.checkinInfo.checkinTime as any).format('HH:mm') : '14:00',
+            checkoutTime: values.checkinInfo?.checkoutTime ? (values.checkinInfo.checkoutTime as any).format('HH:mm') : '12:00',
+            // 文档没明确提 breakfastType/Price，但在示例中可能有，建议保留或根据 checkinInfo 定义调整
+            
+        }
       };
 
+      console.log('提交的 Payload:', JSON.stringify(payload, null, 2)); // 方便你自己调试看
+
       if (hotelData?._id) {
-        // 有酒店ID：执行编辑更新操作
+        // PUT /api/hotels/:id
         await hotelApi.update(hotelData._id, payload);
-        message.success('酒店信息修改成功');
+        message.success('更新申请已提交');
       } else {
-        // 无酒店ID：执行新增创建操作
+        // POST /api/hotels
         await hotelApi.create(payload);
-        message.success('酒店发布成功');
+        message.success('酒店创建成功');
       }
       
-      // 提交成功后：刷新最新数据并切回查看模式
       await fetchMyHotel(); 
       setIsEditing(false);
 
     } catch (err: any) {
-      message.error(err?.response?.data?.message || '提交失败，请稍后重试');
+      console.error(err);
+      // 显示后端返回的详细校验错误
+      const errorMsg = err?.response?.data?.message;
+      const fieldErrors = err?.response?.data?.errors ? JSON.stringify(err?.response?.data?.errors) : '';
+      message.error(`${errorMsg || '提交失败'} ${fieldErrors}`);
     } finally {
       setSubmitting(false);
     }
@@ -271,7 +336,7 @@ const HotelManage: React.FC = () => {
         <BaseInfoCard />
         <PolicyCard />
         <MarketingCard />
-        <RoomListCard />
+        {/* <RoomListCard /> */}
 
         {/* 悬浮底部操作栏 */}
         <div style={{ 
