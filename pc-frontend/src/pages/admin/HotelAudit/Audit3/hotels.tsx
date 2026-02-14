@@ -13,25 +13,28 @@ import request from '@/services/request';
 const { Title, Text } = Typography;
 const { Search, TextArea } = Input;
 
-// 1. 定义酒店数据类型
+// 1. ✅ 修复：让 TypeScript 接口完美匹配后端的嵌套 JSON 数据结构
 interface IHotel {
     _id: string;
-    // 商户信息，后端通常会 populate 出来
     merchantId: {
         _id: string;
         baseInfo: {
             merchantName: string;
         };
     };
-    nameCn: string;
-    nameEn?: string;
-    address?: string;
-    city?: string;
-    star?: number;
-    openTime?: string;
-    images: string[];
-    status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline'; //
-    rejectReason?: string;
+    baseInfo: {
+        nameCn: string;
+        nameEn?: string;
+        address?: string;
+        city?: string;
+        star?: number;
+        openTime?: string;
+        images: string[];
+    };
+    auditInfo: {
+        status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
+        rejectReason?: string;
+    };
     createdAt: string;
 }
 
@@ -40,7 +43,6 @@ const AuditHotel: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
 
-    // 查询参数：search 将同时用于搜索酒店和商户
     const [filters, setFilters] = useState<{ status?: string; search?: string }>({});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
@@ -53,7 +55,7 @@ const AuditHotel: React.FC = () => {
     const [actionType, setActionType] = useState<'reject' | 'offline' | null>(null);
     const [reason, setReason] = useState('');
 
-    // 2. 获取列表 (搜索功能已集成)
+    // 2. 获取列表
     const fetchData = useCallback(async (page = 1, size = 10) => {
         setLoading(true);
         try {
@@ -62,13 +64,14 @@ const AuditHotel: React.FC = () => {
                     page,
                     limit: size,
                     status: filters.status,
-                    search: filters.search // 后端 search 参数应支持酒店/商户模糊匹配
+                    search: filters.search 
                 }
             });
             setHotels(res.data || []);
             setPagination(prev => ({ ...prev, current: page, total: res.meta?.total || 0 }));
         } catch (err) {
             console.error('加载列表失败');
+            message.error('加载列表失败');
         } finally {
             setLoading(false);
         }
@@ -91,38 +94,42 @@ const AuditHotel: React.FC = () => {
         } catch (err) { /* 报错由拦截器处理 */ }
     };
 
+    // 3. ✅ 修复：表格列映射
     const columns: ColumnsType<IHotel> = [
         {
             title: '酒店名称',
-            dataIndex: 'nameCn',
+            // 🔥 必须用数组格式穿透读取嵌套数据
+            dataIndex: ['baseInfo', 'nameCn'],
             width: '20%',
             render: (text, record) => (
-                <Space orientation="vertical" size={0}>
-                    <Text strong>{text}</Text>
-                    <Text type="secondary" style={{ fontSize: '11px' }}>{record.city || '未知城市'}</Text>
+                <Space direction="vertical" size={0}>
+                    <Text strong>{text || '未知酒店名称'}</Text>
+                    {/* 🔥 同样从 baseInfo 里读取 city */}
+                    <Text type="secondary" style={{ fontSize: '11px' }}>{record.baseInfo?.city || '未知城市'}</Text>
                 </Space>
             )
         },
         {
-            // ✅ 新增：提交商户列
             title: '提交商户',
+            // 这个你写对了，保持不变
             dataIndex: ['merchantId', 'baseInfo', 'merchantName'],
             key: 'merchantName',
             render: (text) => <Text>{text || '未知商户'}</Text>
         },
         {
             title: '当前状态',
-            dataIndex: 'status',
-            render: (status: IHotel['status'], record) => {
+            // 🔥 从 auditInfo 里读取 status
+            dataIndex: ['auditInfo', 'status'],
+            render: (status: IHotel['auditInfo']['status'], record) => {
                 const map = { pending: 'blue', approved: 'green', rejected: 'red', offline: 'default', draft: 'orange' };
                 const texts = { pending: '待审核', approved: '已通过', rejected: '已驳回', offline: '已下线', draft: '草稿' };
                 const color = map[status] ?? 'default';
                 const text = texts[status] ?? String(status ?? '未知');
                 return (
-                    <Space orientation="vertical" size={0}>
+                    <Space direction="vertical" size={0}>
                         <Tag color={color}>{text}</Tag>
-                        {status === 'rejected' && record.rejectReason && (
-                            <Text type="danger" style={{ fontSize: '11px' }}>原因: {record.rejectReason}</Text>
+                        {status === 'rejected' && record.auditInfo?.rejectReason && (
+                            <Text type="danger" style={{ fontSize: '11px' }}>原因: {record.auditInfo.rejectReason}</Text>
                         )}
                     </Space>
                 );
@@ -141,7 +148,7 @@ const AuditHotel: React.FC = () => {
             title: '管理操作',
             key: 'action',
             render: (_, record) => {
-                const { status } = record;
+                const status = record.auditInfo?.status; // 🔥 从 auditInfo 取状态
                 return (
                     <Space size="small">
                         {status === 'pending' && (
@@ -176,7 +183,6 @@ const AuditHotel: React.FC = () => {
                             <Select.Option value="approved">已通过</Select.Option>
                             <Select.Option value="rejected">已驳回</Select.Option>
                         </Select>
-                        {/* ✅ 搜索功能优化：提示语变更为“搜索酒店或商户名称” */}
                         <Search
                             placeholder="搜索酒店或商户名称..."
                             onSearch={(v) => setFilters(p => ({ ...p, search: v }))}
@@ -203,7 +209,7 @@ const AuditHotel: React.FC = () => {
                 />
             </Card>
 
-            {/* 详情展示 Modal */}
+            {/* 4. ✅ 修复：详情展示 Modal，添加 baseInfo 路径前缀 */}
             <Modal
                 title="酒店详细申报资料"
                 open={detailVisible}
@@ -214,21 +220,20 @@ const AuditHotel: React.FC = () => {
                 {selectedHotel && (
                     <div style={{ maxHeight: '65vh', overflowY: 'auto' }}>
                         <Descriptions title="基本属性" bordered column={2}>
-                            <Descriptions.Item label="酒店名称">{selectedHotel.nameCn}</Descriptions.Item>
-                            <Descriptions.Item label="所在城市">{selectedHotel.city || '-'}</Descriptions.Item>
-                            <Descriptions.Item label="所属商户">{selectedHotel.merchantId.baseInfo.merchantName}</Descriptions.Item>
-                            <Descriptions.Item label="星级">{selectedHotel.star ? `${selectedHotel.star} 星` : '-'}</Descriptions.Item>
-                            <Descriptions.Item label="详细地址" span={2}>{selectedHotel.address || '-'}</Descriptions.Item>
+                            <Descriptions.Item label="酒店名称">{selectedHotel.baseInfo?.nameCn}</Descriptions.Item>
+                            <Descriptions.Item label="所在城市">{selectedHotel.baseInfo?.city || '-'}</Descriptions.Item>
+                            <Descriptions.Item label="所属商户">{selectedHotel.merchantId?.baseInfo?.merchantName}</Descriptions.Item>
+                            <Descriptions.Item label="星级">{selectedHotel.baseInfo?.star ? `${selectedHotel.baseInfo.star} 星` : '-'}</Descriptions.Item>
+                            <Descriptions.Item label="详细地址" span={2}>{selectedHotel.baseInfo?.address || '-'}</Descriptions.Item>
                             <Descriptions.Item label="提交时间">{new Date(selectedHotel.createdAt).toLocaleString()}</Descriptions.Item>
                         </Descriptions>
 
-                        {/* ✅ 使用 as any 强制解决 Divider 带来的 TS 类型报错 */}
                         <Divider>酒店实景照片</Divider>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                            {selectedHotel.images && selectedHotel.images.map((img, index) => (
+                            {selectedHotel.baseInfo?.images && selectedHotel.baseInfo.images.map((img, index) => (
                                 <Image key={index} src={img} width={200} height={130} style={{ objectFit: 'cover', borderRadius: 4, border: '1px solid #f0f0f0' }} />
                             ))}
-                            {(!selectedHotel.images || selectedHotel.images.length === 0) && <Text type="secondary">暂无图片</Text>}
+                            {(!selectedHotel.baseInfo?.images || selectedHotel.baseInfo.images.length === 0) && <Text type="secondary">暂无图片</Text>}
                         </div>
                     </div>
                 )}

@@ -136,7 +136,7 @@ const AuditRooms: React.FC = () => {
                 const color = map[status] ?? 'default';
                 const text = texts[status] ?? String(status ?? '未知');
                 return (
-                    <Space orientation="vertical" size={0}>
+                    <Space direction="vertical" size={0}>
                         <Tag color={color}>{text}</Tag>
                         {status === 'rejected' && record.auditInfo.rejectReason && (
                             <Text type="danger" style={{ fontSize: '11px' }}>原因: {record.auditInfo.rejectReason}</Text>

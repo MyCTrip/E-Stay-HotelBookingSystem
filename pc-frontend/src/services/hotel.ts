@@ -43,4 +43,7 @@ export const hotelApi = {
   
   // 删除房间
   deleteRoom: (hotelId: string, roomId: string) => request.delete(`/hotels/${hotelId}/rooms/${roomId}`),
+
+  // 提交房间审核
+ submitRoom: (roomId: string) => request.post(`/rooms/${roomId}/submit`),
 };

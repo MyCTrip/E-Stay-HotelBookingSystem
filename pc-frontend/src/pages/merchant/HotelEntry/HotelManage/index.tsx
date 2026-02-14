@@ -14,7 +14,7 @@ import { MarketingCard } from '@/components/hotel/MarketingCard';
 // import { RoomListCard } from '@/components/rooms/RoomListCard';
 import { HotelDetailsView } from '@/components/hotel/HotelDetailsView'; // 酒店详情查看组件
 
-import { HOTEL_FACILITIES } from '@/config/hotelOptions';
+// import { HOTEL_FACILITIES } from '@/config/hotelOptions';
 // 表单值类型定义（UI层）
 interface HotelFormValues {
   nameCn: string;
@@ -253,6 +253,8 @@ const HotelManage: React.FC = () => {
           address: values.address,
           city: values.city || '未填写',
           star: values.star ?? 3,
+          roomTotal: 1,
+          openTime: values.openTime ? dayjs(values.openTime).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
           // 文档要求 phone 是 string
           phone: '000-00000000', 
           description: values.description || '暂无描述',

@@ -28,6 +28,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
   useEffect(() => {
     if (visible && data) {
+      // 1. 防御性处理：确保 qualificationInfo 存在才 map
       const licenseImgs = data.qualificationInfo?.licenseImage?.map((url, index) => ({
         uid: String(index),
         name: `license-${index}`,
@@ -35,14 +36,17 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
         url: url
       })) || [];
 
+      // 2. 防御性回显：所有 data.baseInfo 访问都加上 ?.
       form.setFieldsValue({
-        merchantName: data.baseInfo.merchantName,
-        contactName: data.baseInfo.contactName,
-        contactPhone: data.baseInfo.contactPhone,
-        contactEmail: data.baseInfo.contactEmail,
+        merchantName: data.baseInfo?.merchantName || '',
+        contactName: data.baseInfo?.contactName || '',
+        contactPhone: data.baseInfo?.contactPhone || '',
+        contactEmail: data.baseInfo?.contactEmail || '',
         businessLicenseNo: data.qualificationInfo?.businessLicenseNo || '',
         licenseImages: licenseImgs as any,
       });
+    } else {
+        form.resetFields();
     }
   }, [visible, data, form]);
 
@@ -53,6 +57,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
         (f: any) => f.url || (f.response && f.response.url)
       ).filter(Boolean) || [];
 
+      // 构造符合后端要求的 Payload
       const payload: Partial<MerchantProfile> = {
         baseInfo: {
           merchantName: values.merchantName,
@@ -60,7 +65,6 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
           contactPhone: values.contactPhone,
           contactEmail: values.contactEmail,
         },
-        // ✅ 修复 3: 补全类型定义要求的必填项
         qualificationInfo: {
           businessLicenseNo: values.businessLicenseNo,
           licenseImage: imageList,
@@ -77,6 +81,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
       onSuccess();
       onCancel();
     } catch (error: any) {
+      console.error(error);
       message.error(error?.response?.data?.message || '更新失败');
     } finally {
       setLoading(false);
@@ -84,6 +89,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
   };
 
   const normFile = (e: any) => {
+    // console.log('Upload event:', e); // 调试用
     if (Array.isArray(e)) return e;
     return e?.fileList;
   };
@@ -100,7 +106,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
     >
       <Alert 
         message="审核提示" 
-        description="修改“商户名称”或“资质信息”后，您的账户将重新进入审核状态，审核期间部分功能可能受限。" 
+        description="修改“商户名称”或“资质信息”后，您的账户将重新进入审核状态。" 
         type="warning" 
         showIcon 
         style={{ marginBottom: 24 }}
@@ -108,7 +114,6 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
         
-        {/* ✅ 修复 1: 改用字符串字面量 */}
         <Divider orientation="left" style={{ borderColor: '#e8e8e8' }}>
           <ShopOutlined /> 基础信息
         </Divider>
@@ -155,13 +160,12 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
           </Col>
         </Row>
 
-        {/* ✅ 修复 2: 改用字符串字面量 */}
         <Divider orientation="left" style={{ borderColor: '#e8e8e8' }}>
           <IdcardOutlined /> 资质认证
         </Divider>
 
         <Form.Item 
-          label="统一社会信用代码 (营业执照号)" 
+          label="统一社会信用代码" 
           name="businessLicenseNo" 
           rules={[{ required: true, message: '必填项' }]}
         >
@@ -171,7 +175,8 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
         <Form.Item 
           label="营业执照电子版" 
           name="licenseImages"
-          valuePropName="value"
+          // 🔥 核心修复：上传组件应该用 fileList 而不是 value
+          valuePropName="fileList" 
           getValueFromEvent={normFile}
           rules={[{ required: true, message: '请上传营业执照' }]}
         >

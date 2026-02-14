@@ -9,7 +9,7 @@ interface Props {
 
 export const OrderFilter: React.FC<Props> = ({ status, onStatusChange, onSearch }) => {
   return (
-    <Card bordered={false} style={{ marginBottom: 24 }}>
+    <Card variant="borderless" style={{ marginBottom: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Radio.Group value={status} onChange={(e) => onStatusChange(e.target.value)} buttonStyle="solid">
           <Radio.Button value="all">全部</Radio.Button>
