@@ -10,6 +10,7 @@ const BaseInfoSchema = new mongoose_1.Schema({
 });
 const QualificationSchema = new mongoose_1.Schema({
     businessLicenseNo: { type: String, unique: true, sparse: true },
+    businessLicensePhoto: { type: String },
     idCardNo: { type: String, unique: true, sparse: true },
     realNameStatus: {
         type: String,

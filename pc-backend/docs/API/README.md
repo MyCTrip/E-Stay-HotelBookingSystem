@@ -114,7 +114,7 @@
 - 权限：`Authorization` (merchant)
 - 请求体：
   - `baseInfo` (object, required) 包含 `merchantName`, `contactName`, `contactPhone`, `contactEmail` 等
-  - `qualificationInfo` (object, optional)
+  - `qualificationInfo` (object, optional) 包含 `businessLicenseNo`, `businessLicensePhoto`, `idCardNo` 等
 - 校验失败示例：400
 - 成功响应：200
   ```json
@@ -127,7 +127,7 @@
 - 权限：`Authorization` (merchant)
 - 请求体：
   - `baseInfo` (object, optional) 包含需要更新的字段
-  - `qualificationInfo` (object, optional) 包含需要更新的字段
+  - `qualificationInfo` (object, optional) 包含需要更新的字段，如 `businessLicenseNo`, `businessLicensePhoto`, `idCardNo` 等
 - 校验失败示例：400
 - 成功响应：200
   ```json

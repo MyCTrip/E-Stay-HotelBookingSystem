@@ -162,6 +162,7 @@ pnpm start
 **qualificationInfo（资质 / 实名）**
 
 - `businessLicenseNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
+- `businessLicensePhoto` — String, 可选
 - `idCardNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
 - `realNameStatus` — String, **必填**, enum: `['unverified','verified','rejected']`, default: `'unverified'`
 

@@ -522,6 +522,10 @@ export const listHotels = async (req: Request, res: Response) => {
     ];
   const total = await Hotel.find(filter).countDocuments();
   const data = await Hotel.find(filter)
+    .populate({
+      path: 'merchantId',
+      select: 'baseInfo.merchantName',
+    })
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
@@ -538,6 +542,13 @@ export const listRooms = async (req: Request, res: Response) => {
   if (search) filter['baseInfo.type'] = new RegExp(search, 'i');
   const total = await Room.find(filter).countDocuments();
   const data = await Room.find(filter)
+    .populate({
+      path: 'hotelId',
+      populate: {
+        path: 'merchantId', 
+        select: 'baseInfo.merchantName' 
+      }
+    })
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
