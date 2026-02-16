@@ -173,6 +173,7 @@ export const offlineRoom = async (req: Request, res: Response) => {
   try {
     const room = await Room.findById(id);
     if (!room) return res.status(404).json({ message: 'Not found' });
+    room.baseInfo.status = 'offline';
     room.auditInfo = {
       ...room.auditInfo,
       status: 'offline',
@@ -288,6 +289,7 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
       room.pendingChanges = null;
     }
 
+    room.baseInfo.status = 'approved';
     room.auditInfo = {
       ...room.auditInfo,
       status: 'approved',
@@ -378,6 +380,7 @@ export const adminRejectRoom = async (req: Request, res: Response) => {
           'auditInfo.auditedBy': user.id,
           'auditInfo.auditedAt': new Date(),
           'auditInfo.rejectReason': reason,
+          'baseInfo.status': 'rejected',
         },
       },
       { new: true }

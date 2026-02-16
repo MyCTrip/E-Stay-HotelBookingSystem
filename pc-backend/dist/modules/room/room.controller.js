@@ -310,6 +310,7 @@ const adminApproveRoom = async (req, res) => {
                 'auditInfo.auditedBy': user.id,
                 'auditInfo.auditedAt': new Date(),
                 'auditInfo.rejectReason': undefined,
+                'baseInfo.status': 'approved',
             },
         }, { new: true });
         if (!updated)
@@ -339,6 +340,7 @@ const adminRejectRoom = async (req, res) => {
                 'auditInfo.auditedBy': user.id,
                 'auditInfo.auditedAt': new Date(),
                 'auditInfo.rejectReason': reason,
+                'baseInfo.status': 'rejected',
             },
         }, { new: true });
         if (!updated)
