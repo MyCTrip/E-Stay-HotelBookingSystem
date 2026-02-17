@@ -162,6 +162,7 @@ pnpm start
 **qualificationInfo（资质 / 实名）**
 
 - `businessLicenseNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
+- `businessLicensePhoto` — String, 可选
 - `idCardNo` — String, 可选, **唯一 (unique) 且稀疏 (sparse)**
 - `realNameStatus` — String, **必填**, enum: `['unverified','verified','rejected']`, default: `'unverified'`
 
@@ -314,7 +315,6 @@ pnpm start
 - `type` — String, **必填**（房间类型名称，如"标准间"、"豪华间"）
 - `price` — Number, **必填**, 最小值 0（每晚价格）
 - `images` — String[], **必填**（房间图片URL列表）
-- `status` — String, **必填**, 枚举：`'draft'` | `'pending'` | `'approved'` | `'rejected'` | `'offline'`, 默认 `'draft'`
 - `maxOccupancy` — Number (整数), **必填**, 最小值 1（最多容纳人数）
 - `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同（含 category、content、items 等字段），常用于展示房间内的浴缸、空调等设施。
 - `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策。结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking`、`extraBed`、`breakfast` 等房间级别政策。

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadImage = void 0;
-const upload_1 = require("../../config/upload");
 const uploadImage = async (req, res) => {
     if (!req.file)
         return res.status(400).json({ message: '未收到文件' });
-    const url = `${upload_1.UPLOAD_URL_PATH}/${req.file.filename}`;
+    // 返回包含 /api 前缀的URL，便于前端懂暗集吃
+    const url = `/api/uploads/${req.file.filename}`;
     res.json({ url, filename: req.file.filename, size: req.file.size });
 };
 exports.uploadImage = uploadImage;

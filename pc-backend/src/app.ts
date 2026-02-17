@@ -15,7 +15,8 @@ import roomRoutes from './modules/room/room.routes';
 
 import path from 'path';
 import uploadRoutes from './modules/upload/upload.routes';
-import { UPLOAD_URL_PATH, UPLOAD_DIR } from './config/upload';
+import debugRoutes from './modules/debug/debug.routes';
+import { UPLOAD_DIR } from './config/upload';
 
 dotenv.config();
 
@@ -28,8 +29,6 @@ app.use(morgan('dev'));
 
 // 全局API频率限制
 app.use('/api', rateLimit());
-// 静态文件服务，访问 /uploads/xxx.jpg
-app.use(UPLOAD_URL_PATH, express.static(UPLOAD_DIR));
 
 // Register API routes
 app.use('/api/auth', authRoutes);
@@ -41,6 +40,12 @@ app.use('/api', roomRoutes);
 
 // 图片上传接口
 app.use('/api/upload', uploadRoutes);
+
+// 调试接口
+app.use('/api/debug', debugRoutes);
+
+// 静态文件服务，访问 /api/uploads/xxx.jpg
+app.use('/api/uploads', express.static(UPLOAD_DIR));
 
 app.use(errorHandler);
 

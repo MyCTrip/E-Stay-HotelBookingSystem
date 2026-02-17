@@ -14,6 +14,12 @@ request.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // FormData 上传时，让浏览器自动设置 Content-Type
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
 }, (error) => {
   return Promise.reject(error);
@@ -33,11 +39,8 @@ request.interceptors.response.use(
       window.location.href = '/login';
     }
     
-    // 处理后端返回的错误信息
-    // 文档格式: { "status": "error", "message": "...", "errors": {...} }
-    const errorMsg = error.response?.data?.message || '请求失败';
-    message.error(errorMsg);
-    
+    // 不在拦截器中显示错误，让调用方处理
+    // 这样组件可以自定义错误处理
     return Promise.reject(error);
   }
 );

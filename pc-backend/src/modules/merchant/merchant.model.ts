@@ -9,6 +9,7 @@ export interface IMerchantBaseInfo {
 
 export interface IMerchantQualificationInfo {
   businessLicenseNo?: string;
+  businessLicensePhoto?: string;
   idCardNo?: string;
   realNameStatus: 'unverified' | 'verified' | 'rejected';
 }
@@ -36,6 +37,7 @@ const BaseInfoSchema = new Schema<IMerchantBaseInfo>({
 
 const QualificationSchema = new Schema<IMerchantQualificationInfo>({
   businessLicenseNo: { type: String, unique: true, sparse: true },
+  businessLicensePhoto: { type: String },
   idCardNo: { type: String, unique: true, sparse: true },
   realNameStatus: {
     type: String,

@@ -3,20 +3,81 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminRejectRoom = exports.adminApproveRoom = exports.listRoomsForHotel = exports.submitRoom = exports.requestDeleteRoom = exports.updateRoom = exports.createRoom = void 0;
 const room_model_1 = require("./room.model");
 const hotel_model_1 = require("../hotel/hotel.model");
+const merchant_model_1 = require("../merchant/merchant.model");
 const audit_model_1 = require("../audit/audit.model");
 const notification_service_1 = require("../notification/notification.service");
 const htmlSanitizer_1 = require("../../utils/htmlSanitizer");
+// 辅助函数：propertyType 转 roomCategory
+const propertyTypeToRoomCategory = (propertyType = 'hotel') => {
+    const map = {
+        'hotel': 'standard',
+        'hourlyHotel': 'hourly',
+        'homeStay': 'homestay'
+    };
+    return map[propertyType] || 'standard';
+};
+// 辅助函数：初始化 room typeConfig
+const initializeRoomTypeConfig = (category = 'standard', provided) => {
+    switch (category) {
+        case 'hourly':
+            return {
+                hourly: {
+                    pricePerHour: provided?.hourly?.pricePerHour,
+                    minimumHours: provided?.hourly?.minimumHours || 2,
+                    availableTimeSlots: provided?.hourly?.availableTimeSlots || [],
+                    cleaningTime: provided?.hourly?.cleaningTime || 45,
+                    maxBookingsPerDay: provided?.hourly?.maxBookingsPerDay || 4,
+                    hourlyTiers: provided?.hourly?.hourlyTiers || [],
+                    peakHours: provided?.hourly?.peakHours || [],
+                },
+            };
+        case 'homestay':
+            return {
+                homestay: {
+                    pricePerNight: provided?.homestay?.pricePerNight,
+                    weeklyDiscount: provided?.homestay?.weeklyDiscount,
+                    monthlyDiscount: provided?.homestay?.monthlyDiscount,
+                    cleaningFee: provided?.homestay?.cleaningFee,
+                    securityDeposit: provided?.homestay?.securityDeposit,
+                    minimumStay: provided?.homestay?.minimumStay || 1,
+                    maxStay: provided?.homestay?.maxStay,
+                    maxGuests: provided?.homestay?.maxGuests,
+                    instantBooking: provided?.homestay?.instantBooking ?? true,
+                    bedrooms: provided?.homestay?.bedrooms,
+                    bathrooms: provided?.homestay?.bathrooms,
+                    area: provided?.homestay?.area,
+                    cancellationPolicy: provided?.homestay?.cancellationPolicy || 'moderate',
+                },
+            };
+        default: // standard
+            return {
+                standard: {
+                    cancellationDeadlineHours: provided?.standard?.cancellationDeadlineHours || 24,
+                    extensionAllowed: provided?.standard?.extensionAllowed ?? true,
+                },
+            };
+    }
+};
 const createRoom = async (req, res) => {
     const user = req.user;
-    const { baseInfo, headInfo, bedInfo, breakfastInfo } = req.body;
+    const { baseInfo, headInfo, bedInfo, breakfastInfo, typeConfig } = req.body;
     const hotelId = req.params.hotelId || req.body.hotelId;
     try {
         const hotel = await hotel_model_1.Hotel.findById(hotelId);
         if (!hotel)
             return res.status(404).json({ message: 'Hotel not found' });
-        // only owner merchant can create rooms
-        if (hotel.merchantId.toString() !== user.id)
+        // only owner merchant can create rooms - verify by checking merchantId
+        const merchantProfile = await merchant_model_1.Merchant.findOne({ userId: user.id });
+        if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
             return res.status(403).json({ message: 'Forbidden' });
+        }
+        // Verify hotel is approved
+        if (hotel.auditInfo.status !== 'approved') {
+            return res.status(400).json({
+                status: 'error',
+                message: '只有通过审核的酒店才能添加房间'
+            });
+        }
         // 净化HTML富文本内容，防止XSS攻击
         const sanitizedBase = (0, htmlSanitizer_1.sanitizeObject)(baseInfo || {
             facilities: req.body.facilities || [],
@@ -26,12 +87,18 @@ const createRoom = async (req, res) => {
         const sanitizedHead = (0, htmlSanitizer_1.sanitizeObject)(headInfo || {});
         const sanitizedBed = (0, htmlSanitizer_1.sanitizeObject)(bedInfo || []);
         const sanitizedBreakfast = (0, htmlSanitizer_1.sanitizeObject)(breakfastInfo || {});
+        // 根据 hotel.propertyType 自动设置 category
+        const propertyType = hotel.baseInfo.propertyType || 'hotel';
+        const category = propertyTypeToRoomCategory(propertyType);
+        // 初始化 typeConfig
+        const initializedTypeConfig = initializeRoomTypeConfig(category, typeConfig);
         const room = await room_model_1.Room.create({
             hotelId,
-            baseInfo: sanitizedBase,
+            baseInfo: { ...sanitizedBase, category },
             headInfo: sanitizedHead,
             bedInfo: sanitizedBed,
             breakfastInfo: sanitizedBreakfast,
+            typeConfig: initializedTypeConfig,
             auditInfo: { status: 'draft' },
         });
         res.status(201).json(room);
@@ -52,8 +119,13 @@ const updateRoom = async (req, res) => {
         const hotel = await hotel_model_1.Hotel.findById(room.hotelId);
         if (!hotel)
             return res.status(404).json({ message: 'Hotel not found' });
-        if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-            return res.status(403).json({ message: 'Forbidden' });
+        // Check authorization - allow admin or owner merchant
+        if (user.role !== 'admin') {
+            const merchantProfile = await merchant_model_1.Merchant.findOne({ userId: user.id });
+            if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+        }
         // Check optimistic concurrency if client provided __v or updatedAt
         if (updates.__v !== undefined && updates.__v !== room.__v) {
             return res.status(409).json({ message: 'Version conflict' });
@@ -130,8 +202,12 @@ const requestDeleteRoom = async (req, res) => {
         const hotel = await hotel_model_1.Hotel.findById(room.hotelId);
         if (!hotel)
             return res.status(404).json({ message: 'Hotel not found' });
-        if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-            return res.status(403).json({ message: 'Forbidden' });
+        if (user.role !== 'admin') {
+            const merchantProfile = await merchant_model_1.Merchant.findOne({ userId: user.id });
+            if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+        }
         room.pendingDeletion = true;
         room.auditInfo = room.auditInfo || {};
         // @ts-ignore
@@ -162,8 +238,11 @@ const submitRoom = async (req, res) => {
         const hotel = await hotel_model_1.Hotel.findById(room.hotelId);
         if (!hotel)
             return res.status(404).json({ message: 'Hotel not found' });
-        if (hotel.merchantId.toString() !== user.id)
+        // Check authorization - only owner merchant can submit
+        const merchantProfile = await merchant_model_1.Merchant.findOne({ userId: user.id });
+        if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
             return res.status(403).json({ message: 'Forbidden' });
+        }
         const updated = await room_model_1.Room.findByIdAndUpdate(id, { $set: { 'auditInfo.status': 'pending' } }, { new: true });
         if (!updated)
             return res.status(404).json({ message: 'Not found' });
@@ -172,6 +251,13 @@ const submitRoom = async (req, res) => {
             targetId: updated._id,
             action: 'submit',
             operatorId: user.id,
+        });
+        // notify admins about pending audit
+        const resourceName = updated.baseInfo.type || '房间';
+        await notification_service_1.notificationService.notifyAdminsAuditPending('room', updated._id.toString(), resourceName, {
+            roomId: updated._id,
+            roomType: resourceName,
+            hotelId: room.hotelId,
         });
         res.json(updated);
     }
@@ -190,8 +276,12 @@ const listRoomsForHotel = async (req, res) => {
         const hotel = await hotel_model_1.Hotel.findById(hotelId);
         if (!hotel)
             return res.status(404).json({ message: 'Hotel not found' });
-        if (hotel.merchantId.toString() !== user.id && user.role !== 'admin')
-            return res.status(403).json({ message: 'Forbidden' });
+        if (user.role !== 'admin') {
+            const merchantProfile = await merchant_model_1.Merchant.findOne({ userId: user.id });
+            if (!merchantProfile || hotel.merchantId.toString() !== merchantProfile._id.toString()) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+        }
         const filter = { hotelId };
         if (status)
             filter['auditInfo.status'] = status;
@@ -220,6 +310,7 @@ const adminApproveRoom = async (req, res) => {
                 'auditInfo.auditedBy': user.id,
                 'auditInfo.auditedAt': new Date(),
                 'auditInfo.rejectReason': undefined,
+                'baseInfo.status': 'approved',
             },
         }, { new: true });
         if (!updated)
@@ -249,6 +340,7 @@ const adminRejectRoom = async (req, res) => {
                 'auditInfo.auditedBy': user.id,
                 'auditInfo.auditedAt': new Date(),
                 'auditInfo.rejectReason': reason,
+                'baseInfo.status': 'rejected',
             },
         }, { new: true });
         if (!updated)

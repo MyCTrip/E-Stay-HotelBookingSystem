@@ -19,7 +19,7 @@ interface ProfileFormValues {
   contactPhone: string;
   contactEmail: string;
   businessLicenseNo: string;
-  licenseImages: UploadFile[];
+  businessLicensePhoto: UploadFile[];
 }
 
 const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data }) => {
@@ -28,22 +28,20 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
   useEffect(() => {
     if (visible && data) {
-      // 1. 防御性处理：确保 qualificationInfo 存在才 map
-      const licenseImgs = data.qualificationInfo?.licenseImage?.map((url, index) => ({
-        uid: String(index),
-        name: `license-${index}`,
+      const licenseImg = data.qualificationInfo?.businessLicensePhoto ? [{
+        uid: '0',
+        name: 'license',
         status: 'done' as const,
-        url: url
-      })) || [];
+        url: data.qualificationInfo.businessLicensePhoto
+      }] : [];
 
-      // 2. 防御性回显：所有 data.baseInfo 访问都加上 ?.
       form.setFieldsValue({
         merchantName: data.baseInfo?.merchantName || '',
         contactName: data.baseInfo?.contactName || '',
         contactPhone: data.baseInfo?.contactPhone || '',
         contactEmail: data.baseInfo?.contactEmail || '',
         businessLicenseNo: data.qualificationInfo?.businessLicenseNo || '',
-        licenseImages: licenseImgs as any,
+        businessLicensePhoto: licenseImg as any,
       });
     } else {
         form.resetFields();
@@ -53,9 +51,32 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
   const handleSubmit = async (values: ProfileFormValues) => {
     setLoading(true);
     try {
-      const imageList = values.licenseImages?.map(
-        (f: any) => f.url || (f.response && f.response.url)
-      ).filter(Boolean) || [];
+      let photoUrl: string | undefined;
+      
+      // 处理营业执照图片上传
+      if (values.businessLicensePhoto && values.businessLicensePhoto.length > 0) {
+        const file = values.businessLicensePhoto[0];
+        
+        // 如果已经有 URL（已上传的文件），直接使用
+        if (file.url) {
+          photoUrl = file.url;
+          console.log('使用已上传的图片URL:', photoUrl);
+        } 
+        // 如果有原始文件对象，需要上传到服务器
+        else if (file.originFileObj) {
+          const formData = new FormData();
+          formData.append('file', file.originFileObj);
+          
+          try {
+            const uploadResponse = await merchantApi.uploadImage(formData);
+            photoUrl = uploadResponse.url;
+            console.log('新上传的图片URL:', photoUrl);
+          } catch (uploadError: any) {
+            console.error('上传失败详情:', uploadError);
+            throw new Error(uploadError?.response?.data?.message || '图片上传失败，请重试');
+          }
+        }
+      }
 
       // 构造符合后端要求的 Payload
       const payload: Partial<MerchantProfile> = {
@@ -67,7 +88,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
         },
         qualificationInfo: {
           businessLicenseNo: values.businessLicenseNo,
-          licenseImage: imageList,
+          businessLicensePhoto: photoUrl,
           realNameStatus: 'unverified' 
         },
         auditInfo: {
@@ -82,7 +103,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
       onCancel();
     } catch (error: any) {
       console.error(error);
-      message.error(error?.response?.data?.message || '更新失败');
+      message.error(error?.response?.data?.message || error.message || '更新失败');
     } finally {
       setLoading(false);
     }
@@ -174,9 +195,8 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
         <Form.Item 
           label="营业执照电子版" 
-          name="licenseImages"
-          // 🔥 核心修复：上传组件应该用 fileList 而不是 value
-          valuePropName="fileList" 
+          name="businessLicensePhoto"
+          valuePropName="value"
           getValueFromEvent={normFile}
           rules={[{ required: true, message: '请上传营业执照' }]}
         >

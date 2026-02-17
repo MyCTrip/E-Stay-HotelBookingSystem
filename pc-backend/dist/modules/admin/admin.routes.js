@@ -68,6 +68,8 @@ router.get('/hotels', auth_middleware_1.authenticate, (0, role_middleware_1.requ
 router.get('/rooms', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('admin'), admin_controller_1.listRooms);
 // admin notifications
 router.get('/notifications', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('admin'), admin_controller_1.listNotifications);
+router.patch('/notifications/:id/read', auth_middleware_1.authenticate, admin_controller_1.markNotificationAsRead);
+router.patch('/notifications/read-all', auth_middleware_1.authenticate, admin_controller_1.markAllNotificationsAsRead);
 router.post('/hotels/bulk', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('admin'), (0, validate_middleware_1.validateBody)(admin_schema_1.bulkActionSchema), async (req, res) => {
     const { ids, action, reason } = req.body;
     const results = { updated: [], errors: [] };

@@ -22,27 +22,59 @@ export const singleImageUpload = (fieldName: string) =>
         try {
           const originalPath = req.file.path;
           const fileName = req.file.filename;
-          const ext = path.extname(fileName);
+          const ext = path.extname(fileName).toLowerCase();
           const baseName = path.basename(fileName, ext);
-          const compressedPath = path.join(path.dirname(originalPath), `${baseName}-compressed${ext}`);
+          const uploadsDir = path.dirname(originalPath);
+          const compressedPath = path.join(uploadsDir, `${baseName}-compressed${ext}`);
+
+          console.log(`Starting compression: ${fileName}`);
+          console.log(`Original path: ${originalPath}`);
+          console.log(`Compressed path: ${compressedPath}`);
+
+          // 检查原文件是否存在
+          try {
+            await fs.access(originalPath);
+          } catch (accessError) {
+            console.error(`File access error: ${originalPath}`, accessError);
+            throw new Error(`无法访问上传的文件: ${originalPath}`);
+          }
+
+          // 确定输出格式
+          const formatMap: { [key: string]: 'jpeg' | 'png' | 'webp' } = {
+            '.jpg': 'jpeg',
+            '.jpeg': 'jpeg',
+            '.png': 'png',
+            '.gif': 'jpeg', // gif转为jpeg
+            '.webp': 'webp'
+          };
+          const outputFormat = formatMap[ext] || 'jpeg';
 
           // 压缩图片，最大宽度1920px，质量80%
           await imageService.compressImage(originalPath, compressedPath, {
             width: 1920,
-            quality: 80
+            quality: 80,
+            format: outputFormat
           });
 
           // 删除原文件，使用压缩后的文件
-          await fs.unlink(originalPath);
-          
+          try {
+            await fs.unlink(originalPath);
+            console.log(`Original file deleted: ${fileName}`);
+          } catch (unlinkError) {
+            console.warn(`Failed to delete original file: ${originalPath}`, unlinkError);
+          }
+
           // 更新文件信息
           req.file.path = compressedPath;
           req.file.filename = `${baseName}-compressed${ext}`;
-          
-          console.log(`Image compressed: ${fileName} -> ${req.file.filename}`);
+          req.file.size = (await fs.stat(compressedPath)).size;
+
+          console.log(`Image compressed successfully: ${baseName}-compressed${ext}`);
         } catch (error) {
           console.error('Image compression error:', error);
+          console.error('Error details:', (error as any).message);
           // 压缩失败不影响上传，继续使用原文件
+          console.log(`Compression failed, using original file: ${req.file.filename}`);
         }
       }
 

@@ -38,8 +38,10 @@ const ensureAdmin = async () => {
 // 初始化应用
 const initializeApp = async () => {
     try {
-        // 初始化Redis连接
-        await (0, redis_1.initializeRedis)();
+        // 初始化Redis连接（非阻塞）：若失败或超时，记录警告但继续启动
+        await (0, redis_1.initializeRedis)().catch((err) => {
+            console.warn('Redis init encountered an error (continuing without Redis):', err);
+        });
         // 确保默认管理员存在
         await ensureAdmin();
         // 启动服务器

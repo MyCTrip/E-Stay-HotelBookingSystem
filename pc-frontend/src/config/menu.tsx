@@ -6,10 +6,10 @@ import {
   FileProtectOutlined,
   UserOutlined,
   LogoutOutlined,
-  BankOutlined,     
+  BankOutlined,
   AppstoreOutlined,
   SafetyCertificateOutlined,
-  FileTextOutlined  
+  FileTextOutlined
 } from '@ant-design/icons';
 
 type MenuItem = Required<MenuProps>['items'][number]
@@ -58,14 +58,14 @@ export const MERCHANT_MENU: MenuItem[] = [
 ];
 
 // 如果有管理员端，也可以写在这里
-export const ADMIN_MENU: MenuItem[] = [ 
-    {
+export const ADMIN_MENU: MenuItem[] = [
+  {
     key: '/admin/dashboard',
     icon: <DashboardOutlined />,
     label: '仪表盘',
   },
   {
-    key: '/admin/audit',
+    key: '/admin/Audit',
     icon: <SafetyCertificateOutlined />,
     label: '审核管理',
   },

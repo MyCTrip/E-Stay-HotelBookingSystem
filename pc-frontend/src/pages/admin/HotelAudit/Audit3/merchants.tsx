@@ -1,20 +1,7 @@
-// import React from 'react';
-// import { Typography } from 'antd';
-
-// const AuditMerchants: React.FC = () => {
-//     return (
-//         <div style={{ padding: 24 }}>
-//             <Typography.Title level={2}> 酒店商户审核管理 </Typography.Title>
-//             < p > 这里将放置酒店商户审核管理组件...</p>
-//         </div>
-//     );
-// };
-
-// export default AuditMerchants;
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Typography, Table, Tag, Space, Button, Modal,
-    Input, message, Popconfirm, Card, Select, Descriptions, Divider
+    Input, message, Popconfirm, Card, Select, Descriptions, Divider, Empty
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -26,7 +13,7 @@ import request from '@/services/request';
 const { Title, Text } = Typography;
 const { Search, TextArea } = Input;
 
-// 1. 定义商户数据类型
+// 1. ✅ 修改接口定义：完全匹配你截图里的后端结构
 interface IMerchant {
     _id: string;
     baseInfo: {
@@ -35,8 +22,14 @@ interface IMerchant {
         contactPhone: string;
         contactEmail: string;
     };
+    // 👇 重点修改这里
+    qualificationInfo?: {
+        businessLicenseNo?: string;    // 对应"统一社会信用代码"
+        businessLicensePhoto?: string; // 营业执照图片
+        idCardNo?: string;             // 对应"身份证号"
+        realNameStatus?: string;       // 实名状态
+    };
     auditInfo: {
-        // 对应后端 verifyStatus 逻辑
         verifyStatus: 'pending' | 'verified' | 'rejected';
         rejectReason?: string;
     };
@@ -44,24 +37,20 @@ interface IMerchant {
 }
 
 const AuditMerchants: React.FC = () => {
-    // 列表与查询状态
     const [merchants, setMerchants] = useState<IMerchant[]>([]);
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
     const [filters, setFilters] = useState<{ status?: string; search?: string }>({});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-    // 详情查看状态
     const [detailVisible, setDetailVisible] = useState(false);
     const [selectedMerchant, setSelectedMerchant] = useState<IMerchant | null>(null);
 
-    // 审批弹窗状态
     const [modalVisible, setModalVisible] = useState(false);
     const [isBulk, setIsBulk] = useState(false);
     const [currentId, setCurrentId] = useState<string | null>(null);
     const [reason, setReason] = useState('');
 
-    // 2. 获取商户列表
     const fetchData = useCallback(async (page = 1, size = 10) => {
         setLoading(true);
         try {
@@ -73,7 +62,7 @@ const AuditMerchants: React.FC = () => {
                     search: filters.search
                 }
             });
-            // 适配后端返回格式 { data: [], meta: { total } }
+            console.log('商户列表数据:', res.data);
             setMerchants(res.data || []);
             setPagination(prev => ({ ...prev, current: page, total: res.meta?.total || 0 }));
         } catch (err) {
@@ -85,17 +74,13 @@ const AuditMerchants: React.FC = () => {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    // 3. 执行审核动作 (支持单体和批量审批)
     const executeAction = async (ids: string[], action: 'approve' | 'reject', opReason?: string) => {
         try {
             if (ids.length > 1 || isBulk) {
-                // 批量审批商户
                 await request.post('/admin/merchants/bulk', { ids, action, reason: opReason });
             } else {
-                // 单体审批商户
                 await request.post(`/admin/merchants/${ids[0]}/${action}`, { reason: opReason });
             }
-
             message.success('审核操作已成功');
             setModalVisible(false);
             setReason('');
@@ -109,6 +94,14 @@ const AuditMerchants: React.FC = () => {
             title: '商户名称',
             dataIndex: ['baseInfo', 'merchantName'],
             render: (text) => <Text strong>{text}</Text>
+        },
+        // 👇 新增一列：直接在列表显示信用代码，方便调试
+        {
+            title: '信用代码',
+            render: (_, record) => {
+                const code = record.qualificationInfo?.businessLicenseNo;
+                return code ? <Text copyable>{code}</Text> : <Text type="secondary">-</Text>;
+            }
         },
         {
             title: '联系人',
@@ -175,7 +168,6 @@ const AuditMerchants: React.FC = () => {
             <Card variant="borderless">
                 <Title level={3} style={{ marginBottom: 24 }}>酒店商户审核管理</Title>
 
-                {/* 4. 管理端列表查询与批量工具栏 */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
                     <Space size="middle">
                         <Select placeholder="审核状态" style={{ width: 120 }} allowClear onChange={(v) => setFilters(p => ({ ...p, status: v }))}>
@@ -204,7 +196,6 @@ const AuditMerchants: React.FC = () => {
                 />
             </Card>
 
-            {/* 5. 商户详细资料 Modal */}
             <Modal
                 title="商户入驻详细资料"
                 open={detailVisible}
@@ -216,6 +207,16 @@ const AuditMerchants: React.FC = () => {
                     <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                         <Descriptions title="工商基础信息" bordered column={1}>
                             <Descriptions.Item label="商户名称">{selectedMerchant.baseInfo.merchantName}</Descriptions.Item>
+
+                            {/* 👇 修改：正确读取 businessLicenseNo */}
+                            <Descriptions.Item label="统一社会信用代码">
+                                {selectedMerchant.qualificationInfo?.businessLicenseNo ? (
+                                    <Text copyable>{selectedMerchant.qualificationInfo.businessLicenseNo}</Text>
+                                ) : (
+                                    <Text type="secondary">未填写</Text>
+                                )}
+                            </Descriptions.Item>
+
                             <Descriptions.Item label="联系人姓名">{selectedMerchant.baseInfo.contactName}</Descriptions.Item>
                             <Descriptions.Item label="联系电话">{selectedMerchant.baseInfo.contactPhone}</Descriptions.Item>
                             <Descriptions.Item label="联系邮箱">{selectedMerchant.baseInfo.contactEmail}</Descriptions.Item>
@@ -223,14 +224,39 @@ const AuditMerchants: React.FC = () => {
                         </Descriptions>
 
                         <Divider orientation={"left" as any}>资质证明</Divider>
-                        <div style={{ padding: '20px', textAlign: 'center', background: '#f5f5f5', borderRadius: '4px' }}>
-                            <Text type="secondary">此处可展示商户上传的营业执照等图片资料</Text>
+                        <div style={{ padding: '20px', textAlign: 'center', background: '#f5f5f5', borderRadius: '4px', minHeight: 200 }}>
+                            {(() => {
+                                const photoUrl = selectedMerchant.qualificationInfo?.businessLicensePhoto;
+                                console.log('当前选中商户的图片URL:', photoUrl);
+                                return photoUrl && photoUrl.trim() ? (
+                                    <div>
+                                        <img
+                                            src={photoUrl}
+                                            alt="营业执照"
+                                            style={{
+                                                maxWidth: '100%',
+                                                maxHeight: '400px',
+                                                objectFit: 'contain'
+                                            }}
+                                            onLoad={() => console.log('图片加载成功')}
+                                            onError={(e) => console.error('图片加载失败:', e)}
+                                        />
+                                        <div style={{ marginTop: '10px' }}>
+                                            <Text type="secondary">营业执照图片</Text>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Empty
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        description="暂无营业执照图片"
+                                    />
+                                );
+                            })()}
                         </div>
                     </div>
                 )}
             </Modal>
 
-            {/* 6. 驳回理由 Modal */}
             <Modal
                 title="确定驳回商户入驻申请？"
                 open={modalVisible}

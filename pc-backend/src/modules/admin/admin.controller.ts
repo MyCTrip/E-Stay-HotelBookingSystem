@@ -171,15 +171,18 @@ export const offlineRoom = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const { reason } = req.body;
   try {
-    const room = await Room.findById(id);
+    const room = await Room.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          'auditInfo.status': 'offline',
+          'auditInfo.auditedBy': user.id,
+          'auditInfo.auditedAt': new Date(),
+        },
+      },
+      { new: true }
+    );
     if (!room) return res.status(404).json({ message: 'Not found' });
-    room.auditInfo = {
-      ...room.auditInfo,
-      status: 'offline',
-      auditedBy: user.id,
-      auditedAt: new Date(),
-    } as any;
-    await room.save();
 
     await AuditLog.create({
       targetType: 'room',
@@ -261,42 +264,20 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
   const { reason } = req.body;
   const user = (req as any).user;
   try {
-    const room = await Room.findById(id);
+    const room = await Room.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          'auditInfo.status': 'approved',
+          'auditInfo.auditedBy': user.id,
+          'auditInfo.auditedAt': new Date(),
+          'auditInfo.rejectReason': undefined,
+          pendingChanges: null,
+        },
+      },
+      { new: true }
+    );
     if (!room) return res.status(404).json({ message: 'Not found' });
-
-    // Apply pending changes if any
-    if (room.pendingChanges) {
-      if (room.pendingChanges.baseInfo) {
-        Object.keys(room.pendingChanges.baseInfo).forEach((k) => {
-          // @ts-ignore
-          room.baseInfo[k] = room.pendingChanges.baseInfo[k];
-        });
-      }
-      if (room.pendingChanges.headInfo) {
-        Object.keys(room.pendingChanges.headInfo).forEach((k) => {
-          // @ts-ignore
-          room.headInfo[k] = room.pendingChanges.headInfo[k];
-        });
-      }
-      if (room.pendingChanges.bedInfo) room.bedInfo = room.pendingChanges.bedInfo;
-      if (room.pendingChanges.breakfastInfo) {
-        Object.keys(room.pendingChanges.breakfastInfo).forEach((k) => {
-          // @ts-ignore
-          room.breakfastInfo[k] = room.pendingChanges.breakfastInfo[k];
-        });
-      }
-      room.pendingChanges = null;
-    }
-
-    room.auditInfo = {
-      ...room.auditInfo,
-      status: 'approved',
-      auditedBy: user.id,
-      auditedAt: new Date(),
-      rejectReason: undefined,
-    } as any;
-
-    await room.save();
 
     await AuditLog.create({
       targetType: 'room',
@@ -333,20 +314,21 @@ export const adminApproveDeleteRoom = async (req: Request, res: Response) => {
   const { reason } = req.body;
   const user = (req as any).user;
   try {
-    const room = await Room.findById(id);
+    const room = await Room.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          pendingDeletion: false,
+          deletedAt: new Date(),
+          'auditInfo.status': 'offline',
+          'auditInfo.auditedBy': user.id,
+          'auditInfo.auditedAt': new Date(),
+        },
+      },
+      { new: true }
+    );
     if (!room) return res.status(404).json({ message: 'Not found' });
     if (!room.pendingDeletion) return res.status(400).json({ message: 'No pending delete request' });
-
-    room.pendingDeletion = false;
-    room.deletedAt = new Date();
-    room.auditInfo = {
-      ...room.auditInfo,
-      status: 'offline',
-      auditedBy: user.id,
-      auditedAt: new Date(),
-    } as any;
-
-    await room.save();
 
     await AuditLog.create({
       targetType: 'room',
@@ -501,6 +483,7 @@ export const listMerchants = async (req: Request, res: Response) => {
   if (search) filter['baseInfo.merchantName'] = new RegExp(search, 'i');
   const total = await Merchant.find(filter).countDocuments();
   const data = await Merchant.find(filter)
+    .select('userId baseInfo qualificationInfo auditInfo createdAt updatedAt')
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);

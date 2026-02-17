@@ -34,7 +34,6 @@ export interface IRoomBaseInfo {
   type: string;
   price: number;
   images: string[];
-  status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
   maxOccupancy: number;
   facilities: IFacility[];
   policies: IPolicy[];
@@ -112,11 +111,6 @@ const BaseInfoSchema = new Schema<IRoomBaseInfo>({
   type: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
   images: { type: [String], required: true },
-  status: {
-    type: String,
-    enum: ['draft', 'pending', 'approved', 'rejected', 'offline'],
-    required: true,
-  },
   maxOccupancy: { type: Number, required: true, min: 0 },
   facilities: {
     type: [FacilitySchema],

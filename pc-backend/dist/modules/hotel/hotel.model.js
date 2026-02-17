@@ -39,7 +39,7 @@ const BaseInfoSchema = new mongoose_1.Schema({
     nameEn: String,
     address: { type: String, required: true },
     city: { type: String, required: true, index: true },
-    star: { type: Number, required: true },
+    star: { type: Number, required: true, index: true },
     openTime: { type: String, required: true },
     roomTotal: { type: Number, required: true },
     phone: { type: String, required: true },
@@ -57,12 +57,56 @@ const BaseInfoSchema = new mongoose_1.Schema({
     },
     surroundings: { type: [SurroundingSchema], default: [] },
     discounts: { type: [DiscountSchema], default: [] },
+    // 新增字段
+    propertyType: {
+        type: String,
+        enum: ['hotel', 'hourlyHotel', 'homeStay'],
+        default: 'hotel',
+        required: true,
+        index: true,
+    },
+    location: {
+        type: { type: String, enum: ['Point'], default: 'Point' },
+        coordinates: { type: [Number], index: '2dsphere' },
+    },
 });
 const CheckinSchema = new mongoose_1.Schema({
     checkinTime: { type: String, required: true },
     checkoutTime: { type: String, required: true },
     breakfastType: String,
     breakfastPrice: Number,
+});
+// ============ 钟点房时间段 Schema ============
+const HourlyTimeSlotsSchema = new mongoose_1.Schema({
+    dayOfWeek: { type: Number, required: true, min: 0, max: 6 },
+    startTime: { type: String, required: true },
+    endTime: { type: String, required: true },
+    minStayHours: { type: Number, required: true, min: 0.5 },
+    content: { type: String, required: true },
+    maxBookingsPerSlot: Number,
+});
+// ============ 酒店 typeConfig Schema ============
+const HotelTypeConfigSchema = new mongoose_1.Schema({
+    hourly: {
+        baseConfig: {
+            pricePerHour: { type: Number, min: 0 },
+            minimumHours: { type: Number, min: 0.5 },
+            timeSlots: { type: [HourlyTimeSlotsSchema], default: [] },
+            cleaningTime: { type: Number, default: 45, min: 0 },
+            maxBookingsPerDay: { type: Number, default: 4, min: 1 },
+        },
+    },
+    homestay: {
+        hostName: String,
+        hostPhone: String,
+        responseTimeHours: Number,
+        instantBooking: { type: Boolean, default: true },
+        minStay: { type: Number, default: 1 },
+        maxStay: Number,
+        cancellationPolicy: String,
+        securityDeposit: { type: Number, min: 0 },
+        amenityTags: { type: [String], default: [] },
+    },
 });
 const AuditInfoSchema = new mongoose_1.Schema({
     status: {
@@ -75,14 +119,41 @@ const AuditInfoSchema = new mongoose_1.Schema({
     rejectReason: String,
 });
 const HotelSchema = new mongoose_1.Schema({
-    merchantId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'MerchantProfile', required: true },
+    merchantId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'MerchantProfile', required: true, index: true },
     baseInfo: { type: BaseInfoSchema, required: true },
     checkinInfo: { type: CheckinSchema, default: {} },
+    typeConfig: { type: HotelTypeConfigSchema, default: {} }, // 新增
     auditInfo: { type: AuditInfoSchema, default: {} },
     pendingChanges: { type: mongoose_1.Schema.Types.Mixed, default: null },
     // merchant-requested delete flag
     pendingDeletion: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
 }, { timestamps: true, optimisticConcurrency: true });
+// 添加复合索引
+// 用于查询指定商户的酒店列表
+HotelSchema.index({ merchantId: 1, createdAt: -1 });
+// 用于查询已审核通过的酒店，按创建时间排序
+HotelSchema.index({ 'auditInfo.status': 1, createdAt: -1 });
+// 用于按城市和星级筛选酒店
+HotelSchema.index({ 'baseInfo.city': 1, 'baseInfo.star': -1 });
+// 用于按状态和城市筛选酒店
+HotelSchema.index({ 'auditInfo.status': 1, 'baseInfo.city': 1 });
+// 新增：按物业类型查询
+HotelSchema.index({ 'baseInfo.propertyType': 1, 'auditInfo.status': 1 });
+// 新增：按城市和物业类型查询
+HotelSchema.index({ 'baseInfo.city': 1, 'baseInfo.propertyType': 1 });
+// 添加全文搜索索引，用于酒店名称和描述的搜索
+HotelSchema.index({
+    'baseInfo.nameCn': 'text',
+    'baseInfo.nameEn': 'text',
+    'baseInfo.description': 'text'
+}, {
+    weights: {
+        'baseInfo.nameCn': 10,
+        'baseInfo.nameEn': 8,
+        'baseInfo.description': 5
+    },
+    default_language: 'chinese'
+});
 exports.Hotel = (0, mongoose_1.model)('Hotel', HotelSchema);
 //# sourceMappingURL=hotel.model.js.map
