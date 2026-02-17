@@ -13,8 +13,8 @@ export default function HotelDetailPage() {
         queryKey: ['hotel', id],
         queryFn: async () => {
             try {
-                await hotelStore.getState().fetchHotelDetail(id || '');
-                return hotelStore.getState().currentHotel;
+                await hotelStore.fetchHotelDetail(id || '');
+                return hotelStore.currentHotel;
             }
             catch (err) {
                 console.error('Failed to fetch hotel:', err);

@@ -1,0 +1,127 @@
+.container {
+  margin-bottom: 12px;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 0 12px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    opacity: 0.9;
+    background-color: #f9f9f9;
+  }
+}
+
+.dateSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 1;
+  cursor: pointer;
+}
+
+.dateValue {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.dateLabel {
+  display: none;
+}
+
+.divider {
+  display: none;
+}
+
+.daysInfo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFF9E6;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  margin: 0 8px;
+}
+
+.nightsLabel {
+  font-size: 12px;
+  color: #999;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.nightsInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.nightsLabel {
+  font-size: 12px;
+  color: #999;
+}
+
+.icon {
+  color: #999;
+  margin-left: 4px;
+}
+
+.pickerContainer {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.pickerFooter {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.cancelBtn,
+.confirmBtn {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.cancelBtn {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.confirmBtn {
+  background-color: #0066ff;
+  color: #ffffff;
+  font-weight: 600;
+}

@@ -1,9 +1,6 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import styles from './index.module.css';
-/**
- * 房间详情页 - 民宿类型
- */
-export default function RoomDetailHomeStayPage() {
-    return (_jsxs("div", { className: styles.container, children: [_jsx("div", { className: "header", children: _jsx("h1", { children: "\u6C11\u5BBF\u623F\u95F4\u8BE6\u60C5" }) }), _jsx("div", { className: "content", children: _jsx("p", { children: "\u8FD9\u662F\u6C11\u5BBF\u7C7B\u578B\u7684\u623F\u95F4\u8BE6\u60C5\u9875" }) })] }));
+import { jsx as _jsx } from "react/jsx-runtime";
+// 房间详情页 - 临时占位符（待实现）
+export default function RoomDetailHomeStay() {
+    return _jsx("div", { style: { padding: '20px' }, children: "\u623F\u95F4\u8BE6\u60C5\u9875 (\u5EFA\u8BBE\u4E2D)" });
 }
 //# sourceMappingURL=index.js.map

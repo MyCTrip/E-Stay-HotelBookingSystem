@@ -14,8 +14,8 @@ export default function RoomDetailPage() {
     queryKey: ['room', id],
     queryFn: async () => {
       try {
-        await hotelStore.getState().fetchRoomDetail(id || '')
-        return hotelStore.getState().currentRoom
+        await hotelStore.fetchRoomDetail(id || '')
+        return hotelStore.currentRoom
       } catch (err) {
         console.error('Failed to fetch room:', err)
         return null

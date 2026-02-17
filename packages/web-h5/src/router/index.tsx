@@ -1,22 +1,20 @@
-import { createBrowserRouter, RouterProviderProps } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import { Navigate } from 'react-router-dom'
-import HomePage from '../pages/Home'
 import HomeHotel from '../pages/Home/hotel'
 import HomeHourly from '../pages/Home/hourlyHotel'
 import HomeHomeStay from '../pages/Home/homeStay'
 import SearchResultPage from '../pages/SearchResult'
+import SearchResultHomeStay from '../pages/SearchResult/homeStay'
 import SearchResultHotel from '../pages/SearchResult/hotel'
 import SearchResultHourly from '../pages/SearchResult/hourlyHotel'
-import SearchResultHomeStay from '../pages/SearchResult/homeStay'
 import HotelDetailPage from '../pages/HotelDetail'
 import HotelDetailHotel from '../pages/HotelDetail/hotel'
 import HotelDetailHourly from '../pages/HotelDetail/hourlyHotel'
-import HotelDetailHomeStay from '../pages/HotelDetail/homeStay'
+import HomeStayDetailPage from '../pages/HotelDetail/homeStay'
 import RoomDetailPage from '../pages/RoomDetail'
 import RoomDetailHotel from '../pages/RoomDetail/hotel'
 import RoomDetailHourly from '../pages/RoomDetail/hourlyHotel'
-import RoomDetailHomeStay from '../pages/RoomDetail/homeStay'
 import NotFoundPage from '../pages/NotFound'
 
 /**
@@ -56,22 +54,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         path: 'homeStay',
         element: <HomeHomeStay />,
       },
-      {
-        path: 'search',
-        element: <SearchResultPage />,
-      },
-      {
-        path: 'search/hotel',
-        element: <SearchResultHotel />,
-      },
-      {
-        path: 'search/hourlyHotel',
-        element: <SearchResultHourly />,
-      },
-      {
-        path: 'search/homeStay',
-        element: <SearchResultHomeStay />,
-      },
+
       {
         path: 'hotel/:id',
         element: <HotelDetailPage />,
@@ -84,10 +67,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         path: 'hotel/:id/hourlyHotel',
         element: <HotelDetailHourly />,
       },
-      {
-        path: 'hotel/:id/homeStay',
-        element: <HotelDetailHomeStay />,
-      },
+
       {
         path: 'room/:id',
         element: <RoomDetailPage />,
@@ -100,15 +80,37 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         path: 'room/:id/hourlyHotel',
         element: <RoomDetailHourly />,
       },
-      {
-        path: 'room/:id/homeStay',
-        element: <RoomDetailHomeStay />,
-      },
+
       {
         path: '*',
         element: <NotFoundPage />,
       },
     ],
+  },
+  // HomeStay 详情页 - 不使用 MainLayout 包裹
+  {
+    path: '/homeStay/:id',
+    element: <HomeStayDetailPage />,
+  },
+  {
+    path: '/homeStay/:id/homeStay',
+    element: <HomeStayDetailPage />,
+  },
+  {
+    path: '/search',
+    element: <SearchResultPage />,
+  },
+  {
+    path: '/search/homeStay',
+    element: <SearchResultHomeStay />,
+  },
+  {
+    path: '/search/hotel',
+    element: <SearchResultHotel />,
+  },
+  {
+    path: '/search/hourlyHotel',
+    element: <SearchResultHourly />,
   },
 ])
 

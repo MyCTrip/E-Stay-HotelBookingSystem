@@ -1,0 +1,80 @@
+.container {
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.scrollWrapper {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+
+  // 隐藏滚动条
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: max-content;
+  height: 32px;
+  padding: 0 12px;
+  background-color: #f5f5f5;
+  color: #333;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  flex-shrink: 0;
+  position: relative;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.hotDeal {
+    background-color: #F44336;
+    color: #ffffff;
+  }
+
+  &.festive {
+    background-color: #FFB3BA;
+    color: #fff;
+  }
+
+  &.points {
+    background-color: #FFC107;
+    color: #fff;
+  }
+
+  &.selected {
+    background-color: #ff6b00;
+    color: #ffffff;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  background-color: #ff4444;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+}

@@ -9,6 +9,8 @@ export type { IStorage } from './adapters/storage'
 // Store 管理
 export { createHotelStore, initHotelStore, useHotelStore, resetHotelStore } from './stores/hotelStore'
 export type { SearchParams } from './stores/hotelStore'
+export { createHomeStayStore, initHomeStayStore, useHomeStayStore, resetHomeStayStore } from './stores/homestayStore'
+export type { HomeStayState } from './stores/homestayStore'
 
 // 中间件管理
 export {
@@ -53,6 +55,9 @@ export type { SearchHistory, FavoriteHotel, UserPreferences } from './persistenc
 
 // 类型定义
 export * from './types'
+
+// 常量定义
+export { QUICK_FILTER_TAGS } from './constants/homestay'
 
 // 工具函数
 export * from './utils'

@@ -1,5 +1,4 @@
-/**
- * 民宿首页
- */
-export default function HomeHomeStayPage(): import("react/jsx-runtime").JSX.Element;
+import React from 'react';
+declare const HomeStayPage: React.FC;
+export default HomeStayPage;
 //# sourceMappingURL=index.d.ts.map

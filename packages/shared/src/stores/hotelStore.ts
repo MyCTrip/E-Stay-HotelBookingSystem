@@ -67,7 +67,7 @@ interface HotelStoreState {
  * 创建酒店 Store（工厂函数）
  */
 export function createHotelStore(api: IApiService) {
-  return create<HotelStoreState>((set: any, get: any) => ({
+  const store = create<HotelStoreState>((set: any, get: any) => ({
     // 初始状态
     searchParams: {
       city: 'Beijing',
@@ -200,23 +200,34 @@ export function createHotelStore(api: IApiService) {
         },
       }),
   }))
+  return store
 }
 
-// 全局 store 实例（惰性初始化，支持 reset）
-let storeInstance: ReturnType<typeof createHotelStore> | null = null
+// 全局 store hook（惰性初始化，支持 reset）
+let storeHook: ReturnType<typeof createHotelStore> | null = null
 let apiInstance: IApiService | null = null
 
 /**
- * 获取 Hotel Store 实例（惰性初始化）
+ * 获取 Hotel Store Hook（作为 React Hook 使用）
  * @throws 如果 Store 未初始化，抛出错误
  */
-export function useHotelStore(): ReturnType<typeof createHotelStore> {
-  if (!storeInstance) {
+export function useHotelStore() {
+  if (!storeHook) {
     throw new Error(
       '🔴 HotelStore not initialized! Call initHotelStore(api) in app startup.'
     )
   }
-  return storeInstance
+  return storeHook()  // ✅ 调用 hook 获取 state
+}
+
+/**
+ * 获取 store 实例（用于非-React 上下文）
+ */
+function getStoreInstance() {
+  if (!storeHook) {
+    throw new Error('HotelStore not initialized')
+  }
+  return storeHook
 }
 
 /**
@@ -224,20 +235,20 @@ export function useHotelStore(): ReturnType<typeof createHotelStore> {
  * @param api API 服务实例
  */
 export function initHotelStore(api: IApiService): void {
-  if (storeInstance) {
+  if (storeHook) {
     console.warn('⚠️ HotelStore already initialized, skipping...')
     return
   }
   apiInstance = api
-  storeInstance = createHotelStore(api)
+  storeHook = createHotelStore(api)
 }
 
 /**
  * 重置 Store 状态（用于测试或用户登出）
  */
 export function resetHotelStore(): void {
-  if (!storeInstance) return
-  const store = storeInstance as any
-  store.resetHotels?.()
-  store.clearError?.()
+  if (!storeHook) return
+  const state = storeHook.getState() as any
+  state.resetHotels?.()
+  state.clearError?.()
 }

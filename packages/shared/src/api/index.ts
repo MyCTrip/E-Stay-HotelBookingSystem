@@ -15,6 +15,18 @@ export interface IApiService {
   // 房型接口
   getRoomDetail: (id: string) => Promise<any>
 
+  // 民宿接口
+  homestays: {
+    search: (params: any) => Promise<any>
+    getDetail: (id: string) => Promise<any>
+    getHot: (params?: any) => Promise<any>
+  }
+
+  // 房间接口
+  rooms: {
+    getDetail: (id: string) => Promise<any>
+  }
+
   // 认证接口（预留）
   login: (email: string, password: string) => Promise<any>
   register: (email: string, password: string) => Promise<any>
@@ -114,6 +126,18 @@ export function createApiService(config: ApiConfig): IApiService {
     getHotelDetail: (id) => instance.get(`/hotels/${id}`),
     getRoomsByHotel: (hotelId, params) => instance.get(`/hotels/${hotelId}/rooms`, { params }),
     getRoomDetail: (id) => instance.get(`/rooms/${id}`),
+
+    // 民宿接口
+    homestays: {
+      search: (params: any) => instance.get('/homestays/search', { params }),
+      getDetail: (id: string) => instance.get(`/homestays/${id}`),
+      getHot: (params?: any) => instance.get('/homestays/hot', { params }),
+    },
+
+    // 房间接口
+    rooms: {
+      getDetail: (id: string) => instance.get(`/rooms/${id}`),
+    },
 
     // Auth endpoints (预留)
     login: (email, password) => instance.post('/auth/login', { email, password }),
@@ -245,6 +269,53 @@ export function createMockApiService(): IApiService {
       },
       message: 'success',
     }),
+
+    // 民宿 Mock API
+    homestays: {
+      search: async (params): Promise<any> => ({
+        code: 200,
+        data: {
+          items: [],
+          total: 0,
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+        },
+        message: 'success',
+      }),
+      getDetail: async (id): Promise<any> => ({
+        code: 200,
+        data: {
+          _id: id,
+          baseInfo: {
+            nameCn: '民宿示例',
+            address: '示例地址',
+            city: 'Beijing',
+            images: [],
+          },
+        },
+        message: 'success',
+      }),
+      getHot: async (params): Promise<any> => ({
+        code: 200,
+        data: [],
+        message: 'success',
+      }),
+    },
+
+    // 房间 Mock API
+    rooms: {
+      getDetail: async (id): Promise<any> => ({
+        code: 200,
+        data: {
+          _id: id,
+          baseInfo: {
+            type: '标准间',
+            price: 299,
+          },
+        },
+        message: 'success',
+      }),
+    },
 
     // Auth (mock)
     login: async (email, password): Promise<any> => ({

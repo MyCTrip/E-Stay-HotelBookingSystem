@@ -1,5 +1,8 @@
 /**
- * 搜索结果页 - 民宿类型
+ * 民宿搜索结果页面 - Web H5版本
+ * 使用新的SearchResultList组件实现完整的搜索列表界面
  */
-export default function SearchResultHomeStayPage(): import("react/jsx-runtime").JSX.Element;
+import React from 'react';
+declare const SearchResultPage: React.FC;
+export default SearchResultPage;
 //# sourceMappingURL=index.d.ts.map

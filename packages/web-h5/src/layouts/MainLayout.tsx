@@ -1,11 +1,16 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
+import { ReactNode } from 'react'
 import styles from './MainLayout.module.css'
 import { useState, useEffect } from 'react'
+
+interface MainLayoutProps {
+  children?: ReactNode
+}
 
 /**
  * 主布局组件
  */
-export default function MainLayout() {
+export default function MainLayout({ children }: MainLayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const [activeCategory, setActiveCategory] = useState('domestic')
@@ -57,7 +62,7 @@ export default function MainLayout() {
 
       {/* 主要内容 */}
       <main className={styles.main}>
-        <Outlet />
+        {children || <Outlet />}
       </main>
 
       {/* 底部导航 - 仅在移动端显示 */}

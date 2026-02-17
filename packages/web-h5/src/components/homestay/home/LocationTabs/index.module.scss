@@ -1,0 +1,64 @@
+.container {
+  width: 100%;
+  padding: 0 16px;
+  margin-top: 56px; // 搜索栏高度 + 安全区
+  margin-bottom: 16px;
+}
+
+.tabsWrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 32px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.label {
+  font-size: 14px;
+  color: #999;
+  transition: all 0.3s ease;
+
+  .tab.active & {
+    color: #ff6b00;
+    font-weight: 600;
+  }
+}
+
+.underline {
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 2px;
+  background-color: #ff6b00;
+  border-radius: 1px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 40%;
+    opacity: 1;
+  }
+}

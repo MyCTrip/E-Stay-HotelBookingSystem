@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 /**
  * 主布局组件
  */
-export default function MainLayout() {
+export default function MainLayout({ children }) {
     const navigate = useNavigate();
     const location = useLocation();
     const [activeCategory, setActiveCategory] = useState('domestic');
@@ -34,7 +34,7 @@ export default function MainLayout() {
                                         navigate('/hourlyHotel');
                                     if (cat.id === 'homestay')
                                         navigate('/homeStay');
-                                }, children: [_jsx("span", { className: styles.icon, children: cat.icon }), cat.label] }, cat.id))) })] }) }), _jsx("main", { className: styles.main, children: _jsx(Outlet, {}) }), _jsx("nav", { className: styles.mobileNav, children: categories.map((cat) => (_jsxs("button", { className: `${styles.mobileNavItem} ${activeCategory === cat.id ? styles.active : ''}`, onClick: () => {
+                                }, children: [_jsx("span", { className: styles.icon, children: cat.icon }), cat.label] }, cat.id))) })] }) }), _jsx("main", { className: styles.main, children: children || _jsx(Outlet, {}) }), _jsx("nav", { className: styles.mobileNav, children: categories.map((cat) => (_jsxs("button", { className: `${styles.mobileNavItem} ${activeCategory === cat.id ? styles.active : ''}`, onClick: () => {
                         setActiveCategory(cat.id);
                         if (cat.id === 'domestic')
                             navigate('/hotel');

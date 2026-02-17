@@ -9,7 +9,7 @@ import styles from './index.module.css'
 export default function SearchResultPage() {
   const [searchParams] = useSearchParams()
   const hotelStore = useHotelStore()
-  const propertyType = (hotelStore.getState().searchParams as any)?.propertyType
+  const propertyType = (hotelStore.searchParams as any)?.propertyType
 
   const city = searchParams.get('city') || ''
   const checkIn = searchParams.get('checkIn') || ''
@@ -20,8 +20,8 @@ export default function SearchResultPage() {
     queryKey: ['hotels', { city, checkIn, checkOut, propertyType }],
     queryFn: async () => {
       try {
-        await hotelStore.getState().fetchHotels({ city, checkIn, checkOut })
-        return hotelStore.getState().hotels
+        await hotelStore.fetchHotels({ city, checkIn, checkOut })
+        return hotelStore.hotels
       } catch (err) {
         console.error('Failed to fetch hotels:', err)
         return []

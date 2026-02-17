@@ -1,0 +1,23 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+/**
+ * 单个房型卡片 - 符合行业规范
+ */
+import { useState } from 'react';
+import styles from './RoomCard.module.scss';
+const RoomCard = ({ room, isExpanded, onToggleExpand, onViewDetails, }) => {
+    const [isCollected, setIsCollected] = useState(false);
+    const handleCollect = (e) => {
+        e.stopPropagation();
+        setIsCollected(!isCollected);
+    };
+    return (_jsxs("div", { className: styles.card, children: [_jsxs("div", { className: styles.titleRow, onClick: onToggleExpand, children: [_jsx("h3", { className: styles.name, children: room.name }), _jsxs("div", { className: styles.rightActions, children: [_jsx("button", { className: `${styles.collectBtn} ${isCollected ? styles.collected : ''}`, onClick: handleCollect, title: isCollected ? '已收藏' : '收藏', children: isCollected ? '♥' : '♡' }), _jsx("button", { className: styles.toggleBtn, children: isExpanded ? '▲' : '▼' })] })] }), !isExpanded ? (
+            /* 收起态 - 基础信息 */
+            _jsxs("div", { className: styles.collapsedContent, children: [_jsx("div", { className: styles.imageArea, children: _jsx("img", { src: room.image, alt: room.name, className: styles.thumbnail }) }), _jsxs("div", { className: styles.infoArea, children: [_jsxs("div", { className: styles.basicInfo, children: [_jsxs("span", { className: styles.param, children: [_jsx("span", { className: styles.icon, children: "\uD83D\uDCD0" }), " ", room.area] }), _jsx("span", { className: styles.separator, children: "|" }), _jsxs("span", { className: styles.param, children: [_jsx("span", { className: styles.icon, children: "\uD83D\uDECF\uFE0F" }), " ", room.beds] }), _jsx("span", { className: styles.separator, children: "|" }), _jsxs("span", { className: styles.param, children: [_jsx("span", { className: styles.icon, children: "\uD83D\uDC65" }), " ", room.guests] })] }), _jsx("div", { className: styles.benefits, children: room.benefits.map((benefit, idx) => (_jsx("span", { className: styles.benefitTag, children: benefit }, idx))) }), _jsxs("div", { className: styles.footerRow, children: [_jsxs("div", { className: styles.priceBlock, children: [_jsxs("span", { className: styles.price, children: ["\u00A5", room.price] }), _jsx("span", { className: styles.priceNote, children: room.priceNote })] }), _jsx("button", { className: styles.bookBtn, onClick: (e) => {
+                                            e.stopPropagation();
+                                            onViewDetails?.(room);
+                                        }, children: "\u8BE6\u60C5" })] })] })] })) : (
+            /* 展开态 - 详细信息 */
+            _jsxs("div", { className: styles.expandedContent, children: [_jsxs("div", { className: styles.carousel, children: [_jsx("img", { src: room.image, alt: room.name, className: styles.expandedImage }), _jsx("span", { className: styles.imageCount, children: "1/5" })] }), _jsxs("div", { className: styles.detailParams, children: [_jsxs("div", { className: styles.paramRow, children: [_jsx("span", { className: styles.paramLabel, children: "\u9762\u79EF" }), _jsx("span", { className: styles.paramValue, children: room.area })] }), _jsxs("div", { className: styles.paramRow, children: [_jsx("span", { className: styles.paramLabel, children: "\u5E8A\u578B" }), _jsx("span", { className: styles.paramValue, children: room.beds })] }), _jsxs("div", { className: styles.paramRow, children: [_jsx("span", { className: styles.paramLabel, children: "\u4EBA\u6570" }), _jsx("span", { className: styles.paramValue, children: room.guests })] })] }), _jsxs("div", { className: styles.packageList, children: [_jsxs("h4", { className: styles.packageTitle, children: [room.packageCount, "\u4E2A\u5957\u9910\u53EF\u9009"] }), [1, 2, 3].map((pkg) => (_jsxs("div", { className: styles.packageItem, children: [_jsxs("div", { className: styles.pkgHeader, children: [_jsxs("span", { className: styles.pkgName, children: ["\u5957\u9910", pkg] }), _jsxs("span", { className: styles.pkgPrice, children: ["\u00A5", room.price + pkg * 50] })] }), _jsxs("div", { className: styles.pkgDetails, children: [_jsx("span", { children: "\u53EF\u8BA2" }), _jsx("span", { children: "\u2022" }), _jsx("span", { children: "\u968F\u65F6\u53D6\u6D88" })] }), _jsx("button", { className: styles.selectBtn, onClick: () => onViewDetails?.(room), children: "\u67E5\u770B\u8BE6\u60C5" })] }, pkg)))] })] }))] }));
+};
+export default RoomCard;
+//# sourceMappingURL=RoomCard.js.map

@@ -1,26 +1,326 @@
-.container {
-  width: 100%;
-  padding: 1rem;
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #666;
 }
 
-.header {
-  margin-bottom: 2rem;
+.notFound {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  color: #666;
+}
+
+.hotelDetailContainer {
+  width: 100%;
+  padding-bottom: 120rpx;
+  background: #f5f5f5;
+}
+
+/* ===== 图片 ===== */
+.imageSection {
+  width: 100%;
+  height: 360rpx;
+  position: relative;
+  background: #f0f0f0;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.imageCounter {
+  position: absolute;
+  bottom: 12rpx;
+  right: 12rpx;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 6rpx 12rpx;
+  border-radius: 4rpx;
+  font-size: 12rpx;
+  font-weight: 500;
+}
+
+/* ===== 基本信息 ===== */
+.basicInfo {
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
 }
 
 .title {
-  font-size: 2rem;
-  color: #333;
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #222;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.infoRow {
+  display: flex;
+  gap: 20rpx;
+  font-size: 14rpx;
+  color: #666;
+}
+
+.rating {
+  color: #ff6b6b;
   font-weight: 600;
 }
 
-.content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+.location {
+  color: #666;
 }
 
-.description {
+/* ===== 民宿主 ===== */
+.hostSection {
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
+}
+
+.sectionTitle {
+  font-size: 16rpx;
+  font-weight: 600;
+  color: #222;
+  display: block;
+  margin-bottom: 15rpx;
+}
+
+.hostCard {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  padding: 12rpx;
+  background: #f9f9f9;
+  border-radius: 6rpx;
+}
+
+.hostAvatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hostAvatar image {
+  width: 100%;
+  height: 100%;
+}
+
+.hostInfo {
+  flex: 1;
+}
+
+.hostTop {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 5rpx;
+}
+
+.hostName {
+  font-size: 15rpx;
+  font-weight: 600;
+  color: #222;
+}
+
+.hostBadge {
+  background: #fff3cd;
+  color: #856404;
+  padding: 3rpx 6rpx;
+  border-radius: 3rpx;
+  font-size: 11rpx;
+  font-weight: 600;
+}
+
+.hostStats {
+  font-size: 12rpx;
+  color: #999;
+  display: block;
+}
+
+/* ===== 房间 ===== */
+.roomsSection {
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
+}
+
+.roomTypeCard {
+  border: 1rpx solid #eee;
+  border-radius: 6rpx;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+}
+
+.roomTypeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx;
+  background: #fafafa;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.roomTypeHeader:active {
+  background: #f5f5f5;
+}
+
+.roomName {
+  flex: 1;
+}
+
+.roomTitle {
+  font-size: 15rpx;
+  font-weight: 600;
+  color: #222;
+  display: block;
+}
+
+.roomDesc {
+  font-size: 11rpx;
+  color: #999;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.roomPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 2rpx;
+}
+
+.price {
+  font-size: 20rpx;
+  font-weight: 700;
+  color: #ff6b6b;
+}
+
+.unit {
+  font-size: 12rpx;
   color: #666;
-  font-size: 1rem;
+}
+
+.roomDetails {
+  padding: 12rpx;
+  background: #fafafa;
+  border-top: 1rpx solid #eee;
+}
+
+.roomParams {
+  margin-bottom: 12rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.roomParams text {
+  font-size: 12rpx;
+  color: #666;
+}
+
+.selectBtn {
+  width: 100%;
+  padding: 12rpx !important;
+  background: #ff6b6b !important;
+  color: white !important;
+  border-radius: 4rpx;
+  font-size: 14rpx;
+  font-weight: 600;
+}
+
+/* ===== 设施 ===== */
+.facilitiesSection {
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
+}
+
+.facilitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.facilityItem {
+  padding: 12rpx;
+  background: #f9f9f9;
+  border-radius: 6rpx;
+  font-size: 13rpx;
+  text-align: center;
+  color: #666;
+}
+
+/* ===== 政策 ===== */
+.policiesSection {
+  background: white;
+  padding: 20rpx;
+  margin-bottom: 15rpx;
+}
+
+.policyBlock {
+  margin-bottom: 15rpx;
+  padding-bottom: 15rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.policyBlock:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.policyTitle {
+  font-size: 14rpx;
+  font-weight: 600;
+  color: #222;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.policyItem {
+  font-size: 12rpx;
+  color: #666;
+  display: block;
+  line-height: 1.6;
+}
+
+.spacer {
+  height: 20rpx;
+}
+
+/* ===== 浮动预订栏 ===== */
+.stickyBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1rpx solid #eee;
+  padding: 12rpx 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12rpx;
+  z-index: 200;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 3rpx;
+}
+
+.bookBtn {
+  flex: 1;
+  padding: 12rpx 20rpx !important;
+  background: linear-gradient(135deg, #ff6b6b, #ff8787) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4rpx;
+  font-size: 15rpx;
+  font-weight: 600;
 }

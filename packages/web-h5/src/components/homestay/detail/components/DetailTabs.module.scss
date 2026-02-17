@@ -1,0 +1,87 @@
+/* 吸顶导航Tab栏 */
+
+.tabsWrapper {
+  position: sticky;
+  top: 44px; /* 顶部操作栏高度 */
+  z-index: 99;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  position: relative;
+  padding: 0;
+  min-width: fit-content;
+  height: 44px;
+  margin-right: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; /* 保证热区 */
+  transition: color 0.2s ease;
+
+  &.active {
+    .label {
+      color: #0066FF;
+      font-weight: 600;
+    }
+  }
+
+  &:not(.active) {
+    .label {
+      color: #666;
+    }
+  }
+}
+
+.label {
+  font-size: 15px;
+}
+
+.underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #0066FF;
+  border-radius: 1px;
+}
+
+@media (max-width: 768px) {
+  .tabsWrapper {
+    top: 44px;
+  }
+
+  .tabs {
+    padding: 0 12px;
+    height: 44px;
+  }
+
+  .tab {
+    margin-right: 20px;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+}

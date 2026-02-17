@@ -1,169 +1,420 @@
+/* ===== 基本容器 ===== */
 .container {
   box-sizing: border-box;
-  padding: 0 20rpx;
+  background: #f5f5f5;
 }
 
-.banner {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-  color: #333;
-  padding: 80rpx 40rpx;
-  margin-bottom: 40rpx;
-  border-radius: 8rpx;
-  text-align: center;
+/* ===== 轮播图 ===== */
+.bannerSection {
+  width: 100%;
+  height: 360rpx;
+  position: relative;
+  margin-bottom: 30rpx;
 }
 
-.bannerContent {
-  .bannerTitle {
-    font-size: 50rpx;
-    margin: 0 0 20rpx 0;
-    display: block;
-  }
-
-  .bannerSubtitle {
-    font-size: 24rpx;
-    margin: 0;
-    opacity: 0.95;
-    display: block;
-  }
+.swiper {
+  width: 100%;
+  height: 100%;
 }
 
+.swiperItem {
+  width: 100%;
+  height: 100%;
+}
+
+.bannerOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  padding: 40rpx 20rpx;
+  color: white;
+}
+
+.bannerTitle {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: white;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.bannerSubtitle {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+}
+
+/* ===== 搜索表单 ===== */
 .searchSection {
   background: white;
-  padding: 40rpx;
-  border-radius: 8rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-  margin-bottom: 60rpx;
+  padding: 30rpx 20rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
-.searchForm {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200rpx, 1fr));
+.formContainer {
+  display: flex;
+  flex-direction: column;
   gap: 20rpx;
-  align-items: flex-end;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
+  gap: 10rpx;
 }
 
 .label {
+  font-size: 18rpx;
   font-weight: 600;
-  margin-bottom: 10rpx;
-  color: #333;
-  font-size: 19rpx;
-  display: block;
+  color: #222;
 }
 
 .input {
-  padding: 15rpx;
+  padding: 15rpx 12rpx;
   border: 1rpx solid #ddd;
-  border-radius: 8rpx;
-  font-size: 20rpx;
-  font-family: inherit;
-  transition: border-color 0.3s;
+  border-radius: 6rpx;
+  font-size: 18rpx;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
 
-  &:focus {
-    outline: none;
-    border-color: #a8edea;
-    box-shadow: 0 0 0 6rpx rgba(168, 237, 234, 0.1);
-  }
+.input:focus {
+  border-color: #ff6b6b;
+  background: white;
 }
 
 .placeholder {
   color: #bbb;
 }
 
+.dateRow {
+  display: flex;
+  gap: 20rpx;
+}
+
+.dateRow .formGroup {
+  flex: 1;
+}
+
 .searchButton {
-  padding: 15rpx;
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
-  color: #333;
+  padding: 18rpx 20rpx;
+  background: linear-gradient(135deg, #ff6b6b, #ff8787) !important;
+  color: white;
   border: none;
-  border-radius: 8rpx;
+  border-radius: 6rpx;
   font-size: 20rpx;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
   width: 100%;
 
   &:active {
-    transform: scale(0.95);
+    opacity: 0.9;
   }
 }
 
-.features {
+/* ===== 便利设施快速标签 ===== */
+.amenitiesSection {
   background: white;
-  padding: 60rpx 40rpx;
-  border-radius: 8rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  padding: 30rpx 20rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
-.featuresTitle {
-  text-align: center;
-  font-size: 40rpx;
-  margin-bottom: 40rpx;
-  color: #333;
+.sectionTitle {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #222;
   display: block;
+  margin-bottom: 20rpx;
+}
+
+.amenityTags {
+  display: flex;
+  gap: 15rpx;
+  flex-wrap: wrap;
+}
+
+.amenityTag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 15rpx;
+  background: #f9f9f9;
+  border-radius: 8rpx;
+  flex: 0 1 calc(25% - 12rpx);
+  min-width: 80rpx;
+  text-align: center;
+  font-size: 16rpx;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.amenityTag:active {
+  background: #fff3f5;
+  transform: scale(0.95);
+}
+
+.amenityEmoji {
+  font-size: 36rpx;
+  display: block;
+}
+
+/* ===== 热门民宿 ===== */
+.hotelsSection {
+  background: white;
+  padding: 30rpx 20rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.hotelGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.hotelCard {
+  border-radius: 8rpx;
+  overflow: hidden;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.hotelCard:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 160rpx;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+
+.imageContainer image {
+  width: 100%;
+  height: 100%;
+}
+
+.badge {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  background: #ff6b6b;
+  color: white;
+  padding: 6rpx 12rpx;
+  border-radius: 4rpx;
+  font-size: 14rpx;
+  font-weight: 600;
+}
+
+.hotelInfo {
+  padding: 15rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.hotelName {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #222;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ratingRow {
+  display: flex;
+  gap: 8rpx;
+  font-size: 14rpx;
+  color: #666;
+}
+
+.rating {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.reviews {
+  color: #999;
+}
+
+.price {
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #ff6b6b;
+  display: block;
+}
+
+/* ===== 功能特性 ===== */
+.featuresSection {
+  background: white;
+  padding: 30rpx 20rpx;
+  margin-bottom: 60rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
 }
 
 .featureGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200rpx, 1fr));
-  gap: 40rpx;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30rpx;
 }
 
 .featureCard {
-  text-align: center;
-  padding: 20rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
+  gap: 12rpx;
 }
 
-.icon {
-  font-size: 60rpx;
-  margin-bottom: 20rpx;
+.featureEmoji {
+  font-size: 48rpx;
   display: block;
 }
 
-.featureCardTitle {
-  font-size: 24rpx;
-  margin: 0 0 10rpx 0;
-  color: #333;
+.featureTitle {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #222;
   display: block;
 }
 
-.featureCardDesc {
-  margin: 0;
-  color: #666;
-  font-size: 19rpx;
+.featureDesc {
+  font-size: 14rpx;
+  color: #999;
   display: block;
 }
 
+/* ===== 响应式设计 ===== */
 @media (max-width: 768px) {
-  .banner {
-    padding: 40rpx 20rpx;
+  .searchSection {
+    padding: 20rpx;
   }
 
-  .bannerContent {
-    .bannerTitle {
-      font-size: 36rpx;
-    }
-
-    .bannerSubtitle {
-      font-size: 20rpx;
-    }
+  .formContainer {
+    gap: 15rpx;
   }
 
-  .searchForm {
-    grid-template-columns: 1fr;
+  .dateRow {
+    gap: 15rpx;
   }
 
-  .featuresTitle {
-    font-size: 30rpx;
+  .amenityTags {
+    gap: 12rpx;
+  }
+
+  .amenityTag {
+    flex: 0 1 calc(33.333% - 8rpx);
+    min-width: 70rpx;
+    padding: 12rpx;
+    font-size: 14rpx;
+  }
+
+  .amenityEmoji {
+    font-size: 32rpx;
+  }
+
+  .hotelGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15rpx;
+  }
+
+  .imageContainer {
+    height: 140rpx;
+  }
+
+  .hotelInfo {
+    padding: 12rpx;
+    gap: 6rpx;
+  }
+
+  .hotelName {
+    font-size: 16rpx;
+  }
+
+  .price {
+    font-size: 16rpx;
+  }
+
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20rpx;
+  }
+
+  .featureEmoji {
+    font-size: 40rpx;
+  }
+
+  .featureTitle {
+    font-size: 16rpx;
+  }
+
+  .featureDesc {
+    font-size: 12rpx;
+  }
+}
+
+@media (max-width: 500px) {
+  .bannerOverlay {
+    padding: 30rpx 15rpx;
+  }
+
+  .bannerTitle {
+    font-size: 36rpx;
+  }
+
+  .bannerSubtitle {
+    font-size: 18rpx;
+  }
+
+  .sectionTitle {
+    font-size: 20rpx;
+  }
+
+  .amenityTags {
+    gap: 10rpx;
+  }
+
+  .amenityTag {
+    flex: 0 1 calc(25% - 7.5rpx);
+    min-width: 60rpx;
+    padding: 10rpx;
+    font-size: 12rpx;
+  }
+
+  .amenityEmoji {
+    font-size: 28rpx;
+  }
+
+  .hotelGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12rpx;
+  }
+
+  .imageContainer {
+    height: 120rpx;
   }
 
   .featureGrid {
     grid-template-columns: 1fr;
+    gap: 15rpx;
+  }
+
+  .featureCard {
+    gap: 8rpx;
+  }
+
+  .featureEmoji {
+    font-size: 36rpx;
   }
 }

@@ -1,0 +1,177 @@
+/* 瀑布流卡片容器 */
+.waterlineCard {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* 图片容器 */
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;  /* 纵向卡片 */
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 12px;
+}
+
+/* 收藏按钮 */
+.favoriteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.favorited {
+    color: #ff4457;
+    background-color: rgba(255, 68, 87, 0.1);
+  }
+}
+
+/* 热门标签 */
+.hotBadge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background-color: #ff4457;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 68, 87, 0.25);
+}
+
+/* 信息容器 */
+.infoContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  background-color: #ffffff;
+}
+
+/* 位置信息 */
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.locationIcon {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.locationText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 标题 */
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 价格区域 */
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.priceBlock {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.currentPrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff4457;
+}
+
+.originalPrice {
+  font-size: 12px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+/* 评分和评价 */
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rating {
+  color: #ffa500;
+  font-weight: 600;
+}
+
+.reviewCount {
+  color: #999;
+}
