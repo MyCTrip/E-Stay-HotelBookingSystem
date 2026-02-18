@@ -1,65 +1,86 @@
 .container {
   margin-bottom: 12px;
   overflow: hidden;
+  padding-bottom: 0;
 }
 
 .scrollWrapper {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 12px 12px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
   scroll-behavior: smooth;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 
   // 隐藏滚动条
   &::-webkit-scrollbar {
     display: none;
   }
+  
+  scrollbar-width: none;
 }
 
 .tag {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   min-width: max-content;
   height: 32px;
   padding: 0 12px;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   color: #333;
+  border: 1px solid #e8e8e8;
   border-radius: 16px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   flex-shrink: 0;
   position: relative;
+  white-space: nowrap;
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
   }
 
+  &:hover {
+    border-color: #d0d0d0;
+  }
+
+  // 特定主题样式
   &.hotDeal {
-    background-color: #F44336;
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
     color: #ffffff;
+    border: none;
   }
 
   &.festive {
-    background-color: #FFB3BA;
-    color: #fff;
+    background: linear-gradient(135deg, #FF8A80 0%, #FF6E40 100%);
+    color: #ffffff;
+    border: none;
   }
 
   &.points {
-    background-color: #FFC107;
-    color: #fff;
+    background: linear-gradient(135deg, #FEC839 0%, #FFA500 100%);
+    color: #ffffff;
+    border: none;
   }
 
+  // 选中状态
   &.selected {
-    background-color: #ff6b00;
+    background: linear-gradient(135deg, #ff6b00 0%, #ffa500 100%);
     color: #ffffff;
+    border-color: #ff6b00;
+    box-shadow: 0 2px 8px rgba(255, 107, 0, 0.25);
   }
 }
 
+// 徽章
 .badge {
   display: inline-flex;
   align-items: center;
@@ -70,11 +91,13 @@
   color: #ffffff;
   border-radius: 50%;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   margin-left: 2px;
+  flex-shrink: 0;
 }
 
 .label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
+  line-height: 1;
 }

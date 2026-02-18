@@ -2,7 +2,8 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import LocationInput from '../../../components/homestay/home/LocationInput';
+import SearchBar from '../../../components/homestay/home/SearchBar';
+import LocationTabs from '../../../components/homestay/home/LocationTabs';
 import DateTimeRangeSelector from '../../../components/homestay/home/DateTimeRangeSelector';
 import RoomTypeSelector from '../../../components/homestay/home/RoomTypeSelector';
 import QuickFilters from '../../../components/homestay/home/QuickFilters';
@@ -153,9 +154,22 @@ const HomeStayPage = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [homestays, setHomestays] = useState([]);
     const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 });
+    const [scrollTop, setScrollTop] = useState(0);
+    const [modalActive, setModalActive] = useState(null);
     // 首次加载时显示热门民宿推荐
     useEffect(() => {
         loadPopularHomestays();
+    }, []);
+    // 监听滚动事件
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container)
+            return;
+        const handleScroll = () => {
+            setScrollTop(container.scrollTop);
+        };
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
     }, []);
     // 加载热门民宿推荐
     const loadPopularHomestays = () => {
@@ -320,11 +334,9 @@ const HomeStayPage = () => {
             console.error('Geolocation error:', error);
         }
     };
-    return (_jsxs("div", { ref: containerRef, className: styles.container, children: [_jsx("div", { className: styles.banner, children: _jsx("div", { className: styles.bannerContent, children: _jsx("span", { children: "\u2728 \u79EF\u5206\u5F53\u94B1\u82B1 - \u6BCF\u665A\u7ACB\u4EAB10\u500D\u79EF\u5206" }) }) }), _jsxs("div", { className: styles.searchSection, children: [_jsx(LocationInput, { value: searchParams.city, city: searchParams.city, onLocationSelect: handleLocationSelect, onCityChange: handleLocationSelect, onNearbyClick: handleNearby }), _jsx(DateTimeRangeSelector, { checkIn: searchParams.checkIn, checkOut: searchParams.checkOut, onDateChange: handleDateChange }), _jsx(RoomTypeSelector, { rooms: searchParams.rooms, beds: searchParams.beds, guests: searchParams.guests, onChange: handleRoomTypeChange }), _jsx(QuickFilters, { tags: QUICK_FILTER_TAGS, selectedTags: searchParams.selectedTags, onTagSelect: handleTagSelect }), _jsx(SearchButton, { loading: loading, onClick: handleSearch, label: "\u67E5\u8BE2" }), _jsx("div", { className: styles.trustText, children: "\u65E0\u5FC6\u4FDD\u969C\uFF0C\u5165\u4F4F\u4E0D\u6EE1\u610F\u968F\u65F6\u9000\u4F4F" })] }), _jsxs("div", { className: styles.listSection, children: [refreshing && (_jsxs("div", { className: styles.refreshTip, children: [_jsx("span", { className: styles.spinner }), "\u6B63\u5728\u5237\u65B0\u6570\u636E\u4E2D..."] })), _jsx("div", { className: styles.listTitle, children: "\uD83D\uDD25 \u70ED\u95E8\u6C11\u5BBF\u63A8\u8350" }), _jsx("div", { className: styles.cardGrid, children: loading ? (
-                        // 显示骨架屏加载状态
-                        _jsx(HomeStayCardSkeleton, { count: 6 })) : homestays.length > 0 ? (
-                        // 显示卡片列表
-                        homestays.map((homestay) => (_jsx("div", { className: styles.cardWrapper, children: _jsx(HomeStayCard, { data: homestay, onClick: () => navigate(`/hotel-detail/homestay/${homestay._id}`), showStar: true }) }, homestay._id)))) : (_jsx("div", { className: styles.emptyState, children: _jsx("p", { children: "\u6682\u65E0\u76F8\u5173\u6C11\u5BBF" }) })) }), loading && (_jsx("div", { className: styles.loadingState, children: _jsx("p", { children: "\u52A0\u8F7D\u4E2D..." }) }))] }), _jsx("div", { className: styles.bottomSpacer })] }));
+    return (_jsxs("div", { ref: containerRef, className: styles.container, children: [_jsx(SearchBar, { location: searchParams.city, checkIn: dayjs(searchParams.checkIn).format('M月D'), onFieldClick: (field) => setModalActive(field), scrollTop: scrollTop, isTransparent: scrollTop < 50 }), _jsx("div", { className: styles.searchBarSpacer }), _jsx(LocationTabs, { activeTab: "domestic", onChange: (tab) => {
+                    // TODO: 根据tab类型切换数据源
+                } }), _jsx("div", { className: styles.banner, children: _jsx("div", { className: styles.bannerContent, children: _jsx("span", { children: "\u2728 \u79EF\u5206\u5F53\u94B1\u82B1 - \u6BCF\u665A\u7ACB\u4EAB10\u500D\u79EF\u5206" }) }) }), _jsx("div", { className: styles.compactSearchSection, children: _jsxs("div", { className: styles.searchGrid, children: [_jsxs("div", { className: styles.rowContainer, children: [_jsx("div", { className: styles.itemWrapper, children: _jsx(DateTimeRangeSelector, { checkIn: searchParams.checkIn, checkOut: searchParams.checkOut, onDateChange: handleDateChange }) }), _jsx("div", { className: styles.itemWrapper, children: _jsx(RoomTypeSelector, { rooms: searchParams.rooms, beds: searchParams.beds, guests: searchParams.guests, onChange: handleRoomTypeChange }) })] }), _jsx("div", { className: styles.filtersRow, children: _jsx(QuickFilters, { tags: QUICK_FILTER_TAGS, selectedTags: searchParams.selectedTags, onTagSelect: handleTagSelect }) }), _jsx("div", { className: styles.buttonRow, children: _jsx(SearchButton, { loading: loading, onClick: handleSearch, label: "\u641C\u7D22\u6C11\u5BBF" }) })] }) }), _jsxs("div", { className: styles.recommendSection, children: [_jsx("div", { className: styles.recommendHeader, children: _jsx("h2", { className: styles.sectionTitle, children: "\uD83D\uDD25 \u70ED\u95E8\u63A8\u8350" }) }), _jsxs("div", { className: styles.listSection, children: [refreshing && (_jsxs("div", { className: styles.refreshTip, children: [_jsx("span", { className: styles.spinner }), "\u6B63\u5728\u5237\u65B0\u6570\u636E\u4E2D..."] })), _jsx("div", { className: styles.cardGrid, children: loading ? (_jsx(HomeStayCardSkeleton, { count: 6 })) : homestays.length > 0 ? (homestays.map((homestay) => (_jsx("div", { className: styles.cardWrapper, children: _jsx(HomeStayCard, { data: homestay, onClick: () => navigate(`/hotel-detail/homestay/${homestay._id}`), showStar: true }) }, homestay._id)))) : (_jsx("div", { className: styles.emptyState, children: _jsx("p", { children: "\u6682\u65E0\u76F8\u5173\u6C11\u5BBF" }) })) }), loading && (_jsx("div", { className: styles.loadingState, children: _jsx("p", { children: "\u52A0\u8F7D\u4E2D..." }) }))] })] }), _jsx("div", { className: styles.bottomSpacer })] }));
 };
 export default HomeStayPage;
 //# sourceMappingURL=index.js.map

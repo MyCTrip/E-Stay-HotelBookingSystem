@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
+import SearchBar from '../../../components/homestay/home/SearchBar'
+import LocationTabs from '../../../components/homestay/home/LocationTabs'
 import LocationInput from '../../../components/homestay/home/LocationInput'
 import DateTimeRangeSelector from '../../../components/homestay/home/DateTimeRangeSelector'
 import RoomTypeSelector from '../../../components/homestay/home/RoomTypeSelector'
@@ -157,10 +159,25 @@ const HomeStayPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false)
   const [homestays, setHomestays] = useState<HomeStay[]>([])
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 })
+  const [scrollTop, setScrollTop] = useState(0)
+  const [modalActive, setModalActive] = useState<'location' | 'date' | 'guests' | null>(null)
 
   // 首次加载时显示热门民宿推荐
   useEffect(() => {
     loadPopularHomestays()
+  }, [])
+
+  // 监听滚动事件
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      setScrollTop(container.scrollTop)
+    }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleScroll)
   }, [])
 
   // 加载热门民宿推荐
@@ -349,98 +366,113 @@ const HomeStayPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className={styles.container}>
+      {/* 搜索栏 - 固定在顶部 */}
+      <SearchBar
+        location={searchParams.city}
+        checkIn={dayjs(searchParams.checkIn).format('M月D')}
+        onFieldClick={(field) => setModalActive(field)}
+        scrollTop={scrollTop}
+        isTransparent={scrollTop < 50}
+      />
+
+      {/* 让出SearchBar的空间 */}
+      <div className={styles.searchBarSpacer} />
+
+      {/* 地点分类标签 */}
+      <LocationTabs activeTab="domestic" onChange={(tab) => {
+        // TODO: 根据tab类型切换数据源
+      }} />
+
       {/* 轮播 Banner */}
       <div className={styles.banner}>
         <div className={styles.bannerContent}>
-          {/* Banner 内容占位 */}
           <span>✨ 积分当钱花 - 每晚立享10倍积分</span>
         </div>
       </div>
 
-      {/* 搜索筛选区 */}
-      <div className={styles.searchSection}>
-        {/* 地点输入 */}
-        <LocationInput
-          value={searchParams.city}
-          city={searchParams.city}
-          onLocationSelect={handleLocationSelect}
-          onCityChange={handleLocationSelect}
-          onNearbyClick={handleNearby}
-        />
+      {/* 紧凑搜索筛选区 */}
+      <div className={styles.compactSearchSection}>
+        <div className={styles.searchGrid}>
+          {/* 第一行：日期和房间 */}
+          <div className={styles.rowContainer}>
+            <div className={styles.itemWrapper}>
+              <DateTimeRangeSelector
+                checkIn={searchParams.checkIn}
+                checkOut={searchParams.checkOut}
+                onDateChange={handleDateChange}
+              />
+            </div>
+            <div className={styles.itemWrapper}>
+              <RoomTypeSelector
+                rooms={searchParams.rooms}
+                beds={searchParams.beds}
+                guests={searchParams.guests}
+                onChange={handleRoomTypeChange}
+              />
+            </div>
+          </div>
 
-        {/* 日期范围选择 */}
-        <DateTimeRangeSelector
-          checkIn={searchParams.checkIn}
-          checkOut={searchParams.checkOut}
-          onDateChange={handleDateChange}
-        />
+          {/* 第二行：快速筛选 */}
+          <div className={styles.filtersRow}>
+            <QuickFilters
+              tags={QUICK_FILTER_TAGS}
+              selectedTags={searchParams.selectedTags}
+              onTagSelect={handleTagSelect}
+            />
+          </div>
 
-        {/* 房间类型选择 */}
-        <RoomTypeSelector
-          rooms={searchParams.rooms}
-          beds={searchParams.beds}
-          guests={searchParams.guests}
-          onChange={handleRoomTypeChange}
-        />
-
-        {/* 快速筛选标签 */}
-        <QuickFilters
-          tags={QUICK_FILTER_TAGS}
-          selectedTags={searchParams.selectedTags}
-          onTagSelect={handleTagSelect}
-        />
-
-        {/* 查询按钮 */}
-        <SearchButton
-          loading={loading}
-          onClick={handleSearch}
-          label="查询"
-        />
-
-        {/* 信任文案 */}
-        <div className={styles.trustText}>
-          无忆保障，入住不满意随时退住
+          {/* 第三行：搜索按钮 */}
+          <div className={styles.buttonRow}>
+            <SearchButton
+              loading={loading}
+              onClick={handleSearch}
+              label="搜索民宿"
+            />
+          </div>
         </div>
       </div>
 
-      {/* 民宿卡片列表 - 瀑布流布局 */}
-      <div className={styles.listSection}>
-        {/* 刷新提示 */}
-        {refreshing && (
-          <div className={styles.refreshTip}>
-            <span className={styles.spinner} />
-            正在刷新数据中...
-          </div>
-        )}
+      {/* 热门推荐区域 */}
+      <div className={styles.recommendSection}>
+        <div className={styles.recommendHeader}>
+          <h2 className={styles.sectionTitle}>🔥 热门推荐</h2>
+        </div>
 
-        <div className={styles.listTitle}>🔥 热门民宿推荐</div>
-        <div className={styles.cardGrid}>
-          {loading ? (
-            // 显示骨架屏加载状态
-            <HomeStayCardSkeleton count={6} />
-          ) : homestays.length > 0 ? (
-            // 显示卡片列表
-            homestays.map((homestay) => (
-              <div key={homestay._id} className={styles.cardWrapper}>
-                <HomeStayCard
-                  data={homestay}
-                  onClick={() => navigate(`/hotel-detail/homestay/${homestay._id}`)}
-                  showStar
-                />
+        {/* 民宿列表 */}
+        <div className={styles.listSection}>
+          {refreshing && (
+            <div className={styles.refreshTip}>
+              <span className={styles.spinner} />
+              正在刷新数据中...
+            </div>
+          )}
+
+          <div className={styles.cardGrid}>
+            {loading ? (
+              <HomeStayCardSkeleton count={6} />
+            ) : homestays.length > 0 ? (
+              homestays.map((homestay) => (
+                <div key={homestay._id} className={styles.cardWrapper}>
+                  <HomeStayCard
+                    data={homestay}
+                    onClick={() => navigate(`/hotel-detail/homestay/${homestay._id}`)}
+                    showStar
+                  />
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyState}>
+                <p>暂无相关民宿</p>
               </div>
-            ))
-          ) : (
-            <div className={styles.emptyState}>
-              <p>暂无相关民宿</p>
+            )}
+          </div>
+
+          {loading && (
+            <div className={styles.loadingState}>
+              <p>加载中...</p>
             </div>
           )}
         </div>
-
-        {loading && (
-          <div className={styles.loadingState}>
-            <p>加载中...</p>
-          </div>
-        )}
       </div>
 
       {/* 底部安全区间距 */}
