@@ -1,7 +1,12 @@
 .container {
-  margin-bottom: 12px;
+  margin-bottom: 0px;
   overflow: hidden;
   padding-bottom: 0;
+  position: relative;
+
+  &:hover .sliderTrack {
+    opacity: 1;
+  }
 }
 
 .scrollWrapper {
@@ -14,6 +19,9 @@
   scroll-behavior: smooth;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
+  user-select: none;
+  width: 100%;
+  flex: 1;
 
   // 隐藏滚动条
   &::-webkit-scrollbar {
@@ -31,8 +39,8 @@
   min-width: max-content;
   height: 32px;
   padding: 0 12px;
-  background-color: #ffffff;
   color: #333;
+  background-color: rgba(230, 229, 229, 0.25);
   border: 1px solid #e8e8e8;
   border-radius: 16px;
   font-size: 13px;
@@ -94,6 +102,28 @@
   font-weight: 700;
   margin-left: 2px;
   flex-shrink: 0;
+}
+
+.sliderTrack {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #e8e8e8;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.sliderThumb {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background-color: #999;
+  border-radius: 4px;
+  transition: left 0.1s linear;
 }
 
 .label {

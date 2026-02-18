@@ -7,7 +7,7 @@ interface RoomTypeSelectorProps {
     rooms?: number;
     beds?: number;
     guests?: number;
-    onChange?: (rooms: number, beds: number, guests: number) => void;
+    onChange?: (guests: number, beds: number, rooms: number) => void;
 }
 declare const _default: React.NamedExoticComponent<RoomTypeSelectorProps>;
 export default _default;

@@ -1,15 +1,13 @@
 .container {
-  margin-bottom: 12px;
+  margin-bottom: 0px;
 }
 
 .displayBox {
   display: flex;
   align-items: center;
   height: 56px;
-  background-color: #ffffff;
   border-radius: 8px;
   padding: 0 12px;
-  border: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.2s ease;
   gap: 10px;
@@ -36,7 +34,7 @@
 
 .text {
   flex: 1;
-  font-size: 15px;
+  font-size: 17px;
   color: #333;
   font-weight: 500;
   line-height: 1.4;
@@ -58,7 +56,6 @@
 // Popup 选择容器
 .pickerContainer {
   width: 100%;
-  background-color: #ffffff;
   border-radius: 16px 16px 0 0;
   padding-bottom: 32px;
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);

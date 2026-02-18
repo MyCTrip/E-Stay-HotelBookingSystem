@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
-import SearchBar from '../../../components/homestay/home/SearchBar'
-import LocationTabs from '../../../components/homestay/home/LocationTabs'
 import LocationInput from '../../../components/homestay/home/LocationInput'
 import DateTimeRangeSelector from '../../../components/homestay/home/DateTimeRangeSelector'
 import RoomTypeSelector from '../../../components/homestay/home/RoomTypeSelector'
+import PriceSelector from '../../../components/homestay/home/PriceSelector'
 import QuickFilters from '../../../components/homestay/home/QuickFilters'
 import SearchButton from '../../../components/homestay/home/SearchButton'
+import RecommendTypes from '../../../components/homestay/home/RecommendTypes'
 import HomeStayCard from '../../../components/homestay/home/HomeStayCard'
 import HomeStayCardSkeleton from '../../../components/homestay/home/HomeStayCardSkeleton'
+import BannerCarousel from '../../../components/homestay/home/BannerCarousel'
 import type { HomeStaySearchParams, HomeStay } from '@estay/shared'
 import { QUICK_FILTER_TAGS } from '@estay/shared'
 import styles from './index.module.scss'
@@ -148,10 +149,12 @@ const HomeStayPage: React.FC = () => {
     checkIn: dayjs().toDate(),
     checkOut: dayjs().add(1, 'day').toDate(),
     guests: 1,
-    rooms: 1,
-    beds: 1,
+    rooms: 0,
+    beds: 0,
     keyword: '',
     selectedTags: [],
+    priceMin: 0,
+    priceMax: 10000,
   })
 
   // UI状态
@@ -269,12 +272,21 @@ const HomeStayPage: React.FC = () => {
   }
 
   // 处理房间类型变化
-  const handleRoomTypeChange = (rooms: number, beds: number, guests: number) => {
+  const handleRoomTypeChange = (guests: number, beds: number, rooms: number) => {
     setSearchParams((prev) => ({
       ...prev,
-      rooms,
-      beds,
       guests,
+      beds,
+      rooms,
+    }))
+  }
+
+  // 处理价格筛选
+  const handlePriceFilter = (minPrice: number, maxPrice: number) => {
+    setSearchParams((prev) => ({
+      ...prev,
+      priceMin: minPrice,
+      priceMax: maxPrice,
     }))
   }
 
@@ -366,43 +378,41 @@ const HomeStayPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className={styles.container}>
-      {/* 搜索栏 - 固定在顶部 */}
-      <SearchBar
-        location={searchParams.city}
-        checkIn={dayjs(searchParams.checkIn).format('M月D')}
-        onFieldClick={(field) => setModalActive(field)}
-        scrollTop={scrollTop}
-        isTransparent={scrollTop < 50}
+      {/* 轮播 Banner */}
+      <BannerCarousel
+        autoPlay={true}
+        interval={3500}
+        onBannerClick={(item) => {
+          if (item.link) {
+            navigate(item.link)
+          }
+        }}
       />
 
-      {/* 让出SearchBar的空间 */}
-      <div className={styles.searchBarSpacer} />
-
-      {/* 地点分类标签 */}
-      <LocationTabs activeTab="domestic" onChange={(tab) => {
-        // TODO: 根据tab类型切换数据源
-      }} />
-
-      {/* 轮播 Banner */}
-      <div className={styles.banner}>
-        <div className={styles.bannerContent}>
-          <span>✨ 积分当钱花 - 每晚立享10倍积分</span>
-        </div>
-      </div>
-
-      {/* 紧凑搜索筛选区 */}
+      {/* 紧凑搜索筛选区 - 卡片式 */}
       <div className={styles.compactSearchSection}>
-        <div className={styles.searchGrid}>
-          {/* 第一行：日期和房间 */}
-          <div className={styles.rowContainer}>
-            <div className={styles.itemWrapper}>
-              <DateTimeRangeSelector
-                checkIn={searchParams.checkIn}
-                checkOut={searchParams.checkOut}
-                onDateChange={handleDateChange}
-              />
-            </div>
-            <div className={styles.itemWrapper}>
+        <div className={styles.searchCard}>
+          {/* 位置选择 */}
+          <div className={styles.cardItem}>
+            <LocationInput
+              city={searchParams.city}
+              onCityChange={handleLocationSelect}
+            />
+          </div>
+
+          {/* 日期选择 */}
+          <div className={styles.cardItem}>
+            <DateTimeRangeSelector
+              checkIn={searchParams.checkIn}
+              checkOut={searchParams.checkOut}
+              onDateChange={handleDateChange}
+            />
+          </div>
+
+          {/* 房间选择 + 价格筛选 同一行 */}
+          <div className={styles.dualRowContainer}>
+            {/* 房间选择 */}
+            <div className={styles.cardItem}>
               <RoomTypeSelector
                 rooms={searchParams.rooms}
                 beds={searchParams.beds}
@@ -410,10 +420,19 @@ const HomeStayPage: React.FC = () => {
                 onChange={handleRoomTypeChange}
               />
             </div>
+
+            {/* 价格筛选 */}
+            <div className={styles.cardItem}>
+              <PriceSelector
+                minPrice={searchParams.priceMin}
+                maxPrice={searchParams.priceMax}
+                onPriceChange={handlePriceFilter}
+              />
+            </div>
           </div>
 
-          {/* 第二行：快速筛选 */}
-          <div className={styles.filtersRow}>
+          {/* 快速筛选 */}
+          <div className={styles.cardItem}>
             <QuickFilters
               tags={QUICK_FILTER_TAGS}
               selectedTags={searchParams.selectedTags}
@@ -421,58 +440,54 @@ const HomeStayPage: React.FC = () => {
             />
           </div>
 
-          {/* 第三行：搜索按钮 */}
-          <div className={styles.buttonRow}>
+          {/* 搜索按钮 */}
+          <div className={styles.cardItem}>
             <SearchButton
               loading={loading}
               onClick={handleSearch}
-              label="搜索民宿"
+              label="开始搜索"
             />
           </div>
         </div>
       </div>
 
-      {/* 热门推荐区域 */}
-      <div className={styles.recommendSection}>
-        <div className={styles.recommendHeader}>
-          <h2 className={styles.sectionTitle}>🔥 热门推荐</h2>
-        </div>
+      {/* 推荐类型区域 */}
+      <RecommendTypes />
 
-        {/* 民宿列表 */}
-        <div className={styles.listSection}>
-          {refreshing && (
-            <div className={styles.refreshTip}>
-              <span className={styles.spinner} />
-              正在刷新数据中...
-            </div>
-          )}
-
-          <div className={styles.cardGrid}>
-            {loading ? (
-              <HomeStayCardSkeleton count={6} />
-            ) : homestays.length > 0 ? (
-              homestays.map((homestay) => (
-                <div key={homestay._id} className={styles.cardWrapper}>
-                  <HomeStayCard
-                    data={homestay}
-                    onClick={() => navigate(`/hotel-detail/homestay/${homestay._id}`)}
-                    showStar
-                  />
-                </div>
-              ))
-            ) : (
-              <div className={styles.emptyState}>
-                <p>暂无相关民宿</p>
-              </div>
-            )}
+      {/* 民宿列表 */}
+      <div className={styles.listSection}>
+        {refreshing && (
+          <div className={styles.refreshTip}>
+            <span className={styles.spinner} />
+            正在刷新数据中...
           </div>
+        )}
 
-          {loading && (
-            <div className={styles.loadingState}>
-              <p>加载中...</p>
+        <div className={styles.cardGrid}>
+          {loading ? (
+            <HomeStayCardSkeleton count={6} />
+          ) : homestays.length > 0 ? (
+            homestays.map((homestay) => (
+              <div key={homestay._id} className={styles.cardWrapper}>
+                <HomeStayCard
+                  data={homestay}
+                  onClick={() => navigate(`/hotel-detail/homestay/${homestay._id}`)}
+                  showStar
+                />
+              </div>
+            ))
+          ) : (
+            <div className={styles.emptyState}>
+              <p>暂无相关民宿</p>
             </div>
           )}
         </div>
+
+        {loading && (
+          <div className={styles.loadingState}>
+            <p>加载中...</p>
+          </div>
+        )}
       </div>
 
       {/* 底部安全区间距 */}

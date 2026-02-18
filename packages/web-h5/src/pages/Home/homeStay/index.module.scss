@@ -57,17 +57,66 @@
   z-index: 1;
 }
 
-// 搜索筛选区 - 新的紧凑布局
+// 搜索筛选区 - 卡片式布局
 .compactSearchSection {
-  background-color: #ffffff;
-  padding: 12px;
-  padding-left: max(12px, env(safe-area-inset-left));
-  padding-right: max(12px, env(safe-area-inset-right));
+  background-color: transparent;
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
   box-sizing: border-box;
-  border-bottom: 1px solid #f0f0f0;
-  position: sticky;
-  top: 104px;
-  z-index: 40;
+  margin-top: -350px;
+  margin-bottom: -10px;
+  position: relative;
+  z-index: 50;
+}
+
+// 搜索卡片 - 毛玻璃样式
+.searchCard {
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+// 卡片内的每一项
+.cardItem {
+  width: 95%;
+  padding: 4px -2px;
+  margin: auto;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+
+  &:last-child {
+    border-bottom: none;
+    padding: 0;
+  }
+}
+
+// 双列行容器 - 房间选择和价格筛选在同一行
+.dualRowContainer {
+  width: 95%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  .cardItem {
+    width: 100%;
+    margin: 0;
+    border-bottom: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 4px -2px;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
 }
 
 .searchGrid {

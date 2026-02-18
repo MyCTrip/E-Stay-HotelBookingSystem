@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
-import { DatePicker, Popup } from '@nutui/nutui-react'
+import DateRangeCalendar from '../DateRangeCalendar'
 import styles from './index.module.scss'
 
 dayjs.extend(relativeTime)
@@ -29,10 +29,7 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
   const [tempCheckOut, setTempCheckOut] = useState<Date>(
     checkOut || dayjs().add(1, 'day').toDate()
   )
-  const [showPicker, setShowPicker] = useState(false)
-  const [pickerType, setPickerType] = useState<'checkIn' | 'checkOut'>(
-    'checkIn'
-  )
+  const [showCalendar, setShowCalendar] = useState(false)
 
   const nights = dayjs(tempCheckOut).diff(dayjs(tempCheckIn), 'day')
 
@@ -54,37 +51,11 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
     return d.format('M月D日')
   }
 
-  const handleDatePick = (date: Date | string) => {
-    const selectedDate = new Date(date)
-
-    if (pickerType === 'checkIn') {
-      // 如果选择的入住日期晚于离住日期，自动调整离住日期
-      if (selectedDate >= tempCheckOut) {
-        const newCheckOut = dayjs(selectedDate).add(1, 'day').toDate()
-        setTempCheckIn(selectedDate)
-        setTempCheckOut(newCheckOut)
-      } else {
-        setTempCheckIn(selectedDate)
-      }
-    } else {
-      // 离住日期必须晚于入住日期
-      if (selectedDate <= tempCheckIn) {
-        return
-      }
-      setTempCheckOut(selectedDate)
-    }
-
-    setShowPicker(false)
-  }
-
-  const handleConfirm = () => {
-    onDateChange?.(tempCheckIn, tempCheckOut)
-    setShowPicker(false)
-  }
-
-  const handlePickerOpen = (type: 'checkIn' | 'checkOut') => {
-    setPickerType(type)
-    setShowPicker(true)
+  const handleDateRangeSelect = (newCheckIn: Date, newCheckOut: Date) => {
+    setTempCheckIn(newCheckIn)
+    setTempCheckOut(newCheckOut)
+    onDateChange?.(newCheckIn, newCheckOut)
+    setShowCalendar(false)
   }
 
   return (
@@ -93,7 +64,7 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
         {/* 入住日期 */}
         <div
           className={styles.dateSection}
-          onClick={() => handlePickerOpen('checkIn')}
+          onClick={() => setShowCalendar(true)}
         >
           <div className={styles.dateValue}>
             {formatDateLabel(tempCheckIn)}
@@ -107,7 +78,7 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
         {/* 离住日期 */}
         <div
           className={styles.dateSection}
-          onClick={() => handlePickerOpen('checkOut')}
+          onClick={() => setShowCalendar(true)}
         >
           <div className={styles.dateValue}>
             {formatDateLabel(tempCheckOut)}
@@ -119,38 +90,18 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
         <div className={styles.rightSection}>
           <div className={styles.nightsInfo}>
             <span className={styles.nightsLabel}>共{nights}晚</span>
-            <span className={styles.icon}>📅</span>
           </div>
         </div>
       </div>
 
-      {/* 日期选择Popup */}
-      <Popup
-        visible={showPicker}
-        position="bottom"
-        onClose={() => setShowPicker(false)}
-        style={{ height: '400px' }}
-      >
-        <div className={styles.pickerContainer}>
-          <DatePicker
-            value={new Date(pickerType === 'checkIn' ? tempCheckIn : tempCheckOut)}
-            startDate={dayjs().toDate()}
-            endDate={dayjs().add(365, 'day').toDate()}
-            type="date"
-          />
-          <div className={styles.pickerFooter}>
-            <button
-              className={styles.cancelBtn}
-              onClick={() => setShowPicker(false)}
-            >
-              取消
-            </button>
-            <button className={styles.confirmBtn} onClick={handleConfirm}>
-              确定
-            </button>
-          </div>
-        </div>
-      </Popup>
+      {/* 日期范围日历 */}
+      <DateRangeCalendar
+        visible={showCalendar}
+        checkIn={tempCheckIn}
+        checkOut={tempCheckOut}
+        onSelect={handleDateRangeSelect}
+        onClose={() => setShowCalendar(false)}
+      />
     </div>
   )
 }
