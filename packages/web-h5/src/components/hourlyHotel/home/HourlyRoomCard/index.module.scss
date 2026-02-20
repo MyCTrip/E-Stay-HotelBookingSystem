@@ -1,0 +1,213 @@
+.card {
+    // 🌟 改动 1：确保卡片本身占满外层网格的高度，并使用竖向 Flex 布局
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+
+    // 🌟 改动 2 (核心中的核心)：
+    // 去掉之前的所有高度设置 (如 height: 180px 或 padding-bottom: 80%)
+    // 加上 flex: 1; 这会让图片容器自动拉伸，占据卡片里除了内容区以外的所有剩余空间！
+    flex: 1;
+
+    background-color: #f5f5f5;
+    min-height: 150px; // 给一个最小高度兜底，防止极端情况下图片太矮
+}
+
+.coverImg {
+    position: absolute; // 配合相对定位的父容器
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; // 确保图片撑满这个动态拉伸的容器
+    object-fit: cover; // 裁剪以保持比例，不拉扁
+}
+
+// 图片左下角的橘色标签
+.imageBadge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: linear-gradient(90deg, #ff7a00, #ffa033);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 6px;
+    border-radius: 4px;
+    z-index: 2;
+}
+
+// 右上角心形图标
+// 右上角心形图标
+.heartIcon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 2;
+    cursor: pointer; // 🌟 加上小手光标
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // 🌟 加上平滑动画
+
+    // 🌟 鼠标点按下去时的缩放效果
+    &:active {
+        transform: scale(0.85);
+    }
+
+    svg {
+        width: 14px;
+        height: 14px;
+        transition: fill 0.2s ease;
+    }
+
+    // 🌟 核心：被收藏时的样式，变成红色
+    &.favorited {
+        color: #ff4d4f; // 红色
+        background: rgba(255, 255, 255, 0.9); // 收藏后背景变成白色，更醒目
+    }
+}
+
+.infoContainer {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+
+    // 🌟 改动 3：确保内容区域不拉伸
+    // flex-grow: 0; 让它只占用内容本身需要的高度，保持紧凑。
+    flex-grow: 0;
+    flex-shrink: 0; // 也不许压缩
+}
+
+// --- 以下为内容区域的样式 (保持不变) ---
+
+.locationRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.pinIcon {
+    width: 12px;
+    height: 12px;
+    color: #ff4d4f;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.address {
+    font-size: 12px;
+    color: #666;
+    // 原生CSS省略
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+    // 原生CSS省略
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tagsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.timeSlotBadge {
+    font-size: 10px;
+    color: #0066ff;
+    background-color: #e6f0ff;
+    border: 1px solid rgba(0, 102, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.tag {
+    font-size: 10px;
+    color: #666;
+    background-color: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.priceRow {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 4px; // 内容紧凑，不需要 auto
+}
+
+.priceContainer {
+    display: flex;
+    align-items: baseline;
+    color: #ff6b00;
+    line-height: 1;
+}
+
+.currency {
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 2px;
+}
+
+.price {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: DINAlternate-Bold, sans-serif;
+}
+
+.unit {
+    font-size: 12px;
+    color: #999;
+    margin-left: 4px;
+}
+
+.scoreRow {
+    display: flex;
+    align-items: baseline;
+}
+
+.score {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffb000;
+    margin-right: 4px;
+    font-family: DINAlternate-Bold, sans-serif;
+}
+
+.commentText {
+    font-size: 12px;
+    color: #999;
+}

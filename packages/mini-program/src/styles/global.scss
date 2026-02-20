@@ -1,0 +1,216 @@
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 容器样式 */
+.container {
+  width: 100%;
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  overflow-x: hidden;
+}
+
+/* 横幅样式 */
+.banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 80rpx 40rpx;
+  margin-bottom: 40rpx;
+  border-radius: 16rpx;
+  text-align: center;
+}
+
+.bannerContent {
+  max-width: 920rpx;
+  margin: 0 auto;
+}
+
+.bannerContent text {
+  display: block;
+  font-size: 32rpx;
+  line-height: 1.4;
+  margin-bottom: 20rpx;
+}
+
+.bannerContent text:first-child {
+  font-size: 48rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+}
+
+/* 搜索表单样式 */
+.searchSection {
+  background: white;
+  padding: 40rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  margin-bottom: 60rpx;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30rpx;
+}
+
+.formGroup text {
+  font-weight: 600;
+  margin-bottom: 10rpx;
+  color: #333;
+  font-size: 28rpx;
+}
+
+.pickerBox,
+.inputBox {
+  padding: 24rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 8rpx;
+  background: #fff;
+  margin-top: 10rpx;
+}
+
+.inputBox {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.inputBox button {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #ddd;
+  background: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.guestCount {
+  margin: 0 30rpx;
+  font-size: 28rpx;
+}
+
+.searchButton {
+  padding: 24rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 30rpx;
+  width: 100%;
+}
+
+/* 特色推荐样式 */
+.features {
+  background: white;
+  padding: 60rpx 40rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.features text:first-child {
+  display: block;
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 40rpx;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40rpx;
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 20rpx;
+}
+
+.icon {
+  font-size: 60rpx;
+  margin-bottom: 20rpx;
+}
+
+.featureCard text {
+  display: block;
+  text-align: center;
+  margin-bottom: 10rpx;
+}
+
+.featureCard text:nth-child(2) {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.featureCard text:nth-child(3) {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .banner {
+    padding: 40rpx 20rpx;
+  }
+
+  .bannerContent text:first-child {
+    font-size: 36rpx;
+  }
+
+  .bannerContent text {
+    font-size: 24rpx;
+  }
+
+  .searchSection {
+    padding: 30rpx;
+  }
+
+  .formGroup text {
+    font-size: 24rpx;
+  }
+
+  .pickerBox,
+  .inputBox {
+    padding: 20rpx;
+  }
+
+  .searchButton {
+    padding: 20rpx;
+    font-size: 28rpx;
+  }
+
+  .features {
+    padding: 40rpx 20rpx;
+  }
+
+  .features text:first-child {
+    font-size: 32rpx;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .featureCard text:nth-child(2) {
+    font-size: 24rpx;
+  }
+
+  .featureCard text:nth-child(3) {
+    font-size: 20rpx;
+  }
+}

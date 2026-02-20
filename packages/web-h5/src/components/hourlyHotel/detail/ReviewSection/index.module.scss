@@ -1,0 +1,182 @@
+/* 用户评价区样式 */
+
+.section {
+  padding: 24px 16px;
+  background-color: #fff;
+  margin: 8px 0;
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* 评分概览 */
+.scoreOverview {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.scoreMain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+}
+
+.number {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0066FF;
+}
+
+.stars {
+  font-size: 20px;
+}
+
+.count {
+  font-size: 12px;
+  color: #999;
+}
+
+.scoreDistribution {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.label {
+  width: 30px;
+  color: #666;
+}
+
+.bar {
+  flex: 1;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background-color: #FDB927;
+}
+
+/* 标签云 */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tag {
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  background-color: transparent;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    border-color: #0066FF;
+    background-color: rgba(0, 102, 255, 0.05);
+    color: #0066FF;
+  }
+}
+
+/* 评价列表 */
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.reviewItem {
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.author {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.rating {
+  font-size: 12px;
+  color: #FDB927;
+  margin-top: 2px;
+}
+
+.date {
+  font-size: 12px;
+  color: #999;
+}
+
+.content {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.viewAll {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #0066FF;
+  border-radius: 8px;
+  background: transparent;
+  color: #0066FF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    background-color: rgba(0, 102, 255, 0.05);
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 16px 12px;
+  }
+
+  .scoreOverview {
+    gap: 16px;
+  }
+
+  .number {
+    font-size: 28px;
+  }
+
+  .scoreDistribution {
+    gap: 6px;
+  }
+}

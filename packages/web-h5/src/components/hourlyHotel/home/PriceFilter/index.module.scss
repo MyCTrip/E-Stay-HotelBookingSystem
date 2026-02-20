@@ -1,0 +1,255 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 80vh;
+  background-color: #ffffff;
+  border-radius: 12px 12px 0 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.drawer.active {
+  transform: translateY(0);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.closeBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 24px;
+  padding: 0;
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.placeholder {
+  width: 40px;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.priceRangeInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+}
+
+.rangeLabel {
+  font-weight: 500;
+}
+
+.sliderContainer {
+  position: relative;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.sliderTrack {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.sliderFill {
+  position: absolute;
+  height: 100%;
+  background-color: #0066ff;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.slider {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 6px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+  transform: translateY(-50%);
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 3px solid #0066ff;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 3px solid #0066ff;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.sliderMin {
+  z-index: 5;
+}
+
+.sliderMax {
+  z-index: 4;
+}
+
+.priceRanges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.priceBtn {
+  padding: 12px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.active {
+    background-color: #0066ff;
+    color: #ffffff;
+    border-color: #0066ff;
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+  background-color: #ffffff;
+}
+
+.resetBtn {
+  flex: 1;
+  height: 44px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #999;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.confirmBtn {
+  flex: 1.5;
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0066ff;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+}
