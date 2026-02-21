@@ -71,9 +71,7 @@ const RoomDrawerPrice: React.FC<RoomDrawerPriceProps> = ({ room }) => {
           </div>
 
           {/* 价格提示 */}
-          <div className={styles.priceHint}>
-            相比平均价格便宜 30%，今日仅剩 3 间
-          </div>
+          <div className={styles.priceHint}>相比平均价格便宜 30%，今日仅剩 3 间</div>
         </div>
 
         {/* 优惠信息展示 */}

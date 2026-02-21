@@ -21,6 +21,6 @@ export default defineAppConfig({
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fff',
     navigationBarTitleText: 'E-Stay 酒店预订',
-    navigationBarTextStyle: 'black'
+    navigationBarTextStyle: 'black',
   },
 })

@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
+import SlideDrawer from '../../shared/SlideDrawer'
 import DateRangeCalendar from '../DateRangeCalendar'
 import styles from './index.module.scss'
 
@@ -23,12 +24,8 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
   checkOut,
   onDateChange,
 }) => {
-  const [tempCheckIn, setTempCheckIn] = useState<Date>(
-    checkIn || dayjs().toDate()
-  )
-  const [tempCheckOut, setTempCheckOut] = useState<Date>(
-    checkOut || dayjs().add(1, 'day').toDate()
-  )
+  const [tempCheckIn, setTempCheckIn] = useState<Date>(checkIn || dayjs().toDate())
+  const [tempCheckOut, setTempCheckOut] = useState<Date>(checkOut || dayjs().add(1, 'day').toDate())
   const [showCalendar, setShowCalendar] = useState(false)
 
   const nights = dayjs(tempCheckOut).diff(dayjs(tempCheckIn), 'day')
@@ -62,13 +59,8 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
     <div className={styles.container}>
       <div className={styles.wrapper}>
         {/* 入住日期 */}
-        <div
-          className={styles.dateSection}
-          onClick={() => setShowCalendar(true)}
-        >
-          <div className={styles.dateValue}>
-            {formatDateLabel(tempCheckIn)}
-          </div>
+        <div className={styles.dateSection} onClick={() => setShowCalendar(true)}>
+          <div className={styles.dateValue}>{formatDateLabel(tempCheckIn)}</div>
           <div className={styles.dateLabel}>入住</div>
         </div>
 
@@ -76,13 +68,8 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
         <div className={styles.divider} />
 
         {/* 离住日期 */}
-        <div
-          className={styles.dateSection}
-          onClick={() => setShowCalendar(true)}
-        >
-          <div className={styles.dateValue}>
-            {formatDateLabel(tempCheckOut)}
-          </div>
+        <div className={styles.dateSection} onClick={() => setShowCalendar(true)}>
+          <div className={styles.dateValue}>{formatDateLabel(tempCheckOut)}</div>
           <div className={styles.dateLabel}>离住</div>
         </div>
 
@@ -94,14 +81,20 @@ const DateTimeRangeSelector: React.FC<DateTimeRangeSelectorProps> = ({
         </div>
       </div>
 
-      {/* 日期范围日历 */}
-      <DateRangeCalendar
+      {/* 日期范围日历抽屉 */}
+      <SlideDrawer
         visible={showCalendar}
-        checkIn={tempCheckIn}
-        checkOut={tempCheckOut}
-        onSelect={handleDateRangeSelect}
+        title="选择入离日期"
+        direction="bottom"
         onClose={() => setShowCalendar(false)}
-      />
+      >
+        <DateRangeCalendar
+          checkIn={tempCheckIn}
+          checkOut={tempCheckOut}
+          onSelect={handleDateRangeSelect}
+          onClose={() => setShowCalendar(false)}
+        />
+      </SlideDrawer>
     </div>
   )
 }

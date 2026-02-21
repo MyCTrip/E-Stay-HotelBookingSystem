@@ -4,11 +4,13 @@
  */
 import React from 'react';
 interface PriceFilterProps {
-    visible: boolean;
+    visible?: boolean;
     minPrice?: number;
     maxPrice?: number;
     onSelect: (minPrice: number, maxPrice: number) => void;
     onClose: () => void;
+    usePortal?: boolean;
+    showFooter?: boolean;
 }
 declare const PriceFilter: React.FC<PriceFilterProps>;
 export default PriceFilter;

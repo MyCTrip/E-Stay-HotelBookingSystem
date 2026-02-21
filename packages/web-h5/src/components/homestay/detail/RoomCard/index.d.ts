@@ -13,12 +13,18 @@ interface Room {
     priceNote: string;
     benefits: string[];
     packageCount: number;
+    showBreakfastTag?: boolean;
+    breakfastCount?: number;
+    showCancelTag?: boolean;
+    hasPackageDetail?: boolean;
 }
 interface RoomCardProps {
     room: Room;
     isExpanded: boolean;
     onToggleExpand: () => void;
     onViewDetails?: (room: Room) => void;
+    onOpenDetail?: (room: Room) => void;
+    showLabel?: boolean;
 }
 declare const RoomCard: React.FC<RoomCardProps>;
 export default RoomCard;

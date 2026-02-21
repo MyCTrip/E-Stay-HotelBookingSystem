@@ -5,7 +5,7 @@
 import React from 'react'
 import styles from './index.module.scss'
 
-export type TabKey = 'rooms' | 'facilities' | 'reviews' | 'policies' | 'nearby'
+export type TabKey = 'overview' | 'rooms' | 'reviews' | 'facilities' | 'policies' | 'knowledge' | 'nearby' | 'host'
 
 interface Tab {
   key: TabKey
@@ -13,19 +13,22 @@ interface Tab {
 }
 
 const tabs: Tab[] = [
-  { key: 'rooms', label: '房型' },
+  { key: 'overview', label: '概览' },
+  { key: 'rooms', label: '房源' },
+  { key: 'reviews', label: '点评' },
   { key: 'facilities', label: '设施' },
-  { key: 'reviews', label: '评价' },
-  { key: 'policies', label: '政策' },
-  { key: 'nearby', label: '周边' },
+  { key: 'policies', label: '须知' },
+  { key: 'knowledge', label: '周边' },
+  { key: 'nearby', label: '附近' },
+  { key: 'host', label: '房东' },
 ]
 
 interface DetailTabsProps {
-  activeTab: TabKey
-  onChange: (tab: TabKey) => void
+  activeTab?: TabKey
+  onChange?: (tab: TabKey) => void
 }
 
-const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab, onChange }) => {
+const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab = 'overview', onChange = () => {} }) => {
   return (
     <div className={styles.tabsWrapper}>
       <div className={styles.tabs}>
@@ -33,7 +36,7 @@ const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab, onChange }) => {
           <button
             key={tab.key}
             className={`${styles.tab} ${activeTab === tab.key ? styles.active : ''}`}
-            onClick={() => onChange(tab.key)}
+            onClick={() => onChange?.(tab.key)}
           >
             <span className={styles.label}>{tab.label}</span>
             {activeTab === tab.key && <div className={styles.underline} />}

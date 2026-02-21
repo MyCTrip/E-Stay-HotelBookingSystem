@@ -4,6 +4,10 @@
   padding: 24px 16px;
   background-color: #fff;
   margin: 8px 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: calc(100% - 28px);
+  margin-left: 14px;
 }
 
 .title {
@@ -31,7 +35,7 @@
 .number {
   font-size: 32px;
   font-weight: 700;
-  color: #0066FF;
+  color: #0066ff;
 }
 
 .stars {
@@ -72,7 +76,7 @@
 
 .fill {
   height: 100%;
-  background-color: #FDB927;
+  background-color: #fdb927;
 }
 
 /* 标签云 */
@@ -94,9 +98,9 @@
   transition: all 0.2s ease;
 
   &:active {
-    border-color: #0066FF;
+    border-color: #0066ff;
     background-color: rgba(0, 102, 255, 0.05);
-    color: #0066FF;
+    color: #0066ff;
   }
 }
 
@@ -129,7 +133,7 @@
 
 .rating {
   font-size: 12px;
-  color: #FDB927;
+  color: #fdb927;
   margin-top: 2px;
 }
 
@@ -149,10 +153,10 @@
   display: block;
   width: 100%;
   padding: 12px;
-  border: 1px solid #0066FF;
+  border: 1px solid #0066ff;
   border-radius: 8px;
   background: transparent;
-  color: #0066FF;
+  color: #0066ff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

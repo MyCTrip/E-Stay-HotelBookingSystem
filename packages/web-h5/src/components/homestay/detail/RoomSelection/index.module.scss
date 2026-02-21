@@ -1,48 +1,14 @@
-/* 房型选择区 */
+/* RoomSelection 房型选择组件 */
 
 .roomSelection {
-  padding: 24px 16px;
-  background-color: #f5f5f5;
-}
-
-.header {
-  margin-bottom: 16px;
-}
-
-.title {
-  margin: 0 0 4px 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-}
-
-.subtitle {
-  margin: 0;
-  font-size: 13px;
-  color: #999;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .roomList {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-@media (max-width: 768px) {
-  .roomSelection {
-    padding: 16px 12px;
-  }
-
-  .header {
-    margin-bottom: 12px;
-  }
-
-  .title {
-    font-size: 16px;
-    margin-bottom: 4px;
-  }
-
-  .roomList {
-    gap: 10px;
-  }
 }

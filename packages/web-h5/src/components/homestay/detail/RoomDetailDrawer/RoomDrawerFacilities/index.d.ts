@@ -1,14 +1,12 @@
 /**
- * 设施与服务信息
+ * 房型详情 - 设施与服务信息
  */
 import React from 'react';
-interface Room {
-    id: string;
-    [key: string]: any;
-}
 interface RoomDrawerFacilitiesProps {
-    room: Room;
+    room?: any;
+    expandedInitially?: boolean;
+    onClose?: () => void;
 }
-declare const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps>;
+declare const RoomDrawerFacilities: React.ForwardRefExoticComponent<RoomDrawerFacilitiesProps & React.RefAttributes<HTMLDivElement>>;
 export default RoomDrawerFacilities;
 //# sourceMappingURL=index.d.ts.map

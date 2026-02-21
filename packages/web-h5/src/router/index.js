@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
         errorElement: _jsx(NotFoundPage, {}),
         children: [
             {
-                path: "/",
+                path: '/',
                 element: _jsx(Navigate, { to: "/hotel", replace: true }),
             },
             {

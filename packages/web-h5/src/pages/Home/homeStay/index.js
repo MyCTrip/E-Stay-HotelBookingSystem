@@ -295,9 +295,9 @@ const HomeStayPage = () => {
         setLoading(true);
         try {
             // 模拟搜索延迟
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
             // 根据选中的城市和标签过滤数据
-            const filtered = MOCK_HOMESTAYS.filter(homestay => {
+            const filtered = MOCK_HOMESTAYS.filter((homestay) => {
                 // 城市过滤
                 if (homestay.baseInfo.city !== searchParams.city) {
                     return false;

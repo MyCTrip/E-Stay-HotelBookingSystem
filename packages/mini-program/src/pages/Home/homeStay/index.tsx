@@ -145,17 +145,10 @@ const HomeStayPage: React.FC = () => {
       />
 
       {/* 可滚动内容 */}
-      <ScrollView
-        scrollY
-        className={styles.scrollView}
-        onScroll={handleScroll}
-      >
+      <ScrollView scrollY className={styles.scrollView} onScroll={handleScroll}>
         <View className={styles.content}>
           {/* 地点分类Tabs */}
-          <LocationTabs
-            activeTab={activeTab}
-            onChange={(tab) => setActiveTab(tab)}
-          />
+          <LocationTabs activeTab={activeTab} onChange={(tab) => setActiveTab(tab)} />
 
           {/* 地点输入 */}
           <LocationInput
@@ -187,11 +180,7 @@ const HomeStayPage: React.FC = () => {
           />
 
           {/* 搜索按钮 */}
-          <SearchButton
-            loading={loading}
-            onClick={handleSearch}
-            label="查询"
-          />
+          <SearchButton loading={loading} onClick={handleSearch} label="查询" />
 
           {/* 分割线 */}
           <View className={styles.divider} />
@@ -200,27 +189,21 @@ const HomeStayPage: React.FC = () => {
           <HotStaysSection
             title="推荐"
             data={hotStays.slice(0, 8)}
-            onCardClick={(id) =>
-              router.push(`/pages/hotel-detail/homeStay/index?id=${id}`)
-            }
+            onCardClick={(id) => router.push(`/pages/hotel-detail/homeStay/index?id=${id}`)}
             loading={loading}
           />
 
           <HotStaysSection
             title="都会团购"
             data={hotStays.slice(8, 16)}
-            onCardClick={(id) =>
-              router.push(`/pages/hotel-detail/homeStay/index?id=${id}`)
-            }
+            onCardClick={(id) => router.push(`/pages/hotel-detail/homeStay/index?id=${id}`)}
             loading={loading}
           />
 
           <HotStaysSection
             title="迪士尼出门"
             data={hotStays.slice(16, 24)}
-            onCardClick={(id) =>
-              router.push(`/pages/hotel-detail/homeStay/index?id=${id}`)
-            }
+            onCardClick={(id) => router.push(`/pages/hotel-detail/homeStay/index?id=${id}`)}
             loading={loading}
           />
 

@@ -35,9 +35,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       {/* 顶部导航 */}
       <View className={styles.header}>
         <View className={styles.headerContent}>
-          <View className={styles.logo}>
-            🏨 E-Stay
-          </View>
+          <View className={styles.logo}>🏨 E-Stay</View>
           <View className={styles.nav}>
             {categories.map((cat) => (
               <View
@@ -59,9 +57,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       </View>
 
       {/* 主要内容 - 显示页面内容 */}
-      <View className={styles.main}>
-        {children}
-      </View>
+      <View className={styles.main}>{children}</View>
 
       {/* 底部导航 - 仅在移动端显示 */}
       <View className={styles.mobileNav}>
@@ -72,10 +68,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
             onClick={() => {
               setActiveCategory(cat.id)
               if (cat.id === 'domestic') navigate.go('HOME_HOTEL')
-                  if (cat.id === 'hourly') navigate.go('HOME_HOURLY')
-                  if (cat.id === 'homestay') navigate.go('HOME_HOMESTAY')
+              if (cat.id === 'hourly') navigate.go('HOME_HOURLY')
+              if (cat.id === 'homestay') navigate.go('HOME_HOMESTAY')
             }}
-
           >
             <Text className={styles.mobileNavIcon}>{cat.icon}</Text>
             <Text className={styles.mobileNavLabel}>{cat.label}</Text>

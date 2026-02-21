@@ -26,7 +26,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
     if (!homestay.rooms || homestay.rooms.length === 0) {
       return 299 // 默认价格
     }
-    return Math.min(...homestay.rooms.map(room => room.baseInfo?.price || 299))
+    return Math.min(...homestay.rooms.map((room) => room.baseInfo?.price || 299))
   }, [homestay.rooms])
 
   const handleClick = () => {
@@ -56,9 +56,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
         {/* 地址 */}
         <div className={styles.location}>
           <LocationIcon />
-          <span className={styles.locationText}>
-            {homestay.baseInfo?.address}
-          </span>
+          <span className={styles.locationText}>{homestay.baseInfo?.address}</span>
         </div>
 
         {/* 标签 */}

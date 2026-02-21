@@ -13,16 +13,8 @@ export const QualityHouseIcon: React.FC<{ size?: number }> = ({ size = 40 }) => 
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M24 6L8 18V40H40V18L24 6Z"
-      fill="currentColor"
-      opacity="0.8"
-    />
-    <path
-      d="M24 12L10 22V38H38V22L24 12Z"
-      fill="white"
-      opacity="0.5"
-    />
+    <path d="M24 6L8 18V40H40V18L24 6Z" fill="currentColor" opacity="0.8" />
+    <path d="M24 12L10 22V38H38V22L24 12Z" fill="white" opacity="0.5" />
     <rect x="14" y="24" width="8" height="8" fill="currentColor" opacity="0.6" />
     <rect x="26" y="24" width="8" height="8" fill="currentColor" opacity="0.6" />
   </svg>
@@ -42,7 +34,12 @@ export const PetFriendlyIcon: React.FC<{ size?: number }> = ({ size = 40 }) => (
     <path d="M40 28C40 24 36 22 32 22C29 22 27 24 27 27V36C27 38.2 28.8 40 31 40H33C35.2 40 37 38.2 37 36V28C37 28 40 28 40 28Z" />
     <ellipse cx="14" cy="14" rx="2.5" ry="3" />
     <ellipse cx="34" cy="14" rx="2.5" ry="3" />
-    <path d="M22 8C22 10 23 12 24 12C25 12 26 10 26 8" strokeWidth="1.5" fill="none" stroke="currentColor" />
+    <path
+      d="M22 8C22 10 23 12 24 12C25 12 26 10 26 8"
+      strokeWidth="1.5"
+      fill="none"
+      stroke="currentColor"
+    />
   </svg>
 )
 

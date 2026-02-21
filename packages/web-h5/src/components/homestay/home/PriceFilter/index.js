@@ -1,4 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { jsxs as _jsxs, jsx as _jsx, Fragment as _Fragment } from "react/jsx-runtime";
 /**
  * 价格筛选组件
  * 从网页窗口底部滑入，高度自适应
@@ -6,7 +6,7 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './index.module.scss';
-const PriceFilter = ({ visible, minPrice = 0, maxPrice = 10000, onSelect, onClose, }) => {
+const PriceFilter = ({ visible = true, minPrice = 0, maxPrice = 10000, onSelect, onClose, usePortal = true, showFooter = false, }) => {
     const [tempMinPrice, setTempMinPrice] = useState(minPrice);
     const [tempMaxPrice, setTempMaxPrice] = useState(maxPrice);
     const MIN_RANGE = 0;
@@ -49,13 +49,18 @@ const PriceFilter = ({ visible, minPrice = 0, maxPrice = 10000, onSelect, onClos
     const isRangeSelected = (min, max) => {
         return tempMinPrice === min && tempMaxPrice === max;
     };
-    return createPortal(_jsxs(_Fragment, { children: [visible && (_jsx("div", { className: styles.overlay, onClick: handleClose })), _jsxs("div", { className: `${styles.drawer} ${visible ? styles.active : ''}`, children: [_jsxs("div", { className: styles.header, children: [_jsx("button", { className: styles.closeBtn, onClick: onClose, children: "\u2715" }), _jsx("h2", { className: styles.title, children: "\u4EF7\u683C" }), _jsx("div", { className: styles.placeholder })] }), _jsxs("div", { className: styles.content, children: [_jsx("div", { className: styles.priceRangeInfo, children: _jsxs("span", { className: styles.rangeLabel, children: ["\u4EF7\u683C\u533A\u95F4 \u00A5", tempMinPrice, "-", tempMaxPrice === MAX_RANGE ? '不限' : tempMaxPrice] }) }), _jsxs("div", { className: styles.sliderContainer, children: [_jsx("div", { className: styles.sliderTrack, children: _jsx("div", { className: styles.sliderFill, style: {
-                                                left: `${(tempMinPrice / MAX_RANGE) * 100}%`,
-                                                right: `${100 - (tempMaxPrice / MAX_RANGE) * 100}%`,
-                                            } }) }), _jsx("input", { type: "range", min: MIN_RANGE, max: MAX_RANGE, value: tempMinPrice, onChange: handleMinChange, className: `${styles.slider} ${styles.sliderMin}` }), _jsx("input", { type: "range", min: MIN_RANGE, max: MAX_RANGE, value: tempMaxPrice, onChange: handleMaxChange, className: `${styles.slider} ${styles.sliderMax}` })] }), _jsx("div", { className: styles.priceRanges, children: priceRanges.map((range, index) => (_jsx("button", { className: `${styles.priceBtn} ${isRangeSelected(range.min, range.max) ? styles.active : ''}`, onClick: () => {
-                                        setTempMinPrice(range.min);
-                                        setTempMaxPrice(range.max);
-                                    }, children: range.label }, index))) })] }), _jsxs("div", { className: styles.footer, children: [_jsx("button", { className: styles.resetBtn, onClick: handleReset, children: "\u6E05\u7A7A" }), _jsx("button", { className: styles.confirmBtn, onClick: handleConfirm, children: "\u786E\u8BA4" })] })] })] }), document.body);
+    const content = (_jsxs(_Fragment, { children: [_jsx("div", { className: styles.priceRangeInfo, children: _jsxs("span", { className: styles.rangeLabel, children: ["\u4EF7\u683C\u533A\u95F4 \u00A5", tempMinPrice, "-", tempMaxPrice === MAX_RANGE ? '不限' : tempMaxPrice] }) }), _jsxs("div", { className: styles.sliderContainer, children: [_jsx("div", { className: styles.sliderTrack, children: _jsx("div", { className: styles.sliderFill, style: {
+                                left: `${(tempMinPrice / MAX_RANGE) * 100}%`,
+                                right: `${100 - (tempMaxPrice / MAX_RANGE) * 100}%`,
+                            } }) }), _jsx("input", { type: "range", min: MIN_RANGE, max: MAX_RANGE, value: tempMinPrice, onChange: handleMinChange, className: `${styles.slider} ${styles.sliderMin}` }), _jsx("input", { type: "range", min: MIN_RANGE, max: MAX_RANGE, value: tempMaxPrice, onChange: handleMaxChange, className: `${styles.slider} ${styles.sliderMax}` })] }), _jsx("div", { className: styles.priceRanges, children: priceRanges.map((range, index) => (_jsx("button", { className: `${styles.priceBtn} ${isRangeSelected(range.min, range.max) ? styles.active : ''}`, onClick: () => {
+                        setTempMinPrice(range.min);
+                        setTempMaxPrice(range.max);
+                    }, children: range.label }, index))) }), showFooter && (_jsxs("div", { className: styles.footer, children: [_jsx("button", { className: styles.resetBtn, onClick: handleReset, children: "\u6E05\u7A7A" }), _jsx("button", { className: styles.confirmBtn, onClick: handleConfirm, children: "\u786E\u8BA4" })] }))] }));
+    if (usePortal) {
+        return createPortal(_jsxs(_Fragment, { children: [visible && _jsx("div", { className: styles.overlay, onClick: handleClose }), _jsxs("div", { className: `${styles.drawer} ${visible ? styles.active : ''}`, children: [_jsxs("div", { className: styles.header, children: [_jsx("button", { className: styles.closeBtn, onClick: onClose, children: "\u2715" }), _jsx("h2", { className: styles.title, children: "\u4EF7\u683C" }), _jsx("div", { className: styles.placeholder })] }), _jsx("div", { className: styles.content, children: content })] })] }), document.body);
+    }
+    // 作为内容嵌入使用（不使用 portal）
+    return _jsx("div", { className: styles.content, children: content });
 };
 export default PriceFilter;
 //# sourceMappingURL=index.js.map

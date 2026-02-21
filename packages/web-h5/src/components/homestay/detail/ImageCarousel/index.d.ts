@@ -1,5 +1,5 @@
 /**
- * 沉浸式图片轮播区
+ * 沉浸式图片轮播区 - 支持平滑拖动交互
  */
 import React from 'react';
 interface ImageCarouselProps {

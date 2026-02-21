@@ -24,10 +24,7 @@ const TABS: Tab[] = [
   { id: 'weekly', label: '周租·旅居' },
 ]
 
-const LocationTabs: React.FC<LocationTabsProps> = ({
-  activeTab = 'domestic',
-  onChange,
-}) => {
+const LocationTabs: React.FC<LocationTabsProps> = ({ activeTab = 'domestic', onChange }) => {
   const [active, setActive] = useState<TabType>(activeTab)
 
   const handleTabClick = (tab: TabType) => {

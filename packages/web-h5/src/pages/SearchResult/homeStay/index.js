@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import SearchResultList from '../../../components/homestay/search/SearchResultList';
+import styles from './index.module.scss';
 // 模拟数据
 const MOCK_HOMESTAYS = [
     {
@@ -331,7 +332,7 @@ const SearchResultPage = () => {
         // 返回到搜索页面修改搜索条件
         navigate('/search', { state: { filters } });
     }, [filters, navigate]);
-    return (_jsx(SearchResultList, { data: homestays, loading: loading, filters: filters, onFiltersChange: handleFiltersChange, onModifySearch: handleModifySearch }));
+    return (_jsx("div", { className: styles.container, children: _jsx(SearchResultList, { data: homestays, loading: loading, filters: filters, onFiltersChange: handleFiltersChange, onModifySearch: handleModifySearch }) }));
 };
 export default SearchResultPage;
 //# sourceMappingURL=index.js.map

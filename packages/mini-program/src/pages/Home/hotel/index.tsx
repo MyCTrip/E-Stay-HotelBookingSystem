@@ -35,13 +35,16 @@ export default function HomeHotelPage() {
 
   const handleSearch = () => {
     const params = new URLSearchParams(
-      Object.entries(formData).reduce((acc, [key, value]) => {
-        acc[key] = String(value)
-        return acc
-      }, {} as Record<string, string>)
+      Object.entries(formData).reduce(
+        (acc, [key, value]) => {
+          acc[key] = String(value)
+          return acc
+        },
+        {} as Record<string, string>
+      )
     )
     Taro.navigateTo({
-      url: `/pages/SearchResult/hotel/index?${params.toString()}`
+      url: `/pages/SearchResult/hotel/index?${params.toString()}`,
     })
   }
 

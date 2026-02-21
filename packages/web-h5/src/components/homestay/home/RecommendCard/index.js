@@ -18,7 +18,7 @@ const RecommendCard = ({ homestay, onClick }) => {
         if (!homestay.rooms || homestay.rooms.length === 0) {
             return 299; // 默认价格
         }
-        return Math.min(...homestay.rooms.map(room => room.baseInfo?.price || 299));
+        return Math.min(...homestay.rooms.map((room) => room.baseInfo?.price || 299));
     }, [homestay.rooms]);
     const handleClick = () => {
         if (onClick) {

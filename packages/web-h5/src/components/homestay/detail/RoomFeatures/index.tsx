@@ -16,7 +16,8 @@ const RoomFeatures: React.FC<RoomFeaturesProps> = ({ data }) => {
       title: '4K高清摄影',
       subtitle: '房间视听',
       icon: '📷',
-      description: '1、交通便捷：步行到10分钟内某处下车入口广场\n2、房间内高端设施和视听设备\n3、商业汇集：主要卖场、百货等\n4、东方明珠、浦东跨江大桥等可直观看到',
+      description:
+        '1、交通便捷：步行到10分钟内某处下车入口广场\n2、房间内高端设施和视听设备\n3、商业汇集：主要卖场、百货等\n4、东方明珠、浦东跨江大桥等可直观看到',
       image: 'https://picsum.photos/300/200?random=feature1',
     },
     {
@@ -47,18 +48,12 @@ const RoomFeatures: React.FC<RoomFeaturesProps> = ({ data }) => {
             </div>
 
             {/* 特色描述 */}
-            <p className={styles.description}>
-              {feature.description}
-            </p>
+            <p className={styles.description}>{feature.description}</p>
 
             {/* 特色图片 */}
             {feature.image && (
               <div className={styles.imageContainer}>
-                <img
-                  src={feature.image}
-                  alt={feature.title}
-                  className={styles.image}
-                />
+                <img src={feature.image} alt={feature.title} className={styles.image} />
               </div>
             )}
           </div>

@@ -19,12 +19,12 @@
   border-bottom: 1px solid #f0f0f0;
   overflow-x: auto;
   overflow-y: hidden;
-  
+
   // 隐藏滚动条但保持可滚动
   &::-webkit-scrollbar {
     height: 0;
   }
-  
+
   // 内容不换行
   flex-wrap: nowrap;
 }

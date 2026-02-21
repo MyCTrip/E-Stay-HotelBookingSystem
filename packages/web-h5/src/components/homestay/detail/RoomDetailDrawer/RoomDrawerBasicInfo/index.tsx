@@ -3,6 +3,7 @@
  */
 
 import React from 'react'
+import { HouseIcon, UserIcon, AreaIcon , BedIcon, BreakfastIcon} from '../../../icons'
 import styles from './index.module.scss'
 
 interface Room {
@@ -25,31 +26,45 @@ const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room }) => {
       {/* 房型标题 */}
       <div className={styles.titleSection}>
         <h2 className={styles.roomName}>{room.name}</h2>
-        <div className={styles.noBreakfast}>无早餐</div>
+        <div className={styles.Breakfast}>
+          <div className={styles.BreakfastIcon}>
+            <BreakfastIcon width={20} height={20} color="#333333" />
+          </div>
+          无早餐
+        </div>
       </div>
 
       {/* 基本参数 - 横排展示 */}
       <div className={styles.statsRow}>
         <div className={styles.stat}>
-          <span className={styles.statIcon}>📏</span>
-          <span className={styles.statLabel}>公寓</span>
-          <span className={styles.statValue}>{room.area}</span>
+          <span className={styles.statIcon}><AreaIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>公寓•{room.area}</span>
+            <span className={styles.statLabel}>整套房屋</span>
+          </div>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statIcon}>🛏️</span>
-          <span className={styles.statLabel}>房间数</span>
-          <span className={styles.statValue}>3间</span>
+          <span className={styles.statIcon}><HouseIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>3卧1厅2卫1厨</span>
+          </div>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statIcon}>👥</span>
-          <span className={styles.statLabel}>最多入住</span>
-          <span className={styles.statValue}>{room.guests}</span>
+          <span className={styles.statIcon}><BedIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>5床</span>
+          </div>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statIcon}><UserIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>{room.guests}</span>
+          </div>
         </div>
       </div>
 
       {/* 床型详情表格 */}
       <div className={styles.bedSection}>
-        <h3 className={styles.sectionTitle}>床型详情</h3>
         <div className={styles.bedTable}>
           <div className={styles.bedTableHeader}>
             <span className={styles.col1}>卧室</span>
@@ -74,20 +89,6 @@ const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room }) => {
           </div>
         </div>
       </div>
-
-      {/* 权益标签 */}
-      {room.benefits && room.benefits.length > 0 && (
-        <div className={styles.benefitsSection}>
-          <h3 className={styles.sectionTitle}>房型权益</h3>
-          <div className={styles.benefitsList}>
-            {room.benefits.map((benefit, idx) => (
-              <span key={idx} className={styles.benefitTag}>
-                ✓ {benefit}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

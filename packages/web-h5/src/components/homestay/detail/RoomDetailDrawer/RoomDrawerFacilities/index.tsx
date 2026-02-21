@@ -1,94 +1,76 @@
 /**
- * 设施与服务信息
+ * 房型详情 - 设施与服务信息
  */
 
-import React from 'react'
+import React, { useState, useEffect, forwardRef } from 'react'
+import { CheckIcon, CrossIcon } from '../../../icons/FacilityIcons'
+import { FACILITY_CATEGORIES } from '../../../../../constants/facilities'
 import styles from './index.module.scss'
 
-interface Room {
-  id: string
-  [key: string]: any
-}
-
 interface RoomDrawerFacilitiesProps {
-  room: Room
+  room?: any
+  expandedInitially?: boolean
+  onClose?: () => void
 }
 
-// 分类设施数据
-const facilitiesData = [
+const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProps>((
   {
-    category: '服务和便利',
-    icon: '🛎️',
-    items: [
-      { name: '门房/传达', icon: '🚪' },
-      { name: '电梯', icon: '🛗' },
-      { name: '行李寄存', icon: '💼' },
-    ],
+    expandedInitially = false,
+    onClose,
   },
-  {
-    category: '房间与服务',
-    icon: '🛏️',
-    items: [
-      { name: '提供早餐', icon: '🥐' },
-      { name: '咖啡机/茶套装', icon: '☕' },
-      { name: '吹风机', icon: '💨' },
-    ],
-  },
-  {
-    category: '厨房与餐饮',
-    icon: '🍳',
-    items: [
-      { name: '厨房', icon: '🍳' },
-      { name: '洗碗机', icon: '🍽️' },
-      { name: '微波炉', icon: '📻' },
-    ],
-  },
-  {
-    category: '安全',
-    icon: '🔒',
-    items: [
-      { name: '灭火器', icon: '🧯' },
-      { name: '警报器', icon: '🔔' },
-      { name: '一氧化碳报警器', icon: '⚠️' },
-    ],
-  },
-  {
-    category: '其他',
-    icon: '✨',
-    items: [
-      { name: '烟雾报警器', icon: '💨' },
-      { name: '无线网', icon: '📶' },
-      { name: '电视', icon: '📺' },
-    ],
-  },
-]
+  ref
+) => {
+  const [isExpanded, setIsExpanded] = useState(expandedInitially)
 
-const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps> = ({ room }) => {
+  // 同步 expandedInitially 的变化
+  useEffect(() => {
+    setIsExpanded(expandedInitially)
+  }, [expandedInitially])
+
+  // 展开时显示所有分类，收起时只显示基础、卫浴、厨房
+  const visibleCategories = isExpanded 
+    ? FACILITY_CATEGORIES 
+    : FACILITY_CATEGORIES.filter((c) => ['basic', 'bathroom', 'kitchen'].includes(c.id))
+
   return (
-    <div className={styles.facilitiesSection}>
-      <h3 className={styles.sectionTitle}>设施与服务</h3>
+    <div className={styles.facilitiesContainer} ref={ref}>
+      {/* Title区域 */}
+      <h3 className={styles.title}>设施/服务</h3>
 
+      {/* 设施列表 */}
       <div className={styles.facilitiesList}>
-        {facilitiesData.map((group, groupIdx) => (
-          <div key={groupIdx} className={styles.facilityGroup}>
-            <h4 className={styles.groupTitle}>
-              <span className={styles.groupIcon}>{group.icon}</span>
-              {group.category}
-            </h4>
+        {visibleCategories.map((category) => (
+          <div key={category.id} className={styles.categoryBlock}>
+            {/* 分类名 - 左侧 */}
+            <div className={styles.categoryName}>{category.name}</div>
 
+            {/* 分类设施 - 右侧，一行三个 */}
             <div className={styles.itemsGrid}>
-              {group.items.map((item, itemIdx) => (
-                <div key={itemIdx} className={styles.facilityItem}>
-                  <span className={styles.itemIcon}>{item.icon}</span>
-                  <span className={styles.itemName}>{item.name}</span>
+              {category.facilities.map((facility) => (
+                <div key={facility.id} className={styles.facilityItem}>
+                  {facility.available ? (
+                    <CheckIcon width={18} height={18} color="#43ae4a" />
+                  ) : (
+                    <CrossIcon width={18} height={18} color="#d3d3d3" />
+                  )}
+                  <span className={styles.itemName}>{facility.name}</span>
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
+
+      {/* 展开/收起按钮 - 始终显示 */}
+      <div className={styles.expandFooter}>
+        <button className={styles.expandBtn} onClick={() => setIsExpanded(!isExpanded)}>
+          {isExpanded ? '收起全部设施' : '展开全部设施'} <span className={styles.arrow}>›</span>
+        </button>
+      </div>
     </div>
   )
-}
+})
+
+RoomDrawerFacilities.displayName = 'RoomDrawerFacilities'
 
 export default RoomDrawerFacilities

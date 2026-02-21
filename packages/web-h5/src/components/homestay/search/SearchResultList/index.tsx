@@ -6,13 +6,13 @@ import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { HomeStay } from '@estay/shared'
 import SearchResultHeader from '../SearchResultHeader'
+import SearchBar from '../SearchBar'
 import FilterSortBar from '../FilterSortBar'
 import SelectedTagsBar from '../SelectedTagsBar'
 import FloatingActionButtons from '../FloatingActionButtons'
 import SearchResultCard from '../SearchResultCard'
 import HomeStayCard from '../../home/HomeStayCard'
-import FilterPanel, { type FilterState } from '../FilterPanel'
-import MapView from '../MapView'
+import { SlideDrawerProvider } from '../../shared/SlideDrawer/context'
 import styles from './index.module.scss'
 
 interface SearchFilters {
@@ -28,7 +28,7 @@ interface SearchFilters {
 }
 
 type SortType = 'smart' | 'priceAsc' | 'priceDesc' | 'ratingDesc' | 'distanceAsc'
-type ViewMode = 'list' | 'grid' | 'map'
+type ViewMode = 'list' | 'grid'
 
 interface SearchResultListProps {
   data?: HomeStay[]
@@ -61,8 +61,9 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
   const [sortBy, setSortBy] = useState<SortType>('smart')
   const [containerHeight, setContainerHeight] = useState(0)
   const [containerScrollHeight, setContainerScrollHeight] = useState(0)
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768)
-  const [filterPanelVisible, setFilterPanelVisible] = useState(false)
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 768
+  )
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [displayedData, setDisplayedData] = useState<HomeStay[]>(data)
   const [pageSize] = useState(12)
@@ -125,7 +126,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
       setWindowWidth(width)
       // 768px是MainLayout导航栏变化的断点
       // <= 768px时显示单列，> 768px时显示双列
-      if (width <= 768 && viewMode !== 'map') {
+      if (width <= 768) {
         setViewMode('list')
       }
     }
@@ -136,7 +137,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
     return () => {
       window.removeEventListener('resize', handleWindowResize)
     }
-  }, [viewMode])
+  }, [])
 
   // 更新滚动高度
   useEffect(() => {
@@ -163,6 +164,19 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
       handleLoadMore()
     }
   }
+
+  // 使用window滚动事件
+  useEffect(() => {
+    let ticking = false
+    
+    const handleWindowScroll = () => {
+      const scrollPosition = window.scrollY
+      setScrollTop(scrollPosition)
+    }
+
+    window.addEventListener('scroll', handleWindowScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleWindowScroll)
+  }, [])
 
   // 滚动到顶部
   const handleScrollToTop = () => {
@@ -216,33 +230,58 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
     setViewMode(mode)
   }
 
-  // 处理FilterPanel打开
-  const handleOpenFilterPanel = () => {
-    setFilterPanelVisible(true)
-  }
-
-  // 处理FilterPanel关闭
-  const handleCloseFilterPanel = () => {
-    setFilterPanelVisible(false)
-  }
-
-  // 处理应用筛选条件
-  const handleApplyFilters = (filterState: FilterState) => {
+  // 处理价格变化
+  const handlePriceChange = (minPrice: number, maxPrice: number) => {
     const newFilters: SearchFilters = {
       ...filters,
-      priceMin: filterState.priceMin || undefined,
-      priceMax: filterState.priceMax || undefined,
-      stars: filterState.stars.length > 0 ? filterState.stars : undefined,
-      facilities: filterState.facilities.length > 0 ? filterState.facilities : undefined,
+      priceMin: minPrice >= 0 ? minPrice : undefined,
+      priceMax: maxPrice <= 10000 ? maxPrice : undefined,
     }
-
     // 清除undefined属性
     Object.keys(newFilters).forEach(
-      key => newFilters[key as keyof SearchFilters] === undefined && delete newFilters[key as keyof SearchFilters]
+      (key) =>
+        newFilters[key as keyof SearchFilters] === undefined &&
+        delete newFilters[key as keyof SearchFilters]
     )
-
     onFiltersChange?.(newFilters)
-    setFilterPanelVisible(false)
+    setCurrentPage(1)
+    setDisplayedData(data.slice(0, pageSize))
+  }
+
+  // 处理人数/房间变化
+  const handleGuestChange = (guests: number, beds: number, rooms: number) => {
+    const newFilters: SearchFilters = {
+      ...filters,
+      guestCount: guests || undefined,
+      roomCount: rooms || undefined,
+    }
+    Object.keys(newFilters).forEach(
+      (key) =>
+        newFilters[key as keyof SearchFilters] === undefined &&
+        delete newFilters[key as keyof SearchFilters]
+    )
+    onFiltersChange?.(newFilters)
+    setCurrentPage(1)
+    setDisplayedData(data.slice(0, pageSize))
+  }
+
+  // 处理位置变化
+  const handleLocationChange = (location: string) => {
+    // location changed handler
+  }
+
+  // 处理设施变化
+  const handleFacilitiesChange = (facilities: string[]) => {
+    const newFilters: SearchFilters = {
+      ...filters,
+      facilities: facilities.length > 0 ? facilities : undefined,
+    }
+    Object.keys(newFilters).forEach(
+      (key) =>
+        newFilters[key as keyof SearchFilters] === undefined &&
+        delete newFilters[key as keyof SearchFilters]
+    )
+    onFiltersChange?.(newFilters)
     setCurrentPage(1)
     setDisplayedData(data.slice(0, pageSize))
   }
@@ -266,130 +305,128 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
   const hasActiveFilters = tags.length > 0
 
   return (
-    <div className={styles.container} ref={containerRef} onScroll={handleScroll}>
-      {/* 顶部导航栏 */}
-      <SearchResultHeader
-        filters={filters}
-        onModifyClick={onModifySearch}
-      />
+    <SlideDrawerProvider>
+      <div className={styles.container} ref={containerRef}>
+        {/* 顶部导航栏 */}
+        <SearchResultHeader city={filters?.city || '城市'} />
 
-      {/* 筛选/排序栏 */}
-      <FilterSortBar
-        sortBy={sortBy}
-        onSortChange={handleSortChange}
-        viewMode={viewMode}
-        onViewModeChange={handleViewModeChange}
-        hasActiveFilters={hasActiveFilters}
-        onFilterClick={handleOpenFilterPanel}
-      />
-
-      {/* 地图视图 - 完全替代内容区域 */}
-      {viewMode === 'map' ? (
-        <MapView
-          data={displayedData}
-          filters={filters}
-          onMarkerClick={(id) => {
-            console.log('Navigate to detail:', id)
+        {/* 搜索条件栏 */}
+        <SearchBar
+          initialCity={filters?.city}
+          initialLocation=""
+          onCityChange={(city) => {
+            onFiltersChange?.({ ...filters, city })
+          }}
+          onDateChange={(checkIn, checkOut) => {
+            onFiltersChange?.({
+              ...filters,
+              checkInDate: checkIn.toISOString().split('T')[0],
+              checkOutDate: checkOut.toISOString().split('T')[0],
+            })
+          }}
+          onLocationChange={(location) => {
+            // location changed
           }}
         />
-      ) : (
-        <>
-      {/* 内容区域 */}
-      <div className={styles.content} ref={contentRef}>
-        {/* 选中的标签 */}
-        {tags.length > 0 && (
-          <SelectedTagsBar
-            tags={tags}
-            onTagRemove={handleTagRemove}
-            onResetAll={handleResetAll}
-          />
-        )}
 
-        {/* 结果列表 */}
-        <div className={`${styles.listWrapper} ${styles[viewMode]}`}>
-          {loading ? (
-            // 骨架屏
-            <div className={styles.skeletonContainer}>
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className={styles.skeletonCard} />
-              ))}
-            </div>
-          ) : displayedData.length > 0 ? (
-            // 数据列表
-            <>
-              {viewMode === 'list'
-                ? displayedData.map((item) => (
-                    <SearchResultCard
-                      key={item._id}
-                      data={item}
-                      onClick={(id) => {
-                        navigate(`/homeStay/${id}`)
-                      }}
-                    />
-                  ))
-                : displayedData.map((item) => (
-                    <HomeStayCard
-                      key={item._id}
-                      data={item}
-                      onClick={(id) => {
-                        navigate(`/homeStay/${id}`)
-                      }}
-                    />
-                  ))}
-            </>
-          ) : (
-            // 空状态
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>🏠</div>
-              <div className={styles.emptyTitle}>找不到匹配的民宿</div>
-              <div className={styles.emptyDesc}>
-                试试调整搜索条件或查看其他城市
+        {/* 筛选/排序栏 */}
+        <FilterSortBar
+          sortBy={sortBy}
+          onSortChange={handleSortChange}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          minPrice={filters.priceMin || 0}
+          maxPrice={filters.priceMax || 10000}
+          guests={filters.guestCount || 1}
+          beds={filters.roomCount || 0}
+          rooms={0}
+          onPriceChange={handlePriceChange}
+          onGuestChange={handleGuestChange}
+          facilities={filters.facilities || []}
+          onFacilitiesChange={handleFacilitiesChange}
+          hasActiveFilters={hasActiveFilters}
+        />
+
+        {/* 内容区域 */}
+        <div className={styles.content} ref={contentRef}>
+          {/* 选中的标签 */}
+          {tags.length > 0 && (
+            <SelectedTagsBar
+              tags={tags}
+              onTagRemove={handleTagRemove}
+              onResetAll={handleResetAll}
+            />
+          )}
+
+          {/* 结果列表 */}
+          <div className={`${styles.listWrapper} ${styles[viewMode]}`}>
+            {loading ? (
+              // 骨架屏
+              <div className={styles.skeletonContainer}>
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className={styles.skeletonCard} />
+                ))}
               </div>
-              <button className={styles.resetBtn} onClick={handleResetAll}>
-                重置筛选条件
-              </button>
+            ) : displayedData.length > 0 ? (
+              // 数据列表
+              <>
+                {viewMode === 'list'
+                  ? displayedData.map((item) => (
+                      <SearchResultCard
+                        key={item._id}
+                        data={item}
+                        onClick={(id) => {
+                          navigate(`/homeStay/${id}`)
+                        }}
+                      />
+                    ))
+                  : displayedData.map((item) => (
+                      <HomeStayCard
+                        key={item._id}
+                        data={item}
+                        onClick={(id) => {
+                          navigate(`/homeStay/${id}`)
+                        }}
+                      />
+                    ))}
+              </>
+            ) : (
+              // 空状态
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🏠</div>
+                <div className={styles.emptyTitle}>找不到匹配的民宿</div>
+                <div className={styles.emptyDesc}>试试调整搜索条件或查看其他城市</div>
+                <button className={styles.resetBtn} onClick={handleResetAll}>
+                  重置筛选条件
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* 加载更多指示 */}
+          {displayedData.length > 0 && currentPage * pageSize < data.length && (
+            <div className={styles.loadingMore}>
+              {isLoadingMore ? <p>加载中...</p> : <p>上拉加载更多</p>}
+            </div>
+          )}
+
+          {/* 已加载全部 */}
+          {displayedData.length > 0 && currentPage * pageSize >= data.length && data.length > 0 && (
+            <div className={styles.loadingMore}>
+              <p>已为您加载全部{data.length}个结果</p>
             </div>
           )}
         </div>
 
-        {/* 加载更多指示 */}
-        {displayedData.length > 0 && currentPage * pageSize < data.length && (
-          <div className={styles.loadingMore}>
-            {isLoadingMore ? <p>加载中...</p> : <p>上拉加载更多</p>}
-          </div>
-        )}
-        
-        {/* 已加载全部 */}
-        {displayedData.length > 0 && currentPage * pageSize >= data.length && data.length > 0 && (
-          <div className={styles.loadingMore}>
-            <p>已为您加载全部{data.length}个结果</p>
-          </div>
-        )}
+        {/* 悬浮操作按钮 */}
+        <FloatingActionButtons
+          scrollTop={scrollTop}
+          containerHeight={containerHeight}
+          containerScrollHeight={containerScrollHeight}
+          onScrollToTop={handleScrollToTop}
+        />
       </div>
-        </>
-      )}
-
-      {/* 悬浮操作按钮 */}
-      <FloatingActionButtons
-        scrollTop={scrollTop}
-        containerHeight={containerHeight}
-        containerScrollHeight={containerScrollHeight}
-        onScrollToTop={handleScrollToTop}
-      />
-
-      {/* 筛选面板 */}
-      <FilterPanel
-        visible={filterPanelVisible}
-        onClose={handleCloseFilterPanel}
-        onApply={handleApplyFilters}
-        initialFilters={{
-          priceMin: filters.priceMin || 0,
-          priceMax: filters.priceMax || 10000,
-          stars: filters.stars || [],
-          facilities: filters.facilities || [],
-        }}
-      />
-    </div>
+    </SlideDrawerProvider>
   )
 }
 

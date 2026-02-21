@@ -352,13 +352,15 @@ const SearchResultPage: React.FC = () => {
   }, [filters, navigate])
 
   return (
-    <SearchResultList
-      data={homestays}
-      loading={loading}
-      filters={filters}
-      onFiltersChange={handleFiltersChange}
-      onModifySearch={handleModifySearch}
-    />
+    <div className={styles.container}>
+      <SearchResultList
+        data={homestays}
+        loading={loading}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onModifySearch={handleModifySearch}
+      />
+    </div>
   )
 }
 

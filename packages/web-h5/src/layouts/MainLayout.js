@@ -16,10 +16,12 @@ export default function MainLayout({ children }) {
     ];
     useEffect(() => {
         // 根据当前路径设置 activeCategory
-        if (location.pathname.startsWith('/hourlyHotel') || location.pathname.includes('/hourlyHotel')) {
+        if (location.pathname.startsWith('/hourlyHotel') ||
+            location.pathname.includes('/hourlyHotel')) {
             setActiveCategory('hourly');
         }
-        else if (location.pathname.startsWith('/homeStay') || location.pathname.includes('/homeStay')) {
+        else if (location.pathname.startsWith('/homeStay') ||
+            location.pathname.includes('/homeStay')) {
             setActiveCategory('homestay');
         }
         else {

@@ -4,10 +4,11 @@
  */
 import React from 'react';
 interface DetailHeaderProps {
-    data: any;
-    opacity: number;
+    data?: any;
+    opacity?: number;
     onCollectionChange?: () => void;
     onShare?: () => void;
+    onContactHost?: () => void;
 }
 declare const DetailHeader: React.ForwardRefExoticComponent<DetailHeaderProps & React.RefAttributes<HTMLDivElement>>;
 export default DetailHeader;

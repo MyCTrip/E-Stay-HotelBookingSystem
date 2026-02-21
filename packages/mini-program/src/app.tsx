@@ -57,12 +57,7 @@ function App({ children }: PropsWithChildren<any>) {
   })
 
   // 在 Taro 4.x 中，App 组件需要返回 children，并使用 QueryClientProvider 包装
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }
-
 
 export default App

@@ -5,13 +5,13 @@ import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-run
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchResultHeader from '../SearchResultHeader';
+import SearchBar from '../SearchBar';
 import FilterSortBar from '../FilterSortBar';
 import SelectedTagsBar from '../SelectedTagsBar';
 import FloatingActionButtons from '../FloatingActionButtons';
 import SearchResultCard from '../SearchResultCard';
 import HomeStayCard from '../../home/HomeStayCard';
-import FilterPanel from '../FilterPanel';
-import MapView from '../MapView';
+import { SlideDrawerProvider } from '../../shared/SlideDrawer/context';
 import styles from './index.module.scss';
 const SearchResultList = ({ data = [], loading = false, filters = {
     city: '上海',
@@ -30,7 +30,6 @@ const SearchResultList = ({ data = [], loading = false, filters = {
     const [containerHeight, setContainerHeight] = useState(0);
     const [containerScrollHeight, setContainerScrollHeight] = useState(0);
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768);
-    const [filterPanelVisible, setFilterPanelVisible] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [displayedData, setDisplayedData] = useState(data);
     const [pageSize] = useState(12);
@@ -83,7 +82,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
             setWindowWidth(width);
             // 768px是MainLayout导航栏变化的断点
             // <= 768px时显示单列，> 768px时显示双列
-            if (width <= 768 && viewMode !== 'map') {
+            if (width <= 768) {
                 setViewMode('list');
             }
         };
@@ -92,7 +91,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
         return () => {
             window.removeEventListener('resize', handleWindowResize);
         };
-    }, [viewMode]);
+    }, []);
     // 更新滚动高度
     useEffect(() => {
         const content = contentRef.current;
@@ -115,6 +114,16 @@ const SearchResultList = ({ data = [], loading = false, filters = {
             handleLoadMore();
         }
     };
+    // 使用window滚动事件
+    useEffect(() => {
+        let ticking = false;
+        const handleWindowScroll = () => {
+            const scrollPosition = window.scrollY;
+            setScrollTop(scrollPosition);
+        };
+        window.addEventListener('scroll', handleWindowScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleWindowScroll);
+    }, []);
     // 滚动到顶部
     const handleScrollToTop = () => {
         if (containerRef.current) {
@@ -160,27 +169,46 @@ const SearchResultList = ({ data = [], loading = false, filters = {
     const handleViewModeChange = (mode) => {
         setViewMode(mode);
     };
-    // 处理FilterPanel打开
-    const handleOpenFilterPanel = () => {
-        setFilterPanelVisible(true);
-    };
-    // 处理FilterPanel关闭
-    const handleCloseFilterPanel = () => {
-        setFilterPanelVisible(false);
-    };
-    // 处理应用筛选条件
-    const handleApplyFilters = (filterState) => {
+    // 处理价格变化
+    const handlePriceChange = (minPrice, maxPrice) => {
         const newFilters = {
             ...filters,
-            priceMin: filterState.priceMin || undefined,
-            priceMax: filterState.priceMax || undefined,
-            stars: filterState.stars.length > 0 ? filterState.stars : undefined,
-            facilities: filterState.facilities.length > 0 ? filterState.facilities : undefined,
+            priceMin: minPrice >= 0 ? minPrice : undefined,
+            priceMax: maxPrice <= 10000 ? maxPrice : undefined,
         };
         // 清除undefined属性
-        Object.keys(newFilters).forEach(key => newFilters[key] === undefined && delete newFilters[key]);
+        Object.keys(newFilters).forEach((key) => newFilters[key] === undefined &&
+            delete newFilters[key]);
         onFiltersChange?.(newFilters);
-        setFilterPanelVisible(false);
+        setCurrentPage(1);
+        setDisplayedData(data.slice(0, pageSize));
+    };
+    // 处理人数/房间变化
+    const handleGuestChange = (guests, beds, rooms) => {
+        const newFilters = {
+            ...filters,
+            guestCount: guests || undefined,
+            roomCount: rooms || undefined,
+        };
+        Object.keys(newFilters).forEach((key) => newFilters[key] === undefined &&
+            delete newFilters[key]);
+        onFiltersChange?.(newFilters);
+        setCurrentPage(1);
+        setDisplayedData(data.slice(0, pageSize));
+    };
+    // 处理位置变化
+    const handleLocationChange = (location) => {
+        // location changed handler
+    };
+    // 处理设施变化
+    const handleFacilitiesChange = (facilities) => {
+        const newFilters = {
+            ...filters,
+            facilities: facilities.length > 0 ? facilities : undefined,
+        };
+        Object.keys(newFilters).forEach((key) => newFilters[key] === undefined &&
+            delete newFilters[key]);
+        onFiltersChange?.(newFilters);
         setCurrentPage(1);
         setDisplayedData(data.slice(0, pageSize));
     };
@@ -200,9 +228,17 @@ const SearchResultList = ({ data = [], loading = false, filters = {
     }, [currentPage, pageSize, data, isLoadingMore]);
     const tags = selectedTags();
     const hasActiveFilters = tags.length > 0;
-    return (_jsxs("div", { className: styles.container, ref: containerRef, onScroll: handleScroll, children: [_jsx(SearchResultHeader, { filters: filters, onModifyClick: onModifySearch }), _jsx(FilterSortBar, { sortBy: sortBy, onSortChange: handleSortChange, viewMode: viewMode, onViewModeChange: handleViewModeChange, hasActiveFilters: hasActiveFilters, onFilterClick: handleOpenFilterPanel }), viewMode === 'map' ? (_jsx(MapView, { data: displayedData, filters: filters, onMarkerClick: (id) => {
-                    console.log('Navigate to detail:', id);
-                } })) : (_jsx(_Fragment, { children: _jsxs("div", { className: styles.content, ref: contentRef, children: [tags.length > 0 && (_jsx(SelectedTagsBar, { tags: tags, onTagRemove: handleTagRemove, onResetAll: handleResetAll })), _jsx("div", { className: `${styles.listWrapper} ${styles[viewMode]}`, children: loading ? (
+    return (_jsx(SlideDrawerProvider, { children: _jsxs("div", { className: styles.container, ref: containerRef, children: [_jsx(SearchResultHeader, { city: filters?.city || '城市' }), _jsx(SearchBar, { initialCity: filters?.city, initialLocation: "", onCityChange: (city) => {
+                        onFiltersChange?.({ ...filters, city });
+                    }, onDateChange: (checkIn, checkOut) => {
+                        onFiltersChange?.({
+                            ...filters,
+                            checkInDate: checkIn.toISOString().split('T')[0],
+                            checkOutDate: checkOut.toISOString().split('T')[0],
+                        });
+                    }, onLocationChange: (location) => {
+                        // location changed
+                    } }), _jsx(FilterSortBar, { sortBy: sortBy, onSortChange: handleSortChange, viewMode: viewMode, onViewModeChange: handleViewModeChange, minPrice: filters.priceMin || 0, maxPrice: filters.priceMax || 10000, guests: filters.guestCount || 1, beds: filters.roomCount || 0, rooms: 0, onPriceChange: handlePriceChange, onGuestChange: handleGuestChange, facilities: filters.facilities || [], onFacilitiesChange: handleFacilitiesChange, hasActiveFilters: hasActiveFilters }), _jsxs("div", { className: styles.content, ref: contentRef, children: [tags.length > 0 && (_jsx(SelectedTagsBar, { tags: tags, onTagRemove: handleTagRemove, onResetAll: handleResetAll })), _jsx("div", { className: `${styles.listWrapper} ${styles[viewMode]}`, children: loading ? (
                             // 骨架屏
                             _jsx("div", { className: styles.skeletonContainer, children: [...Array(6)].map((_, i) => (_jsx("div", { className: styles.skeletonCard }, i))) })) : displayedData.length > 0 ? (
                             // 数据列表
@@ -214,12 +250,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
                                             navigate(`/homeStay/${id}`);
                                         } }, item._id))) })) : (
                             // 空状态
-                            _jsxs("div", { className: styles.emptyState, children: [_jsx("div", { className: styles.emptyIcon, children: "\uD83C\uDFE0" }), _jsx("div", { className: styles.emptyTitle, children: "\u627E\u4E0D\u5230\u5339\u914D\u7684\u6C11\u5BBF" }), _jsx("div", { className: styles.emptyDesc, children: "\u8BD5\u8BD5\u8C03\u6574\u641C\u7D22\u6761\u4EF6\u6216\u67E5\u770B\u5176\u4ED6\u57CE\u5E02" }), _jsx("button", { className: styles.resetBtn, onClick: handleResetAll, children: "\u91CD\u7F6E\u7B5B\u9009\u6761\u4EF6" })] })) }), displayedData.length > 0 && currentPage * pageSize < data.length && (_jsx("div", { className: styles.loadingMore, children: isLoadingMore ? _jsx("p", { children: "\u52A0\u8F7D\u4E2D..." }) : _jsx("p", { children: "\u4E0A\u62C9\u52A0\u8F7D\u66F4\u591A" }) })), displayedData.length > 0 && currentPage * pageSize >= data.length && data.length > 0 && (_jsx("div", { className: styles.loadingMore, children: _jsxs("p", { children: ["\u5DF2\u4E3A\u60A8\u52A0\u8F7D\u5168\u90E8", data.length, "\u4E2A\u7ED3\u679C"] }) }))] }) })), _jsx(FloatingActionButtons, { scrollTop: scrollTop, containerHeight: containerHeight, containerScrollHeight: containerScrollHeight, onScrollToTop: handleScrollToTop }), _jsx(FilterPanel, { visible: filterPanelVisible, onClose: handleCloseFilterPanel, onApply: handleApplyFilters, initialFilters: {
-                    priceMin: filters.priceMin || 0,
-                    priceMax: filters.priceMax || 10000,
-                    stars: filters.stars || [],
-                    facilities: filters.facilities || [],
-                } })] }));
+                            _jsxs("div", { className: styles.emptyState, children: [_jsx("div", { className: styles.emptyIcon, children: "\uD83C\uDFE0" }), _jsx("div", { className: styles.emptyTitle, children: "\u627E\u4E0D\u5230\u5339\u914D\u7684\u6C11\u5BBF" }), _jsx("div", { className: styles.emptyDesc, children: "\u8BD5\u8BD5\u8C03\u6574\u641C\u7D22\u6761\u4EF6\u6216\u67E5\u770B\u5176\u4ED6\u57CE\u5E02" }), _jsx("button", { className: styles.resetBtn, onClick: handleResetAll, children: "\u91CD\u7F6E\u7B5B\u9009\u6761\u4EF6" })] })) }), displayedData.length > 0 && currentPage * pageSize < data.length && (_jsx("div", { className: styles.loadingMore, children: isLoadingMore ? _jsx("p", { children: "\u52A0\u8F7D\u4E2D..." }) : _jsx("p", { children: "\u4E0A\u62C9\u52A0\u8F7D\u66F4\u591A" }) })), displayedData.length > 0 && currentPage * pageSize >= data.length && data.length > 0 && (_jsx("div", { className: styles.loadingMore, children: _jsxs("p", { children: ["\u5DF2\u4E3A\u60A8\u52A0\u8F7D\u5168\u90E8", data.length, "\u4E2A\u7ED3\u679C"] }) }))] }), _jsx(FloatingActionButtons, { scrollTop: scrollTop, containerHeight: containerHeight, containerScrollHeight: containerScrollHeight, onScrollToTop: handleScrollToTop })] }) }));
 };
 export default SearchResultList;
 //# sourceMappingURL=index.js.map

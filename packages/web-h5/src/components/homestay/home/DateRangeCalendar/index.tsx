@@ -1,15 +1,12 @@
 /**
- * 日期范围日历组件
- * 从网页窗口底部滑入，占 70% 屏幕高度，顶部圆角
+ * 日期范围日历组件 - 只提供日历内容
  */
 
 import React, { useState, useMemo } from 'react'
-import { createPortal } from 'react-dom'
 import dayjs from 'dayjs'
 import styles from './index.module.scss'
 
 interface DateRangeCalendarProps {
-  visible: boolean
   checkIn?: Date
   checkOut?: Date
   onSelect: (checkIn: Date, checkOut: Date) => void
@@ -17,7 +14,6 @@ interface DateRangeCalendarProps {
 }
 
 const DateRangeCalendar: React.FC<DateRangeCalendarProps> = ({
-  visible,
   checkIn,
   checkOut,
   onSelect,
@@ -25,9 +21,7 @@ const DateRangeCalendar: React.FC<DateRangeCalendarProps> = ({
 }) => {
   const today = dayjs()
   const [tempCheckIn, setTempCheckIn] = useState<Date | null>(checkIn || null)
-  const [tempCheckOut, setTempCheckOut] = useState<Date | null>(
-    checkOut || null
-  )
+  const [tempCheckOut, setTempCheckOut] = useState<Date | null>(checkOut || null)
   const [currentMonth, setCurrentMonth] = useState(dayjs())
 
   // 生成日历数据
@@ -73,15 +67,11 @@ const DateRangeCalendar: React.FC<DateRangeCalendarProps> = ({
   }, [currentMonth])
 
   const nights =
-    tempCheckIn && tempCheckOut
-      ? dayjs(tempCheckOut).diff(dayjs(tempCheckIn), 'day')
-      : 0
+    tempCheckIn && tempCheckOut ? dayjs(tempCheckOut).diff(dayjs(tempCheckIn), 'day') : 0
 
   const isInRange = (date: dayjs.Dayjs) => {
     if (!tempCheckIn || !tempCheckOut) return false
-    return (
-      date.isAfter(dayjs(tempCheckIn)) && date.isBefore(dayjs(tempCheckOut))
-    )
+    return date.isAfter(dayjs(tempCheckIn)) && date.isBefore(dayjs(tempCheckOut))
   }
 
   const isCheckInDate = (date: dayjs.Dayjs) => {
@@ -123,114 +113,79 @@ const DateRangeCalendar: React.FC<DateRangeCalendarProps> = ({
     }
   }
 
-  const handleClose = () => {
-    setTempCheckIn(null)
-    setTempCheckOut(null)
-    onClose()
-  }
-
-  return createPortal(
-    <>
-      {visible && (
-        <div className={styles.overlay} onClick={handleClose}></div>
-      )}
-
-      <div className={`${styles.drawer} ${visible ? styles.active : ''}`}>
-        {/* 头部 */}
-        <div className={styles.header}>
-          <button className={styles.backBtn} onClick={handleClose}>
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <h2 className={styles.title}>选择入离日期</h2>
-          <div className={styles.placeholder}></div>
-        </div>
-
-        {/* 日期信息 */}
-        <div className={styles.dateInfo}>
-          <div className={styles.dateInfoItem}>
-            <div className={styles.dateInfoLabel}>入住日期</div>
-            <div className={styles.dateInfoValue}>
-              {tempCheckIn
-                ? dayjs(tempCheckIn).format('M月D日 ddd')
-                : '未选择'}
-            </div>
-          </div>
-          <div className={styles.dateInfoSpacer}>
-            {nights > 0 && (
-              <div className={styles.nightsCount}>共{nights}晚</div>
-            )}
-          </div>
-          <div className={styles.dateInfoItem}>
-            <div className={styles.dateInfoLabel}>离店日期</div>
-            <div className={styles.dateInfoValue}>
-              {tempCheckOut
-                ? dayjs(tempCheckOut).format('M月D日 ddd')
-                : '未选择'}
-            </div>
+  return (
+    <div className={styles.wrapper}>
+      {/* 日期信息 */}
+      <div className={styles.dateInfo}>
+        <div className={styles.dateInfoItem}>
+          <div className={styles.dateInfoLabel}>入住日期</div>
+          <div className={styles.dateInfoValue}>
+            {tempCheckIn ? dayjs(tempCheckIn).format('M月D日 ddd') : '未选择'}
           </div>
         </div>
-
-        {/* 日历 */}
-        <div className={styles.calendarContainer}>
-          {calendarData.map((monthData, monthIndex) => (
-            <div key={monthIndex} className={styles.calendarMonth}>
-              <div className={styles.monthTitle}>{monthData.month}</div>
-
-              {/* 星期标签 */}
-              <div className={styles.weekdayLabels}>
-                {['日', '一', '二', '三', '四', '五', '六'].map((day) => (
-                  <div key={day} className={styles.weekdayLabel}>
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {/* 日期网格 */}
-              <div className={styles.daysGrid}>
-                {monthData.weeks.map((week, weekIndex) =>
-                  week.map((date, dayIndex) => (
-                    <button
-                      key={`${monthIndex}-${weekIndex}-${dayIndex}`}
-                      className={`${styles.dayButton} ${
-                        date === null ? styles.empty : ''
-                      } ${date && date.isBefore(today, 'day') ? styles.disabled : ''} ${
-                        date && isCheckInDate(date) ? styles.checkIn : ''
-                      } ${date && isCheckOutDate(date) ? styles.checkOut : ''} ${
-                        date && isInRange(date) ? styles.inRange : ''
-                      }`}
-                      onClick={() => date && handleDateClick(date)}
-                      disabled={!date || date.isBefore(today, 'day')}
-                    >
-                      {date && date.date()}
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          ))}
-          <div className={styles.endTip}>到底了，最长可订6个月内的房屋</div>
+        <div className={styles.dateInfoSpacer}>
+          {nights > 0 && <div className={styles.nightsCount}>共{nights}晚</div>}
         </div>
-
-        {/* 底部按钮 */}
-        <div className={styles.footer}>
-          <button
-            className={styles.confirmBtn}
-            onClick={handleConfirm}
-            disabled={!tempCheckIn || !tempCheckOut}
-          >
-            确定
-          </button>
+        <div className={styles.dateInfoItem}>
+          <div className={styles.dateInfoLabel}>离店日期</div>
+          <div className={styles.dateInfoValue}>
+            {tempCheckOut ? dayjs(tempCheckOut).format('M月D日 ddd') : '未选择'}
+          </div>
         </div>
       </div>
-    </>,
-    document.body
+
+      {/* 日历 */}
+      <div className={styles.calendarContainer}>
+        {calendarData.map((monthData, monthIndex) => (
+          <div key={monthIndex} className={styles.calendarMonth}>
+            <div className={styles.monthTitle}>{monthData.month}</div>
+
+            {/* 星期标签 */}
+            <div className={styles.weekdayLabels}>
+              {['日', '一', '二', '三', '四', '五', '六'].map((day) => (
+                <div key={day} className={styles.weekdayLabel}>
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* 日期网格 */}
+            <div className={styles.daysGrid}>
+              {monthData.weeks.map((week, weekIndex) =>
+                week.map((date, dayIndex) => (
+                  <button
+                    key={`${monthIndex}-${weekIndex}-${dayIndex}`}
+                    className={`${styles.dayButton} ${
+                      date === null ? styles.empty : ''
+                    } ${date && date.isBefore(today, 'day') ? styles.disabled : ''} ${
+                      date && isCheckInDate(date) ? styles.checkIn : ''
+                    } ${date && isCheckOutDate(date) ? styles.checkOut : ''} ${
+                      date && isInRange(date) ? styles.inRange : ''
+                    }`}
+                    onClick={() => date && handleDateClick(date)}
+                    disabled={!date || date.isBefore(today, 'day')}
+                  >
+                    {date && date.date()}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        ))}
+        <div className={styles.endTip}>到底了，最长可订6个月内的房屋</div>
+      </div>
+
+      {/* 底部按钮 */}
+      <div className={styles.footer}>
+        <button
+          className={styles.confirmBtn}
+          onClick={handleConfirm}
+          disabled={!tempCheckIn || !tempCheckOut}
+        >
+          确定
+        </button>
+      </div>
+    </div>
   )
 }
 

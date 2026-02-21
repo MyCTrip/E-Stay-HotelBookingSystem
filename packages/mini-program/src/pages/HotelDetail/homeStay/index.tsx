@@ -71,11 +71,7 @@ export default function HotelDetailHomeStayPage() {
             >
               {images.map((img, idx) => (
                 <SwiperItem key={idx}>
-                  <Image
-                    src={img}
-                    mode="aspectFill"
-                    style={{ width: '100%', height: '360rpx' }}
-                  />
+                  <Image src={img} mode="aspectFill" style={{ width: '100%', height: '360rpx' }} />
                 </SwiperItem>
               ))}
             </Swiper>
@@ -140,10 +136,7 @@ export default function HotelDetailHomeStayPage() {
                     <Text>👥 容纳 {room.typeConfig?.homeStay?.maxGuests || 2} 人</Text>
                     <Text>📐 {room.baseInfo?.size || 25}㎡</Text>
                   </View>
-                  <Button
-                    className="selectBtn"
-                    onClick={() => handleRoomClick(room.id)}
-                  >
+                  <Button className="selectBtn" onClick={() => handleRoomClick(room.id)}>
                     选择此房间
                   </Button>
                 </View>

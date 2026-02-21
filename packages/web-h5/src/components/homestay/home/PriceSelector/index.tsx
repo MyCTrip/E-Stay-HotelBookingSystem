@@ -43,10 +43,7 @@ const PriceSelector: React.FC<PriceSelectorProps> = ({
 
   return (
     <div className={styles.container}>
-      <div
-        className={styles.displayBox}
-        onClick={() => setShowFilter(true)}
-      >
+      <div className={styles.displayBox} onClick={() => setShowFilter(true)}>
         <div className={styles.text}>{displayPrice()}</div>
         <div className={styles.suffixIcon}>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor">
@@ -61,6 +58,7 @@ const PriceSelector: React.FC<PriceSelectorProps> = ({
         minPrice={displayMinPrice}
         maxPrice={displayMaxPrice}
         onSelect={handleSelect}
+        showFooter={true}
         onClose={() => setShowFilter(false)}
       />
     </div>

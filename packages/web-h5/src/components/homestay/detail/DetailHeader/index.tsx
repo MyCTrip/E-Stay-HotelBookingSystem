@@ -7,19 +7,24 @@ import React, { forwardRef } from 'react'
 import styles from './index.module.scss'
 
 interface DetailHeaderProps {
-  data: any
-  opacity: number
+  data?: any
+  opacity?: number
   onCollectionChange?: () => void
   onShare?: () => void
+  onContactHost?: () => void
 }
 
 const DetailHeader = forwardRef<HTMLDivElement, DetailHeaderProps>(
-  ({ data, opacity, onCollectionChange, onShare }, ref) => {
+  ({ opacity = 0, onCollectionChange, onShare, onContactHost }, ref) => {
     const [isCollected, setIsCollected] = React.useState(false)
 
     const handleCollect = () => {
       setIsCollected(!isCollected)
       onCollectionChange?.()
+    }
+
+    const handleContactHost = () => {
+      onContactHost?.()
     }
 
     // 图标颜色：opacity小时为白色，大时为深灰
@@ -36,18 +41,14 @@ const DetailHeader = forwardRef<HTMLDivElement, DetailHeaderProps>(
         }}
       >
         {/* 左侧返回按钮 */}
-        <button
-          className={styles.iconBtn}
-          onClick={() => window.history.back()}
-          title="返回"
-        >
+        <button className={styles.iconBtn} onClick={() => window.history.back()} title="返回">
           <span style={{ color: iconColor }}>‹</span>
         </button>
 
         {/* 右侧操作按钮组 */}
         <div className={styles.actionGroup}>
-          {/* 客服 */}
-          <button className={styles.iconBtn} title="客服">
+          {/* 与房东联系（聊天） */}
+          <button className={styles.iconBtn} onClick={handleContactHost} title="与房东联系">
             <span style={{ color: iconColor }}>💬</span>
           </button>
 
