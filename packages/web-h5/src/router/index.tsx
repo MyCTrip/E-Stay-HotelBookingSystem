@@ -6,7 +6,8 @@ import HomeHotel from '../pages/Home/hotel'
 import HomeHourly from '../pages/Home/hourlyHotel'
 import HomeHomeStay from '../pages/Home/homeStay'
 import SearchResultPage from '../pages/SearchResult'
-import SearchResultHotel from '../pages/SearchResult/hotel'
+// import SearchResultHotel from '../pages/SearchResult/hotel'
+import SearchResultHotel from '../pages/SearchResult/hotel-list'
 import SearchResultHourly from '../pages/SearchResult/hourlyHotel'
 import SearchResultHomeStay from '../pages/SearchResult/homeStay'
 import HotelDetailPage from '../pages/HotelDetail'
@@ -56,22 +57,27 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         path: 'homeStay',
         element: <HomeHomeStay />,
       },
+      // ✅ 改造后的 search 父子嵌套路由
       {
         path: 'search',
         element: <SearchResultPage />,
+        // 核心：添加 children 数组，包含所有 search 子页面
+        children: [
+          {
+            path: 'hotel', // 自动拼接为 search/hotel，无需写完整路径
+            element: <SearchResultHotel />,
+          },
+          {
+            path: 'hourlyHotel', // 自动拼接为 search/hourlyHotel
+            element: <SearchResultHourly />,
+          },
+          {
+            path: 'homeStay', // 自动拼接为 search/homeStay
+            element: <SearchResultHomeStay />,
+          },
+        ]
       },
-      {
-        path: 'search/hotel',
-        element: <SearchResultHotel />,
-      },
-      {
-        path: 'search/hourlyHotel',
-        element: <SearchResultHourly />,
-      },
-      {
-        path: 'search/homeStay',
-        element: <SearchResultHomeStay />,
-      },
+      // ❌ 已删除原来的三个平级 search/xxx 路由
       {
         path: 'hotel/:id',
         element: <HotelDetailPage />,

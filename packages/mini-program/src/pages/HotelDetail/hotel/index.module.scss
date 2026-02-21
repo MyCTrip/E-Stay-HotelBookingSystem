@@ -1,0 +1,576 @@
+/* ==========================================
+   全局变量定义 (携程品牌色与规范)
+========================================== */
+$primary: #4285F4;       // 携程蓝
+$accent: #FF6B00;        // 价格橙
+$bg-color: #F5F5F5;      // 页面底色
+$text-main: #333333;     // 核心标题
+$text-sub: #666666;      // 次要正文
+$text-light: #999999;    // 辅助提示
+$radius-card: 8px;       // 卡片圆角
+$shadow-base: 0 2px 8px rgba(0,0,0,0.05); // 基础呼吸阴影
+
+/* ==========================================
+   页面级容器
+========================================== */
+.pageContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: $bg-color;
+  position: relative;
+  overflow: hidden; // 锁定外层，内部 ScrollView 滚动
+}
+
+.mainScroll {
+  flex: 1;
+  height: 100%;
+}
+
+/* ==========================================
+   1. 顶部渐变导航 (Navbar)
+========================================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  padding-top: var(--status-bar-height, 44px); // 适配系统状态栏
+  transition: background-color 0.2s ease;
+}
+
+.navContent {
+  height: 50px; // 规范高度 50px
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.navIconBg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3); // 初始半透明底色，保障白字可读
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+.navTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: $text-main;
+  max-width: 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navBorder {
+  height: 1px;
+  background-color: #EEEEEE;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+
+/* ==========================================
+   2. 头图轮播与媒体区 (Banner)
+========================================== */
+.bannerWrapper {
+  position: relative;
+  height: 240px; 
+}
+
+.swiper, .swiperImg {
+  width: 100%;
+  height: 100%;
+}
+
+.bannerBottomGradient {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+  pointer-events: none; // 防止遮挡点击
+}
+
+.bannerTags {
+  position: absolute;
+  bottom: 30px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.bTag {
+  color: #ffffff;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.bTagActive {
+  background: rgba(255, 255, 255, 0.95);
+  color: $text-main;
+  font-weight: bold;
+}
+
+.rankBadge {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  background: #F9E8D5;
+  padding: 6px 10px;
+  border-radius: 8px 8px 0 8px; // 特殊切角
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E6C5A1;
+  z-index: 12; // 确保浮在最上层
+}
+
+.rankIcon { font-size: 16px; }
+.rankTitle { font-size: 14px; font-weight: bold; color: #8A5C2A; }
+.rankSub { font-size: 10px; color: #8A5C2A; }
+
+/* ==========================================
+   3. 核心信息区 (CoreInfo)
+========================================== */
+.contentBody {
+  position: relative;
+  margin-top: -16px; /* 核心：负边距向上提，覆盖 Banner */
+  padding: 0 12px;
+  z-index: 10;
+}
+
+.coreInfoCard {
+  background: #ffffff;
+  border-radius: 12px 12px $radius-card $radius-card; // 顶部切大圆角
+  padding: 16px 12px;
+  margin-bottom: 16px; // 模块间距
+  box-shadow: $shadow-base;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hotelName {
+  font-size: 20px;
+  font-weight: bold;
+  color: $text-main;
+  margin-right: 8px;
+}
+
+.starText { 
+  font-size: 10px; 
+  color: #FFB800; 
+}
+
+.rankRow { 
+  margin-bottom: 16px; 
+}
+
+.rankLabel {
+  font-size: 12px;
+  color: #8A5C2A;
+  background: #FFF5E8;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.facilityScroll { 
+  width: 100%; 
+  white-space: nowrap; 
+}
+
+.facilityList { 
+  display: inline-flex; 
+  gap: 16px; 
+  align-items: center; 
+}
+
+.facilityItem { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 4px; 
+}
+
+.fIcon { font-size: 20px; color: $text-sub; }
+.fText { font-size: 12px; color: $text-sub; }
+
+.facilityMore { 
+  display: flex; 
+  align-items: center; 
+  padding-left: 16px; 
+  border-left: 1px solid #EEEEEE; 
+  height: 36px; 
+}
+
+/* ==========================================
+   4. 评分与位置 (Score & Location)
+========================================== */
+.scoreLocWrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* 左侧评分：40% */
+.scoreCard {
+  flex: 0 0 40%; 
+  background: $primary; // 极强烈的视觉引导蓝
+  border-radius: $radius-card;
+  padding: 12px;
+  box-shadow: $shadow-base;
+}
+
+.scoreTop { 
+  display: flex; 
+  align-items: baseline; 
+  gap: 4px; 
+  margin-bottom: 6px; 
+}
+
+.scoreNum { 
+  font-size: 24px; 
+  font-weight: 900; 
+  color: $primary; 
+  background: #ffffff; 
+  padding: 0 6px; 
+  border-radius: 4px 4px 4px 0; // 携程特有异形评分框
+}
+
+.scoreDesc { 
+  font-size: 14px; 
+  font-weight: bold; 
+  color: #ffffff; 
+}
+
+.scoreCount { 
+  font-size: 12px; 
+  color: rgba(255,255,255,0.8); 
+  margin-left: auto; 
+}
+
+.scoreQuote { 
+  font-size: 12px; 
+  color: #ffffff; 
+  font-weight: 500; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 右侧位置：60% */
+.locCard {
+  flex: 1;
+  background: #ffffff;
+  border-radius: $radius-card;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: $shadow-base;
+}
+
+.locInfo { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+  flex: 1; 
+  padding-right: 8px; 
+  border-right: 1px solid #EEEEEE; 
+  overflow: hidden;
+}
+
+.locDistance { 
+  font-size: 14px; 
+  font-weight: bold; 
+  color: $text-main; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.locAddress { 
+  font-size: 12px; 
+  color: $text-sub; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.locMap { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  width: 44px; 
+  flex-shrink: 0;
+}
+
+.mapIcon { font-size: 20px; color: $primary; }
+.mapText { font-size: 11px; color: $primary; margin-top: 2px; }
+
+/* ==========================================
+   5. 日期筛选区 (Sticky 核心交互)
+========================================== */
+.filterSticky {
+  position: sticky;
+  top: var(--status-bar-height, 44px); // 精确吸附在 Navbar 底部
+  z-index: 90;
+  background: #ffffff;
+  border-radius: $radius-card;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.dateRow { 
+  display: flex; 
+  align-items: center; 
+  margin-bottom: 12px; 
+}
+
+.dateBlock { 
+  display: flex; 
+  align-items: baseline; 
+  gap: 6px; 
+}
+
+.dateMain { 
+  font-size: 18px; 
+  font-weight: bold; 
+  color: $text-main; 
+}
+
+.dateSub { 
+  font-size: 12px; 
+  color: $text-sub; 
+}
+
+.nightBadge { 
+  border: 1px solid #EEEEEE; 
+  padding: 2px 8px; 
+  border-radius: 12px; 
+  margin: 0 16px; 
+}
+
+.nightText { 
+  font-size: 11px; 
+  color: $text-main; 
+}
+
+.dateArrow { 
+  margin-left: auto; 
+  color: $text-light; 
+  font-size: 16px; 
+}
+
+.warningTip {
+  background: #FFF6F0; // 浅橙色背景
+  padding: 8px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.warningText { 
+  font-size: 12px; 
+  color: $accent; 
+}
+
+.tagScroll { 
+  width: 100%; 
+  white-space: nowrap; 
+}
+
+.tagRow { 
+  display: inline-flex; 
+  gap: 8px; 
+}
+
+.filterTag {
+  font-size: 12px; 
+  color: $text-main; 
+  background: $bg-color;
+  padding: 6px 14px; 
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.filterTagMore {
+  font-size: 12px; 
+  color: $text-main; 
+  background: #ffffff; 
+  border: 1px solid #DDDDDD;
+  padding: 6px 14px; 
+  border-radius: 4px;
+}
+
+/* ==========================================
+   6. 房型列表 (Room List)
+========================================== */
+.roomList { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+}
+
+.roomCard {
+  background: #ffffff; 
+  border-radius: $radius-card; 
+  padding: 16px 12px;
+  display: flex; 
+  gap: 12px;
+  box-shadow: $shadow-base;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+}
+
+.roomImg { 
+  width: 80px; 
+  height: 80px; 
+  border-radius: 4px; 
+  flex-shrink: 0; 
+  background-color: #EEE;
+}
+
+.roomInfo { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.rHeader { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 6px; 
+}
+
+.rName { 
+  font-size: 16px; 
+  font-weight: bold; 
+  color: $text-main; 
+}
+
+.rArrow { 
+  color: $text-light; 
+}
+
+.rDesc { 
+  font-size: 12px; 
+  color: $text-sub; 
+  line-height: 1.5; 
+}
+
+.rFooter {
+  // 底部留给预订按钮和价格，如果在 index.tsx 补充了 JSX，可在此处完善排版
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 占位，防止被底栏遮挡 */
+.listBottomHolder { 
+  height: 120px; 
+} 
+
+/* ==========================================
+   7. 底部固定操作栏 (Bottom Action Bar)
+========================================== */
+.bottomBar {
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  width: 100%;
+  background: #ffffff; 
+  z-index: 100;
+  padding: 10px 16px; 
+  /* 核心：安全区适配，防止按钮被 iPhone Home 条遮挡 */
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+  box-sizing: border-box;
+}
+
+.bLeft { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  padding-right: 16px;
+}
+
+.bAskIcon { 
+  font-size: 20px; 
+  color: $primary; 
+}
+
+.bAskText { 
+  font-size: 11px; 
+  color: $primary; 
+  margin-top: 2px;
+}
+
+.bRight { 
+  display: flex; 
+  align-items: baseline; 
+}
+
+.bPriceLabel { 
+  font-size: 14px; 
+  color: $accent; 
+  font-weight: bold; 
+  margin-right: 2px;
+}
+
+.bPriceValue { 
+  font-size: 28px; 
+  font-weight: 900; 
+  color: $accent; 
+}
+
+.bPriceSuffix { 
+  font-size: 12px; 
+  color: $text-main; 
+  margin-left: 4px; 
+}
+
+.bBookBtn {
+  background: $primary; 
+  padding: 12px 28px; 
+  border-radius: 8px; 
+  margin-left: 16px;
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.bBookText { 
+  color: #ffffff; 
+  font-size: 16px; 
+  font-weight: bold; 
+}

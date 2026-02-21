@@ -3,9 +3,13 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": {
+      "@estay/shared": ["../shared/src"],
+      "@estay/shared/*": ["../shared/src/*"]
+    }
   },
-  "include": ["src"],
+  "include": ["src", "../shared/src/components"],
   "references": [
     { "path": "../shared" }
   ]

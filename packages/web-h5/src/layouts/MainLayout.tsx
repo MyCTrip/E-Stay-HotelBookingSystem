@@ -1,11 +1,18 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import styles from './MainLayout.module.css'
 import { useState, useEffect } from 'react'
+import React, { ReactNode } from 'react';
 
 /**
  * 主布局组件
  */
-export default function MainLayout() {
+// 1. 声明组件 Props 类型，包含可选的 children
+interface MainLayoutProps {
+  children?: ReactNode; // 支持包裹子元素，可选类型
+}
+
+// 2. 将泛型传入 React.FC，并解构出 children
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [activeCategory, setActiveCategory] = useState('domestic')
@@ -55,9 +62,9 @@ export default function MainLayout() {
         </div>
       </header>
 
-      {/* 主要内容 */}
+      {/* 主要内容：优先渲染 children，没有则渲染 Outlet（路由出口） */}
       <main className={styles.main}>
-        <Outlet />
+        {children || <Outlet />}
       </main>
 
       {/* 底部导航 - 仅在移动端显示 */}
@@ -87,3 +94,5 @@ export default function MainLayout() {
     </div>
   )
 }
+
+export default MainLayout;

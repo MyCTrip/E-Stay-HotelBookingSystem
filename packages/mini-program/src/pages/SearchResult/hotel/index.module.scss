@@ -1,0 +1,330 @@
+$bg-color: #f5f5f5;
+$primary-blue: #0086F6;
+$text-main: #222222;
+$text-sub: #666666;
+$text-light: #999999;
+$border-color: #eeeeee;
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: $bg-color;
+  overflow: hidden; 
+}
+
+/* ================= 1. 核心条件头 ================= */
+.coreHeader {
+  background-color: #ffffff;
+  padding: 6px 10px; /* 压缩外边距 */
+  z-index: 100;
+}
+
+.searchCapsule {
+  display: flex;
+  align-items: center;
+  background-color: #f6f7f9;
+  border-radius: 24px;
+  height: 44px; /* 胶囊变厚，方便点击 */
+  padding: 0 14px 0 16px;
+}
+
+.cityBlock {
+  display: flex;
+  align-items: center;
+  padding-right: 12px;
+}
+.cityText {
+  font-size: 16px; /* 城市名放大 */
+  font-weight: 600;
+  color: $text-main;
+}
+
+.dateBlock {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  gap: 6px;
+}
+.dateCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.dateValue {
+  font-size: 12px;
+  font-weight: bold; /* 日期加粗 */
+  color: $text-main;
+  line-height: 1.2;
+}
+.nightCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.nightText {
+  font-size: 10px;
+  color: $text-sub;
+  line-height: 1.2;
+}
+
+.searchInput {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  gap: 6px;
+}
+.searchIcon {
+  font-size: 14px;
+}
+.placeholder {
+  font-size: 14px; /* 占位符放大 */
+  color: $text-light;
+}
+
+.mapBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 10px;
+  border-left: 1px solid #e0e0e0;
+}
+.mapIcon {
+  font-size: 14px;
+}
+.mapText {
+  font-size: 9px;
+  color: $text-main;
+}
+
+/* ================= 2. 详细筛选区域 ================= */
+/* ================= 核心：下拉面板定位与动画 ================= */
+
+.filterSection {
+  background-color: #ffffff;
+  z-index: 99;
+  position: relative; /* ⚠️ 必须要有 relative，这样下拉框才能以它为基准 */
+}
+
+.dropdownOverlay {
+  position: absolute;
+  top: 45px; /* 取决于你的 mainFilters 高度，把它推到那行字下面 */
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 120px); /* 让遮罩层盖住整个下方列表 */
+  z-index: 100;
+  overflow: hidden; /* 防止内容超出容器 */
+}
+
+.dropdownMask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  /* 渐现动画 */
+  animation: fadeIn 0.2s ease forwards; 
+}
+
+.dropdownContent {
+  position: relative;
+  background-color: #ffffff;
+  padding: 16px 12px 0 12px;
+  border-radius: 0 0 12px 12px;
+  /* 携程经典顶部拉出动画 */
+  transform: translateY(-100%); 
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* ================= 内部 UI 排版 ================= */
+
+.dropdownBlock {
+  margin-bottom: 24px;
+}
+
+.blockTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.blockTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.blockDesc {
+  font-size: 12px;
+  color: #0086F6;
+}
+
+.priceInputRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.priceInput {
+  flex: 1;
+  background-color: #f5f6f8;
+  height: 36px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+}
+
+.priceDivider {
+  margin: 0 12px;
+  color: #999;
+}
+
+.tagsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterTagBtn {
+  width: calc(33.33% - 7px); /* 一行三个 */
+  background-color: #f5f6f8;
+  border-radius: 4px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #333;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+.starBtn {
+  height: 48px;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.starLabel {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.starSub {
+  font-size: 11px;
+  color: #999;
+}
+
+/* 激活选中态 */
+.tagActive {
+  background-color: rgba(0, 134, 246, 0.08);
+  border: 1px solid #0086F6;
+  color: #0086F6;
+  
+  .starSub {
+    color: #0086F6; /* 星级副标题也变蓝 */
+  }
+}
+
+.dropdownFooter {
+  display: flex;
+  padding: 12px 0;
+  border-top: 1px solid #eee;
+  gap: 12px;
+}
+
+.btnReset {
+  flex: 1;
+  height: 44px;
+  line-height: 44px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #333;
+  
+  &::after { border: none; }
+}
+
+.btnConfirm {
+  flex: 1;
+  height: 44px;
+  line-height: 44px;
+  background-color: #0086F6;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #fff;
+  
+  &::after { border: none; }
+}
+
+.mainFilters {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px; /* 增加点击区域 */
+  border-bottom: 1px solid #f0f0f0;
+}
+.filterItem {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 14px; /* 筛选项放大 */
+  color: $text-main;
+  font-weight: 500;
+}
+.activeFilter {
+  color: $text-main;
+  font-weight: 800; /* 选中时极度加粗 */
+}
+.arrowIcon {
+  font-size: 10px;
+  color: $text-main; /* 携程的箭头颜色较深 */
+}
+
+.tagScroll {
+  width: 100%;
+  padding: 10px 0;
+  white-space: nowrap;
+}
+.tagWrapper {
+  display: inline-flex;
+  padding: 0 12px;
+  gap: 8px;
+}
+.quickTag {
+  background-color: #f6f7f9;
+  padding: 6px 12px; /* 标签变胖 */
+  border-radius: 4px; /* 携程标签圆角较小 */
+  font-size: 13px; /* 标签字体放大 */
+  color: $text-main;
+}
+.activeTag {
+  background-color: rgba(0, 134, 246, 0.08);
+  color: $primary-blue;
+  font-weight: bold;
+}
+
+.listSection {
+  flex: 1;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}

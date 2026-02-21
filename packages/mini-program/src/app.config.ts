@@ -23,4 +23,14 @@ export default defineAppConfig({
     navigationBarTitleText: 'E-Stay 酒店预订',
     navigationBarTextStyle: 'black'
   },
+  // --- 对应微信文档中的 permission 字段 ---
+  permission: {
+    'scope.userLocation': {
+      desc: '您的位置信息将用于推荐您所在城市的酒店' // 这一句就是对应文档里的 desc
+    }
+  },
+  // --- 对应微信文档中的 requiredPrivateInfos 字段 ---
+  requiredPrivateInfos: [
+    'getLocation'
+  ]
 })

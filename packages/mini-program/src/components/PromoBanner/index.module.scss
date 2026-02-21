@@ -1,0 +1,39 @@
+﻿.promoBanner {
+  margin: 0 24rpx;
+  background: linear-gradient(135deg, #fff5e6 0%, #fff 100%);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1rpx solid #ffe4cc;
+}
+
+.promoLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.promoTag {
+  font-size: 22rpx;
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.1);
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+  align-self: flex-start;
+  margin-bottom: 8rpx;
+}
+
+.promoTitle {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.promoBtn {
+  background: #ff6b00;
+  color: #fff;
+  font-size: 24rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 30rpx;
+}

@@ -1,0 +1,191 @@
+﻿@use '../../styles/variables.scss' as *;
+
+.searchCard {
+  position: relative;
+  z-index: 10;
+  margin: -160rpx 24rpx 0;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.tabHeader {
+  display: flex;
+  align-items: center;
+  background-color: #fbfbfb;
+  padding: 0 10rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.tabItem {
+  padding: 30rpx 30rpx;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tabText {
+  font-size: 30rpx;
+  color: #666;
+}
+
+.active .tabText {
+  font-size: 32rpx;
+  color: #0086f6;
+  font-weight: 600;
+}
+
+.activeBar {
+  width: 40rpx;
+  height: 6rpx;
+  background-color: #0086f6;
+  border-radius: 6rpx;
+  position: absolute;
+  bottom: 10rpx;
+}
+
+.formContent {
+  padding: 10rpx 30rpx 40rpx;
+}
+
+.rowItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx 0;
+}
+
+.borderBottom {
+  border-bottom: 1rpx solid #f2f2f2;
+}
+
+.label {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.inputWrapper {
+  flex: 1;
+}
+
+.cityValue {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.locationBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 30rpx;
+}
+
+.locIcon {
+  font-size: 32rpx;
+  margin-bottom: 4rpx;
+}
+
+.locText {
+  font-size: 20rpx;
+  color: #0086f6;
+}
+
+.dateSection {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.dateCol {
+  flex: 1;
+}
+
+.dateValGroup {
+  display: flex;
+  align-items: flex-end;
+}
+
+.bigNum {
+  font-size: 38rpx;
+  font-weight: 600;
+  color: #333;
+  margin-right: 10rpx;
+}
+
+.smallDesc {
+  font-size: 24rpx;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.durationBadge {
+  margin: 0 20rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 20rpx;
+  padding: 4rpx 16rpx;
+}
+
+.badgeText {
+  font-size: 20rpx;
+  color: #666;
+}
+
+.placeholderText {
+  font-size: 30rpx;
+  color: #ccc;
+}
+
+.valueText {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verticalDivider {
+  width: 2rpx;
+  height: 50rpx;
+  background-color: #e6e6e6;
+  margin: 0 20rpx;
+}
+
+.quickTagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 30rpx;
+}
+
+.quickTagItem {
+  font-size: 24rpx;
+  color: #666;
+  background-color: #f5f7fa;
+  padding: 10rpx 20rpx;
+  border-radius: 8rpx;
+  border: 1px solid transparent;
+}
+
+.quickTagItemActive {
+  background-color: #eaf5ff;
+  color: #0086f6;
+  border-color: #0086f6;
+  font-weight: 500;
+}
+
+.submitBtn {
+  margin-top: 20rpx;
+  background: linear-gradient(90deg, #ffa500 0%, #ff6b00 100%);
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 600;
+  border-radius: 50rpx;
+  border: none;
+  box-shadow: 0 10rpx 20rpx rgba(255, 107, 0, 0.2);
+}

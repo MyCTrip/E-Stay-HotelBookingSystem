@@ -13,6 +13,8 @@ import {
 import App from './App'
 import './index.css'
 
+alert('Vite 真的在跑这个项目吗？！')
+
 // 1. 初始化配置系统
 const useMockApi = import.meta.env.VITE_USE_MOCK_API === 'true'
 initializeConfig({

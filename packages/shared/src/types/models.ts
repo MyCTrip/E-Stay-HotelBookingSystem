@@ -1,6 +1,6 @@
 /**
  * 数据模型类型定义
- * 与后端 API 返回数据结构保持一致
+ * 结合后端原始数据结构与移动端展示场景所需字段
  */
 
 /**
@@ -88,6 +88,18 @@ export interface AuditInfo {
 }
 
 /**
+ * 移动端聚合展示信息 (前端独有或 BFF 层计算下发)
+ * 专为列表页和详情页的快速渲染设计
+ */
+export interface HotelDisplayInfo {
+  lowestPrice: number;    // 当前时间段内的最低起步价
+  rating: number;         // 综合评分 (如 4.8)
+  reviewCount: number;    // 评价总数
+  distanceText?: string;  // 距离描述 (如 "距您 1.5km")
+  tags?: string[];        // 快捷标签 (如 "免费停车", "近地铁")
+}
+
+/**
  * 完整酒店数据
  */
 export interface Hotel {
@@ -98,8 +110,9 @@ export interface Hotel {
   rooms?: Room[]
   createdAt?: string
   updatedAt?: string
-  // 通用类型配置，按 propertyType 区分具体字段
   typeConfig?: TypeConfig
+  // 新增：专供移动端聚合展示的独立数据块
+  displayInfo?: HotelDisplayInfo
 }
 
 /**
@@ -116,7 +129,7 @@ export interface BedInfo {
  */
 export interface RoomBaseInfo {
   type: string // 房型
-  price: number // 价格
+  price: number // 基础价格（挂牌价）
   images: string[]
   status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline'
   maxOccupancy: number // 最多入住人数
@@ -161,9 +174,12 @@ export interface Room {
   }
   createdAt?: string
   updatedAt?: string
-  // 房间类别，如 standard/hourly/homestay 等
   category?: string
   typeConfig?: TypeConfig
+  
+  // 新增：移动端预订必须的状态（与查询日期强关联）
+  inventory?: number;       // 当前查询时间段内的剩余库存量
+  currentPrice?: number;    // 当前查询时间段内的实际结算价格
 }
 
 /**
@@ -172,23 +188,35 @@ export interface Room {
 export type PropertyType = 'hotel' | 'hourlyHotel' | 'homeStay'
 
 /**
- * 按 propertyType 存放的可选配置项（后端以对象形式返回，前端可按类型断言）
+ * 按 propertyType 存放的可选配置项
  */
 export interface TypeConfig {
   [key: string]: any
 }
 
 /**
- * 搜索查询参数
+ * 搜索查询参数 (完美匹配你的排序、筛选和国内外需求)
  */
 export interface HotelQuery {
   city?: string
   search?: string
   limit?: number
   page?: number
-  checkIn?: string
-  checkOut?: string
   propertyType?: PropertyType
+  
+  // 核心业务参数
+  isInternational?: boolean; // 区分国内/海外酒店业务
+  checkInDate?: string;      // 入住日期 YYYY-MM-DD
+  checkOutDate?: string;     // 离店日期 YYYY-MM-DD
+  
+  // 筛选参数
+  minPrice?: number;         // 最低价
+  maxPrice?: number;         // 最高价
+  stars?: number[];          // 星级筛选，如 [3, 4, 5]
+  facilities?: string[];     // 设施筛选，如 ['wifi', 'parking']
+  
+  // 排序参数
+  sortBy?: 'price_asc' | 'price_desc' | 'rating_desc' | 'distance_asc'; 
 }
 
 /**

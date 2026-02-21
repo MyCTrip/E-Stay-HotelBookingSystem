@@ -8,7 +8,11 @@ export type { IStorage } from './adapters/storage'
 
 // Store 管理
 export { createHotelStore, initHotelStore, useHotelStore, resetHotelStore } from './stores/hotelStore'
-export type { SearchParams } from './stores/hotelStore'
+// 核心模型类型从 models.ts 导出去，供 web 和 taro 使用
+export * from './types/models' 
+
+// 导出 store 及其相关方法
+export * from './stores/hotelStore'
 
 // 中间件管理
 export {

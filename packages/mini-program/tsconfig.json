@@ -8,12 +8,10 @@
     "experimentalDecorators": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
-    "outDir": "lib",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strictNullChecks": true,
     "sourceMap": true,
-    "rootDir": ".",
     "jsx": "react-jsx",
     "allowJs": true,
     "resolveJsonModule": true,
@@ -22,11 +20,24 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@estay/shared": ["../../packages/shared/dist"],
-      "@estay/shared/*": ["../../packages/shared/dist/*"]
+      // 🚀 核心修改 1：直接指向 shared 的源码目录，开发体验更好
+      "@estay/shared": ["../shared/src"],
+      "@estay/shared/*": ["../shared/src/*"]
     },
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    
+    // 🚀 核心修改 2：前端项目只做类型检查，不输出文件！彻底解决覆盖报错！
+    "noEmit": true
+    
+    // 🗑️ 删除了 "rootDir": "." 和 "outDir": "lib"
+    // 因为这不仅前端不需要，而且还会限制 TS 跨包读取类型
   },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../../node_modules",
+    "../shared/dist" 
+  ],
   "include": ["./src", "./types", "./config"],
   "compileOnSave": false
 }
