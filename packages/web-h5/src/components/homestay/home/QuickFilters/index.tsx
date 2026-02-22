@@ -20,9 +20,7 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({
   onTagSelect,
   maxSelect,
 }) => {
-  const [selected, setSelected] = useState<Set<string>>(
-    new Set(selectedTags)
-  )
+  const [selected, setSelected] = useState<Set<string>>(new Set(selectedTags))
   const scrollWrapperRef = useRef<HTMLDivElement>(null)
   const sliderTrackRef = useRef<HTMLDivElement>(null)
   const dragStartRef = useRef<{ startX: number; startScrollLeft: number }>({
@@ -54,7 +52,8 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({
   const handleScroll = () => {
     if (scrollWrapperRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollWrapperRef.current
-      const progress = scrollWidth > clientWidth ? (scrollLeft / (scrollWidth - clientWidth)) * 100 : 0
+      const progress =
+        scrollWidth > clientWidth ? (scrollLeft / (scrollWidth - clientWidth)) * 100 : 0
       setScrollProgress(progress)
     }
   }
@@ -80,7 +79,8 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({
 
       // 计算相对于 track 宽度的移动比例，转换为 scroll 距离
       const scrollDistance =
-        (deltaX / trackRect.width) * (scrollWrapperRef.current.scrollWidth - scrollWrapperRef.current.clientWidth)
+        (deltaX / trackRect.width) *
+        (scrollWrapperRef.current.scrollWidth - scrollWrapperRef.current.clientWidth)
 
       scrollWrapperRef.current.scrollLeft = Math.max(
         0,
@@ -108,11 +108,7 @@ const QuickFilters: React.FC<QuickFiltersProps> = ({
 
   return (
     <div className={styles.container}>
-      <div
-        ref={scrollWrapperRef}
-        className={styles.scrollWrapper}
-        onScroll={handleScroll}
-      >
+      <div ref={scrollWrapperRef} className={styles.scrollWrapper} onScroll={handleScroll}>
         {tags.map((tag) => {
           const isSelected = selected.has(tag.id)
           return (

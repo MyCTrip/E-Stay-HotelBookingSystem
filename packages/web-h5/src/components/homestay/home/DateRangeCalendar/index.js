@@ -1,13 +1,11 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
- * 日期范围日历组件
- * 从网页窗口底部滑入，占 70% 屏幕高度，顶部圆角
+ * 日期范围日历组件 - 只提供日历内容
  */
 import { useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import dayjs from 'dayjs';
 import styles from './index.module.scss';
-const DateRangeCalendar = ({ visible, checkIn, checkOut, onSelect, onClose, }) => {
+const DateRangeCalendar = ({ checkIn, checkOut, onSelect, onClose, }) => {
     const today = dayjs();
     const [tempCheckIn, setTempCheckIn] = useState(checkIn || null);
     const [tempCheckOut, setTempCheckOut] = useState(checkOut || null);
@@ -49,13 +47,11 @@ const DateRangeCalendar = ({ visible, checkIn, checkOut, onSelect, onClose, }) =
         }
         return months;
     }, [currentMonth]);
-    const nights = tempCheckIn && tempCheckOut
-        ? dayjs(tempCheckOut).diff(dayjs(tempCheckIn), 'day')
-        : 0;
+    const nights = tempCheckIn && tempCheckOut ? dayjs(tempCheckOut).diff(dayjs(tempCheckIn), 'day') : 0;
     const isInRange = (date) => {
         if (!tempCheckIn || !tempCheckOut)
             return false;
-        return (date.isAfter(dayjs(tempCheckIn)) && date.isBefore(dayjs(tempCheckOut)));
+        return date.isAfter(dayjs(tempCheckIn)) && date.isBefore(dayjs(tempCheckOut));
     };
     const isCheckInDate = (date) => {
         return tempCheckIn && date.format('YYYY-MM-DD') === dayjs(tempCheckIn).format('YYYY-MM-DD');
@@ -94,16 +90,7 @@ const DateRangeCalendar = ({ visible, checkIn, checkOut, onSelect, onClose, }) =
             onClose();
         }
     };
-    const handleClose = () => {
-        setTempCheckIn(null);
-        setTempCheckOut(null);
-        onClose();
-    };
-    return createPortal(_jsxs(_Fragment, { children: [visible && (_jsx("div", { className: styles.overlay, onClick: handleClose })), _jsxs("div", { className: `${styles.drawer} ${visible ? styles.active : ''}`, children: [_jsxs("div", { className: styles.header, children: [_jsx("button", { className: styles.backBtn, onClick: handleClose, children: _jsx("svg", { viewBox: "0 0 24 24", width: "24", height: "24", fill: "none", stroke: "currentColor", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 19l-7-7 7-7" }) }) }), _jsx("h2", { className: styles.title, children: "\u9009\u62E9\u5165\u79BB\u65E5\u671F" }), _jsx("div", { className: styles.placeholder })] }), _jsxs("div", { className: styles.dateInfo, children: [_jsxs("div", { className: styles.dateInfoItem, children: [_jsx("div", { className: styles.dateInfoLabel, children: "\u5165\u4F4F\u65E5\u671F" }), _jsx("div", { className: styles.dateInfoValue, children: tempCheckIn
-                                            ? dayjs(tempCheckIn).format('M月D日 ddd')
-                                            : '未选择' })] }), _jsx("div", { className: styles.dateInfoSpacer, children: nights > 0 && (_jsxs("div", { className: styles.nightsCount, children: ["\u5171", nights, "\u665A"] })) }), _jsxs("div", { className: styles.dateInfoItem, children: [_jsx("div", { className: styles.dateInfoLabel, children: "\u79BB\u5E97\u65E5\u671F" }), _jsx("div", { className: styles.dateInfoValue, children: tempCheckOut
-                                            ? dayjs(tempCheckOut).format('M月D日 ddd')
-                                            : '未选择' })] })] }), _jsxs("div", { className: styles.calendarContainer, children: [calendarData.map((monthData, monthIndex) => (_jsxs("div", { className: styles.calendarMonth, children: [_jsx("div", { className: styles.monthTitle, children: monthData.month }), _jsx("div", { className: styles.weekdayLabels, children: ['日', '一', '二', '三', '四', '五', '六'].map((day) => (_jsx("div", { className: styles.weekdayLabel, children: day }, day))) }), _jsx("div", { className: styles.daysGrid, children: monthData.weeks.map((week, weekIndex) => week.map((date, dayIndex) => (_jsx("button", { className: `${styles.dayButton} ${date === null ? styles.empty : ''} ${date && date.isBefore(today, 'day') ? styles.disabled : ''} ${date && isCheckInDate(date) ? styles.checkIn : ''} ${date && isCheckOutDate(date) ? styles.checkOut : ''} ${date && isInRange(date) ? styles.inRange : ''}`, onClick: () => date && handleDateClick(date), disabled: !date || date.isBefore(today, 'day'), children: date && date.date() }, `${monthIndex}-${weekIndex}-${dayIndex}`)))) })] }, monthIndex))), _jsx("div", { className: styles.endTip, children: "\u5230\u5E95\u4E86\uFF0C\u6700\u957F\u53EF\u8BA26\u4E2A\u6708\u5185\u7684\u623F\u5C4B" })] }), _jsx("div", { className: styles.footer, children: _jsx("button", { className: styles.confirmBtn, onClick: handleConfirm, disabled: !tempCheckIn || !tempCheckOut, children: "\u786E\u5B9A" }) })] })] }), document.body);
+    return (_jsxs("div", { className: styles.wrapper, children: [_jsxs("div", { className: styles.dateInfo, children: [_jsxs("div", { className: styles.dateInfoItem, children: [_jsx("div", { className: styles.dateInfoLabel, children: "\u5165\u4F4F\u65E5\u671F" }), _jsx("div", { className: styles.dateInfoValue, children: tempCheckIn ? dayjs(tempCheckIn).format('M月D日 ddd') : '未选择' })] }), _jsx("div", { className: styles.dateInfoSpacer, children: nights > 0 && _jsxs("div", { className: styles.nightsCount, children: ["\u5171", nights, "\u665A"] }) }), _jsxs("div", { className: styles.dateInfoItem, children: [_jsx("div", { className: styles.dateInfoLabel, children: "\u79BB\u5E97\u65E5\u671F" }), _jsx("div", { className: styles.dateInfoValue, children: tempCheckOut ? dayjs(tempCheckOut).format('M月D日 ddd') : '未选择' })] })] }), _jsxs("div", { className: styles.calendarContainer, children: [calendarData.map((monthData, monthIndex) => (_jsxs("div", { className: styles.calendarMonth, children: [_jsx("div", { className: styles.monthTitle, children: monthData.month }), _jsx("div", { className: styles.weekdayLabels, children: ['日', '一', '二', '三', '四', '五', '六'].map((day) => (_jsx("div", { className: styles.weekdayLabel, children: day }, day))) }), _jsx("div", { className: styles.daysGrid, children: monthData.weeks.map((week, weekIndex) => week.map((date, dayIndex) => (_jsx("button", { className: `${styles.dayButton} ${date === null ? styles.empty : ''} ${date && date.isBefore(today, 'day') ? styles.disabled : ''} ${date && isCheckInDate(date) ? styles.checkIn : ''} ${date && isCheckOutDate(date) ? styles.checkOut : ''} ${date && isInRange(date) ? styles.inRange : ''}`, onClick: () => date && handleDateClick(date), disabled: !date || date.isBefore(today, 'day'), children: date && date.date() }, `${monthIndex}-${weekIndex}-${dayIndex}`)))) })] }, monthIndex))), _jsx("div", { className: styles.endTip, children: "\u5230\u5E95\u4E86\uFF0C\u6700\u957F\u53EF\u8BA26\u4E2A\u6708\u5185\u7684\u623F\u5C4B" })] }), _jsx("div", { className: styles.footer, children: _jsx("button", { className: styles.confirmBtn, onClick: handleConfirm, disabled: !tempCheckIn || !tempCheckOut, children: "\u786E\u5B9A" }) })] }));
 };
 export default DateRangeCalendar;
 //# sourceMappingURL=index.js.map

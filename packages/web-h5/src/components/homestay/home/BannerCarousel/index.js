@@ -62,7 +62,7 @@ export default function BannerCarousel({ items, autoPlay = true, interval = 3500
     };
     return (_jsxs("div", { className: styles.container, onClick: handleBannerClick, children: [_jsx("div", { className: styles.bannerWrapper, children: bannerItems.map((item, index) => (_jsxs("div", { className: `${styles.bannerSlide} ${index === currentIndex ? styles.active : ''}`, style: {
                         backgroundColor: item.color || '#FF6B6B',
-                    }, children: [_jsxs("div", { className: styles.content, children: [_jsx("h3", { className: styles.title, children: item.title }), item.subtitle && (_jsx("p", { className: styles.subtitle, children: item.subtitle }))] }), _jsxs("div", { className: styles.counter, children: [currentIndex + 1, "/", bannerItems.length] })] }, item.id))) }), _jsx("div", { className: styles.indicators, children: bannerItems.map((_, index) => (_jsx("div", { className: `${styles.dot} ${index === currentIndex ? styles.active : ''}`, onClick: (e) => {
+                    }, children: [_jsxs("div", { className: styles.content, children: [_jsx("h3", { className: styles.title, children: item.title }), item.subtitle && _jsx("p", { className: styles.subtitle, children: item.subtitle })] }), _jsxs("div", { className: styles.counter, children: [currentIndex + 1, "/", bannerItems.length] })] }, item.id))) }), _jsx("div", { className: styles.indicators, children: bannerItems.map((_, index) => (_jsx("div", { className: `${styles.dot} ${index === currentIndex ? styles.active : ''}`, onClick: (e) => {
                         e.stopPropagation();
                         goToSlide(index);
                     } }, index))) })] }));

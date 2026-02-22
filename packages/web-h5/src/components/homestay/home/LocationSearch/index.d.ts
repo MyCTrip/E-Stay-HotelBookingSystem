@@ -1,10 +1,8 @@
 /**
- * 位置搜索组件 - 景点/地标/房源搜索
- * 从网页窗口底部滑入，占 70% 屏幕高度，顶部圆角
+ * 位置搜索组件 - 景点/地标/房源搜索，只提供内容
  */
 import React from 'react';
 interface LocationSearchProps {
-    visible: boolean;
     onSelect: (location: string) => void;
     onClose: () => void;
 }

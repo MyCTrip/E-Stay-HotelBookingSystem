@@ -1,58 +1,86 @@
-/* 核心：吸顶容器 */
-.stickyContainer {
+/* 吸顶导航Tab栏 */
+
+.tabsWrapper {
   position: sticky;
-  top: 44px;
-  /* 这里的 44px 是你页面顶部 DetailHeader(返回按钮那一栏) 的高度。如果 Header 变高了，这里也要跟着变 */
-  z-index: 90;
-  /* 保证它悬浮在下面内容的上方，但不要超过顶部 Header 的 z-index */
-  background-color: #ffffff;
+  top: 44px; /* 顶部操作栏高度 */
+  z-index: 99;
+  background-color: #fff;
   border-bottom: 1px solid #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  /* 微微的阴影，让悬浮更有层次感 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-/* 标签横向滚动区 */
-.tabsWrapper {
+.tabs {
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  height: 44px;
+  padding: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
-  /* 隐藏 Firefox 滚动条 */
 
   &::-webkit-scrollbar {
     display: none;
-    /* 隐藏 Chrome/Safari 滚动条 */
   }
 }
 
-/* 单个标签 */
-.tabItem {
-  padding: 12px 16px;
-  font-size: 15px;
-  color: #666666;
+.tab {
+  position: relative;
+  padding: 0;
+  flex: 1;
+  height: 44px;
+  border: none;
+  background: none;
   cursor: pointer;
   white-space: nowrap;
-  position: relative;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; /* 保证热区 */
+  transition: color 0.2s ease;
+
+  &.active {
+    .label {
+      color: #0066ff;
+      font-weight: 600;
+    }
+  }
+
+  &:not(.active) {
+    .label {
+      color: #666;
+    }
+  }
 }
 
-/* 选中状态 (对齐截图里的蓝色风格) */
-.tabItem.active {
-  color: #0066FF;
-  font-weight: 700;
-  font-size: 16px;
+.label {
+  font-size: 15px;
 }
 
-/* 选中状态底部的蓝色下划线 */
-.tabItem.active::after {
-  content: '';
+.underline {
   position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 3px;
-  background-color: #0066FF;
-  border-radius: 2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #0066ff;
+  border-radius: 1px;
+}
+
+@media (max-width: 768px) {
+  .tabsWrapper {
+    top: 44px;
+  }
+
+  .tabs {
+    padding: 0;
+    height: 44px;
+  }
+
+  .tab {
+    flex: 1;
+  }
+
+  .label {
+    font-size: 14px;
+  }
 }

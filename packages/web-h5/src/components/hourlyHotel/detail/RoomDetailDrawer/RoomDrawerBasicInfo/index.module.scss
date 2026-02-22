@@ -17,19 +17,24 @@
     margin: 0;
   }
 
-  .noBreakfast {
+  .Breakfast {
     background: #fef3cd;
     color: #856404;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
     white-space: nowrap;
+    display: flex;
+  } 
+  .BreakfastIcon {
+    display: flex;
+    margin-right: 4px;
   }
 }
 
 .statsRow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0;
   padding: 0 16px;
   margin-bottom: 16px;
@@ -38,10 +43,11 @@
 
   .stat {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     padding: 12px 8px;
     border-right: 1px solid #f0f0f0;
+    gap: 8px;
 
     &:last-child {
       border-right: none;
@@ -49,19 +55,33 @@
 
     .statIcon {
       font-size: 20px;
-      margin-bottom: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
+
+    .statContent {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
     }
 
     .statLabel {
       font-size: 12px;
       color: #999;
       margin-bottom: 2px;
+      order: 1;
     }
 
     .statValue {
       font-size: 14px;
       color: #333;
       font-weight: 500;
+      order: -1;
     }
   }
 }
@@ -69,13 +89,6 @@
 .bedSection {
   padding: 0 16px;
   margin-bottom: 16px;
-
-  .sectionTitle {
-    font-size: 14px;
-    color: #333;
-    font-weight: 600;
-    margin: 0 0 12px 0;
-  }
 
   .bedTable {
     width: 100%;

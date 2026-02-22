@@ -316,23 +316,23 @@ const HomeStayPage: React.FC = () => {
     setLoading(true)
     try {
       // 模拟搜索延迟
-      await new Promise(resolve => setTimeout(resolve, 800))
-      
+      await new Promise((resolve) => setTimeout(resolve, 800))
+
       // 根据选中的城市和标签过滤数据
-      const filtered = MOCK_HOMESTAYS.filter(homestay => {
+      const filtered = MOCK_HOMESTAYS.filter((homestay) => {
         // 城市过滤
         if (homestay.baseInfo.city !== searchParams.city) {
           return false
         }
-        
+
         // 标签过滤（如果需要）
         if (searchParams.selectedTags && searchParams.selectedTags.length > 0) {
           // TODO: 根据实际的标签逻辑过滤
         }
-        
+
         return true
       })
-      
+
       setHomestays(filtered)
       setPagination({ page: 1, limit: 20, total: filtered.length })
 
@@ -344,7 +344,7 @@ const HomeStayPage: React.FC = () => {
         rooms: String(searchParams.rooms || 1),
         guests: String(searchParams.guests || 1),
       })
-      
+
       navigate(`/search/homeStay?${queryParams.toString()}`)
     } catch (error) {
       console.error('Failed to search:', error)
@@ -394,10 +394,7 @@ const HomeStayPage: React.FC = () => {
         <div className={styles.searchCard}>
           {/* 位置选择 */}
           <div className={styles.cardItem}>
-            <LocationInput
-              city={searchParams.city}
-              onCityChange={handleLocationSelect}
-            />
+            <LocationInput city={searchParams.city} onCityChange={handleLocationSelect} />
           </div>
 
           {/* 日期选择 */}
@@ -442,11 +439,7 @@ const HomeStayPage: React.FC = () => {
 
           {/* 搜索按钮 */}
           <div className={styles.cardItem}>
-            <SearchButton
-              loading={loading}
-              onClick={handleSearch}
-              label="开始搜索"
-            />
+            <SearchButton loading={loading} onClick={handleSearch} label="开始搜索" />
           </div>
         </div>
       </div>

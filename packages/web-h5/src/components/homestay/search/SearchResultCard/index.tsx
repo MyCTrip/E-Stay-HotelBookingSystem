@@ -26,11 +26,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
 
   const primaryImage = data.images?.[0] || null
   const roomPrice = data.rooms?.[0]?.baseInfo?.price || 358
-  const originalPrice = Math.ceil(roomPrice * 1.5)
-  const reviewCount = Math.floor(Math.random() * 5000) + 100
-  const discountAmount = Math.floor(Math.random() * 100) + 20
   const tags = ['含双早', '免费取消', '热门']
-  const features = ['无忧保障', '实拍看房', '免费取消', '近地铁']
 
   const handleCardClick = () => {
     onClick?.(data._id)
@@ -62,29 +58,43 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         <button
           className={`${styles.favoriteBtn} ${favorited ? styles.favorited : ''}`}
           onClick={handleFavoriteClick}
+          aria-label="收藏"
         >
-          ♡
+          <svg
+            viewBox="0 0 24 24"
+            width="28"
+            height="28"
+            fill={favorited ? 'rgba(255, 107, 107, 0.6)' : 'rgba(180, 183, 189, 0.6)'}
+            stroke="none"
+          >
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
         </button>
 
-        {/* 图片数量标识 */}
-        <div className={styles.photoCount}>
-          📷 {data.images?.length || 1}
+        {/* 评分和位置标签 - 左下角 */}
+        <div className={styles.ratingBadge}>
+          <span className={styles.ratingBadgeText}>⭐ {data.baseInfo.star}</span>
+          <svg 
+            viewBox="0 0 1024 1024" 
+            version="1.1" 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="10" 
+            height="10"
+            fill="#4db4ea"
+          >
+            <path d="M512 0C312.32 0 153.6 158.72 153.6 358.4 153.6 624.64 512 1024 512 1024s358.4-399.36 358.4-665.6C870.4 158.72 711.68 0 512 0z m0 486.4c-71.68 0-128-56.32-128-128s56.32-128 128-128 128 56.32 128 128-56.32 128-128 128z" />
+          </svg>
+          <span className={styles.location}>{data.baseInfo.city} · 距您 3.2km</span>
         </div>
+
+        {/* 图片数量标识 - 右下角 */}
+        <div className={styles.photoCount}>📷 {data.images?.length || 1}</div>
       </div>
 
       {/* 右侧信息区 - PC端右侧，移动端下方 */}
       <div className={styles.infoSection}>
         {/* 名称 */}
         <h3 className={styles.name}>{data.baseInfo.nameCn}</h3>
-
-        {/* 评分 & 位置 */}
-        <div className={styles.ratingRow}>
-          <span className={styles.rating}>⭐ {data.baseInfo.star}</span>
-          <span className={styles.ratingText}>超棒</span>
-          <span className={styles.location}>
-            {data.baseInfo.city} · 距您 3.2km
-          </span>
-        </div>
 
         {/* 核心标签 */}
         <div className={styles.tags}>
@@ -95,30 +105,13 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
           ))}
         </div>
 
-        {/* 优惠提示 */}
-        <div className={styles.discount}>
-          🔥 今日特价，比原价低 ¥{discountAmount}
-        </div>
-
-        {/* 功能特性 - 仅移动端显示 */}
-        <div className={styles.features}>
-          {features.slice(0, 4).map((feature, index) => (
-            <span key={index} className={styles.feature}>
-              {feature}
-            </span>
-          ))}
-        </div>
-
         {/* 房间配置 - 仅移动端显示 */}
-        <div className={styles.roomInfo}>
-          1居1床2人 · 整套40㎡ · 近{data.baseInfo.city}路步行街
-        </div>
+        <div className={styles.roomInfo}>1居1床2人 · 整套40㎡ · 近{data.baseInfo.city}路步行街</div>
 
         {/* 价格区 */}
         <div className={styles.priceSection}>
           <span className={styles.price}>¥{roomPrice}</span>
           <span className={styles.unit}>/晚起</span>
-          <span className={styles.sold}>已售 {reviewCount}</span>
         </div>
       </div>
     </div>

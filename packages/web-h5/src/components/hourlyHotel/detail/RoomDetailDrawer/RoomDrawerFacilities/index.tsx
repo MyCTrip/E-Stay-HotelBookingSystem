@@ -1,45 +1,76 @@
-import React from 'react'
-import { HourlyRoomDetail } from '@estay/shared'
+/**
+ * 房型详情 - 设施与服务信息
+ */
+
+import React, { useState, useEffect, forwardRef } from 'react'
+import { CheckIcon, CrossIcon } from '../../../icons/FacilityIcons'
+import { FACILITY_CATEGORIES } from '../../../../../constants/facilities'
+import styles from './index.module.scss'
 
 interface RoomDrawerFacilitiesProps {
-  room: HourlyRoomDetail
+  room?: any
+  expandedInitially?: boolean
+  onClose?: () => void
 }
 
-const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps> = ({ room }) => {
-  const { facilities } = room.baseInfo
+const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProps>((
+  {
+    expandedInitially = false,
+    onClose,
+  },
+  ref
+) => {
+  const [isExpanded, setIsExpanded] = useState(expandedInitially)
 
-  // 如果没有设施数据，直接不渲染该模块
-  if (!facilities || facilities.length === 0) {
-    return null
-  }
+  // 同步 expandedInitially 的变化
+  useEffect(() => {
+    setIsExpanded(expandedInitially)
+  }, [expandedInitially])
+
+  // 展开时显示所有分类，收起时只显示基础、卫浴、厨房
+  const visibleCategories = isExpanded 
+    ? FACILITY_CATEGORIES 
+    : FACILITY_CATEGORIES.filter((c) => ['basic', 'bathroom', 'kitchen'].includes(c.id))
 
   return (
-    <div style={{ padding: '16px', borderBottom: '1px solid #eee', backgroundColor: '#fff', marginTop: '8px' }}>
-      <h3 style={{ fontSize: '18px', margin: '0 0 12px 0', color: '#333' }}>设施服务</h3>
+    <div className={styles.facilitiesContainer} ref={ref}>
+      {/* Title区域 */}
+      <h3 className={styles.title}>设施/服务</h3>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-        {facilities.map((fac, index) => {
-          // 兼容处理：假设 Facility 是个对象包含 name 属性，或者直接就是 string
-          const facName = typeof fac === 'string' ? fac : (fac as any).name || '未知设施'
+      {/* 设施列表 */}
+      <div className={styles.facilitiesList}>
+        {visibleCategories.map((category) => (
+          <div key={category.id} className={styles.categoryBlock}>
+            {/* 分类名 - 左侧 */}
+            <div className={styles.categoryName}>{category.name}</div>
 
-          return (
-            <span
-              key={index}
-              style={{
-                padding: '4px 10px',
-                backgroundColor: '#f5f7fa',
-                borderRadius: '4px',
-                fontSize: '12px',
-                color: '#555'
-              }}
-            >
-              {facName}
-            </span>
-          )
-        })}
+            {/* 分类设施 - 右侧，一行三个 */}
+            <div className={styles.itemsGrid}>
+              {category.facilities.map((facility) => (
+                <div key={facility.id} className={styles.facilityItem}>
+                  {facility.available ? (
+                    <CheckIcon width={18} height={18} color="#43ae4a" />
+                  ) : (
+                    <CrossIcon width={18} height={18} color="#d3d3d3" />
+                  )}
+                  <span className={styles.itemName}>{facility.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 展开/收起按钮 - 始终显示 */}
+      <div className={styles.expandFooter}>
+        <button className={styles.expandBtn} onClick={() => setIsExpanded(!isExpanded)}>
+          {isExpanded ? '收起全部设施' : '展开全部设施'} <span className={styles.arrow}>›</span>
+        </button>
       </div>
     </div>
   )
-}
+})
+
+RoomDrawerFacilities.displayName = 'RoomDrawerFacilities'
 
 export default RoomDrawerFacilities

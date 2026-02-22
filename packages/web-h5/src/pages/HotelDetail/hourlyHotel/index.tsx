@@ -2,7 +2,9 @@
  * 钟点房详情页 - 主容器
  */
 import React, { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+// 🌟 1. 引入 useNavigate 用于处理返回上一页
+import { useParams, useNavigate } from 'react-router-dom'
+import dayjs from 'dayjs'
 import DetailHeader from '../../../components/hourlyHotel/detail/DetailHeader'
 import ImageCarousel from '../../../components/hourlyHotel/detail/ImageCarousel'
 import DetailTabs, { type TabKey } from '../../../components/hourlyHotel/detail/DetailTabs'
@@ -13,12 +15,12 @@ import NearbyRecommendations from '../../../components/hourlyHotel/detail/Nearby
 import HourlyHotelInfo from '../../../components/hourlyHotel/detail/HourlyHotelInfo'
 import HourlyRoomSelection from '../../../components/hourlyHotel/detail/HourlyRoomSelection'
 import HourlyBookingBar from '../../../components/hourlyHotel/detail/HourlyBookingBar'
+import HourlyTimePicker from '../../../components/hourlyHotel/detail/HourlyTimePicker'
 
-// 🌟 1. 引入真实的类型和我们写好的抽屉组件
 import { HourlyRoomDetail } from '@estay/shared'
 import HourlyRoomDetailDrawer from '../../RoomDetail/hourlyHotel/index'
 
-import styles from './index.module.css'
+import styles from './index.module.scss'
 
 const mockHourlyData: any = {
   _id: 'hourly_123',
@@ -45,6 +47,9 @@ interface DetailPageProps {
 }
 
 const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyData }) => {
+  // 🌟 2. 实例化 navigate
+  const navigate = useNavigate()
+
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -53,14 +58,23 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
   const [activeTab, setActiveTab] = useState<TabKey>('rooms')
   const [headerOpacity, setHeaderOpacity] = useState(0)
 
-  // 🌟 2. 新增控制弹窗的状态
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<HourlyRoomDetail | null>(null)
 
+  const [selectedDate, setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD'))
+  const [startTime, setStartTime] = useState<string>('14:00')
+  const [duration, setDuration] = useState<number>(initialData.duration || 3)
+
+  const handleTimeChange = (date: string, start: string, hours: number) => {
+    setSelectedDate(date)
+    setStartTime(start)
+    setDuration(hours)
+  }
+
   const sectionRefs = {
     rooms: useRef<HTMLDivElement>(null),
-    facilities: useRef<HTMLDivElement>(null),
     reviews: useRef<HTMLDivElement>(null),
+    facilities: useRef<HTMLDivElement>(null),
     policies: useRef<HTMLDivElement>(null),
     nearby: useRef<HTMLDivElement>(null),
   }
@@ -77,8 +91,8 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
   const updateActiveTab = (scrollPosition: number) => {
     const tabPositions = {
       rooms: sectionRefs.rooms.current?.offsetTop || 0,
-      facilities: sectionRefs.facilities.current?.offsetTop || 1000,
-      reviews: sectionRefs.reviews.current?.offsetTop || 2000,
+      reviews: sectionRefs.reviews.current?.offsetTop || 1000,
+      facilities: sectionRefs.facilities.current?.offsetTop || 2000,
       policies: sectionRefs.policies.current?.offsetTop || 3000,
       nearby: sectionRefs.nearby.current?.offsetTop || 4000,
     }
@@ -107,39 +121,64 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
     }
   }
 
-  // 🌟 3. 打开抽屉的处理函数
   const handleOpenRoomDetail = (room: HourlyRoomDetail) => {
     setSelectedRoom(room)
     setIsDrawerOpen(true)
   }
 
+  // 🌟 3. 新增顶部导航栏所需的交互事件
+  const handleBack = () => {
+    navigate(-1) // 返回上一页
+  }
+
+  const handleShare = () => {
+    console.log('Share clicked')
+    // TODO: 这里可以唤起系统的分享面板或自定义分享弹窗
+  }
+
+  const handleCollectionChange = () => {
+    console.log('Collection toggled')
+    // TODO: 调用收藏/取消收藏接口
+  }
+
   return (
     <div className={styles.container} ref={containerRef} onScroll={handleScroll}>
+
+      {/* 🌟 4. 把事件方法全部传给 DetailHeader */}
       <DetailHeader
         ref={headerRef}
         data={initialData}
         opacity={headerOpacity}
-        onCollectionChange={() => console.log('Collection toggled')}
+        onBack={handleBack}
+        onShare={handleShare}
+        onCollectionChange={handleCollectionChange}
       />
 
       <div className={styles.content} ref={contentRef}>
         <ImageCarousel images={initialData.images} />
         <HourlyHotelInfo data={initialData} />
-        <DetailTabs activeTab={activeTab} onChange={handleTabChange} />
+        <div className={styles.stickyTabsWrapper}>
+          <DetailTabs activeTab={activeTab} onChange={handleTabChange} />
+        </div>
 
         <div ref={sectionRefs.rooms}>
-          {/* 🌟 4. 把打开弹窗的方法作为 prop 传给子组件 */}
+          <HourlyTimePicker
+            date={selectedDate}
+            startTime={startTime}
+            duration={duration}
+            onChange={handleTimeChange}
+          />
           <HourlyRoomSelection
             data={initialData}
             onOpenDetail={handleOpenRoomDetail}
           />
         </div>
 
-        <div ref={sectionRefs.facilities}>
-          <FacilitiesSection data={initialData} />
-        </div>
         <div ref={sectionRefs.reviews}>
           <ReviewSection hostelId={initialData._id} />
+        </div>
+        <div ref={sectionRefs.facilities}>
+          <FacilitiesSection data={initialData} />
         </div>
         <div ref={sectionRefs.policies}>
           <PolicySection data={initialData} />
@@ -147,12 +186,13 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
         <div ref={sectionRefs.nearby}>
           <NearbyRecommendations location={initialData.location} />
         </div>
+
+        {/* 底部的留白垫片 */}
         <div className={styles.spacer} />
       </div>
 
       <HourlyBookingBar data={initialData} onBook={handleBook} />
 
-      {/* 🌟 5. 在页面最外层挂载房型详情抽屉 */}
       <HourlyRoomDetailDrawer
         room={selectedRoom}
         isOpen={isDrawerOpen}
@@ -164,7 +204,7 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
         availableTime={initialData.baseInfo?.timeWindow || '08:00-20:00'}
         onBook={(roomId) => {
           console.log('用户点击了抽屉里的预订，roomId:', roomId)
-          setIsDrawerOpen(false) // 预订后关闭弹窗
+          setIsDrawerOpen(false)
         }}
       />
     </div>

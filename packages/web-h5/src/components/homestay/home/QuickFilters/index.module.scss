@@ -27,7 +27,7 @@
   &::-webkit-scrollbar {
     display: none;
   }
-  
+
   scrollbar-width: none;
 }
 
@@ -62,19 +62,19 @@
 
   // 特定主题样式
   &.hotDeal {
-    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
     color: #ffffff;
     border: none;
   }
 
   &.festive {
-    background: linear-gradient(135deg, #FF8A80 0%, #FF6E40 100%);
+    background: linear-gradient(135deg, #ff8a80 0%, #ff6e40 100%);
     color: #ffffff;
     border: none;
   }
 
   &.points {
-    background: linear-gradient(135deg, #FEC839 0%, #FFA500 100%);
+    background: linear-gradient(135deg, #fec839 0%, #ffa500 100%);
     color: #ffffff;
     border: none;
   }

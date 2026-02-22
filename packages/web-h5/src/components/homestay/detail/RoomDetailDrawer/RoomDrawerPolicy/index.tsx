@@ -37,9 +37,7 @@ const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
             <span className={styles.stepIcon}>💰</span>
             <span className={styles.stepTitle}>押金</span>
           </div>
-          <p className={styles.policyDescription}>
-            ¥500，下单签订后，需后两周送达。无损归还。
-          </p>
+          <p className={styles.policyDescription}>¥500，下单签订后，需后两周送达。无损归还。</p>
         </div>
 
         {/* 加入 */}
@@ -48,9 +46,7 @@ const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
             <span className={styles.stepIcon}>✅</span>
             <span className={styles.stepTitle}>加入</span>
           </div>
-          <p className={styles.policyDescription}>
-            标准入住8人、3间2人、¥50/人/晚
-          </p>
+          <p className={styles.policyDescription}>标准入住8人、3间2人、¥50/人/晚</p>
         </div>
 
         {/* 确认 */}
@@ -59,9 +55,7 @@ const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
             <span className={styles.stepIcon}>📋</span>
             <span className={styles.stepTitle}>确认</span>
           </div>
-          <p className={styles.policyDescription}>
-            立即确认，无需等待确认
-          </p>
+          <p className={styles.policyDescription}>立即确认，无需等待确认</p>
         </div>
 
         {/* 退订 */}
@@ -70,9 +64,7 @@ const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
             <span className={styles.stepIcon}>🔄</span>
             <span className={styles.stepTitle}>退订</span>
           </div>
-          <p className={styles.policyDescription}>
-            30分钟内免费取消。订单排期灵活，无隐藏费用。
-          </p>
+          <p className={styles.policyDescription}>30分钟内免费取消。订单排期灵活，无隐藏费用。</p>
         </div>
 
         {/* 支付时间范围 */}
@@ -100,9 +92,7 @@ const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
           <span className={styles.noticeIcon}>📌</span>
           <div className={styles.noticeContent}>
             <p className={styles.noticeTitle}>发票说明</p>
-            <p className={styles.noticeText}>
-              发票由商家房源页面处理，售价公司提供
-            </p>
+            <p className={styles.noticeText}>发票由商家房源页面处理，售价公司提供</p>
           </div>
         </div>
       </div>

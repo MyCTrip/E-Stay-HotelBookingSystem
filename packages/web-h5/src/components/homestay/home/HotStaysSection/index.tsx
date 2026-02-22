@@ -62,10 +62,7 @@ const HotStaysSection: React.FC<HotStaysSectionProps> = ({
           >
             {data.map((homestay) => (
               <SwiperSlide key={homestay._id} className={styles.slide}>
-                <HomeStayCard
-                  data={homestay}
-                  onClick={onCardClick}
-                />
+                <HomeStayCard data={homestay} onClick={onCardClick} />
               </SwiperSlide>
             ))}
           </Swiper>

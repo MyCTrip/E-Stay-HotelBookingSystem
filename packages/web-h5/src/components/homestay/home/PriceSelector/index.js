@@ -26,7 +26,7 @@ const PriceSelector = ({ minPrice = 0, maxPrice = 10000, onPriceChange, }) => {
         }
         return `¥${displayMinPrice}-${displayMaxPrice}`;
     };
-    return (_jsxs("div", { className: styles.container, children: [_jsxs("div", { className: styles.displayBox, onClick: () => setShowFilter(true), children: [_jsx("div", { className: styles.text, children: displayPrice() }), _jsx("div", { className: styles.suffixIcon, children: _jsx("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "none", stroke: "currentColor", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.5, d: "M6 9l6 6 6-6" }) }) })] }), _jsx(PriceFilter, { visible: showFilter, minPrice: displayMinPrice, maxPrice: displayMaxPrice, onSelect: handleSelect, onClose: () => setShowFilter(false) })] }));
+    return (_jsxs("div", { className: styles.container, children: [_jsxs("div", { className: styles.displayBox, onClick: () => setShowFilter(true), children: [_jsx("div", { className: styles.text, children: displayPrice() }), _jsx("div", { className: styles.suffixIcon, children: _jsx("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "none", stroke: "currentColor", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.5, d: "M6 9l6 6 6-6" }) }) })] }), _jsx(PriceFilter, { visible: showFilter, minPrice: displayMinPrice, maxPrice: displayMaxPrice, onSelect: handleSelect, showFooter: true, onClose: () => setShowFilter(false) })] }));
 };
 export default React.memo(PriceSelector);
 //# sourceMappingURL=index.js.map

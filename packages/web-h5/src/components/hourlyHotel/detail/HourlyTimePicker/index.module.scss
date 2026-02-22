@@ -1,0 +1,259 @@
+/* 外部触发条 */
+.pickerBar {
+  display: flex;
+  align-items: center;
+  background-color: #f7f8fa;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 16px;
+  cursor: pointer;
+}
+
+.infoBlock {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: #e0e0e0;
+  margin: 0 16px;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+/* 弹窗遮罩层 */
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  /* 确保盖住整个页面 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* 弹窗内容区 */
+.popupContent {
+  background-color: #fff;
+  border-radius: 16px 16px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+  border-bottom: 1px solid #f0f0f0;
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .closeBtn {
+    position: absolute;
+    right: 16px;
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+  }
+}
+
+.popupBody {
+  padding: 16px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.section {
+  margin-bottom: 24px;
+
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+
+    .subTitle {
+      font-weight: normal;
+      color: #999;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+  }
+}
+
+/* 1. 日期滑动列表 */
+.scrollRow {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding-bottom: 8px;
+  /* 给滚动条留点位置 */
+
+  /* 隐藏滚动条但保留功能 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.dateItem {
+  flex-shrink: 0;
+  width: 64px;
+  height: 60px;
+  border-radius: 8px;
+  background-color: #f5f6f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  .dateLabel {
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .dayOfWeek {
+    font-size: 11px;
+    color: #999;
+  }
+
+  &.active {
+    background-color: #e6f0ff;
+    /* 你的品牌蓝色背景 */
+    border-color: #0066ff;
+    /* 你的品牌蓝色边框 */
+
+    .dateLabel,
+    .dayOfWeek {
+      color: #0066ff;
+    }
+  }
+}
+
+/* 2. 时长胶囊 */
+.pillGroup {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 8px 24px;
+  background-color: #f5f6f8;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #333;
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  &.active {
+    background-color: #e6f0ff;
+    border-color: #0066ff;
+    color: #0066ff;
+    font-weight: 600;
+  }
+}
+
+/* 3. 时间网格 */
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.timeItem {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f6f8;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  &.active {
+    background-color: #e6f0ff;
+    border-color: #0066ff;
+    color: #0066ff;
+    font-weight: 600;
+  }
+
+  &.disabled {
+    color: #ccc;
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+  }
+}
+
+/* 底部操作区 */
+.popupFooter {
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.confirmBtn {
+  width: 100%;
+  height: 44px;
+  background-color: #0066ff;
+  /* 你的主品牌色 */
+  color: #fff;
+  border: none;
+  border-radius: 22px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:active {
+    background-color: #005ce6;
+  }
+}

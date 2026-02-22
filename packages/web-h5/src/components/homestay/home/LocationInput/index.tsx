@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useRef } from 'react'
+import SlideDrawer from '../../shared/SlideDrawer'
 import CitySearch from '../CitySearch'
 import LocationSearch from '../LocationSearch'
 import styles from './index.module.scss'
@@ -74,10 +75,10 @@ const LocationInput: React.FC<LocationInputProps> = ({
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const { latitude, longitude } = position.coords
-            
+
             // 调用 onNearbyClick 回调，传递坐标信息
             onNearbyClick?.()
-            
+
             // 可选：使用高德地图或其他地理编码服务反向查询地址
             // 这里简单地显示坐标信息作为示例
             console.log('当前位置:', { latitude, longitude })
@@ -109,12 +110,16 @@ const LocationInput: React.FC<LocationInputProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.row}>
-        <div
-          className={styles.citySelect}
-          onClick={handleCityClick}
-        >
+        <div className={styles.citySelect} onClick={handleCityClick}>
           {currentCity}
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" className={styles.dropdownIcon}>
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            className={styles.dropdownIcon}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 9l6 6 6-6" />
           </svg>
         </div>
@@ -133,22 +138,28 @@ const LocationInput: React.FC<LocationInputProps> = ({
           {inputValue && (
             <button className={styles.clearIcon} onClick={handleClear}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M18 6L6 18M6 6l12 12"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           )}
         </div>
 
-        <div
-          className={styles.nearbyButton}
-          onClick={handleNearby}
-          title="我的位置"
-        >
-          <div
-            ref={refreshIconRef}
-            className={styles.iconRotator}
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" className={styles.nearbyIcon}>
+        <div className={styles.nearbyButton} onClick={handleNearby} title="我的位置">
+          <div ref={refreshIconRef} className={styles.iconRotator}>
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              className={styles.nearbyIcon}
+            >
               <circle cx="12" cy="12" r="6" strokeWidth={2} />
               <circle cx="12" cy="12" r="2" fill="currentColor" />
               <line x1="12" y1="2" x2="12" y2="6" strokeWidth={2} strokeLinecap="round" />
@@ -161,20 +172,32 @@ const LocationInput: React.FC<LocationInputProps> = ({
         </div>
       </div>
 
-      {/* 城市搜索弹层 */}
-      <CitySearch
+      {/* 城市搜索抽屉 */}
+      <SlideDrawer
         visible={showCitySearch}
-        currentCity={currentCity}
-        onSelect={handleCitySelect}
+        title="城市搜索"
+        direction="bottom"
         onClose={() => setShowCitySearch(false)}
-      />
+      >
+        <CitySearch
+          currentCity={currentCity}
+          onSelect={handleCitySelect}
+          onClose={() => setShowCitySearch(false)}
+        />
+      </SlideDrawer>
 
-      {/* 位置搜索弹层 */}
-      <LocationSearch
+      {/* 位置搜索抽屉 */}
+      <SlideDrawer
         visible={showLocationSearch}
-        onSelect={handleLocationSelect}
+        title="搜索位置"
+        direction="bottom"
         onClose={() => setShowLocationSearch(false)}
-      />
+      >
+        <LocationSearch
+          onSelect={handleLocationSelect}
+          onClose={() => setShowLocationSearch(false)}
+        />
+      </SlideDrawer>
 
       <style>{`
         @keyframes spin {

@@ -1,10 +1,8 @@
 /**
- * 城市搜索组件 - 城市选择抽屉
- * 从网页窗口底部滑入，占 70% 屏幕高度，顶部圆角
+ * 城市搜索组件 - 只提供搜索内容，UI 容器由父组件提供
  */
 import React from 'react';
 interface CitySearchProps {
-    visible: boolean;
     currentCity?: string;
     onSelect: (city: string) => void;
     onClose: () => void;

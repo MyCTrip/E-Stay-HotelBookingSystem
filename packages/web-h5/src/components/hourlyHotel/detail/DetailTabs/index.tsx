@@ -1,33 +1,46 @@
+/**
+ * 吸顶导航Tab栏
+ */
+
 import React from 'react'
 import styles from './index.module.scss'
 
-export type TabKey = 'rooms' | 'facilities' | 'reviews' | 'policies' | 'nearby'
+export type TabKey = 'overview' | 'rooms' | 'reviews' | 'facilities' | 'policies' | 'knowledge' | 'nearby' | 'host'
 
-interface DetailTabsProps {
-  activeTab: TabKey
-  onChange: (tab: TabKey) => void
+interface Tab {
+  key: TabKey
+  label: string
 }
 
-const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab, onChange }) => {
-  const tabs: { key: TabKey; label: string }[] = [
-    { key: 'rooms', label: '房型' },
-    { key: 'facilities', label: '设施' },
-    { key: 'reviews', label: '评价' },
-    { key: 'policies', label: '政策' },
-    { key: 'nearby', label: '周边' },
-  ]
+const tabs: Tab[] = [
+  { key: 'overview', label: '概览' },
+  { key: 'rooms', label: '房源' },
+  { key: 'reviews', label: '点评' },
+  { key: 'facilities', label: '设施' },
+  { key: 'policies', label: '须知' },
+  { key: 'knowledge', label: '周边' },
+  { key: 'nearby', label: '附近' },
+  { key: 'host', label: '房东' },
+]
 
+interface DetailTabsProps {
+  activeTab?: TabKey
+  onChange?: (tab: TabKey) => void
+}
+
+const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab = 'overview', onChange = () => {} }) => {
   return (
-    <div className={styles.stickyContainer}>
-      <div className={styles.tabsWrapper}>
+    <div className={styles.tabsWrapper}>
+      <div className={styles.tabs}>
         {tabs.map((tab) => (
-          <div
+          <button
             key={tab.key}
-            className={`${styles.tabItem} ${activeTab === tab.key ? styles.active : ''}`}
-            onClick={() => onChange(tab.key)}
+            className={`${styles.tab} ${activeTab === tab.key ? styles.active : ''}`}
+            onClick={() => onChange?.(tab.key)}
           >
-            {tab.label}
-          </div>
+            <span className={styles.label}>{tab.label}</span>
+            {activeTab === tab.key && <div className={styles.underline} />}
+          </button>
         ))}
       </div>
     </div>

@@ -56,7 +56,8 @@ const QuickFilters = ({ tags = QUICK_FILTER_TAGS, selectedTags = [], onTagSelect
             const trackRect = sliderTrackRef.current.getBoundingClientRect();
             const deltaX = e.clientX - dragStartRef.current.startX;
             // 计算相对于 track 宽度的移动比例，转换为 scroll 距离
-            const scrollDistance = (deltaX / trackRect.width) * (scrollWrapperRef.current.scrollWidth - scrollWrapperRef.current.clientWidth);
+            const scrollDistance = (deltaX / trackRect.width) *
+                (scrollWrapperRef.current.scrollWidth - scrollWrapperRef.current.clientWidth);
             scrollWrapperRef.current.scrollLeft = Math.max(0, Math.min(scrollWrapperRef.current.scrollWidth - scrollWrapperRef.current.clientWidth, dragStartRef.current.startScrollLeft + scrollDistance));
         };
         const handleGlobalMouseUp = () => {

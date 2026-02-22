@@ -92,18 +92,14 @@ export default function BannerCarousel({
         {bannerItems.map((item, index) => (
           <div
             key={item.id}
-            className={`${styles.bannerSlide} ${
-              index === currentIndex ? styles.active : ''
-            }`}
+            className={`${styles.bannerSlide} ${index === currentIndex ? styles.active : ''}`}
             style={{
               backgroundColor: item.color || '#FF6B6B',
             }}
           >
             <div className={styles.content}>
               <h3 className={styles.title}>{item.title}</h3>
-              {item.subtitle && (
-                <p className={styles.subtitle}>{item.subtitle}</p>
-              )}
+              {item.subtitle && <p className={styles.subtitle}>{item.subtitle}</p>}
             </div>
             <div className={styles.counter}>
               {currentIndex + 1}/{bannerItems.length}
@@ -117,9 +113,7 @@ export default function BannerCarousel({
         {bannerItems.map((_, index) => (
           <div
             key={index}
-            className={`${styles.dot} ${
-              index === currentIndex ? styles.active : ''
-            }`}
+            className={`${styles.dot} ${index === currentIndex ? styles.active : ''}`}
             onClick={(e) => {
               e.stopPropagation()
               goToSlide(index)

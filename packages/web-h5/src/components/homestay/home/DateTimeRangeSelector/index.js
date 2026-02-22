@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
+import SlideDrawer from '../../shared/SlideDrawer';
 import DateRangeCalendar from '../DateRangeCalendar';
 import styles from './index.module.scss';
 dayjs.extend(relativeTime);
@@ -37,7 +38,7 @@ const DateTimeRangeSelector = ({ checkIn, checkOut, onDateChange, }) => {
         onDateChange?.(newCheckIn, newCheckOut);
         setShowCalendar(false);
     };
-    return (_jsxs("div", { className: styles.container, children: [_jsxs("div", { className: styles.wrapper, children: [_jsxs("div", { className: styles.dateSection, onClick: () => setShowCalendar(true), children: [_jsx("div", { className: styles.dateValue, children: formatDateLabel(tempCheckIn) }), _jsx("div", { className: styles.dateLabel, children: "\u5165\u4F4F" })] }), _jsx("div", { className: styles.divider }), _jsxs("div", { className: styles.dateSection, onClick: () => setShowCalendar(true), children: [_jsx("div", { className: styles.dateValue, children: formatDateLabel(tempCheckOut) }), _jsx("div", { className: styles.dateLabel, children: "\u79BB\u4F4F" })] }), _jsx("div", { className: styles.rightSection, children: _jsx("div", { className: styles.nightsInfo, children: _jsxs("span", { className: styles.nightsLabel, children: ["\u5171", nights, "\u665A"] }) }) })] }), _jsx(DateRangeCalendar, { visible: showCalendar, checkIn: tempCheckIn, checkOut: tempCheckOut, onSelect: handleDateRangeSelect, onClose: () => setShowCalendar(false) })] }));
+    return (_jsxs("div", { className: styles.container, children: [_jsxs("div", { className: styles.wrapper, children: [_jsxs("div", { className: styles.dateSection, onClick: () => setShowCalendar(true), children: [_jsx("div", { className: styles.dateValue, children: formatDateLabel(tempCheckIn) }), _jsx("div", { className: styles.dateLabel, children: "\u5165\u4F4F" })] }), _jsx("div", { className: styles.divider }), _jsxs("div", { className: styles.dateSection, onClick: () => setShowCalendar(true), children: [_jsx("div", { className: styles.dateValue, children: formatDateLabel(tempCheckOut) }), _jsx("div", { className: styles.dateLabel, children: "\u79BB\u4F4F" })] }), _jsx("div", { className: styles.rightSection, children: _jsx("div", { className: styles.nightsInfo, children: _jsxs("span", { className: styles.nightsLabel, children: ["\u5171", nights, "\u665A"] }) }) })] }), _jsx(SlideDrawer, { visible: showCalendar, title: "\u9009\u62E9\u5165\u79BB\u65E5\u671F", direction: "bottom", onClose: () => setShowCalendar(false), children: _jsx(DateRangeCalendar, { checkIn: tempCheckIn, checkOut: tempCheckOut, onSelect: handleDateRangeSelect, onClose: () => setShowCalendar(false) }) })] }));
 };
 export default React.memo(DateTimeRangeSelector);
 //# sourceMappingURL=index.js.map

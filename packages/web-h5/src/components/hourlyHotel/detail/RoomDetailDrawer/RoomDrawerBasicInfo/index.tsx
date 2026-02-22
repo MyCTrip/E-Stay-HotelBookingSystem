@@ -1,50 +1,93 @@
-import React from 'react'
-import { HourlyRoomDetail } from '@estay/shared'
+/**
+ * 房型基础信息和床型信息
+ */
 
-interface RoomDrawerBasicInfoProps {
-  room: HourlyRoomDetail
-  duration: number
-  availableTime: string
+import React from 'react'
+import { HouseIcon, UserIcon, AreaIcon , BedIcon, BreakfastIcon} from '../../../icons'
+import styles from './index.module.scss'
+
+interface Room {
+  id: string
+  name: string
+  area: string
+  beds: string
+  guests: string
+  benefits: string[]
+  [key: string]: any
 }
 
-const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room, duration, availableTime }) => {
-  const { baseInfo } = room;
+interface RoomDrawerBasicInfoProps {
+  room: Room
+}
 
+const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room }) => {
   return (
-    <div style={{ padding: '16px', borderBottom: '1px solid #eee', backgroundColor: '#fff' }}>
-      <h3 style={{ fontSize: '18px', margin: '0 0 12px 0', color: '#333' }}>基本信息</h3>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '14px', color: '#666' }}>
-        <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>房型</span>
-          {baseInfo.type}
+    <div className={styles.basicInfo}>
+      {/* 房型标题 */}
+      <div className={styles.titleSection}>
+        <h2 className={styles.roomName}>{room.name}</h2>
+        <div className={styles.Breakfast}>
+          <div className={styles.BreakfastIcon}>
+            <BreakfastIcon width={20} height={20} color="#333333" />
+          </div>
+          无早餐
         </div>
-        <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>入住人数</span>
-          最多{baseInfo.maxOccupancy}人
-        </div>
-        <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>有无窗户</span>
-          {baseInfo.windowAvailable ? '有窗' : '无窗/内窗'}
-        </div>
-        {/* 如果后续后端加上了 area 面积字段，可以在这里放开 */}
-        {/* <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>面积</span>
-          {baseInfo.area}
-        </div> */}
       </div>
 
-      <div style={{
-        marginTop: '16px',
-        padding: '12px',
-        backgroundColor: '#f0f5ff',
-        borderRadius: '8px',
-        color: '#1752d4',
-        fontSize: '14px',
-        fontWeight: '500'
-      }}>
-        <div style={{ marginBottom: '4px' }}>⏱ 可用时段：{availableTime}</div>
-        <div>⏳ 入住时长：{duration} 小时</div>
+      {/* 基本参数 - 横排展示 */}
+      <div className={styles.statsRow}>
+        <div className={styles.stat}>
+          <span className={styles.statIcon}><AreaIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>公寓•{room.area}</span>
+            <span className={styles.statLabel}>整套房屋</span>
+          </div>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statIcon}><HouseIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>3卧1厅2卫1厨</span>
+          </div>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statIcon}><BedIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>5床</span>
+          </div>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statIcon}><UserIcon width={20} height={20} color="#333333" /></span>
+          <div className={styles.statContent}>
+            <span className={styles.statValue}>{room.guests}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 床型详情表格 */}
+      <div className={styles.bedSection}>
+        <div className={styles.bedTable}>
+          <div className={styles.bedTableHeader}>
+            <span className={styles.col1}>卧室</span>
+            <span className={styles.col2}>床型</span>
+            <span className={styles.col3}>尺寸</span>
+            <span className={styles.col4}>数量</span>
+          </div>
+
+          <div className={styles.bedTableBody}>
+            {[
+              { room: '卧室1', bed: '大床', size: '1.8m', qty: '1张' },
+              { room: '卧室2', bed: '大床', size: '1.5m', qty: '2张' },
+              { room: '卧室3', bed: '大床', size: '1.5m', qty: '1张' },
+            ].map((item, idx) => (
+              <div key={idx} className={styles.bedTableRow}>
+                <span className={styles.col1}>{item.room}</span>
+                <span className={styles.col2}>{item.bed}</span>
+                <span className={styles.col3}>{item.size}</span>
+                <span className={styles.col4}>{item.qty}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

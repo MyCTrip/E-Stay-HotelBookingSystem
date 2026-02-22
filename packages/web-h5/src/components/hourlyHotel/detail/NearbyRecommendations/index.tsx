@@ -95,7 +95,9 @@ const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
     <div className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>位置周边</h2>
-        <a href="#" className={styles.mapLink}>地图/周边 ›</a>
+        <a href="#" className={styles.mapLink}>
+          地图/周边 ›
+        </a>
       </div>
 
       {/* 地址信息 */}

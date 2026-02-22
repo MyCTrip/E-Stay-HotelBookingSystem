@@ -154,11 +154,7 @@ const SearchResultPage: React.FC = () => {
       </View>
 
       {/* 结果列表 */}
-      <ScrollView
-        scrollY
-        className={styles.resultList}
-        onScroll={handleScroll}
-      >
+      <ScrollView scrollY className={styles.resultList} onScroll={handleScroll}>
         {loading && homestays.length === 0 ? (
           <View className={styles.loadingState}>
             <View>加载中...</View>
@@ -167,20 +163,14 @@ const SearchResultPage: React.FC = () => {
           <View className={styles.emptyState}>
             <View>☹️</View>
             <View>未找到匹配的民宿</View>
-            <View
-              className={styles.backBtn}
-              onClick={() => router.switchTab('/pages/index/index')}
-            >
+            <View className={styles.backBtn} onClick={() => router.switchTab('/pages/index/index')}>
               返回首页
             </View>
           </View>
         ) : (
           <>
             {homestays.map((homestay) => (
-              <View
-                key={homestay._id}
-                onClick={() => handleCardClick(homestay._id)}
-              >
+              <View key={homestay._id} onClick={() => handleCardClick(homestay._id)}>
                 <HomeStayCard
                   data={homestay}
                   onClick={() => handleCardClick(homestay._id)}

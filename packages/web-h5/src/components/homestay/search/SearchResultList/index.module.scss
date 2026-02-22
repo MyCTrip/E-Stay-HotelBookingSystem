@@ -1,10 +1,9 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
+  min-height: 100vh;
+  overflow: visible;
   overflow-x: hidden;
-  background: #fafafa;
 
   /* 隐藏滚动条但保持滚动功能 */
   scrollbar-width: none;
@@ -16,8 +15,10 @@
 
 .content {
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
   scrollbar-width: none;
+  padding: 12px;
+  background-color: #eff1ff;
 
   &::-webkit-scrollbar {
     display: none;
@@ -27,7 +28,7 @@
 /* 列表包装器 */
 .listWrapper {
   padding: 0 0 60px 0; /* 留出浮动按钮空间 */
-  background: #fafafa;
+  background: #eff1ff;
 
   &.list {
     /* 单列模式 - 垂直堆叠 */
@@ -43,27 +44,13 @@
     padding: 12px 12px 60px;
   }
 
-  /* 在 <= 768px 时，强制单列模式 */
+  /* 在 <= 768px 时，移动端网格模式 - 多列小卡片，像首页布局 */
   @media (max-width: 768px) {
     &.grid {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      padding: 0 0 60px 0;
-
-      /* HomeStayCard在单列模式下的适配 */
-      > div {
-        width: 100%;
-        margin: 0;
-        padding: 12px;
-        background: white;
-        border-radius: 12px;
-        margin-bottom: 12px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 12px 12px 60px;
     }
   }
 }
@@ -77,12 +64,7 @@
 
 .skeletonCard {
   height: 150px;
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   margin: 0 0 12px 0;

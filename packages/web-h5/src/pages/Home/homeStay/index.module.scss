@@ -27,7 +27,7 @@
 .searchBarSpacer {
   height: 56px;
   width: 100%;
-  
+
   @media (max-height: 400px) {
     height: 52px;
   }
@@ -88,7 +88,7 @@
   width: 95%;
   padding: 4px -2px;
   margin: auto;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: none;
   box-sizing: border-box;
 
   &:last-child {
@@ -104,13 +104,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: none;
 
   .cardItem {
     width: 100%;
     margin: 0;
     border-bottom: none;
-    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    border-right: none;
     padding: 4px -2px;
 
     &:last-child {
@@ -201,7 +201,7 @@
   background-color: #f0f7ff;
   border-radius: 8px;
   font-size: 13px;
-  color: #0066FF;
+  color: #0066ff;
   border: 1px solid rgba(0, 102, 255, 0.1);
 
   .spinner {
@@ -209,7 +209,7 @@
     width: 14px;
     height: 14px;
     border: 2px solid rgba(0, 102, 255, 0.2);
-    border-top-color: #0066FF;
+    border-top-color: #0066ff;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -258,7 +258,9 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:active {
     transform: translateY(2px);

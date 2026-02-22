@@ -8,19 +8,23 @@ import { createPortal } from 'react-dom'
 import styles from './index.module.scss'
 
 interface PriceFilterProps {
-  visible: boolean
+  visible?: boolean
   minPrice?: number
   maxPrice?: number
   onSelect: (minPrice: number, maxPrice: number) => void
   onClose: () => void
+  usePortal?: boolean // 是否使用 portal（默认 true，设为 false 时可嵌入其他容器）
+  showFooter?: boolean // 是否显示底部按钮（嵌入模式下默认 false）
 }
 
 const PriceFilter: React.FC<PriceFilterProps> = ({
-  visible,
+  visible = true,
   minPrice = 0,
   maxPrice = 10000,
   onSelect,
   onClose,
+  usePortal = true,
+  showFooter = false,
 }) => {
   const [tempMinPrice, setTempMinPrice] = useState(minPrice)
   const [tempMaxPrice, setTempMaxPrice] = useState(maxPrice)
@@ -73,76 +77,62 @@ const PriceFilter: React.FC<PriceFilterProps> = ({
     return tempMinPrice === min && tempMaxPrice === max
   }
 
-  return createPortal(
+  const content = (
     <>
-      {visible && (
-        <div className={styles.overlay} onClick={handleClose}></div>
-      )}
+      {/* 价格范围说明 */}
+      <div className={styles.priceRangeInfo}>
+        <span className={styles.rangeLabel}>
+          价格区间 ¥{tempMinPrice}-{tempMaxPrice === MAX_RANGE ? '不限' : tempMaxPrice}
+        </span>
+      </div>
 
-      <div className={`${styles.drawer} ${visible ? styles.active : ''}`}>
-        {/* 头部 */}
-        <div className={styles.header}>
-          <button className={styles.closeBtn} onClick={onClose}>
-            ✕
+      {/* 范围滑块 */}
+      <div className={styles.sliderContainer}>
+        <div className={styles.sliderTrack}>
+          <div
+            className={styles.sliderFill}
+            style={{
+              left: `${(tempMinPrice / MAX_RANGE) * 100}%`,
+              right: `${100 - (tempMaxPrice / MAX_RANGE) * 100}%`,
+            }}
+          />
+        </div>
+        <input
+          type="range"
+          min={MIN_RANGE}
+          max={MAX_RANGE}
+          value={tempMinPrice}
+          onChange={handleMinChange}
+          className={`${styles.slider} ${styles.sliderMin}`}
+        />
+        <input
+          type="range"
+          min={MIN_RANGE}
+          max={MAX_RANGE}
+          value={tempMaxPrice}
+          onChange={handleMaxChange}
+          className={`${styles.slider} ${styles.sliderMax}`}
+        />
+      </div>
+
+      {/* 预设价格范围 */}
+      <div className={styles.priceRanges}>
+        {priceRanges.map((range, index) => (
+          <button
+            key={index}
+            className={`${styles.priceBtn} ${isRangeSelected(range.min, range.max) ? styles.active : ''}`}
+            onClick={() => {
+              setTempMinPrice(range.min)
+              setTempMaxPrice(range.max)
+            }}
+          >
+            {range.label}
           </button>
-          <h2 className={styles.title}>价格</h2>
-          <div className={styles.placeholder}></div>
-        </div>
+        ))}
+      </div>
 
-        {/* 内容 */}
-        <div className={styles.content}>
-          {/* 价格范围说明 */}
-          <div className={styles.priceRangeInfo}>
-            <span className={styles.rangeLabel}>价格区间 ¥{tempMinPrice}-{tempMaxPrice === MAX_RANGE ? '不限' : tempMaxPrice}</span>
-          </div>
-
-          {/* 范围滑块 */}
-          <div className={styles.sliderContainer}>
-            <div className={styles.sliderTrack}>
-              <div
-                className={styles.sliderFill}
-                style={{
-                  left: `${(tempMinPrice / MAX_RANGE) * 100}%`,
-                  right: `${100 - (tempMaxPrice / MAX_RANGE) * 100}%`,
-                }}
-              />
-            </div>
-            <input
-              type="range"
-              min={MIN_RANGE}
-              max={MAX_RANGE}
-              value={tempMinPrice}
-              onChange={handleMinChange}
-              className={`${styles.slider} ${styles.sliderMin}`}
-            />
-            <input
-              type="range"
-              min={MIN_RANGE}
-              max={MAX_RANGE}
-              value={tempMaxPrice}
-              onChange={handleMaxChange}
-              className={`${styles.slider} ${styles.sliderMax}`}
-            />
-          </div>
-
-          {/* 预设价格范围 */}
-          <div className={styles.priceRanges}>
-            {priceRanges.map((range, index) => (
-              <button
-                key={index}
-                className={`${styles.priceBtn} ${isRangeSelected(range.min, range.max) ? styles.active : ''}`}
-                onClick={() => {
-                  setTempMinPrice(range.min)
-                  setTempMaxPrice(range.max)
-                }}
-              >
-                {range.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 底部按钮 */}
+      {/* 底部按钮 - 仅在 showFooter 为 true 时显示 */}
+      {showFooter && (
         <div className={styles.footer}>
           <button className={styles.resetBtn} onClick={handleReset}>
             清空
@@ -151,10 +141,35 @@ const PriceFilter: React.FC<PriceFilterProps> = ({
             确认
           </button>
         </div>
-      </div>
-    </>,
-    document.body
+      )}
+    </>
   )
+
+  if (usePortal) {
+    return createPortal(
+      <>
+        {visible && <div className={styles.overlay} onClick={handleClose}></div>}
+
+        <div className={`${styles.drawer} ${visible ? styles.active : ''}`}>
+          {/* 头部 */}
+          <div className={styles.header}>
+            <button className={styles.closeBtn} onClick={onClose}>
+              ✕
+            </button>
+            <h2 className={styles.title}>价格</h2>
+            <div className={styles.placeholder}></div>
+          </div>
+
+          {/* 内容 */}
+          <div className={styles.content}>{content}</div>
+        </div>
+      </>,
+      document.body
+    )
+  }
+
+  // 作为内容嵌入使用（不使用 portal）
+  return <div className={styles.content}>{content}</div>
 }
 
 export default PriceFilter

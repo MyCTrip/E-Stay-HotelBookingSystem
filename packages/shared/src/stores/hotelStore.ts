@@ -213,11 +213,9 @@ let apiInstance: IApiService | null = null
  */
 export function useHotelStore() {
   if (!storeHook) {
-    throw new Error(
-      '🔴 HotelStore not initialized! Call initHotelStore(api) in app startup.'
-    )
+    throw new Error('🔴 HotelStore not initialized! Call initHotelStore(api) in app startup.')
   }
-  return storeHook()  // ✅ 调用 hook 获取 state
+  return storeHook() // ✅ 调用 hook 获取 state
 }
 
 /**

@@ -71,9 +71,7 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
         </button>
 
         {/* 热门标签 */}
-        {discount > 0 && (
-          <div className={styles.hotBadge}>网红热酒</div>
-        )}
+        {discount > 0 && <div className={styles.hotBadge}>网红热酒</div>}
       </div>
 
       {/* 信息容器 */}
@@ -102,9 +100,7 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
         {/* 评价区域 */}
         <div className={styles.ratingRow}>
           {showStar && data.baseInfo.star > 0 && (
-            <span className={styles.rating}>
-              ⭐ {data.baseInfo.star}
-            </span>
+            <span className={styles.rating}>⭐ {data.baseInfo.star}</span>
           )}
           <span className={styles.reviewCount}>{reviewCount}+ 人赞同</span>
         </div>

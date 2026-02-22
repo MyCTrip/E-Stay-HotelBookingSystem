@@ -1,152 +1,102 @@
 .container {
-  width: 100%;
-  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f7f8fa;
+  display: flex;
+  flex-direction: column;
 }
 
-.header {
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.header p {
-  color: #666;
-  margin: 0;
-}
-
-.resultsContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.resultCard {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.resultCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.cardImage {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.cardContent {
-  padding: 1.5rem;
-}
-
-.cardTitle {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.cardLocation {
-  color: #666;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.cardPrice {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #fa709a;
-  margin-bottom: 1rem;
-}
-
-.cardRating {
+/* 顶部 Header：包含返回键和胶囊 */
+.headerArea {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  padding: 10px 16px;
+  background: #fff; // 确保背景是白色
+  position: sticky;
+  top: 0;
+  z-index: 9999; // ✅ 把 10 改成 9999（或者比你的遮罩层更大的数字）
 }
 
-.rating {
-  background: #fa709a;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-right: 0.5rem;
-}
-
-.ratingCount {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.cardButton {
-  width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.cardButton:hover {
-  background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
-}
-
-.pagination {
+.backButton {
+  margin-right: 12px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  margin-top: 3rem;
-  gap: 0.5rem;
-}
-
-.paginationButton {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s;
+  padding: 4px;
+  margin-left: -4px; // 稍微左移贴合边缘
 }
 
-.paginationButton:hover {
-  border-color: #fa709a;
-  color: #fa709a;
+/* 搜索胶囊栏 */
+.searchCapsule {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f5f6f8;
+  border-radius: 8px;
+  padding: 8px 12px;
 }
 
-.paginationButton.active {
-  background: #fa709a;
-  color: white;
-  border-color: #fa709a;
+.capsuleLeft {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e0e0e0;
+  padding-right: 12px;
+  margin-right: 12px;
+
+  /* 城市点击区：加上了点击按压效果 */
+  .cityText {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+  }
+
+  /* 日期点击区：加上了点击按压效果 */
+  .dateInfo {
+    display: flex;
+    flex-direction: column;
+    margin-left: 6px;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.2;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+  }
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem 0.5rem;
-  }
+.capsuleRight {
+  flex: 1;
+  color: #999;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: text;
+}
 
-  .header h1 {
-    font-size: 1.5rem;
-  }
+/* 列表区 */
+.listWrapper {
+  padding: 16px;
+  flex: 1;
+}
 
-  .resultsContainer {
-    grid-template-columns: 1fr;
-  }
-
-  .cardImage {
-    height: 150px;
-  }
+.loadingText,
+.emptyState {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
 }

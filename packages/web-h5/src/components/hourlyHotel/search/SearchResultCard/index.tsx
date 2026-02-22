@@ -1,21 +1,15 @@
-/**
- * 搜索结果单列卡片 - 响应式布局
- * PC端（>768px）: 左图右文水平布局
- * 移动端（≤768px）: 纵向竖卡片布局
- */
-
 import React, { useState } from 'react'
-import type { HomeStay } from '@estay/shared'
+import type { HourlyRoom } from '@estay/shared' // 🌟 使用钟点房专属类型
 import styles from './index.module.scss'
 
-interface SearchResultCardProps {
-  data: HomeStay
+interface HourlySearchResultCardProps {
+  data: HourlyRoom
   onClick?: (id: string) => void
   onFavorite?: (id: string, favorited: boolean) => void
   isFavorited?: boolean
 }
 
-const SearchResultCard: React.FC<SearchResultCardProps> = ({
+const HourlySearchResultCard: React.FC<HourlySearchResultCardProps> = ({
   data,
   onClick,
   onFavorite,
@@ -24,17 +18,19 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
   const [imageError, setImageError] = useState(false)
   const [favorited, setFavorited] = useState(isFavorited)
 
+  // 数据容错处理
   const primaryImage = data.images?.[0] || null
-  const roomPrice = data.rooms?.[0]?.baseInfo?.price || 358
-  const originalPrice = Math.ceil(roomPrice * 1.5)
-  const reviewCount = Math.floor(Math.random() * 5000) + 100
-  const discountAmount = Math.floor(Math.random() * 100) + 20
-  const tags = ['含双早', '免费取消', '热门']
-  const features = ['无忧保障', '实拍看房', '免费取消', '近地铁']
+  // 钟点房通常取第一个房型的价格作为起步价
+  const roomPrice = data.rooms?.[0]?.baseInfo?.price || 0
+  // 提取前两个设施作为标签，加上"秒确认"
+  const tags = ['秒确认', ...(data.baseInfo.facilities?.slice(0, 2).map(f => f.name) || [])]
 
-  const handleCardClick = () => {
-    onClick?.(data._id)
-  }
+  // 动态组装钟点房信息文案
+  const durationText = data.durationOptions?.length ? data.durationOptions.join('/') : '3/4'
+  const unitText = `/${data.durationOptions?.[0] || 3}小时起`
+  const roomInfoText = `${durationText}小时可选 · ${data.baseInfo.description || '舒适钟点房'}`
+
+  const handleCardClick = () => onClick?.(data._id)
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -44,85 +40,49 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
 
   return (
     <div className={styles.card} onClick={handleCardClick}>
-      {/* 主图区 - PC端左侧，移动端上方 */}
       <div className={styles.imageSection}>
         {primaryImage && !imageError ? (
-          <img
-            src={primaryImage}
-            alt={data.baseInfo.nameCn}
-            className={styles.image}
-            loading="lazy"
-            onError={() => setImageError(true)}
-          />
+          <img src={primaryImage} alt={data.baseInfo.nameCn} className={styles.image} loading="lazy" onError={() => setImageError(true)} />
         ) : (
           <div className={styles.imagePlaceholder} />
         )}
 
-        {/* 收藏按钮 */}
-        <button
-          className={`${styles.favoriteBtn} ${favorited ? styles.favorited : ''}`}
-          onClick={handleFavoriteClick}
-        >
-          ♡
+        {/* 右上角收藏按钮 */}
+        <button className={`${styles.favoriteBtn} ${favorited ? styles.favorited : ''}`} onClick={handleFavoriteClick}>
+          <svg viewBox="0 0 24 24" width="28" height="28" fill={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(255, 255, 255, 0.8)'}>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
         </button>
 
-        {/* 图片数量标识 */}
+        {/* 左下角：评分和城市 */}
+        <div className={styles.ratingBadge}>
+          <span className={styles.ratingBadgeText}>⭐ {data.baseInfo.star}</span>
+          <span className={styles.location}>· {data.baseInfo.city}</span>
+        </div>
+
+        {/* 右下角：图片数量 */}
         <div className={styles.photoCount}>
-          📷 {data.images?.length || 1}
+          <span className={styles.photoIcon}>🖼️</span> {data.images?.length || 1}
         </div>
       </div>
 
-      {/* 右侧信息区 - PC端右侧，移动端下方 */}
       <div className={styles.infoSection}>
-        {/* 名称 */}
         <h3 className={styles.name}>{data.baseInfo.nameCn}</h3>
 
-        {/* 评分 & 位置 */}
-        <div className={styles.ratingRow}>
-          <span className={styles.rating}>⭐ {data.baseInfo.star}</span>
-          <span className={styles.ratingText}>超棒</span>
-          <span className={styles.location}>
-            {data.baseInfo.city} · 距您 3.2km
-          </span>
-        </div>
-
-        {/* 核心标签 */}
         <div className={styles.tags}>
-          {tags.slice(0, 3).map((tag, index) => (
-            <span key={index} className={styles.tag}>
-              {tag}
-            </span>
-          ))}
+          {tags.map((tag, index) => <span key={index} className={styles.tag}>{tag}</span>)}
         </div>
 
-        {/* 优惠提示 */}
-        <div className={styles.discount}>
-          🔥 今日特价，比原价低 ¥{discountAmount}
-        </div>
+        <div className={styles.roomInfo}>{roomInfoText}</div>
 
-        {/* 功能特性 - 仅移动端显示 */}
-        <div className={styles.features}>
-          {features.slice(0, 4).map((feature, index) => (
-            <span key={index} className={styles.feature}>
-              {feature}
-            </span>
-          ))}
-        </div>
-
-        {/* 房间配置 - 仅移动端显示 */}
-        <div className={styles.roomInfo}>
-          1居1床2人 · 整套40㎡ · 近{data.baseInfo.city}路步行街
-        </div>
-
-        {/* 价格区 */}
         <div className={styles.priceSection}>
-          <span className={styles.price}>¥{roomPrice}</span>
-          <span className={styles.unit}>/晚起</span>
-          <span className={styles.sold}>已售 {reviewCount}</span>
+          <span className={styles.priceSymbol}>¥</span>
+          <span className={styles.price}>{roomPrice}</span>
+          <span className={styles.unit}>{unitText}</span>
         </div>
       </div>
     </div>
   )
 }
 
-export default SearchResultCard
+export default HourlySearchResultCard

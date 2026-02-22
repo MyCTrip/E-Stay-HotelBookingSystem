@@ -3,16 +3,15 @@
 .headerWrapper {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1001;
   background-color: #ffffff;
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 48px;
+  justify-content: space-between;
+  height: 56px;
   padding: 0 16px;
   padding-top: env(safe-area-inset-top);
   gap: 12px;
@@ -26,15 +25,14 @@
 /* 返回按钮 */
 .backBtn {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border: none;
   background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   color: #333;
   transition: opacity 0.2s ease;
 
@@ -43,39 +41,18 @@
   }
 }
 
-/* 搜索条件区 */
-.conditionArea {
+/* 中间标题 */
+.title {
   flex: 1;
-  min-width: 0;
-  padding: 0 4px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.conditionText {
-  font-size: 14px;
-  font-weight: 500;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
   color: #333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-/* 修改按钮 */
-.modifyBtn {
+/* 右边占位 */
+.placeholder {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: opacity 0.2s ease;
-
-  &:active {
-    opacity: 0.6;
-  }
+  width: 40px;
 }

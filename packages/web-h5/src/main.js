@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { registerStorage, webStorageImpl, createApiService, createMockApiService, initHotelStore, initializeConfig, initializeDefaultMiddlewares, } from '@estay/shared';
+import { SlideDrawerProvider } from './components/homestay/shared/SlideDrawer';
 import App from './App';
 import './index.css';
 // 1. 初始化配置系统
@@ -35,5 +36,5 @@ const queryClient = new QueryClient({
     },
 });
 // 7. 启动应用
-ReactDOM.createRoot(document.getElementById('root')).render(_jsx(React.StrictMode, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(App, {}) }) }));
+ReactDOM.createRoot(document.getElementById('root')).render(_jsx(React.StrictMode, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(SlideDrawerProvider, { children: _jsx(App, {}) }) }) }));
 //# sourceMappingURL=main.js.map

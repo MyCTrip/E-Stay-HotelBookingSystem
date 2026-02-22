@@ -36,22 +36,14 @@ const FloatingActionButtons: React.FC<FloatingActionButtonsProps> = ({
     <div className={styles.floatingContainer}>
       {/* 地图切换按钮 */}
       {showMapButton && (
-        <button
-          className={styles.floatingBtn}
-          onClick={onToggleMap}
-          title="切换地图"
-        >
+        <button className={styles.floatingBtn} onClick={onToggleMap} title="切换地图">
           🗺️
         </button>
       )}
 
       {/* 回到顶部按钮 */}
       {showScrollTop && (
-        <button
-          className={styles.floatingBtn}
-          onClick={onScrollToTop}
-          title="回到顶部"
-        >
+        <button className={styles.floatingBtn} onClick={onScrollToTop} title="回到顶部">
           ↑
         </button>
       )}

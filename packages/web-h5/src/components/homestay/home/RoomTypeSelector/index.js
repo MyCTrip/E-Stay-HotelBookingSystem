@@ -17,7 +17,7 @@ const RoomTypeSelector = ({ rooms = 0, beds = 0, guests = 1, onChange, }) => {
         setTempRooms(newRooms);
         onChange?.(newGuests, newBeds, newRooms);
     };
-    return (_jsxs("div", { className: styles.container, children: [_jsxs("div", { className: styles.displayBox, onClick: () => setShowModal(true), children: [_jsxs("div", { className: styles.text, children: [tempGuests, "\u4EBA / ", tempBeds, "\u5E8A / ", tempRooms, "\u95F4"] }), _jsx("div", { className: styles.suffixIcon, children: _jsx("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "none", stroke: "currentColor", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.5, d: "M6 9l6 6 6-6" }) }) })] }), _jsx(RoomTypeModal, { visible: showModal, guests: tempGuests, beds: tempBeds, rooms: tempRooms, onSelect: handleSelect, onClose: () => setShowModal(false) })] }));
+    return (_jsxs("div", { className: styles.container, children: [_jsxs("div", { className: styles.displayBox, onClick: () => setShowModal(true), children: [_jsxs("div", { className: styles.text, children: [tempGuests, "\u4EBA / ", tempBeds, "\u5E8A / ", tempRooms, "\u95F4"] }), _jsx("div", { className: styles.suffixIcon, children: _jsx("svg", { viewBox: "0 0 24 24", width: "16", height: "16", fill: "none", stroke: "currentColor", children: _jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.5, d: "M6 9l6 6 6-6" }) }) })] }), _jsx(RoomTypeModal, { visible: showModal, guests: tempGuests, beds: tempBeds, rooms: tempRooms, onSelect: handleSelect, showFooter: true, onClose: () => setShowModal(false) })] }));
 };
 export default React.memo(RoomTypeSelector);
 //# sourceMappingURL=index.js.map

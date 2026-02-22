@@ -57,11 +57,7 @@ const RecommendTypeCard: React.FC<RecommendTypeCardProps> = ({
   }
 
   return (
-    <div
-      className={styles.card}
-      style={getBackgroundStyle()}
-      onClick={handleClick}
-    >
+    <div className={styles.card} style={getBackgroundStyle()} onClick={handleClick}>
       {/* 文本区域 */}
       <div className={styles.textSection}>
         <h3 className={styles.title}>{title}</h3>
@@ -69,9 +65,7 @@ const RecommendTypeCard: React.FC<RecommendTypeCardProps> = ({
       </div>
 
       {/* 圆形图标区域 */}
-      <div className={styles.iconContainer}>
-        {icon}
-      </div>
+      <div className={styles.iconContainer}>{icon}</div>
     </div>
   )
 }

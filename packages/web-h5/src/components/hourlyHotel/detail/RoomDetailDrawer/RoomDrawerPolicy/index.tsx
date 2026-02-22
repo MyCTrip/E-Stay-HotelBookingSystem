@@ -1,40 +1,98 @@
-import React from 'react'
-import { HourlyRoomDetail } from '@estay/shared'
+/**
+ * 政策与预订须知信息 - 符合行业规范
+ */
 
-export interface HourlyCustomPolicy {
-  checkInTime: string
-  duration: string
-  overtime: string
+import React from 'react'
+import styles from './index.module.scss'
+
+interface Room {
+  id: string
+  [key: string]: any
 }
 
 interface RoomDrawerPolicyProps {
-  room: HourlyRoomDetail
-  customPolicy: HourlyCustomPolicy
+  room: Room
 }
 
-const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room, customPolicy }) => {
+const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
   return (
-    <div style={{ padding: '16px', borderBottom: '1px solid #eee', backgroundColor: '#fff', marginTop: '8px' }}>
-      <h3 style={{ fontSize: '18px', margin: '0 0 12px 0', color: '#333' }}>订房必读</h3>
+    <div className={styles.policySection}>
+      <h3 className={styles.sectionTitle}>预订须知</h3>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '4px' }}>入离时间</div>
-          <div style={{ fontSize: '13px', color: '#666', lineHeight: '1.5' }}>
-            {customPolicy.checkInTime}。<br />
-            {customPolicy.duration}。
+      {/* 取消政策突出展示 - 重要信息 */}
+      <div className={styles.cancellationPolicyCard}>
+        <div className={styles.policyHeader}>
+          <span className={styles.policyIcon}>✓</span>
+          <span className={styles.policyLabel}>免费取消政策</span>
+        </div>
+        <p className={styles.policyText}>
+          入住前 30 天内取消可获得全额退款。入住前 7 天内取消，退款 50%。
+        </p>
+      </div>
+
+      <div className={styles.policyContent}>
+        {/* 押金 */}
+        <div className={styles.policyItem}>
+          <div className={styles.policyItemHeader}>
+            <span className={styles.stepIcon}>💰</span>
+            <span className={styles.stepTitle}>押金</span>
+          </div>
+          <p className={styles.policyDescription}>¥500，下单签订后，需后两周送达。无损归还。</p>
+        </div>
+
+        {/* 加入 */}
+        <div className={styles.policyItem}>
+          <div className={styles.policyItemHeader}>
+            <span className={styles.stepIcon}>✅</span>
+            <span className={styles.stepTitle}>加入</span>
+          </div>
+          <p className={styles.policyDescription}>标准入住8人、3间2人、¥50/人/晚</p>
+        </div>
+
+        {/* 确认 */}
+        <div className={styles.policyItem}>
+          <div className={styles.policyItemHeader}>
+            <span className={styles.stepIcon}>📋</span>
+            <span className={styles.stepTitle}>确认</span>
+          </div>
+          <p className={styles.policyDescription}>立即确认，无需等待确认</p>
+        </div>
+
+        {/* 退订 */}
+        <div className={styles.policyItem}>
+          <div className={styles.policyItemHeader}>
+            <span className={styles.stepIcon}>🔄</span>
+            <span className={styles.stepTitle}>退订</span>
+          </div>
+          <p className={styles.policyDescription}>30分钟内免费取消。订单排期灵活，无隐藏费用。</p>
+        </div>
+
+        {/* 支付时间范围 */}
+        <div className={styles.policyBox}>
+          <h4 className={styles.boxTitle}>支付信息</h4>
+          <div className={styles.timeRange}>
+            <div className={styles.timeItem}>
+              <span className={styles.timeLabel}>需提前支付时间段:</span>
+              <span className={styles.timeValue}>最晚入住前50分钟内</span>
+            </div>
+            <div className={styles.timeItem}>
+              <span className={styles.timeLabel}>选择日期支付:</span>
+              <span className={styles.timeValue}>全额预冷页面</span>
+            </div>
+          </div>
+
+          <div className={styles.paymentInfo}>
+            <span className={styles.paymentDate}>02月16日22:24元</span>
+            <span className={styles.paymentLabel}>应请日圣款</span>
           </div>
         </div>
 
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '4px' }}>超时规定</div>
-          <div style={{ fontSize: '13px', color: '#666' }}>{customPolicy.overtime}</div>
-        </div>
-
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#333', marginBottom: '4px' }}>退改政策</div>
-          <div style={{ fontSize: '13px', color: '#666' }}>
-            订单确认后不可取消或变更。如未入住，酒店将扣除全额房费。
+        {/* 说明 */}
+        <div className={styles.noticeBox}>
+          <span className={styles.noticeIcon}>📌</span>
+          <div className={styles.noticeContent}>
+            <p className={styles.noticeTitle}>发票说明</p>
+            <p className={styles.noticeText}>发票由商家房源页面处理，售价公司提供</p>
           </div>
         </div>
       </div>

@@ -34,10 +34,7 @@ const RoomTypeSelector: React.FC<RoomTypeSelectorProps> = ({
 
   return (
     <div className={styles.container}>
-      <div
-        className={styles.displayBox}
-        onClick={() => setShowModal(true)}
-      >
+      <div className={styles.displayBox} onClick={() => setShowModal(true)}>
         <div className={styles.text}>
           {tempGuests}人 / {tempBeds}床 / {tempRooms}间
         </div>
@@ -56,6 +53,7 @@ const RoomTypeSelector: React.FC<RoomTypeSelectorProps> = ({
         beds={tempBeds}
         rooms={tempRooms}
         onSelect={handleSelect}
+        showFooter={true}
         onClose={() => setShowModal(false)}
       />
     </div>

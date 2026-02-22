@@ -5,6 +5,8 @@
 
 import React, { useState } from 'react'
 import styles from './index.module.scss'
+import SlideDrawer from '../../shared/SlideDrawer'
+import DateRangeCalendar from '../../home/DateRangeCalendar'
 
 interface DatePickerProps {
   onDateChange?: (checkIn: string, checkOut: string) => void
@@ -14,102 +16,87 @@ const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   const afterTomorrow = new Date(tomorrow)
-  afterTomorrow.setDate(afterTomorrow.getDate() + 1)
+  afterTomorrow.setDate(afterTomorrow.getDate() + 2)
 
   const formatDate = (date: Date) => {
     return date.toISOString().split('T')[0]
   }
 
-  const [checkIn, setCheckIn] = useState(formatDate(tomorrow))
-  const [checkOut, setCheckOut] = useState(formatDate(afterTomorrow))
+  const [checkIn, setCheckIn] = useState<Date>(tomorrow)
+  const [checkOut, setCheckOut] = useState<Date>(afterTomorrow)
+  const [drawerVisible, setDrawerVisible] = useState(false)
 
-  const handleDateChange = (type: 'checkIn' | 'checkOut', value: string) => {
-    if (type === 'checkIn') {
-      setCheckIn(value)
-    } else {
-      setCheckOut(value)
-    }
-    onDateChange?.(checkIn, checkOut)
+  const handleDateChange = (newCheckIn: Date, newCheckOut: Date) => {
+    setCheckIn(newCheckIn)
+    setCheckOut(newCheckOut)
+    setDrawerVisible(false)
+    onDateChange?.(formatDate(newCheckIn), formatDate(newCheckOut))
   }
 
-  const formatDateDisplay = (dateStr: string) => {
-    const date = new Date(dateStr + 'T00:00:00')
+  const formatDateDisplay = (date: Date) => {
     const month = date.getMonth() + 1
     const day = date.getDate()
-    const weekDays = ['日', '一', '二', '三', '四', '五', '六']
+    const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     const weekDay = weekDays[date.getDay()]
-    return `${month}月${day}日 (周${weekDay})`
+    return `${month.toString().padStart(2, '0')}月${day.toString().padStart(2, '0')}日 ${weekDay}`
   }
 
   const calculateNights = () => {
-    const checkInDate = new Date(checkIn + 'T00:00:00')
-    const checkOutDate = new Date(checkOut + 'T00:00:00')
-    const diffTime = checkOutDate.getTime() - checkInDate.getTime()
+    const diffTime = checkOut.getTime() - checkIn.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return Math.max(1, diffDays)
   }
 
   return (
-    <div className={styles.datePicker}>
-      <div className={styles.timeRow}>
-        {/* 入住时间 */}
-        <div className={styles.timeBlock}>
-          <label className={styles.label}>入住</label>
-          <div className={styles.timeInfo}>
-            <span className={styles.time}>15:00</span>
-            <span className={styles.date}>后进房</span>
+    <>
+      {/* 日期条形展示 */}
+      <div className={styles.datePicker} onClick={() => setDrawerVisible(true)}>
+        <div className={styles.dateBar}>
+          {/* 入住日期 */}
+          <div className={styles.dateSection}>
+            <span className={styles.dateText}>{formatDateDisplay(checkIn)}</span>
+            <span className={styles.label}>入住</span>
           </div>
-        </div>
 
-        {/* 分隔符 */}
-        <div className={styles.separator} />
+          {/* 分隔符 */}
+          <span className={styles.divider}>|</span>
 
-        {/* 离店时间 */}
-        <div className={styles.timeBlock}>
-          <label className={styles.label}>离店</label>
-          <div className={styles.timeInfo}>
-            <span className={styles.time}>12:00</span>
-            <span className={styles.date}>前退房</span>
+          {/* 晚数统计 */}
+          <div className={styles.nightsSection}>
+            <span className={styles.nightsText}>共{calculateNights()}晚</span>
           </div>
-        </div>
 
-        {/* 晚数信息 */}
-        <div className={styles.nights}>
-          <span className={styles.count}>{calculateNights()}</span>
-          <span className={styles.unit}>晚</span>
+          {/* 分隔符 */}
+          <span className={styles.divider}>|</span>
+
+          {/* 离开日期 */}
+          <div className={styles.dateSection}>
+            <span className={styles.dateText}>{formatDateDisplay(checkOut)}</span>
+            <span className={styles.label}>离开</span>
+          </div>
         </div>
       </div>
 
-      {/* 日期选择行 */}
-      <div className={styles.dateRow}>
-        <div className={styles.dateBlock}>
-          <label className={styles.label}>入住日期</label>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={checkIn}
-            onChange={(e) => handleDateChange('checkIn', e.target.value)}
-          />
-          <span className={styles.dateText}>{formatDateDisplay(checkIn)}</span>
-        </div>
-
-        <span className={styles.rangeSeparator}>〜</span>
-
-        <div className={styles.dateBlock}>
-          <label className={styles.label}>离店日期</label>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={checkOut}
-            onChange={(e) => handleDateChange('checkOut', e.target.value)}
-          />
-          <span className={styles.dateText}>{formatDateDisplay(checkOut)}</span>
-        </div>
-      </div>
-
-      {/* 变更日期按钮 */}
-      <button className={styles.changeBtn}>修改日期</button>
-    </div>
+      {/* 侧滑抽屉 - 从顶部下滑 */}
+      <SlideDrawer
+        visible={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        direction="down"
+        source="screen"
+        screenEdge="top"
+        maxHeight="80vh"
+        showHeader={true}
+        title="选择日期"
+        closeModes={['clickOutside', 'backButton']}
+      >
+        <DateRangeCalendar
+          checkIn={checkIn}
+          checkOut={checkOut}
+          onSelect={handleDateChange}
+          onClose={() => setDrawerVisible(false)}
+        />
+      </SlideDrawer>
+    </>
   )
 }
 

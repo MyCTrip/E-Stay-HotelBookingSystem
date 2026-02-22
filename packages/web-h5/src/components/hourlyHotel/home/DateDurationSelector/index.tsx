@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import styles from './index.module.scss'
@@ -8,11 +8,13 @@ dayjs.locale('zh-cn')
 interface DateDurationSelectorProps {
     date?: Date
     duration?: number
-    // 注意这里：onChange 的参数里去掉了 startTime
     onChange?: (date: Date, duration: number) => void
+    // 🌟 新增：为了在 SearchResult 页面作为纯弹窗受控使用
+    visible?: boolean
+    onClose?: () => void
+    isPopupOnly?: boolean // 为 true 时，不渲染首页的那个展示块，只渲染弹窗
 }
 
-// 钟点房可用时长选项
 const DURATION_OPTIONS = [
     { label: '3小时', value: 3 },
     { label: '4小时', value: 4 },
@@ -24,17 +26,24 @@ const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
     date,
     duration = 4,
     onChange,
+    visible = false,
+    onClose,
+    isPopupOnly = false,
 }) => {
     const [tempDate, setTempDate] = useState<Date>(date || dayjs().toDate())
     const [tempDuration, setTempDuration] = useState<number>(duration)
     const [showPicker, setShowPicker] = useState(false)
 
-    // 格式化主日期 (例如: 2月19日)
-    const formatDateLabel = (d: Date): string => {
-        return dayjs(d).format('M月D日')
-    }
+    // 🌟 每次弹窗打开时，重置为外部传入的最新状态
+    useEffect(() => {
+        if (visible || showPicker) {
+            setTempDate(date || dayjs().toDate())
+            setTempDuration(duration || 4)
+        }
+    }, [visible, showPicker, date, duration])
 
-    // 获取周几，如果是今明两天则加上文字后缀
+    const formatDateLabel = (d: Date): string => dayjs(d).format('M月D日')
+
     const getWeekdayLabel = (d: Date): string => {
         const targetDate = dayjs(d)
         const today = dayjs()
@@ -47,62 +56,64 @@ const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
         return weekday
     }
 
-    const handleConfirm = () => {
-        onChange?.(tempDate, tempDuration) // 确认时只传出日期和时长
+    const handleClose = () => {
         setShowPicker(false)
+        onClose?.()
     }
 
+    const handleConfirm = () => {
+        onChange?.(tempDate, tempDuration)
+        handleClose()
+    }
+
+    const isModalVisible = showPicker || visible
     const todayStr = dayjs().format('YYYY-MM-DD')
 
     return (
-        <div className={styles.container}>
-            {/* --- 外部展示区域 --- */}
-            <div className={styles.wrapper} onClick={() => setShowPicker(true)}>
-                {/* 左侧：入住日期 + 周几 */}
-                <div className={styles.dateSection}>
-                    <div className={styles.dateValue}>{formatDateLabel(tempDate)}</div>
-                    <div className={styles.dateLabel}>{getWeekdayLabel(tempDate)}</div>
-                </div>
-
-                {/* 右侧：入住时长 (只保留时长) */}
-                <div className={styles.rightSection}>
-                    <div className={styles.nightsInfo}>
-                        <span className={styles.nightsLabel}>入住时长{tempDuration}小时</span>
+        <div className={isPopupOnly ? '' : styles.container}>
+            {/* 🌟 如果不是纯弹窗模式（如在首页），则渲染展示块 */}
+            {!isPopupOnly && (
+                <div className={styles.wrapper} onClick={() => setShowPicker(true)}>
+                    <div className={styles.dateSection}>
+                        <div className={styles.dateValue}>{formatDateLabel(tempDate)}</div>
+                        <div className={styles.dateLabel}>{getWeekdayLabel(tempDate)}</div>
+                    </div>
+                    <div className={styles.rightSection}>
+                        <div className={styles.nightsInfo}>
+                            <span className={styles.nightsLabel}>入住时长{tempDuration}小时</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* --- 底部选择弹窗 --- */}
-            {showPicker && (
+            {isModalVisible && (
                 <>
-                    <div className={styles.overlay} onClick={() => setShowPicker(false)} />
+                    <div className={styles.overlay} onClick={handleClose} />
                     <div className={styles.pickerModal}>
                         <div className={styles.pickerHeader}>
                             <h3>选择入住信息</h3>
                         </div>
 
                         <div className={styles.pickerContainer}>
-                            {/* 1. 日期选择：原生 input type="date" */}
                             <div className={styles.pickerRow}>
                                 <label>日期</label>
                                 <input
                                     type="date"
-                                    className={styles.nativeSelect}
+                                    // 修复了你原代码里 class 不匹配的问题（原生用 timeSelect 样式）
+                                    className={styles.timeSelect}
                                     value={dayjs(tempDate).format('YYYY-MM-DD')}
                                     min={todayStr}
                                     onChange={(e) => {
-                                        if (e.target.value) {
-                                            setTempDate(dayjs(e.target.value).toDate())
-                                        }
+                                        if (e.target.value) setTempDate(dayjs(e.target.value).toDate())
                                     }}
                                 />
                             </div>
 
-                            {/* 2. 时长选择：去掉了预计到店，只留时长 */}
                             <div className={styles.pickerRow}>
                                 <label>时长</label>
                                 <div className={styles.optionsGroup}>
-                                    {DURATION_OPTIONS.map(opt => (
+                                    {DURATION_OPTIONS.map((opt) => (
                                         <button
                                             key={opt.value}
                                             className={tempDuration === opt.value ? styles.activeOption : styles.optionBtn}
@@ -116,7 +127,7 @@ const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
                         </div>
 
                         <div className={styles.pickerFooter}>
-                            <button className={styles.cancelBtn} onClick={() => setShowPicker(false)}>取消</button>
+                            <button className={styles.cancelBtn} onClick={handleClose}>取消</button>
                             <button className={styles.confirmBtn} onClick={handleConfirm}>确定</button>
                         </div>
                     </div>

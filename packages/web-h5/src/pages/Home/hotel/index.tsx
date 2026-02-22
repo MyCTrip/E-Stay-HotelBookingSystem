@@ -25,10 +25,13 @@ export default function HomeHotelPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams(
-      Object.entries(formData).reduce((acc, [key, value]) => {
-        acc[key] = String(value)
-        return acc
-      }, {} as Record<string, string>)
+      Object.entries(formData).reduce(
+        (acc, [key, value]) => {
+          acc[key] = String(value)
+          return acc
+        },
+        {} as Record<string, string>
+      )
     )
     navigate(`/search/hotel?${params.toString()}`)
   }
@@ -38,7 +41,7 @@ export default function HomeHotelPage() {
       {/* 首页横幅 */}
       <section className={styles.banner}>
         <div className={styles.bannerContent}>
-          <h1>发现您的下一个酒店aaa</h1>
+          <h1>发现您的下一个酒店</h1>
           <p>在全球数百万家酒店中搜索</p>
         </div>
       </section>
