@@ -33,7 +33,6 @@
   }
 }
 
-
 .closeBtn {
   position: absolute;
   top: 6px;
@@ -69,7 +68,7 @@
 }
 
 .drawerSpacer {
-  height: 20px;
+  height: 120px;
 }
 
 .drawerFooter {
@@ -133,7 +132,7 @@
 .tabBtn.active {
   color: #333;
   position: relative;
-  font-size:18px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -148,4 +147,3 @@
   background-color: #5aaefd;
   border-radius: 2px;
 }
-

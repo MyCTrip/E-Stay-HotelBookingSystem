@@ -168,7 +168,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
   // 使用window滚动事件
   useEffect(() => {
     let ticking = false
-    
+
     const handleWindowScroll = () => {
       const scrollPosition = window.scrollY
       setScrollTop(scrollPosition)

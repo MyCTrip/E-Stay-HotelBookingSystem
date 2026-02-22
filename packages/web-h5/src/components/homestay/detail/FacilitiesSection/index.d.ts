@@ -5,6 +5,7 @@ import React from 'react';
 interface FacilitiesSectionProps {
     data?: any;
     onOpenFullFacilities?: () => void;
+    roomName?: string;
 }
 declare const FacilitiesSection: React.FC<FacilitiesSectionProps>;
 export default FacilitiesSection;

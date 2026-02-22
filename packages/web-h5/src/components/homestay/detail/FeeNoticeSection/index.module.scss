@@ -1,0 +1,65 @@
+/* 费用须知区域 */
+
+.feeNoticeList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* 费用行 */
+.feeRow {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-of-type:not(:has(~ .otherDescriptionContainer)) {
+    border-bottom: none;
+  }
+}
+
+/* 费用标题 - 左侧，固定宽度 */
+.feeTitle {
+  flex-shrink: 0;
+  width: 70px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+/* 费用内容 - 右侧，灵活宽度 */
+.feeContent {
+  flex: 1;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* 其他说明文本区域容器 */
+.otherDescriptionContainer {
+  padding: 16px 0 0 0;
+  border-bottom: none;
+}
+
+/* 只读文本区域 - 行溢出处理 */
+.otherDescriptionText {
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  font-family: inherit;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: normal;
+  /* 限制最多3行，每行溢出显示... */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  text-overflow: ellipsis;
+}

@@ -1,24 +1,18 @@
-.hostInfo {
-  background: #fff;
-  padding: 16px;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
-  border-radius: 12px;
+.hostInfoWrapper {
+  /* 宽度由PropertyCardContainer处理 */
+}
 
-  .hostCard {
-    margin-bottom: 16px;
-  }
+.hostInfo {
+  padding: 0;
+  margin-bottom: 0;
+
 
   .hostHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
     border-bottom: 1px solid #f0f0f0;
-
+    padding-bottom:20px ;
     .avatarSection {
       display: flex;
       align-items: center;
@@ -26,76 +20,55 @@
       flex: 1;
 
       .avatar {
-        width: 60px;
-        height: 60px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         background: #f0f0f0;
         object-fit: cover;
       }
-
-      .badgeSection {
-        .name {
-          font-size: 16px;
-          font-weight: 600;
-          color: #333;
-          margin: 0 0 4px 0;
-        }
-
-        .badge {
-          display: inline-block;
-          background: #fff8e6;
-          color: #ff7d2f;
-          font-size: 12px;
-          padding: 2px 8px;
-          border-radius: 3px;
-          font-weight: 500;
-        }
-      }
     }
 
     .aboutBtn {
-      background: transparent;
+      padding: 6px;
       border: none;
-      font-size: 13px;
-      color: #1677ff;
+      border-radius: 4px;
+      background-color: #0086f6;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
-      padding: 0;
-      text-decoration: underline;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-left: auto;
+      margin-top: 20px;
     }
   }
 
   .statsRow {
     display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-    padding: 12px;
-    background: #f9f9f9;
     border-radius: 6px;
-
+    font-size: 24px;
+    font-weight: 600;
     .stat {
-      flex: 1;
-      text-align: center;
-
       .label {
-        font-size: 11px;
-        color: #999;
-        margin-bottom: 4px;
+        color: #666;
+        font-size: 24px;
+        font-weight: 400;
+        gap: 8px;
       }
 
       .value {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 2px;
 
         .rating {
-          font-size: 18px;
+          font-size: 24px;
           font-weight: 600;
           color: #333;
         }
 
         .totalReviews {
-          font-size: 11px;
           color: #999;
         }
       }
@@ -219,23 +192,29 @@
     .hostHeader {
       .avatarSection {
         .avatar {
-          width: 50px;
-          height: 50px;
+          width: 70px;
+          height: 70px;
         }
 
         .badgeSection {
           .name {
-            font-size: 14px;
-          }
-
-          .badge {
-            font-size: 11px;
+            font-size: 20px;
           }
         }
       }
 
       .aboutBtn {
+        padding: 6px;
+        border: none;
+        border-radius: 4px;
+        background-color: #0086f6;
+        color: #fff;
         font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        margin-left: auto;
       }
     }
 
@@ -243,24 +222,28 @@
       gap: 12px;
       padding: 10px;
 
+
       .stat {
+        padding: 8px 48px 4px 8px;
         .label {
-          font-size: 10px;
+          font-size: 14px;
+          gap: 8px;
         }
 
         .value {
           .rating {
-            font-size: 16px;
+            font-size: 24px;
           }
 
           .totalReviews {
-            font-size: 10px;
+            font-size: 12px;
           }
         }
       }
     }
 
     .tagsRow {
+      position: absolute;
       gap: 6px;
 
       .tag {

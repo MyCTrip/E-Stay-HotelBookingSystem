@@ -142,12 +142,7 @@ const RoomDrawerBanner: React.FC<RoomDrawerBannerProps> = ({ room, showTabHeader
         >
           {images.map((image, idx) => (
             <div key={idx} className={styles.imageWrapper}>
-              <img
-                src={image}
-                alt={`Room ${idx + 1}`}
-                className={styles.image}
-                draggable={false}
-              />
+              <img src={image} alt={`Room ${idx + 1}`} className={styles.image} draggable={false} />
             </div>
           ))}
         </div>

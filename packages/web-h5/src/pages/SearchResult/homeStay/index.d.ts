@@ -1,6 +1,6 @@
 /**
  * 民宿搜索结果页面 - Web H5版本
- * 使用新的SearchResultList组件实现完整的搜索列表界面
+ * 集成 Zustand Store 获取搜索结果数据
  */
 import React from 'react';
 declare const SearchResultPage: React.FC;

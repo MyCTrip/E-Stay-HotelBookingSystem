@@ -90,9 +90,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </nav>
 
       {/* 底部 */}
-      <footer className={styles.footer}>
+      {/* <footer className={styles.footer}>
         <p>&copy; 2024 E-Stay Hotel Booking System. All rights reserved.</p>
-      </footer>
+      </footer> */}
     </div>
   )
 }

@@ -13,6 +13,7 @@ interface Room {
 }
 interface RoomDrawerBasicInfoProps {
     room: Room;
+    actualRoomName?: string;
 }
 declare const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps>;
 export default RoomDrawerBasicInfo;

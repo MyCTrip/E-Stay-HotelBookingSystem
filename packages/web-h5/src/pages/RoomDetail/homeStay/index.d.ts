@@ -22,6 +22,11 @@ interface RoomDetailDrawerProps {
     onBook?: (roomId: string) => void;
     scrollToFacilities?: boolean;
     facilitiesExpanded?: boolean;
+    scrollToPolicy?: boolean;
+    scrollToFeeNotice?: boolean;
+    actualRoomName?: string;
+    checkIn?: string;
+    checkOut?: string;
 }
 declare const RoomDetailDrawer: React.FC<RoomDetailDrawerProps>;
 export default RoomDetailDrawer;

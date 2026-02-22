@@ -8,47 +8,53 @@ import styles from './DetailLayout.module.scss';
 import { BackIcon } from '../components/icons/BackIcon';
 import { CollectionIcon } from '../components/icons/CollectionIcon';
 import { ShareIcon } from '../components/icons/ShareIcon';
-const DetailLayout = React.forwardRef(({ children, tabs, footer, activeTab, onTabChange, data, onContactHost, onBack, onShare, onCollectionChange }, containerRef) => {
+const DetailLayout = React.forwardRef(({ children, tabs, footer, activeTab, onTabChange, data, onBack, onShare, onCollectionChange }, containerRef) => {
     const scrollContainerRef = useRef(null);
-    const sectionRefsRef = useRef({});
-    const observerRef = useRef(null);
+    const sentinelRefsRef = useRef({});
+    const sentinelObserverRef = useRef(null);
     const [headerOpacity, setHeaderOpacity] = useState(0);
     const [isTabsFixed, setIsTabsFixed] = useState(false);
     const [isCollected, setIsCollected] = useState(false);
     /**
-     * 注册section ref - 供子组件调用
+     * 注册哨兵元素 - 在滚动时检测其位置
      */
-    const registerSectionRef = useCallback((key, ref) => {
-        sectionRefsRef.current[key] = ref;
-        // 设置Intersection Observer以追踪section可见性
-        if (ref.current && scrollContainerRef.current) {
-            if (!observerRef.current) {
-                observerRef.current = new IntersectionObserver((entries) => {
-                    // 找到第一个进入视口的section
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            const sectionKey = Object.entries(sectionRefsRef.current).find(([, refObj]) => refObj?.current === entry.target)?.[0];
-                            if (sectionKey && sectionKey !== activeTab) {
-                                onTabChange(sectionKey);
-                            }
+    const registerSentinel = useCallback((key, sentinelEl) => {
+        sentinelRefsRef.current[key] = sentinelEl;
+        // 确保只创建一个 Observer 实例
+        if (!sentinelObserverRef.current && scrollContainerRef.current) {
+            sentinelObserverRef.current = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    // 找到对应的 tab key
+                    const tabKey = Object.entries(sentinelRefsRef.current).find(([, element]) => element === entry.target)?.[0];
+                    if (!tabKey)
+                        return;
+                    // 当哨兵进入视口时更新 tab（使用40%位置检测）
+                    if (entry.isIntersecting) {
+                        if (tabKey !== activeTab) {
+                            onTabChange(tabKey);
                         }
-                    });
-                }, {
-                    root: scrollContainerRef.current,
-                    rootMargin: '-44px 0px -50% 0px', // 仅跳过Header(44px)，Tabs浮动显示
-                    threshold: 0.1,
+                    }
                 });
-            }
-            observerRef.current.observe(ref.current);
+            }, {
+                root: scrollContainerRef.current,
+                // 关键：rootMargin 设置为负值表示元素距离顶部多少时触发
+                // 这里 -44px 是 Header 高度，-60% 表示元素到达窗口的 40% 位置时触发
+                rootMargin: '-44px 0px -60% 0px',
+                threshold: 0,
+            });
+        }
+        // 观察该哨兵
+        if (sentinelObserverRef.current) {
+            sentinelObserverRef.current.observe(sentinelEl);
         }
     }, [activeTab, onTabChange]);
     /**
-     * 清理Intersection Observer
+     * 清理 Intersection Observer
      */
     useEffect(() => {
         return () => {
-            if (observerRef.current) {
-                observerRef.current.disconnect();
+            if (sentinelObserverRef.current) {
+                sentinelObserverRef.current.disconnect();
             }
         };
     }, []);
@@ -77,26 +83,65 @@ const DetailLayout = React.forwardRef(({ children, tabs, footer, activeTab, onTa
         onShare?.();
     };
     /**
-     * 处理容器滚动事件
+     * 处理容器滚动事件 - 在滚动时检测哨兵位置并更新tab
      */
     const handleScroll = useCallback((e) => {
         const target = e.currentTarget;
         const scrollTop = target.scrollTop;
-        // 1. 计算Header透明度（图片高度约300px）
+        const containerHeight = target.clientHeight;
+        // 计算Header透明度（图片高度约300px）
         const imageHeight = 300;
         const opacity = Math.min(scrollTop / imageHeight, 1);
         setHeaderOpacity(opacity);
-        // 2. Tabs吸顶判断（Header高44px）
+        // Tabs吸顶判断（Header高44px）
         setIsTabsFixed(scrollTop > 0);
-    }, []);
+        // 检测哨兵位置 - 找到最接近40%位置的哨兵
+        const tabKeys = [
+            'overview',
+            'rooms',
+            'reviews',
+            'facilities',
+            'policies',
+            'knowledge',
+            'nearby',
+            'host',
+        ];
+        const sentinelSnapshots = [];
+        tabKeys.forEach((key) => {
+            const sentinel = sentinelRefsRef.current[key];
+            if (sentinel) {
+                const sentinelTop = sentinel.offsetTop;
+                sentinelSnapshots.push({
+                    key,
+                    offset: sentinelTop,
+                });
+            }
+        });
+        // 计算目标位置（窗口40%处）
+        const targetPosition = scrollTop + containerHeight * 0.4;
+        // 找到最接近目标位置的哨兵
+        let closestKey = activeTab;
+        let closestDistance = Infinity;
+        sentinelSnapshots.forEach(({ key, offset }) => {
+            const distance = Math.abs(offset - targetPosition);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestKey = key;
+            }
+        });
+        // 如果找到了新的 tab，则更新
+        if (closestKey !== activeTab) {
+            onTabChange(closestKey);
+        }
+    }, [activeTab, onTabChange]);
     /**
      * 平滑滚动到指定Tab对应的section
      */
     const scrollToSection = useCallback((tabKey) => {
-        const ref = sectionRefsRef.current[tabKey];
-        if (ref?.current && scrollContainerRef.current) {
-            // 减去Header高度(44px)，Tabs浮动显示不占位
-            const offset = ref.current.offsetTop - 44;
+        const sentinel = sentinelRefsRef.current[tabKey];
+        if (sentinel && scrollContainerRef.current) {
+            // 滚动到哨兵位置（减去Header高度）
+            const offset = sentinel.offsetTop - 44;
             scrollContainerRef.current.scrollTo({
                 top: Math.max(0, offset),
                 behavior: 'smooth',
@@ -112,7 +157,7 @@ const DetailLayout = React.forwardRef(({ children, tabs, footer, activeTab, onTa
     }, [onTabChange, scrollToSection]);
     // 将工具函数注入context或通过provider
     const contextValue = {
-        registerSectionRef,
+        registerSentinel,
         scrollToSection,
         handleTabClick,
     };
@@ -128,7 +173,7 @@ const DetailLayout = React.forwardRef(({ children, tabs, footer, activeTab, onTa
                     activeTab,
                     onChange: handleTabClick,
                 }) }), _jsx("div", { className: styles.contentWrapper, ref: scrollContainerRef, onScroll: handleScroll, children: _jsx("div", { className: styles.contentInner, children: React.cloneElement(children, {
-                        registerSectionRef,
+                        registerSentinel,
                         contextValue,
                     }) }) }), _jsx("div", { className: styles.footerWrapper, children: React.cloneElement(footer, {
                     data,
@@ -136,6 +181,4 @@ const DetailLayout = React.forwardRef(({ children, tabs, footer, activeTab, onTa
 });
 DetailLayout.displayName = 'DetailLayout';
 export default DetailLayout;
-// 导出registerSectionRef供子组件使用
-export const createSectionRef = () => useRef(null);
 //# sourceMappingURL=DetailLayout.js.map

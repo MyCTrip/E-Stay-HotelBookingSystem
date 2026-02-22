@@ -25,7 +25,7 @@
     font-size: 12px;
     white-space: nowrap;
     display: flex;
-  } 
+  }
   .BreakfastIcon {
     display: flex;
     margin-right: 4px;
@@ -123,10 +123,6 @@
         font-size: 12px;
         color: #333;
         text-align: center;
-
-        &:first-child {
-          text-align: left;
-        }
       }
 
       &:last-child {
