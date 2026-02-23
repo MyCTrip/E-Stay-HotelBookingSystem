@@ -1,0 +1,169 @@
+.container {
+  margin-bottom: 0px;
+  margin-top: 15px;
+  height: 50px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.citySelect {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 50px;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  height: 40px;
+  padding: 0 12px;
+  padding-right: 0px;
+  border-left: 1px solid #ffffff;
+  border-right: 1px solid #ffffff;
+  transition: border-color 0.2s ease;
+  position: relative;
+}
+
+.prefixIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  color: #999;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #999;
+  }
+}
+
+.clearIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  color: #999;
+  border: none;
+  background: none;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-shrink: 0;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background-color: #f0f0f0;
+    color: #666;
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.dropdownIcon {
+  margin-left: 4px;
+  color: #333;
+}
+
+.cityMenu {
+  display: none;
+}
+
+.cityMenuItem {
+  display: none;
+}
+
+.nearbyButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
+  height: 40px;
+  border: none;
+  background: none;
+  color: #666;
+
+  &:active {
+    opacity: 0.8;
+    background-color: #ebebeb;
+  }
+}
+
+.iconRotator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.iconRotator svg {
+  width: 18px;
+  height: 18px;
+}
+
+.nearbyIcon {
+  color: #333;
+  flex-shrink: 0;
+}
+
+.nearbyText {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}

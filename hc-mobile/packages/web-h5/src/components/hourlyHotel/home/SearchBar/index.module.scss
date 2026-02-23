@@ -1,0 +1,127 @@
+.container {
+  width: 100%;
+  background: inherit;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 12px;
+  gap: 8px;
+  max-width: 100%;
+
+  // 优化移动端适配
+  @media (max-width: 480px) {
+    height: 52px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+}
+
+// 城市选择区
+.citySection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 0 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:active {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.cityLabel {
+  font-size: 11px;
+  color: #999;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cityValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1;
+}
+
+// 日期选择区
+.dateSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 0 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+
+  &:active {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.dateLabel {
+  font-size: 11px;
+  color: #999;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dateValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1;
+}
+
+// 搜索按钮
+.searchBtn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 6px;
+  background-color: #ff6b00;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+  }
+
+  &:active {
+    background-color: #e55a00;
+    transform: scale(0.95);
+  }
+
+  &:hover {
+    background-color: #f07700;
+  }
+}
+
+// 分割线（可选）
+.divider {
+  width: 1px;
+  height: 16px;
+  background-color: #f0f0f0;}

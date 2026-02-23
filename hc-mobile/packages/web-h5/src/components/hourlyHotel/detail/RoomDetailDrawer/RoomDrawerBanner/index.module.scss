@@ -1,0 +1,95 @@
+.banner {
+  position: relative;
+  width: 100%;
+  background: #f5f5f5;
+  margin-bottom: 16px;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 66.67%; // 16:9 宽高比
+  background: #f0f0f0;
+  overflow: hidden;
+
+  .image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #e0e0e0;
+  }
+
+  .imageCounter {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 2;
+  }
+
+  .navPrev,
+  .navNext {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    transition: background-color 0.2s ease;
+
+    &:active {
+      background: rgba(255, 255, 255, 1);
+    }
+  }
+
+  .navPrev {
+    left: 8px;
+  }
+
+  .navNext {
+    right: 8px;
+  }
+}
+
+.indicators {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0;
+  background: #f5f5f5;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d0d0d0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &.active {
+      background: #ff6b6b;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+}

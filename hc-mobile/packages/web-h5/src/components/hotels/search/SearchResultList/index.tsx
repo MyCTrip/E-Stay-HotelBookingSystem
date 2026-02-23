@@ -51,18 +51,19 @@ const STAR_LABEL_TO_VALUE: Record<string, number> = {
 
 const BED_TYPES = ['King Bed', 'Twin Bed', 'Family Bed']
 const BRANDS = ['International Chain', 'Domestic Chain', 'Boutique Brand']
+const DEFAULT_FILTERS: SearchFilters = {
+  city: '',
+  checkInDate: '',
+  checkOutDate: '',
+  roomCount: 1,
+  guestCount: 2,
+}
 
 const SearchResultList: React.FC<SearchResultListProps> = ({
   data = [],
   loading = false,
   hasMore = false,
-  filters = {
-    city: '',
-    checkInDate: '',
-    checkOutDate: '',
-    roomCount: 1,
-    guestCount: 2,
-  },
+  filters = DEFAULT_FILTERS,
   onFiltersChange,
   onModifySearch,
   onLoadMore,

@@ -1,0 +1,65 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 120px;
+  padding: 12px;
+  text-align: center;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.textSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+// 圆形图标容器
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  margin-top: 8px;
+  flex-shrink: 0;
+
+  // SVG icon 样式
+  :global(svg) {
+    width: 40px;
+    height: 40px;
+    fill: currentColor;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}

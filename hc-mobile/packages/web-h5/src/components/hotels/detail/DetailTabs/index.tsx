@@ -24,7 +24,9 @@ interface DetailTabsProps {
   onChange?: (tab: DetailTabKey) => void
 }
 
-const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab = 'overview', onChange = () => {} }) => {
+const noopOnChange = (_tab: DetailTabKey) => {}
+
+const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab = 'overview', onChange = noopOnChange }) => {
   return (
     <div className={styles.tabsWrapper}>
       <div className={styles.tabs}>

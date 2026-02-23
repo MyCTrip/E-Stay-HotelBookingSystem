@@ -1,0 +1,211 @@
+.container {
+    margin-bottom: 0px;
+}
+
+// 外部展示块 (原封不动保留你的设计)
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    border-radius: 0px;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 8px;
+
+    &:active {
+        opacity: 0.95;
+        background-color: #f9f9f9;
+        border-color: #e8e8e8;
+    }
+}
+
+.dateSection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    flex: 1;
+    cursor: pointer;
+    min-height: 40px;
+}
+
+.dateValue {
+    font-size: 17px;
+    color: #333;
+    font-weight: 650;
+    line-height: 1;
+    margin-bottom: 4px;
+    order: 1;
+}
+
+.dateLabel {
+    font-size: 11px;
+    color: #999;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    order: 0;
+    margin-bottom: 3px;
+    display: block;
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background-color: #f0f0f0;
+    display: block;
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
+    min-width: 60px;
+}
+
+.nightsInfo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+.nightsLabel {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ff6b00; // 钟点房时长用主题色高亮
+    margin-right: 4px;
+}
+
+// ============ 底部弹窗选择器样式 ============
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.pickerModal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    z-index: 1000;
+    padding-bottom: max(16px, env(safe-area-inset-bottom)); // 适配刘海屏
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.pickerHeader {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+
+    h3 {
+        margin: 0;
+        font-size: 16px;
+        color: #333;
+    }
+}
+
+.pickerContainer {
+    padding: 16px;
+}
+
+.pickerRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+    label {
+        width: 60px;
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+}
+
+.optionsGroup {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.optionBtn {
+    flex: 1;
+    padding: 8px 0;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.activeOption {
+    @extend .optionBtn;
+    background: #FFF9E6;
+    border-color: #ff6b00;
+    color: #ff6b00;
+    font-weight: bold;
+}
+
+.timeSelect {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #fff;
+    color: #333;
+    outline: none;
+}
+
+.pickerFooter {
+    display: flex;
+    gap: 12px;
+    padding: 0 16px 16px;
+}
+
+.cancelBtn,
+.confirmBtn {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.cancelBtn {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.confirmBtn {
+    background-color: #ff6b00;
+    color: #ffffff;
+}

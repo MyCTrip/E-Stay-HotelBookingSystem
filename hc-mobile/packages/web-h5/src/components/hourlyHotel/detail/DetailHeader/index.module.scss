@@ -1,0 +1,72 @@
+/* 详情页顶部操作栏 - 沉浸式透明导航 */
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    /* 移动端标准高度 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* 核心：左边返回，右边图标组 */
+    padding: 0 16px;
+    z-index: 1000;
+    /* 必须足够高，压在所有内容上方 */
+    border-bottom: 1px solid transparent;
+
+    /* 适配 iOS 刘海屏安全区 */
+    @supports (padding: max(0px)) {
+        padding-top: max(0px, env(safe-area-inset-top));
+        height: calc(44px + max(0px, env(safe-area-inset-top)));
+    }
+}
+
+.actionGroup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* 右侧图标之间的间距 */
+}
+
+/* 圆形按钮统一样式 */
+.iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.25);
+    /* 默认半透明黑底，防止图片太亮看不见图标 */
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    /* 高级毛玻璃效果 */
+
+    /* 滑动后头部变白时，取消黑底 */
+    &.light {
+        background-color: transparent;
+    }
+
+    span {
+        font-size: 18px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+}
+
+/* 收藏图标特殊颜色 */
+.collected span {
+    color: #FF6B6B !important;
+}
