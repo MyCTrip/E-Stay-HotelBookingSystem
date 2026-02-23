@@ -10,6 +10,7 @@ import {
   initializeConfig,
   initializeDefaultMiddlewares,
 } from '@estay/shared'
+import { SlideDrawerProvider } from './components/homestay/shared/SlideDrawer'
 import App from './App'
 import './index.css'
 
@@ -54,7 +55,9 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <SlideDrawerProvider>
+        <App />
+      </SlideDrawerProvider>
     </QueryClientProvider>
   </React.StrictMode>
 )

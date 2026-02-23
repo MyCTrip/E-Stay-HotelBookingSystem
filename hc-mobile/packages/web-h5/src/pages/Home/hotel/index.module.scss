@@ -1,0 +1,70 @@
+.marketTabs {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 16px 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.marketTab {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0 0 10px;
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.active {
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: #1677ff;
+}
+
+.keywordTrigger {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.keywordLabel {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.keywordPlaceholder {
+  font-size: 15px;
+  color: #9ca3af;
+  max-width: 72%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.keywordValue {
+  font-size: 15px;
+  color: #111827;
+  max-width: 72%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

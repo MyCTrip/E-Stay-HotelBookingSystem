@@ -1,0 +1,162 @@
+.policySection {
+  padding: 16px;
+  border-bottom: 8px solid #f5f5f5;
+
+  .sectionTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px 0;
+  }
+
+  .cancellationPolicyCard {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    border-left: 4px solid #ff6b6b;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    .policyHeader {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+
+      .policyIcon {
+        color: #ff6b6b;
+        font-size: 16px;
+      }
+
+      .policyLabel {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+
+    .policyText {
+      font-size: 12px;
+      color: #666;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  .policyContent {
+    .policyItem {
+      margin-bottom: 16px;
+
+      .policyItemHeader {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+
+        .stepIcon {
+          font-size: 20px;
+        }
+
+        .stepTitle {
+          font-size: 13px;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+
+      .policyDescription {
+        font-size: 12px;
+        color: #666;
+        margin: 0 0 0 28px;
+        line-height: 1.5;
+      }
+    }
+
+    .policyBox {
+      background: #f9f9f9;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+
+      .boxTitle {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 8px 0;
+      }
+
+      .timeRange {
+        margin-bottom: 12px;
+
+        .timeItem {
+          display: flex;
+          justify-content: space-between;
+          font-size: 12px;
+          margin-bottom: 4px;
+
+          .timeLabel {
+            color: #666;
+          }
+
+          .timeValue {
+            color: #333;
+            font-weight: 500;
+          }
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+
+      .paymentInfo {
+        padding-top: 8px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+
+        .paymentDate {
+          font-size: 12px;
+          color: #333;
+          font-weight: 500;
+        }
+
+        .paymentLabel {
+          font-size: 12px;
+          color: #999;
+        }
+      }
+    }
+
+    .noticeBox {
+      background: #f0f8ff;
+      border-left: 4px solid #2196f3;
+      padding: 12px;
+      border-radius: 4px;
+      display: flex;
+      gap: 12px;
+
+      .noticeIcon {
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .noticeContent {
+        flex: 1;
+
+        .noticeTitle {
+          font-size: 12px;
+          font-weight: 600;
+          color: #333;
+          margin: 0 0 4px 0;
+        }
+
+        .noticeText {
+          font-size: 12px;
+          color: #666;
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+    }
+  }
+}

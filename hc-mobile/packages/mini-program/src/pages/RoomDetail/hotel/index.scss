@@ -1,0 +1,26 @@
+.container {
+  width: 100%;
+  padding: 1rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.description {
+  color: #666;
+  font-size: 1rem;
+}

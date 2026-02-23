@@ -46,9 +46,7 @@ export default function MainLayout({
       {/* 顶部导航 */}
       <View className={styles.header}>
         <View className={styles.headerContent}>
-          <View className={styles.logo}>
-            🏨 E-Stay
-          </View>
+          <View className={styles.logo}>🏨 E-Stay</View>
           <View className={styles.nav}>
             {categories.map((cat) => (
               <View
@@ -70,37 +68,31 @@ export default function MainLayout({
       </View>
 
       {/* 主要内容 - 显示页面内容 */}
-      <View className={styles.main}>
-        {children}
+      <View className={styles.main}>{children}</View>
+
+      {/* 底部导航 - 仅在移动端显示 */}
+      <View className={styles.mobileNav}>
+        {categories.map((cat) => (
+          <View
+            key={cat.id}
+            className={`${styles.mobileNavItem} ${activeCategory === cat.id ? styles.active : ''}`}
+            onClick={() => {
+              setActiveCategory(cat.id)
+              if (cat.id === 'domestic') navigate.go('HOME_HOTEL')
+              if (cat.id === 'hourly') navigate.go('HOME_HOURLY')
+              if (cat.id === 'homestay') navigate.go('HOME_HOMESTAY')
+            }}
+          >
+            <Text className={styles.mobileNavIcon}>{cat.icon}</Text>
+            <Text className={styles.mobileNavLabel}>{cat.label}</Text>
+          </View>
+        ))}
       </View>
 
-      {/* 底部导航 - 仅在移动端显示（新增开关控制） */}
-      {!hideBottomNav && (
-        <View className={styles.mobileNav}>
-          {categories.map((cat) => (
-            <View
-              key={cat.id}
-              className={`${styles.mobileNavItem} ${activeCategory === cat.id ? styles.active : ''}`}
-              onClick={() => {
-                setActiveCategory(cat.id)
-                if (cat.id === 'domestic') navigate.go('HOME_HOTEL')
-                if (cat.id === 'hourly') navigate.go('HOME_HOURLY')
-                if (cat.id === 'homestay') navigate.go('HOME_HOMESTAY')
-              }}
-            >
-              <Text className={styles.mobileNavIcon}>{cat.icon}</Text>
-              <Text className={styles.mobileNavLabel}>{cat.label}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* 底部版权信息（新增开关控制） */}
-      {!hideFooter && (
-        <View className={styles.footer}>
-          <Text>&copy; 2024 E-Stay Hotel Booking System. All rights reserved.</Text>
-        </View>
-      )}
+      {/* 底部 */}
+      <View className={styles.footer}>
+        <Text>&copy; 2024 E-Stay Hotel Booking System. All rights reserved.</Text>
+      </View>
     </View>
   )
 }

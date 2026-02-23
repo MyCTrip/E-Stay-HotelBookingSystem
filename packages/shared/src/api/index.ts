@@ -11,11 +11,42 @@ import {
 /**
  * 分页响应格式 (严格对齐你的后端结构)
  */
-export interface PaginatedResponse<T> {
-  items: T[]
-  total: number
-  page: number
-  limit: number
+export interface IApiService {
+  // 酒店接口
+  getHotels: (query: HotelQuery) => Promise<any>
+  getHotHotels: (limit?: number) => Promise<any>
+  getHotelDetail: (id: string) => Promise<any>
+  getRoomsByHotel: (hotelId: string, params?: any) => Promise<any>
+
+  // 房型接口
+  getRoomDetail: (id: string) => Promise<any>
+
+  // 民宿接口
+  homestays: {
+    search: (params: any) => Promise<any>
+    getDetail: (id: string) => Promise<any>
+    getHot: (params?: any) => Promise<any>
+  }
+
+  // 房间接口
+  rooms: {
+    getDetail: (id: string) => Promise<any>
+  }
+
+  // 认证接口（预留）
+  login: (email: string, password: string) => Promise<any>
+  register: (email: string, password: string) => Promise<any>
+  getMe: () => Promise<any>
+}
+
+/**
+ * API 配置
+ */
+export interface ApiConfig {
+  baseURL: string
+  timeout?: number
+  headers?: Record<string, string>
+  storage?: IStorage // ✨ 可选的存储适配器（用于获取 auth token）
 }
 
 /**
@@ -149,7 +180,19 @@ export function createApiService(config: ApiConfig): IApiService {
     getRoomDetail: (id, isInternational = false) => 
       instance.get(`/rooms/${id}`, getRequestConfig(isInternational)),
 
-    // Auth endpoints
+    // 民宿接口
+    homestays: {
+      search: (params: any) => instance.get('/homestays/search', { params }),
+      getDetail: (id: string) => instance.get(`/homestays/${id}`),
+      getHot: (params?: any) => instance.get('/homestays/hot', { params }),
+    },
+
+    // 房间接口
+    rooms: {
+      getDetail: (id: string) => instance.get(`/rooms/${id}`),
+    },
+
+    // Auth endpoints (预留)
     login: (email, password) => instance.post('/auth/login', { email, password }),
     register: (email, password) => instance.post('/auth/register', { email, password }),
     getMe: () => instance.get('/auth/me'),
@@ -279,6 +322,53 @@ export function createMockApiService(): IApiService {
       data: {} as Room, // 同上结构
       message: 'success',
     }),
+
+    // 民宿 Mock API
+    homestays: {
+      search: async (params): Promise<any> => ({
+        code: 200,
+        data: {
+          items: [],
+          total: 0,
+          page: params?.page || 1,
+          limit: params?.limit || 10,
+        },
+        message: 'success',
+      }),
+      getDetail: async (id): Promise<any> => ({
+        code: 200,
+        data: {
+          _id: id,
+          baseInfo: {
+            nameCn: '民宿示例',
+            address: '示例地址',
+            city: 'Beijing',
+            images: [],
+          },
+        },
+        message: 'success',
+      }),
+      getHot: async (params): Promise<any> => ({
+        code: 200,
+        data: [],
+        message: 'success',
+      }),
+    },
+
+    // 房间 Mock API
+    rooms: {
+      getDetail: async (id): Promise<any> => ({
+        code: 200,
+        data: {
+          _id: id,
+          baseInfo: {
+            type: '标准间',
+            price: 299,
+          },
+        },
+        message: 'success',
+      }),
+    },
 
     // Auth (mock)
     login: async () => ({ code: 200, data: { token: 'mock_token' }, message: 'ok' }),

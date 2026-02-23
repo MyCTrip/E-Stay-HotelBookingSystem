@@ -25,10 +25,13 @@ export default function HomeHotelPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const params = new URLSearchParams(
-      Object.entries(formData).reduce((acc, [key, value]) => {
-        acc[key] = String(value)
-        return acc
-      }, {} as Record<string, string>)
+      Object.entries(formData).reduce(
+        (acc, [key, value]) => {
+          acc[key] = String(value)
+          return acc
+        },
+        {} as Record<string, string>
+      )
     )
     navigate(`/search/hotel?${params.toString()}`)
   }

@@ -66,13 +66,132 @@ export interface HotelStoreState {
 // ==========================================
 
 export function createHotelStore(api: IApiService) {
-  return create<HotelStoreState>()(
-    devtools(
-      (set, get) => ({
-        // --- 初始状态 ---
-        isInternational: false,
-        searchParams: {
-          city: 'Beijing',
+  const store = create<HotelStoreState>((set: any, get: any) => ({
+    // 初始状态
+    searchParams: {
+      city: 'Beijing',
+      keyword: '',
+      filters: {},
+      propertyType: undefined,
+    },
+    hotels: [],
+    hotelsPagination: {
+      page: 1,
+      limit: 10,
+      total: 0,
+      hasMore: true,
+    },
+    currentHotel: null,
+    currentHotelRooms: [],
+    currentRoom: null,
+    hotHotels: [],
+    loading: false,
+    error: null,
+
+    // ===== Actions =====
+    setSearchParams: (params: Partial<ExtendedSearchParams>) =>
+      set((state: HotelStoreState) => ({
+        searchParams: { ...state.searchParams, ...(params as any) },
+      })),
+
+    fetchHotels: async (query: any) => {
+      set({ loading: true, error: null })
+      try {
+        // 如果调用方未传 propertyType，则优先从 store.searchParams 中注入
+        const state = get()
+        const mergedQuery = { ...(query || {}) }
+        if (!mergedQuery.propertyType && state.searchParams?.propertyType) {
+          mergedQuery.propertyType = state.searchParams.propertyType
+        }
+        const res = await api.getHotels(mergedQuery as HotelQuery)
+        set({
+          hotels: res.data,
+          hotelsPagination: {
+            page: res.meta.page,
+            limit: res.meta.limit,
+            total: res.meta.total,
+            hasMore: res.meta.page * res.meta.limit < res.meta.total,
+          },
+        })
+      } catch (err: any) {
+        set({ error: err.message })
+      } finally {
+        set({ loading: false })
+      }
+    },
+
+    fetchMoreHotels: async () => {
+      const state = get()
+      if (!state.hotelsPagination.hasMore) return
+
+      set({ loading: true })
+      try {
+        const nextPage = state.hotelsPagination.page + 1
+        const merged = {
+          ...(state.searchParams as any),
+          page: nextPage,
+          limit: state.hotelsPagination.limit,
+        }
+        const res = await api.getHotels(merged as HotelQuery)
+        set({
+          hotels: [...state.hotels, ...res.data],
+          hotelsPagination: {
+            page: nextPage,
+            limit: res.meta.limit,
+            total: res.meta.total,
+            hasMore: nextPage * res.meta.limit < res.meta.total,
+          },
+        })
+      } catch (err: any) {
+        set({ error: err.message })
+      } finally {
+        set({ loading: false })
+      }
+    },
+
+    fetchHotelDetail: async (id: string) => {
+      set({ loading: true, error: null })
+      try {
+        const hotel = await api.getHotelDetail(id)
+        set({ currentHotel: hotel })
+
+        // 同时获取房型列表
+        const rooms = await api.getRoomsByHotel(id)
+        set({ currentHotelRooms: rooms.data || [] })
+      } catch (err: any) {
+        set({ error: err.message })
+      } finally {
+        set({ loading: false })
+      }
+    },
+
+    fetchRoomDetail: async (id: string) => {
+      set({ loading: true, error: null })
+      try {
+        const room = await api.getRoomDetail(id)
+        set({ currentRoom: room })
+      } catch (err: any) {
+        set({ error: err.message })
+      } finally {
+        set({ loading: false })
+      }
+    },
+
+    fetchHotHotels: async () => {
+      try {
+        const hotels = await api.getHotHotels(10)
+        set({ hotHotels: hotels })
+      } catch (err: any) {
+        console.error('Failed to fetch hot hotels:', err.message)
+      }
+    },
+
+    clearError: () => set({ error: null }),
+
+    resetHotels: () =>
+      set({
+        hotels: [],
+        hotelsPagination: {
           page: 1,
           limit: 10,
           propertyType: 'hotel' as PropertyType,
@@ -233,58 +352,53 @@ export function createHotelStore(api: IApiService) {
           }
         },
       }),
-      { name: 'HotelStore' }
-    )
-  )
+  }))
+  return store
 }
 
-// ==========================================
-// 3️⃣ 全局单例与惰性初始化
-// ==========================================
-
-let storeInstance: UseBoundStore<StoreApi<HotelStoreState>> | null = null
+// 全局 store hook（惰性初始化，支持 reset）
+let storeHook: ReturnType<typeof createHotelStore> | null = null
 let apiInstance: IApiService | null = null
 
 /**
- * 获取 Hotel Store 实例（Hooks 方式）
+ * 获取 Hotel Store Hook（作为 React Hook 使用）
  * @throws 如果 Store 未初始化，抛出错误
  */
-export function useHotelStore<T>(selector: (state: HotelStoreState) => T): T {
-  if (!storeInstance) {
+export function useHotelStore() {
+  if (!storeHook) {
     throw new Error('🔴 HotelStore not initialized! Call initHotelStore(api) in app startup.')
   }
-  // 将 selector 透传给 Zustand
-  return storeInstance(selector)
+  return storeHook() // ✅ 调用 hook 获取 state
 }
 
 /**
- * 用于在非 React 组件（如普通函数、路由守卫）中获取状态
+ * 获取 store 实例（用于非-React 上下文）
  */
-export function getHotelStoreState() {
-  if (!storeInstance) throw new Error('🔴 HotelStore not initialized!')
-  return storeInstance.getState()
+function getStoreInstance() {
+  if (!storeHook) {
+    throw new Error('HotelStore not initialized')
+  }
+  return storeHook
 }
 
 /**
  * 初始化 Hotel Store（幂等性）
  */
 export function initHotelStore(api: IApiService): void {
-  if (storeInstance) {
+  if (storeHook) {
     console.warn('⚠️ HotelStore already initialized, skipping...')
     return
   }
   apiInstance = api
-  storeInstance = createHotelStore(api)
+  storeHook = createHotelStore(api)
 }
 
 /**
  * 重置 Store 状态（用于测试、用户登出或全局强制清理）
  */
 export function resetHotelStore(): void {
-  if (!storeInstance) return
-  
-  // 获取当前的内部 state，并调用我们在 actions 里写好的清理方法
-  const state = storeInstance.getState()
+  if (!storeHook) return
+  const state = storeHook.getState() as any
   state.resetHotels?.()
   state.clearError?.()
 }

@@ -21,7 +21,7 @@ export default defineAppConfig({
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fff',
     navigationBarTitleText: 'E-Stay 酒店预订',
-    navigationBarTextStyle: 'black'
+    navigationBarTextStyle: 'black',
   },
   // --- 对应微信文档中的 permission 字段 ---
   permission: {

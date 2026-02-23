@@ -100,23 +100,14 @@ export default function SearchResultPage() {
                   <Text className={styles.hotelName}>{hotel.baseInfo?.nameCn}</Text>
                   
                   <View className={styles.rating}>
-                    <Text className={styles.stars}>
-                      {'⭐'.repeat(hotel.baseInfo?.star || 3)}
-                    </Text>
+                    <Text className={styles.stars}>{'⭐'.repeat(hotel.baseInfo?.star || 3)}</Text>
                     <Text className={styles.star}>{hotel.baseInfo?.star} 星</Text>
                   </View>
                   
                   <Text className={styles.address}>{hotel.baseInfo?.address}</Text>
-                  
-                  <Text className={styles.description}>
-                    {hotel.baseInfo?.description}
-                  </Text>
-                  
+                  <Text className={styles.description}>{hotel.baseInfo?.description}</Text>
                   <View className={styles.footer}>
-                    <Text className={styles.price}>
-                      {/* 4. 🚀 提前修复：使用 displayInfo.lowestPrice，避免跟 Web 端一样报类型错误 */}
-                      ¥{hotel.displayInfo?.lowestPrice || '--'}/晚起
-                    </Text>
+                    <Text className={styles.price}>¥{hotel.baseInfo?.price || '0'}/晚</Text>
                     <Text className={styles.cta}>查看详情 →</Text>
                   </View>
                 </View>

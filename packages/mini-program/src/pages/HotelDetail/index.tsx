@@ -45,92 +45,90 @@ export default function HotelDetailPage() {
   return (
     <MainLayout>
       <View className={styles.container}>
-      {/* 图片库 */}
-      <View className={styles.gallery}>
-        <View className={styles.mainImage}>
-          <Image
-            src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/800x400'}
-
-            mode="aspectFill"
-          />
-        </View>
-        {hotel.baseInfo?.images && hotel.baseInfo.images.length > 0 && (
-          <View className={styles.thumbnails}>
-            {hotel.baseInfo.images.map((img: string, idx: number) => (
-              <Image
-                key={idx}
-                src={img}
-
-                className={idx === 0 ? styles.active : ''}
-                mode="aspectFill"
-              />
-            ))}
+        {/* 图片库 */}
+        <View className={styles.gallery}>
+          <View className={styles.mainImage}>
+            <Image
+              src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/800x400'}
+              mode="aspectFill"
+            />
           </View>
-        )}
-      </View>
-
-      {/* 基本信息 */}
-      <View className={styles.info}>
-        <View className={styles.header}>
-          <View>
-            <Text className={styles.h1}>{hotel.baseInfo?.nameCn}</Text>
-            <View className={styles.meta}>
-              <Text className={styles.stars}>
-                {'⭐'.repeat(hotel.baseInfo?.star || 3)}
-              </Text>
-              <Text className={styles.address}>{hotel.baseInfo?.address}</Text>
-            </View>
-          </View>
-        </View>
-
-        <Text className={styles.description}>{hotel.baseInfo?.description}</Text>
-
-        {/* 设施信息 */}
-        {hotel.baseInfo?.facilities && hotel.baseInfo.facilities.length > 0 && (
-          <View className={styles.section}>
-            <Text className={styles.h2}>设施</Text>
-            <View className={styles.facilitiesGrid}>
-              {hotel.baseInfo.facilities.map((facility: any, idx: number) => (
-                <View key={idx} className={styles.facility}>
-                  <Text className={styles.facilityName}>{facility.category}</Text>
-                  <Text className={styles.facilityContent}>{facility.content}</Text>
-                </View>
+          {hotel.baseInfo?.images && hotel.baseInfo.images.length > 0 && (
+            <View className={styles.thumbnails}>
+              {hotel.baseInfo.images.map((img: string, idx: number) => (
+                <Image
+                  key={idx}
+                  src={img}
+                  className={idx === 0 ? styles.active : ''}
+                  mode="aspectFill"
+                />
               ))}
             </View>
-          </View>
-        )}
+          )}
+        </View>
 
-        {/* 政策信息 */}
-        {hotel.baseInfo?.policies && hotel.baseInfo.policies.length > 0 && (
-          <View className={styles.section}>
-            <Text className={styles.h2}>政策</Text>
-            <View className={styles.policiesGrid}>
-              {hotel.baseInfo.policies.map((policy: any, idx: number) => (
-                <View key={idx} className={styles.policy}>
-                  <Text className={styles.policyType}>{policy.policyType}</Text>
-                  <Text className={styles.policyContent}>{policy.content}</Text>
-                </View>
-              ))}
+        {/* 基本信息 */}
+        <View className={styles.info}>
+          <View className={styles.header}>
+            <View>
+              <Text className={styles.h1}>{hotel.baseInfo?.nameCn}</Text>
+              <View className={styles.meta}>
+                <Text className={styles.stars}>{'⭐'.repeat(hotel.baseInfo?.star || 3)}</Text>
+                <Text className={styles.address}>{hotel.baseInfo?.address}</Text>
+              </View>
             </View>
           </View>
-        )}
 
-        {/* 入住信息 */}
-        {hotel.checkinInfo && (
-          <View className={styles.section}>
-            <Text className={styles.h2}>入住信息</Text>
-            <View className={styles.checkinInfo}>
-              <Text className={styles.infoItem}>
-                <Text className={styles.infoLabel}>入住时间：</Text> {hotel.checkinInfo.checkinTime}
-              </Text>
-              <Text className={styles.infoItem}>
-                <Text className={styles.infoLabel}>退房时间：</Text> {hotel.checkinInfo.checkoutTime}
-              </Text>
+          <Text className={styles.description}>{hotel.baseInfo?.description}</Text>
+
+          {/* 设施信息 */}
+          {hotel.baseInfo?.facilities && hotel.baseInfo.facilities.length > 0 && (
+            <View className={styles.section}>
+              <Text className={styles.h2}>设施</Text>
+              <View className={styles.facilitiesGrid}>
+                {hotel.baseInfo.facilities.map((facility: any, idx: number) => (
+                  <View key={idx} className={styles.facility}>
+                    <Text className={styles.facilityName}>{facility.category}</Text>
+                    <Text className={styles.facilityContent}>{facility.content}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
-        )}
+          )}
+
+          {/* 政策信息 */}
+          {hotel.baseInfo?.policies && hotel.baseInfo.policies.length > 0 && (
+            <View className={styles.section}>
+              <Text className={styles.h2}>政策</Text>
+              <View className={styles.policiesGrid}>
+                {hotel.baseInfo.policies.map((policy: any, idx: number) => (
+                  <View key={idx} className={styles.policy}>
+                    <Text className={styles.policyType}>{policy.policyType}</Text>
+                    <Text className={styles.policyContent}>{policy.content}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* 入住信息 */}
+          {hotel.checkinInfo && (
+            <View className={styles.section}>
+              <Text className={styles.h2}>入住信息</Text>
+              <View className={styles.checkinInfo}>
+                <Text className={styles.infoItem}>
+                  <Text className={styles.infoLabel}>入住时间：</Text>{' '}
+                  {hotel.checkinInfo.checkinTime}
+                </Text>
+                <Text className={styles.infoItem}>
+                  <Text className={styles.infoLabel}>退房时间：</Text>{' '}
+                  {hotel.checkinInfo.checkoutTime}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
       </View>
-    </View>
     </MainLayout>
   )
 }

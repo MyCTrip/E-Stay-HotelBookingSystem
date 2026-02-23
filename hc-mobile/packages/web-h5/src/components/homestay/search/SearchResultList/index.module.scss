@@ -1,0 +1,185 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: visible;
+  overflow-x: hidden;
+
+  /* 隐藏滚动条但保持滚动功能 */
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.content {
+  flex: 1;
+  overflow: visible;
+  scrollbar-width: none;
+  padding: 12px;
+  background-color: #eff1ff;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 列表包装器 */
+.listWrapper {
+  padding: 0 0 60px 0; /* 留出浮动按钮空间 */
+  background: #eff1ff;
+
+  &.list {
+    /* 单列模式 - 垂直堆叠 */
+    display: flex;
+    flex-direction: column;
+  }
+
+  &.grid {
+    /* 双列网格模式 - 同首页卡片 */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px 12px 60px;
+  }
+
+  /* 在 <= 768px 时，移动端网格模式 - 多列小卡片，像首页布局 */
+  @media (max-width: 768px) {
+    &.grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 12px 12px 60px;
+    }
+  }
+}
+
+/* 骨架屏 */
+.skeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.skeletonCard {
+  height: 150px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin: 0 0 12px 0;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 空状态 */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 60px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.emptyDesc {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.resetBtn {
+  padding: 10px 24px;
+  background: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+/* 加载更多 */
+.loadingMore {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-size: 13px;
+}
+
+/* 响应式 - 双列网格在小屏幕上也要合理显示 */
+@media (max-width: 600px) {
+  .listWrapper {
+    &.grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px 8px 60px;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .listWrapper {
+    &.grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 16px 16px 60px;
+    }
+  }
+
+  .emptyState {
+    min-height: 400px;
+  }
+
+  .emptyIcon {
+    font-size: 80px;
+  }
+
+  .emptyTitle {
+    font-size: 18px;
+  }
+
+  .emptyDesc {
+    font-size: 14px;
+  }
+}
+
+/* 大屏幕三列布局 */
+@media (min-width: 1024px) {
+  .listWrapper {
+    &.grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}

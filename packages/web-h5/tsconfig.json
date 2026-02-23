@@ -9,8 +9,6 @@
       "@estay/shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src", "../shared/src/components"],
-  "references": [
-    { "path": "../shared" }
-  ]
+  "include": ["src"],
+  "references": [{ "path": "../shared" }]
 }

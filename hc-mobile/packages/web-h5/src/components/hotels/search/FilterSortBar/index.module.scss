@@ -1,0 +1,117 @@
+/* 筛选/排序栏 - 占一整行 */
+
+.filterSortBar {
+  position: sticky;
+  top: 108px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #ffffff;
+  gap: 0;
+  min-height: 48px;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  transform: translateY(0);
+  opacity: 1;
+
+  @supports (padding: max(0px)) {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  &.hidden {
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* 各筛选项目 */
+.filterItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background-color: #f9f9f9;
+  }
+
+  &.active {
+    border-bottom-color: #00bcd4;
+    color: #00bcd4;
+    font-weight: 500;
+  }
+
+  &.hasFilters {
+    color: #ff6b6b;
+  }
+}
+
+.label {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.arrow {
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+/* 视图切换 */
+.viewToggle {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 8px;
+  border-left: 1px solid #f0f0f0;
+  padding-left: 12px;
+}
+
+.viewBtn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  &.active {
+    border-color: #00bcd4;
+    color: #00bcd4;
+    background-color: #e0f7fa;
+  }
+}
+
+/* Badge指示器 */
+.badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ff6b6b;
+}
