@@ -167,8 +167,8 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
 
   // 使用window滚动事件
   useEffect(() => {
-    let ticking = false
-    
+    const ticking = false
+
     const handleWindowScroll = () => {
       const scrollPosition = window.scrollY
       setScrollTop(scrollPosition)
@@ -372,23 +372,23 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
               <>
                 {viewMode === 'list'
                   ? displayedData.map((item) => (
-                      <SearchResultCard
-                        key={item._id}
-                        data={item}
-                        onClick={(id) => {
-                          navigate(`/homeStay/${id}`)
-                        }}
-                      />
-                    ))
+                    <SearchResultCard
+                      key={item._id}
+                      data={item}
+                      onClick={(id) => {
+                        navigate(`/homeStay/${id}`)
+                      }}
+                    />
+                  ))
                   : displayedData.map((item) => (
-                      <HomeStayCard
-                        key={item._id}
-                        data={item}
-                        onClick={(id) => {
-                          navigate(`/homeStay/${id}`)
-                        }}
-                      />
-                    ))}
+                    <HomeStayCard
+                      key={item._id}
+                      data={item}
+                      onClick={(id) => {
+                        navigate(`/homeStay/${id}`)
+                      }}
+                    />
+                  ))}
               </>
             ) : (
               // 空状态

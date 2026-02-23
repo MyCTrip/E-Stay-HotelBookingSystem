@@ -1,0 +1,160 @@
+.container {
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f7f8fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🌟 重构的顶部 Header 区域 */
+.headerArea {
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  padding-bottom: 14px; // 胶囊底部的留白
+}
+
+/* 独立一行的顶部导航栏 */
+.navBar {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 16px;
+  position: relative;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: -4px;
+  z-index: 2;
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+.navTitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  z-index: 1;
+}
+
+/* 搜索胶囊栏 */
+.searchCapsule {
+  display: flex;
+  align-items: center;
+  background: #f5f6f8;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 0 16px;
+  /* 移到内部留白 */
+}
+
+.capsuleLeft {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e0e0e0;
+  padding-right: 12px;
+  margin-right: 12px;
+
+  .cityText {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+  }
+
+  .dateInfo {
+    display: flex;
+    flex-direction: column;
+    margin-left: 6px;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.2;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+  }
+}
+
+.capsuleRight {
+  flex: 1;
+  color: #999;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer; // 修改为指针
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+
+  /* 为了支持过长的地标文字，做溢出省略号处理 */
+  .searchPlaceholder {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  &:active {
+    background-color: #e0e0e0;
+  }
+}
+
+/* 列表区 */
+.listWrapper {
+  padding: 16px;
+  flex: 1;
+}
+
+.loadingText,
+.emptyState {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
+}
+
+/* 列表区默认样式 (单列 list) */
+.listWrapper {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* 卡片之间的上下间距 */
+
+  /* 👇 补充双列 (grid) 模式的样式 */
+  &.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 分成均等的两列 */
+    gap: 12px;
+    /* 双列模式下的间距稍微调小一点 */
+
+    /* 注意：在双列模式下，卡片会被挤压到原来的一半宽。
+       如果你的 HourlySearchResultCard 内部没有做自适应，可能会变形。
+       可以在这里针对内部元素做一些微调，例如让图片变小点等 */
+  }
+}

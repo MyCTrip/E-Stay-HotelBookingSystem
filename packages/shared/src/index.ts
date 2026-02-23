@@ -65,9 +65,11 @@ export type { SearchHistory, FavoriteHotel, UserPreferences } from './persistenc
 
 // 类型定义
 export * from './types'
+export * from './types/hourlyHotel'
 
 // 常量定义
 export { QUICK_FILTER_TAGS } from './constants/homestay'
+export { HOURLY_QUICK_FILTER_TAGS, QUICK_DURATION_OPTIONS } from './constants/hourlyHotel' // <--- 加上这一行，导出钟点房快捷标签
 
 // 工具函数
 export * from './utils'

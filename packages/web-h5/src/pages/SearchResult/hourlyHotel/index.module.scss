@@ -1,0 +1,102 @@
+.container {
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f7f8fa;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部 Header：包含返回键和胶囊 */
+.headerArea {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background: #fff; // 确保背景是白色
+  position: sticky;
+  top: 0;
+  z-index: 9999; // ✅ 把 10 改成 9999（或者比你的遮罩层更大的数字）
+}
+
+.backButton {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: -4px; // 稍微左移贴合边缘
+}
+
+/* 搜索胶囊栏 */
+.searchCapsule {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f5f6f8;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.capsuleLeft {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e0e0e0;
+  padding-right: 12px;
+  margin-right: 12px;
+
+  /* 城市点击区：加上了点击按压效果 */
+  .cityText {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+  }
+
+  /* 日期点击区：加上了点击按压效果 */
+  .dateInfo {
+    display: flex;
+    flex-direction: column;
+    margin-left: 6px;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.2;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:active {
+      background-color: #e0e0e0;
+    }
+  }
+}
+
+.capsuleRight {
+  flex: 1;
+  color: #999;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: text;
+}
+
+/* 列表区 */
+.listWrapper {
+  padding: 16px;
+  flex: 1;
+}
+
+.loadingText,
+.emptyState {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
+}

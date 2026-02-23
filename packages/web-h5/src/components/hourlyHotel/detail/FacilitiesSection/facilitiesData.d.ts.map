@@ -1,0 +1,1 @@
+{"version":3,"file":"facilitiesData.d.ts","sourceRoot":"","sources":["facilitiesData.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,MAAM,WAAW,YAAY;IAC3B,IAAI,EAAE,MAAM,CAAA;IACZ,GAAG,CAAC,EAAE,OAAO,CAAA;CACd;AAED,MAAM,WAAW,gBAAgB;IAC/B,IAAI,EAAE,MAAM,CAAA;IACZ,KAAK,EAAE,YAAY,EAAE,CAAA;CACtB;AAED,eAAO,MAAM,cAAc,EAAE,gBAAgB,EAyG5C,CAAA"}
