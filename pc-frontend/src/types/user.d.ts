@@ -20,6 +20,7 @@ export interface MerchantProfile {
   };
   auditInfo?: {
     verifyStatus: 'unverified' | 'pending' | 'verified' | 'rejected';
+    rejectReason?: string;
   };
   createdAt: string;
 }

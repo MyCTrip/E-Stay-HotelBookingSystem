@@ -314,28 +314,79 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { reason } = req.body;
   const user = (req as any).user;
+  
   try {
-    const updated = await Room.findByIdAndUpdate(
+    const room = await Room.findById(id);
+    if (!room) return res.status(404).json({ message: 'Not found' });
+
+    // 1. 构建 MongoDB 底层的更新指令对象
+    const updateData: any = {
+      'auditInfo.status': 'approved',
+      'auditInfo.auditedBy': user.id,
+      'auditInfo.auditedAt': new Date(),
+      pendingChanges: null // 清空待修改项
+    };
+
+    // 2. 将商户所有的修改项，拆解成精确的点语法 (dot notation)，强行覆盖
+    if (room.pendingChanges) {
+      if (room.pendingChanges.baseInfo) {
+        Object.keys(room.pendingChanges.baseInfo).forEach(k => {
+          updateData[`baseInfo.${k}`] = (room.pendingChanges as any).baseInfo[k];
+        });
+      }
+      if (room.pendingChanges.headInfo) {
+        Object.keys(room.pendingChanges.headInfo).forEach(k => {
+          updateData[`headInfo.${k}`] = (room.pendingChanges as any).headInfo[k];
+        });
+      }
+      if (room.pendingChanges.bedInfo) {
+        updateData.bedInfo = room.pendingChanges.bedInfo;
+      }
+      if (room.pendingChanges.breakfastInfo) {
+        Object.keys(room.pendingChanges.breakfastInfo).forEach(k => {
+          updateData[`breakfastInfo.${k}`] = (room.pendingChanges as any).breakfastInfo[k];
+        });
+      }
+    }
+
+    // 3. 🚀 杀手锏：绕过 save()，直接使用 findByIdAndUpdate 强制写库
+    const updatedRoom = await Room.findByIdAndUpdate(
       id,
       {
-        $set: {
-          'auditInfo.status': 'approved',
-          'auditInfo.auditedBy': user.id,
-          'auditInfo.auditedAt': new Date(),
-          'auditInfo.rejectReason': undefined,
-        },
+        $set: updateData,
+        $unset: { 'auditInfo.rejectReason': 1 } // 抹除之前的驳回原因
       },
-      { new: true }
+      { new: true } // 返回最新鲜的数据
     );
-    if (!updated) return res.status(404).json({ message: 'Not found' });
+
+    if (!updatedRoom) return res.status(404).json({ message: 'Update failed' });
+
+    // 4. 写日志
     await AuditLog.create({
       targetType: 'room',
-      targetId: updated._id,
+      targetId: updatedRoom._id,
       action: 'approve',
       operatorId: user.id,
       reason,
     });
-    res.json(updated);
+    
+    // 5. 发送通知
+    const hotel = await Hotel.findById(updatedRoom.hotelId);
+    if (hotel) {
+      const merchant = await Merchant.findById(hotel.merchantId);
+      if (merchant && merchant.userId) {
+        const resourceName = updatedRoom.baseInfo?.type || '房间';
+        await notificationService.notifyMerchantAuditApproved(
+          merchant.userId.toString(),
+          'room',
+          updatedRoom._id.toString(),
+          resourceName,
+          user.id
+        );
+      }
+    }
+    
+    res.json(updatedRoom);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }

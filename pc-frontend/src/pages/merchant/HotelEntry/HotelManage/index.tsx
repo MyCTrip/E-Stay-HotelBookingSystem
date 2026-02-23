@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Space, message, Spin } from 'antd';
+import { Form, Button, Space, message, Spin, Alert, Tag } from 'antd'; 
 import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -14,7 +14,7 @@ import { MarketingCard } from '@/components/hotel/MarketingCard';
 // import { RoomListCard } from '@/components/rooms/RoomListCard';
 import { HotelDetailsView } from '@/components/hotel/HotelDetailsView'; // 酒店详情查看组件
 
-// import { HOTEL_FACILITIES } from '@/config/hotelOptions';
+
 // 表单值类型定义（UI层）
 interface HotelFormValues {
   nameCn: string;
@@ -73,7 +73,7 @@ const HotelManage: React.FC = () => {
         setIsEditing(true);
       }
   } catch (err: any) {
-      // ✅ 403 处理：商户资料缺失 -> 跳转去完善资料
+      // 403 处理：商户资料缺失 -> 跳转去完善资料
       if (err?.response?.status === 403) {
         message.warning('请先完善商户资料');
         navigate('/merchant/profile'); // 确保你的路由里有这个路径
@@ -142,17 +142,7 @@ const HotelManage: React.FC = () => {
         facilities: facilitiesUI,
         policies: policiesUI,
         // 6. 回填房间数据
-        // rooms: hotelData.rooms?.map((r: any) => ({
-        //     name: r.baseInfo?.type || r.type,
-        //     price: r.baseInfo?.price || r.price,
-        //     stock: r.baseInfo?.stock || r.stock,
-        //     size: r.headInfo?.size ? parseFloat(r.headInfo.size) : 0,
-        //     facilities: [
-        //         r.headInfo?.wifi ? '无线网络' : '',
-        //         r.headInfo?.windowAvailable ? '有窗' : ''
-        //     ].filter(Boolean),
-        //     hasBreakfast: !!r.breakfastInfo?.hasBreakfast
-        // }))
+        // rooms: hotelData.rooms?.map((r: any) => ({ ... }))
       });
     } else if (isEditing && !hotelData) {
       // --- 新增模式：设置表单默认值 ---
@@ -187,14 +177,13 @@ const HotelManage: React.FC = () => {
       }
 
       // 2. Facilities 转换 (UI -> DB)
-      // 文档要求：Array, required, non-empty, content 为 HTML
       const facilitiesDB = Object.keys(values.facilities || {}).map(key => {
           const contentText = (values.facilities as any)[key]?.join(', ') || '';
           return {
               category: key,
               content: `<p>${contentText}</p>` // 包装成 HTML
           };
-      }).filter(item => item.content !== '<p></p>'); // 过滤空项
+      }).filter(item => item.content !== '<p></p>'); 
       
       // 必填兜底
       if (facilitiesDB.length === 0) {
@@ -202,7 +191,6 @@ const HotelManage: React.FC = () => {
       }
 
       // 3. Policies 转换 (UI -> DB)
-      // 文档要求：Array, required, non-empty, content 为 HTML
       const policiesDB = [
           { 
             policyType: 'petAllowed', 
@@ -212,7 +200,6 @@ const HotelManage: React.FC = () => {
             policyType: 'cancellation', 
             content: values.policies?.cancellation ? `<p>${values.policies.cancellation}</p>` : '<p>详询酒店前台</p>' 
           }
-          // 文档没提 flags，这里不传 flags
       ].filter(item => item.content);
 
       // 映射表：前端中文 -> 后端枚举
@@ -227,9 +214,9 @@ const HotelManage: React.FC = () => {
       };
 
       const surroundingsDB = (values.nearbyList || []).map((item: any) => ({
-          surType: surTypeMap[item.type] || 'business', // 转换字段名 type -> surType，并转枚举
-          surName: item.name || '未知地点',            // 转换字段名 name -> surName
-          distance: Number(item.distance) || 100       // 确保是数字
+          surType: surTypeMap[item.type] || 'business', 
+          surName: item.name || '未知地点',            
+          distance: Number(item.distance) || 100       
       }));
 
       const discountTypeMap: Record<string, string> = {
@@ -240,12 +227,11 @@ const HotelManage: React.FC = () => {
       };
       const discountsDB = (values.discountRules || []).map((item: any) => ({
           title: item.title || '优惠',
-          type: discountTypeMap[item.type] || 'instant', // 转枚举
-          content: item.value || ''                      // 转换字段名 value -> content
+          type: discountTypeMap[item.type] || 'instant', 
+          content: item.value || ''                      
       }));
 
       // 4. 构造严格符合文档的 Payload
-      // 文档结构：{ baseInfo: {...}, checkinInfo: {...} }
       const payload: any = {
         baseInfo: {
           nameCn: values.nameCn,
@@ -255,37 +241,24 @@ const HotelManage: React.FC = () => {
           star: values.star ?? 3,
           roomTotal: 1,
           openTime: values.openTime ? dayjs(values.openTime).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
-          // 文档要求 phone 是 string
           phone: '000-00000000', 
           description: values.description || '暂无描述',
           images: imageList,
-          
-          // 严格符合文档结构
           facilities: facilitiesDB,
           policies: policiesDB,
-          
-          // 文档提到的可选数组，显式传空数组
           surroundings: surroundingsDB,
           discounts: discountsDB
         },
-        
-        // checkinInfo 是 optional，但如果有内容则必须包含 checkinTime/checkoutTime
         checkinInfo: {
             checkinTime: values.checkinInfo?.checkinTime ? (values.checkinInfo.checkinTime as any).format('HH:mm') : '14:00',
             checkoutTime: values.checkinInfo?.checkoutTime ? (values.checkinInfo.checkoutTime as any).format('HH:mm') : '12:00',
-            // 文档没明确提 breakfastType/Price，但在示例中可能有，建议保留或根据 checkinInfo 定义调整
-            
         }
       };
 
-      console.log('提交的 Payload:', JSON.stringify(payload, null, 2)); // 方便你自己调试看
-
       if (hotelData?._id) {
-        // PUT /api/hotels/:id
         await hotelApi.update(hotelData._id, payload);
         message.success('更新申请已提交');
       } else {
-        // POST /api/hotels
         await hotelApi.create(payload);
         message.success('酒店创建成功');
       }
@@ -295,7 +268,6 @@ const HotelManage: React.FC = () => {
 
     } catch (err: any) {
       console.error(err);
-      // 显示后端返回的详细校验错误
       const errorMsg = err?.response?.data?.message;
       const fieldErrors = err?.response?.data?.errors ? JSON.stringify(err?.response?.data?.errors) : '';
       message.error(`${errorMsg || '提交失败'} ${fieldErrors}`);
@@ -304,24 +276,77 @@ const HotelManage: React.FC = () => {
     }
   };
 
+  // === 状态提示渲染逻辑 ===
+  const renderRejectAlert = () => {
+    const status = hotelData?.auditInfo?.status;
+    const rejectReason = (hotelData?.auditInfo as any)?.rejectReason; // 🔥 使用 as any 规避 TS 报错
+
+    if (status !== 'rejected' && status !== 'offline') return null;
+
+    const isOffline = status === 'offline';
+
+    return (
+      <Alert
+        message={isOffline ? "酒店已强制下线" : "审核未通过"}
+        description={
+          <div>
+            <p style={{ margin: 0 }}>
+              {isOffline 
+                ? '您的酒店已被管理员下线，暂不对外展示，请根据原因进行整改。' 
+                : '您的酒店信息未通过管理员审核，请根据驳回原因修改后重新提交。'}
+            </p>
+            <p style={{ margin: '8px 0 0 0' }}>
+              <strong>{isOffline ? '下线原因：' : '驳回原因：'}</strong>
+              <span style={{ color: '#ff4d4f' }}>{rejectReason || '管理员未提供具体原因'}</span>
+            </p>
+          </div>
+        }
+        type={isOffline ? "warning" : "error"}
+        showIcon
+        style={{ marginBottom: 24 }}
+      />
+    );
+  };
+
   // === 页面渲染逻辑 ===
-  // 全局加载中：展示大加载动画
   if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" tip="正在加载酒店信息..." /></div>;
 
   // 查看模式：渲染只读的酒店详情组件
   if (!isEditing && hotelData) {
-    return <HotelDetailsView data={hotelData} onEdit={() => setIsEditing(true)} />;
+    return (
+      <>
+        {/* 🔥 在查看模式顶部显示驳回警告 */}
+        <div style={{ maxWidth: 1000, margin: '24px auto 0' }}>
+          {renderRejectAlert()}
+        </div>
+        <HotelDetailsView data={hotelData} onEdit={() => setIsEditing(true)} />
+      </>
+    );
   }
 
   // 编辑/新增模式：渲染表单页面
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', paddingBottom: 80 }}>
+    <div style={{ maxWidth: 1000, margin: '0 auto', paddingBottom: 80, paddingTop: 24 }}>
+      
+      {/* 🔥 在编辑模式顶部也显示驳回警告，提醒商户 */}
+      {renderRejectAlert()}
+
       <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: 24, fontWeight: 600 }}>
+          {/* 🔥 将标题改为 flex 布局，并在旁边展示当前状态 Tag */}
+          <h2 style={{ fontSize: 24, fontWeight: 600, display: 'flex', alignItems: 'center', margin: 0 }}>
             {hotelData ? '编辑酒店信息' : '发布新酒店'}
+            {hotelData && (
+              <span style={{ marginLeft: 12 }}>
+                {hotelData.auditInfo?.status === 'approved' && <Tag color="success">已上线</Tag>}
+                {hotelData.auditInfo?.status === 'pending' && <Tag color="processing">审核中</Tag>}
+                {hotelData.auditInfo?.status === 'draft' && <Tag color="default">草稿</Tag>}
+                {hotelData.auditInfo?.status === 'rejected' && <Tag color="error">已驳回</Tag>}
+                {hotelData.auditInfo?.status === 'offline' && <Tag color="warning">已下线</Tag>}
+              </span>
+            )}
           </h2>
-          <p style={{ color: '#888' }}>
+          <p style={{ color: '#888', marginTop: 8 }}>
             {hotelData ? '修改以下信息并保存，修改后可能需要重新审核' : '请完善酒店信息，完成后即可开启营业'}
           </p>
         </div>

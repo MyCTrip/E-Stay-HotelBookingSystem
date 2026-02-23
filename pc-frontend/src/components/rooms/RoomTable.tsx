@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table, Button, Space, Tag, Popconfirm, Avatar, Typography } from 'antd';
-import { EyeOutlined, EditOutlined, DeleteOutlined, PictureOutlined, SendOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Tag, Popconfirm, Avatar, Typography, Tooltip } from 'antd';
+import { EyeOutlined, EditOutlined, DeleteOutlined, PictureOutlined, SendOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import type { HotelRoom } from '@/types/hotel';
 
 interface Props {
@@ -53,6 +53,7 @@ export const RoomTable: React.FC<Props> = ({ loading, dataSource, onView, onEdit
       key: 'status',
       render: (_: any, record: HotelRoom) => {
         const status = record.auditInfo?.status || 'draft'; 
+        const rejectReason = record.auditInfo?.rejectReason;
         
         const statusMap: any = {
             draft: { color: 'default', text: '草稿' },
@@ -62,7 +63,18 @@ export const RoomTable: React.FC<Props> = ({ loading, dataSource, onView, onEdit
             offline: { color: 'warning', text: '已下线' }
         };
         const current = statusMap[status] || statusMap.draft;
-        return <Tag color={current.color}>{current.text}</Tag>;
+        return (
+      <Space size="small">
+        <Tag color={current.color}>{current.text}</Tag>
+        
+        {/* 🔥 新增：如果是驳回状态，显示一个带有驳回原因的悬浮气泡 */}
+        {status === 'rejected' && (
+          <Tooltip title={`驳回原因: ${rejectReason || '无'}`} color="red">
+            <QuestionCircleOutlined style={{ color: '#ff4d4f', cursor: 'pointer' }} />
+          </Tooltip>
+        )}
+      </Space>
+    );
       }
     },
     {

@@ -27,27 +27,37 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (visible && data) {
-      // 1. 防御性处理：确保 qualificationInfo 存在才 map
-      const licenseImgs = data.qualificationInfo?.licenseImage?.map((url, index) => ({
-        uid: String(index),
-        name: `license-${index}`,
-        status: 'done' as const,
-        url: url
-      })) || [];
+    //只有弹窗显示时，才去操作 form
+    if (visible) {
+      if (data) {
+        // --- 编辑模式：回显数据 ---
+        const licenseImgs = data.qualificationInfo?.licenseImage?.map((url, index) => ({
+          uid: String(index),
+          name: `license-${index}`,
+          status: 'done' as const,
+          url: url
+        })) || [];
 
-      // 2. 防御性回显：所有 data.baseInfo 访问都加上 ?.
-      form.setFieldsValue({
-        merchantName: data.baseInfo?.merchantName || '',
-        contactName: data.baseInfo?.contactName || '',
-        contactPhone: data.baseInfo?.contactPhone || '',
-        contactEmail: data.baseInfo?.contactEmail || '',
-        businessLicenseNo: data.qualificationInfo?.businessLicenseNo || '',
-        licenseImages: licenseImgs as any,
-      });
-    } else {
-        form.resetFields();
+        // 因为弹窗刚打开时，Form 可能还没来得及挂载到 DOM 上
+        // 加上 setTimeout 可以保证在 DOM 渲染完毕后再塞入数据，100% 消除警告
+        setTimeout(() => {
+          form.setFieldsValue({
+            merchantName: data.baseInfo?.merchantName || '',
+            contactName: data.baseInfo?.contactName || '',
+            contactPhone: data.baseInfo?.contactPhone || '',
+            contactEmail: data.baseInfo?.contactEmail || '',
+            businessLicenseNo: data.qualificationInfo?.businessLicenseNo || '',
+            licenseImages: licenseImgs as any,
+          });
+        }, 0);
+      } else {
+        // --- 新建模式：清空表单 ---
+        setTimeout(() => {
+          form.resetFields();
+        }, 0);
+      }
     }
+    // 当 visible 为 false 时什么都不做，因为 Modal 的 destroyOnClose 会自动销毁表单
   }, [visible, data, form]);
 
   const handleSubmit = async (values: ProfileFormValues) => {
@@ -71,7 +81,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
           realNameStatus: 'unverified' 
         },
         auditInfo: {
-          verifyStatus: 'pending'
+          verifyStatus: 'unverified' 
         }
       };
 

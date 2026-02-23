@@ -12,6 +12,7 @@ export const getProfile = async (req: Request, res: Response) => {
 };
 
 export const upsertProfile = async (req: Request, res: Response) => {
+  console.log('upsertProfile hit', req.body);
   const user = (req as any).user;
   try {
     const profile = await merchantService.upsertByUserId(user.id, req.body);
