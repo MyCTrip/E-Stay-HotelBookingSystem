@@ -1,98 +1,189 @@
 /**
- * 政策与预订须知信息 - 符合行业规范
+ * 预订须知区
  */
 
 import React from 'react'
+import { TipIcon, CheckIcon, CrossIcon } from '../../../icons'
 import styles from './index.module.scss'
 
-interface Room {
-  id: string
-  [key: string]: any
+interface CancellationPolicy {
+  timeRange: string
+  cancellationFee: string
 }
 
 interface RoomDrawerPolicyProps {
-  room: Room
+  room?: any
+  data?: any
+  cancelMinutes?: number
+  checkInDate?: string // 格式: "YYYY-MM-DD"
+  checkInTime?: string // 格式: "HH:mm"
+  checkOutTime?: string
+  deadlineTime?: number // 超过入住时间多少小时后扣全款，单位: 小时，默认24
+  amenities?: {
+    baby?: boolean
+    children?: boolean
+    elderly?: boolean
+    overseas?: boolean
+    hongKongMacaoTaiwan?: boolean
+    pets?: boolean
+  }
 }
 
-const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
+const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({
+  room,
+  data,
+  cancelMinutes = 30,
+  checkInDate = '2026-02-21',
+  checkInTime = '14:00',
+  checkOutTime = '12:00',
+  deadlineTime = 24, // 默认24小时
+  amenities = {
+    baby: true,
+    children: true,
+    elderly: true,
+    overseas: true,
+    hongKongMacaoTaiwan: true,
+    pets: false,
+  },
+}) => {
+  // 解析日期时间，生成表格数据
+  const generateCancellationPolicies = () => {
+    // 解析checkInDate (YYYY-MM-DD)
+    const [year, month, day] = checkInDate.split('-')
+    const checkInDateStr = `${month}月${day}日`
+
+    // 计算deadline时间：checkInTime + deadlineTime小时
+    const [checkInHour, checkInMin] = checkInTime.split(':').map(Number)
+    const deadlineHour = (checkInHour + deadlineTime) % 24
+    const addDays = Math.floor((checkInHour + deadlineTime) / 24)
+
+    // 计算deadline日期
+    const checkInDateObj = new Date(Number(year), Number(month) - 1, Number(day))
+    const deadlineDateObj = new Date(
+      checkInDateObj.getFullYear(),
+      checkInDateObj.getMonth(),
+      checkInDateObj.getDate() + addDays
+    )
+    const deadlineMonth = String(deadlineDateObj.getMonth() + 1).padStart(2, '0')
+    const deadlineDay = String(deadlineDateObj.getDate()).padStart(2, '0')
+    const deadlineDateStr = `${deadlineMonth}月${deadlineDay}日`
+    const deadlineTimeStr = `${String(deadlineHour).padStart(2, '0')}:${String(checkInMin).padStart(2, '0')}`
+
+    return [
+      {
+        // 第一行：当前阶段 + 入住日期 + 入住时间前
+        firstRow: true,
+        timeRange: `${checkInDateStr} ${checkInTime}前`,
+        cancellationFee: '免费取消',
+      },
+      {
+        // 第二行：两行文本
+        secondRow: true,
+        timeRange: `${checkInDateStr} ${checkInTime}后\n${deadlineDateStr} ${deadlineTimeStr}前`,
+        cancellationFee: '取消扣首晚房费的\n100%',
+      },
+      {
+        // 第三行：取消全款时间后
+        thirdRow: true,
+        timeRange: `${deadlineDateStr} ${deadlineTimeStr}后`,
+        cancellationFee: '取消扣全款',
+      },
+    ]
+  }
+
+  const cancellationPolicies = generateCancellationPolicies()
+  const amenityItems = [
+    { label: '接待婴儿', enabled: amenities.baby },
+    { label: '接待儿童', enabled: amenities.children },
+    { label: '接待老人', enabled: amenities.elderly },
+    { label: '接待海外', enabled: amenities.overseas },
+    { label: '接待港澳台', enabled: amenities.hongKongMacaoTaiwan },
+    { label: '带宠物', enabled: amenities.pets },
+  ]
+
   return (
-    <div className={styles.policySection}>
-      <h3 className={styles.sectionTitle}>预订须知</h3>
-
-      {/* 取消政策突出展示 - 重要信息 */}
-      <div className={styles.cancellationPolicyCard}>
-        <div className={styles.policyHeader}>
-          <span className={styles.policyIcon}>✓</span>
-          <span className={styles.policyLabel}>免费取消政策</span>
-        </div>
-        <p className={styles.policyText}>
-          入住前 30 天内取消可获得全额退款。入住前 7 天内取消，退款 50%。
-        </p>
-      </div>
-
-      <div className={styles.policyContent}>
-        {/* 押金 */}
-        <div className={styles.policyItem}>
-          <div className={styles.policyItemHeader}>
-            <span className={styles.stepIcon}>💰</span>
-            <span className={styles.stepTitle}>押金</span>
+    <div className={styles.section}>
+      {/* Content */}
+      <div className={styles.content}>
+        {/* 入离 */}
+        <div className={styles.sectionRow}>
+          <h3 className={styles.sectionTitle}>入离</h3>
+          <div className={styles.checkInOut}>
+            <div className={styles.item}>
+              <span className={styles.label}>入住</span>
+              <span className={styles.value}>{checkInTime}-24:00入住</span>
+            </div>
+            <div className={styles.item}>
+              <span className={styles.label}>退房</span>
+              <span className={styles.value}>{checkOutTime}前退房</span>
+            </div>
           </div>
-          <p className={styles.policyDescription}>¥500，下单签订后，需后两周送达。无损归还。</p>
-        </div>
-
-        {/* 加入 */}
-        <div className={styles.policyItem}>
-          <div className={styles.policyItemHeader}>
-            <span className={styles.stepIcon}>✅</span>
-            <span className={styles.stepTitle}>加入</span>
-          </div>
-          <p className={styles.policyDescription}>标准入住8人、3间2人、¥50/人/晚</p>
-        </div>
-
-        {/* 确认 */}
-        <div className={styles.policyItem}>
-          <div className={styles.policyItemHeader}>
-            <span className={styles.stepIcon}>📋</span>
-            <span className={styles.stepTitle}>确认</span>
-          </div>
-          <p className={styles.policyDescription}>立即确认，无需等待确认</p>
         </div>
 
         {/* 退订 */}
-        <div className={styles.policyItem}>
-          <div className={styles.policyItemHeader}>
-            <span className={styles.stepIcon}>🔄</span>
-            <span className={styles.stepTitle}>退订</span>
+        <div className={styles.sectionRow}>
+          <div className={styles.sectionTitleWrapper}>
+            <h3 className={styles.sectionTitle}>退订</h3>
           </div>
-          <p className={styles.policyDescription}>30分钟内免费取消。订单排期灵活，无隐藏费用。</p>
-        </div>
-
-        {/* 支付时间范围 */}
-        <div className={styles.policyBox}>
-          <h4 className={styles.boxTitle}>支付信息</h4>
-          <div className={styles.timeRange}>
-            <div className={styles.timeItem}>
-              <span className={styles.timeLabel}>需提前支付时间段:</span>
-              <span className={styles.timeValue}>最晚入住前50分钟内</span>
-            </div>
-            <div className={styles.timeItem}>
-              <span className={styles.timeLabel}>选择日期支付:</span>
-              <span className={styles.timeValue}>全额预冷页面</span>
-            </div>
-          </div>
-
-          <div className={styles.paymentInfo}>
-            <span className={styles.paymentDate}>02月16日22:24元</span>
-            <span className={styles.paymentLabel}>应请日圣款</span>
+          <div className={styles.sectionContent}>
+            <div className={styles.highlight}>{cancelMinutes}分钟内免费取消</div>
+            <p className={styles.description}>
+              订单确认{cancelMinutes}
+              分钟后，取消订单将扣除全部房费（订单需等商家确认生效，订单确认结果以公众号、短信或app通知为准，如订单不确认将全额退款至你的付款账号）
+            </p>
           </div>
         </div>
 
-        {/* 说明 */}
-        <div className={styles.noticeBox}>
-          <span className={styles.noticeIcon}>📌</span>
-          <div className={styles.noticeContent}>
-            <p className={styles.noticeTitle}>发票说明</p>
-            <p className={styles.noticeText}>发票由商家房源页面处理，售价公司提供</p>
+        {/* 退订表格 */}
+        <div className={styles.tableSection}>
+          <table className={styles.policyTable}>
+            <thead>
+              <tr>
+                <th>退订时间</th>
+                <th>退订费用</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cancellationPolicies.map((policy, idx) => (
+                <tr key={idx}>
+                  <td>
+                    <div className={styles.timeCell}>
+                      {idx === 0 && (
+                        <>
+                          <span className={styles.tag}>当前阶段</span>
+                          <div>{policy.timeRange}</div>
+                        </>
+                      )}
+                      {idx === 1 &&
+                        policy.timeRange.split('\n').map((line, i) => <div key={i}>{line}</div>)}
+                      {idx === 2 && <div>{policy.timeRange}</div>}
+                    </div>
+                  </td>
+                  <td>
+                    <div className={styles.feeCell}>{policy.cancellationFee}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 要求 */}
+        <div className={styles.sectionRow}>
+          <div className={styles.sectionTitleWrapper}>
+            <h3 className={styles.sectionTitle}>要求</h3>
+          </div>
+          <div className={styles.amenitiesGrid}>
+            {amenityItems.map((item, idx) => (
+              <div key={idx} className={styles.amenityItem}>
+                {item.enabled ? (
+                  <CheckIcon width={20} height={20} />
+                ) : (
+                  <CrossIcon width={20} height={20} />
+                )}
+                <span className={styles.amenityLabel}>{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -100,4 +191,6 @@ const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {
   )
 }
 
+export { RoomDrawerPolicy }
+export type { RoomDrawerPolicyProps }
 export default RoomDrawerPolicy

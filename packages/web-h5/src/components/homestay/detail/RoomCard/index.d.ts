@@ -13,6 +13,7 @@ interface Room {
     priceNote: string;
     benefits: string[];
     packageCount: number;
+    confirmTime: number;
     showBreakfastTag?: boolean;
     breakfastCount?: number;
     showCancelTag?: boolean;

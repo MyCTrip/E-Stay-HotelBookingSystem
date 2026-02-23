@@ -2,7 +2,9 @@
  * 预订须知区
  */
 
-import React from 'react'
+import React, { useState } from 'react'
+import PropertyCardContainer from '../PropertyCardContainer'
+import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay'
 import { TipIcon, CheckIcon, CrossIcon } from '../../icons'
 import styles from './index.module.scss'
 
@@ -12,12 +14,13 @@ interface CancellationPolicy {
 }
 
 interface PolicySectionProps {
+  room?: any
   data?: any
   cancelMinutes?: number
   checkInDate?: string // 格式: "YYYY-MM-DD"
   checkInTime?: string // 格式: "HH:mm"
   checkOutTime?: string
-  deadlinetime?: number // 取消截止时间距离入住的小时数
+  deadlineTime?: number // 超过入住时间多少小时后扣全款，单位: 小时，默认24
   amenities?: {
     baby?: boolean
     children?: boolean
@@ -26,15 +29,19 @@ interface PolicySectionProps {
     hongKongMacaoTaiwan?: boolean
     pets?: boolean
   }
+  roomName?: string
 }
 
-const PolicySection: React.FC<PolicySectionProps> = ({
+/**
+ * PolicySection 内容组件
+ */
+const PolicySectionContent: React.FC<Omit<PolicySectionProps, 'room'>> = ({
   data,
   cancelMinutes = 30,
   checkInDate = '2026-02-21',
   checkInTime = '14:00',
   checkOutTime = '12:00',
-  deadlinetime = 24, // 默认入住后24小时
+  deadlineTime = 24,
   amenities = {
     baby: true,
     children: true,
@@ -44,40 +51,29 @@ const PolicySection: React.FC<PolicySectionProps> = ({
     pets: false,
   },
 }) => {
-  // 根据 checkInDate + checkInTime + deadlinetime 计算 cancelDeadlineTime
-  const calculateCancelDeadlineTime = (): string => {
-    const [year, month, day, ...rest] = checkInDate.split('-')
-    const [hours, minutes] = checkInTime.split(':')
-    
-    // 创建入住时间的Date对象
-    const checkInDateTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`)
-    
-    // 加上deadline小时数
-    checkInDateTime.setHours(checkInDateTime.getHours() + deadlinetime)
-    
-    // 格式化为 "MMdd HH:mm"
-    const deadlineMonth = String(checkInDateTime.getMonth() + 1).padStart(2, '0')
-    const deadlineDay = String(checkInDateTime.getDate()).padStart(2, '0')
-    const deadlineHours = String(checkInDateTime.getHours()).padStart(2, '0')
-    const deadlineMinutes = String(checkInDateTime.getMinutes()).padStart(2, '0')
-    
-    return `${deadlineMonth}${deadlineDay} ${deadlineHours}:${deadlineMinutes}`
-  }
-
-  // 生成取消政策表格数据
+  // 解析日期时间，生成表格数据
   const generateCancellationPolicies = () => {
-    const cancelDeadlineTime = calculateCancelDeadlineTime()
-    
     // 解析checkInDate (YYYY-MM-DD)
     const [year, month, day] = checkInDate.split('-')
     const checkInDateStr = `${month}月${day}日`
-    
-    // 解析deadline时间 (MMdd HH:mm)
-    const deadlineMonth = cancelDeadlineTime.substring(0, 2)
-    const deadlineDay = cancelDeadlineTime.substring(2, 4)
-    const deadlineTime = cancelDeadlineTime.substring(5)
+
+    // 计算deadline时间：checkInTime + deadlineTime小时
+    const [checkInHour, checkInMin] = checkInTime.split(':').map(Number)
+    const deadlineHour = (checkInHour + deadlineTime) % 24
+    const addDays = Math.floor((checkInHour + deadlineTime) / 24)
+
+    // 计算deadline日期
+    const checkInDateObj = new Date(Number(year), Number(month) - 1, Number(day))
+    const deadlineDateObj = new Date(
+      checkInDateObj.getFullYear(),
+      checkInDateObj.getMonth(),
+      checkInDateObj.getDate() + addDays
+    )
+    const deadlineMonth = String(deadlineDateObj.getMonth() + 1).padStart(2, '0')
+    const deadlineDay = String(deadlineDateObj.getDate()).padStart(2, '0')
     const deadlineDateStr = `${deadlineMonth}月${deadlineDay}日`
-    
+    const deadlineTimeStr = `${String(deadlineHour).padStart(2, '0')}:${String(checkInMin).padStart(2, '0')}`
+
     return [
       {
         // 第一行：当前阶段 + 入住日期 + 入住时间前
@@ -88,13 +84,13 @@ const PolicySection: React.FC<PolicySectionProps> = ({
       {
         // 第二行：两行文本
         secondRow: true,
-        timeRange: `${checkInDateStr} ${checkInTime}后\n${deadlineDateStr} ${deadlineTime}前`,
+        timeRange: `${checkInDateStr} ${checkInTime}后\n${deadlineDateStr} ${deadlineTimeStr}前`,
         cancellationFee: '取消扣首晚房费的\n100%',
       },
       {
         // 第三行：取消全款时间后
         thirdRow: true,
-        timeRange: `${deadlineDateStr} ${deadlineTime}后`,
+        timeRange: `${deadlineDateStr} ${deadlineTimeStr}后`,
         cancellationFee: '取消扣全款',
       },
     ]
@@ -111,21 +107,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({
   ]
 
   return (
-    <div className={styles.section}>
-      {/* Header - title和按钮同一行 */}
-      <div className={styles.header}>
-        <h2 className={styles.title}>预订须知</h2>
-        <button className={styles.allPoliciesBtn}>
-          全部须知 <span className={styles.arrow}>›</span>
-        </button>
-      </div>
-
-      {/* Tip区域 */}
-      <div className={styles.tipContainer}>
-        <TipIcon width={16} height={16} />
-        <span className={styles.tipText}>以下规则由房东制定，请仔细读并遵守</span>
-      </div>
-
+    <>
       {/* Content */}
       <div className={styles.content}>
         {/* 入离 */}
@@ -151,7 +133,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({
           <div className={styles.sectionContent}>
             <div className={styles.highlight}>{cancelMinutes}分钟内免费取消</div>
             <p className={styles.description}>
-              订单确认{cancelMinutes}分钟后，取消订单将扣除全部房费（订单需等商家确认生效，订单确认结果以公众号、短信或app通知为准，如订单不确认将全额退款至你的付款账号）
+              订单确认{cancelMinutes}
+              分钟后，取消订单将扣除全部房费（订单需等商家确认生效，订单确认结果以公众号、短信或app通知为准，如订单不确认将全额退款至你的付款账号）
             </p>
           </div>
         </div>
@@ -176,9 +159,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({
                           <div>{policy.timeRange}</div>
                         </>
                       )}
-                      {idx === 1 && policy.timeRange.split('\n').map((line, i) => (
-                        <div key={i}>{line}</div>
-                      ))}
+                      {idx === 1 &&
+                        policy.timeRange.split('\n').map((line, i) => <div key={i}>{line}</div>)}
                       {idx === 2 && <div>{policy.timeRange}</div>}
                     </div>
                   </td>
@@ -210,8 +192,96 @@ const PolicySection: React.FC<PolicySectionProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
+const PolicySection: React.FC<PolicySectionProps> = ({
+  room,
+  data,
+  cancelMinutes = 30,
+  checkInDate = '2026-02-21',
+  checkInTime = '14:00',
+  checkOutTime = '12:00',
+  deadlineTime = 24,
+  amenities = {
+    baby: true,
+    children: true,
+    elderly: true,
+    overseas: true,
+    hongKongMacaoTaiwan: true,
+    pets: false,
+  },
+  roomName = '',
+}) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+
+  // 创建虚拟room对象用于显示政策信息
+  const policyRoom = {
+    id: 'policy',
+    name: '预订须知',
+    area: '',
+    beds: '',
+    guests: '',
+    image: data?.images?.[0] || '',
+    price: 0,
+    priceNote: '',
+    benefits: [],
+    packageCount: 0,
+  }
+
+  const handleOpenAllPolicies = () => {
+    setIsDrawerOpen(true)
+  }
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false)
+  }
+
+  return (
+    <>
+      <PropertyCardContainer
+        headerConfig={{
+          show: true,
+          title: {
+            text: '预订须知',
+            show: true,
+          },
+          textButton: {
+            text: '全部须知',
+            show: true,
+            onClick: handleOpenAllPolicies,
+          },
+          tipTag: {
+            show: true,
+            icon: TipIcon,
+            text: '以下规则由房东制定，请仔细读并遵守',
+          },
+        }}
+      >
+        <PolicySectionContent
+          data={data}
+          cancelMinutes={cancelMinutes}
+          checkInDate={checkInDate}
+          checkInTime={checkInTime}
+          checkOutTime={checkOutTime}
+          deadlineTime={deadlineTime}
+          amenities={amenities}
+        />
+      </PropertyCardContainer>
+
+      {/* 政策详情抽屉 - 使用RoomDetailDrawer展示 */}
+      <RoomDetailDrawer
+        room={isDrawerOpen ? policyRoom : null}
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        scrollToPolicy={true}
+        actualRoomName={roomName}
+      />
+    </>
+  )
+}
+
+export { PolicySection }
+export type { PolicySectionProps }
 export default PolicySection

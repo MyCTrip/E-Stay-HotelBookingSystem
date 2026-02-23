@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { HouseIcon, UserIcon, AreaIcon , BedIcon, BreakfastIcon} from '../../../icons'
+import { HouseIcon, UserIcon, AreaIcon, BedIcon, BreakfastIcon } from '../../../icons'
 import styles from './index.module.scss'
 
 interface Room {
@@ -18,14 +18,16 @@ interface Room {
 
 interface RoomDrawerBasicInfoProps {
   room: Room
+  actualRoomName?: string
 }
 
-const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room }) => {
+const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room, actualRoomName }) => {
+  const displayRoomName = actualRoomName || room.name
   return (
     <div className={styles.basicInfo}>
       {/* 房型标题 */}
       <div className={styles.titleSection}>
-        <h2 className={styles.roomName}>{room.name}</h2>
+        <h2 className={styles.roomName}>{displayRoomName}</h2>
         <div className={styles.Breakfast}>
           <div className={styles.BreakfastIcon}>
             <BreakfastIcon width={20} height={20} color="#333333" />
@@ -37,26 +39,34 @@ const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room }) => {
       {/* 基本参数 - 横排展示 */}
       <div className={styles.statsRow}>
         <div className={styles.stat}>
-          <span className={styles.statIcon}><AreaIcon width={20} height={20} color="#333333" /></span>
+          <span className={styles.statIcon}>
+            <AreaIcon width={20} height={20} color="#333333" />
+          </span>
           <div className={styles.statContent}>
             <span className={styles.statValue}>公寓•{room.area}</span>
             <span className={styles.statLabel}>整套房屋</span>
           </div>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statIcon}><HouseIcon width={20} height={20} color="#333333" /></span>
+          <span className={styles.statIcon}>
+            <HouseIcon width={20} height={20} color="#333333" />
+          </span>
           <div className={styles.statContent}>
             <span className={styles.statValue}>3卧1厅2卫1厨</span>
           </div>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statIcon}><BedIcon width={20} height={20} color="#333333" /></span>
+          <span className={styles.statIcon}>
+            <BedIcon width={20} height={20} color="#333333" />
+          </span>
           <div className={styles.statContent}>
             <span className={styles.statValue}>5床</span>
           </div>
         </div>
         <div className={styles.stat}>
-          <span className={styles.statIcon}><UserIcon width={20} height={20} color="#333333" /></span>
+          <span className={styles.statIcon}>
+            <UserIcon width={20} height={20} color="#333333" />
+          </span>
           <div className={styles.statContent}>
             <span className={styles.statValue}>{room.guests}</span>
           </div>

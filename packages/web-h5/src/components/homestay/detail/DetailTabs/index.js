@@ -6,9 +6,9 @@ const tabs = [
     { key: 'reviews', label: '点评' },
     { key: 'facilities', label: '设施' },
     { key: 'policies', label: '须知' },
+    { key: 'host', label: '房东' },
     { key: 'knowledge', label: '周边' },
     { key: 'nearby', label: '附近' },
-    { key: 'host', label: '房东' },
 ];
 const DetailTabs = ({ activeTab = 'overview', onChange = () => { } }) => {
     return (_jsx("div", { className: styles.tabsWrapper, children: _jsx("div", { className: styles.tabs, children: tabs.map((tab) => (_jsxs("button", { className: `${styles.tab} ${activeTab === tab.key ? styles.active : ''}`, onClick: () => onChange?.(tab.key), children: [_jsx("span", { className: styles.label, children: tab.label }), activeTab === tab.key && _jsx("div", { className: styles.underline })] }, tab.key))) }) }));

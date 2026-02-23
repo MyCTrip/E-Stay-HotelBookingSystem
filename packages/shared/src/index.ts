@@ -19,13 +19,17 @@ export {
   resetHotelStore,
 } from './stores/hotelStore'
 export type { SearchParams } from './stores/hotelStore'
-export {
-  createHomeStayStore,
-  initHomeStayStore,
-  useHomeStayStore,
-  resetHomeStayStore,
+
+// Homestay Store (与 Mock 数据集成)
+export { useHomestayStore } from './stores/homestayStore'
+export type {
+  HomestayStoreState,
+  DetailContextState,
+  SearchUIState,
 } from './stores/homestayStore'
-export type { HomeStayState } from './stores/homestayStore'
+
+// Mock 数据
+export * from './mocks'
 
 // 中间件管理
 export {

@@ -2,7 +2,7 @@
  * 房型详情 - 设施与服务信息
  */
 
-import React, { useState, useEffect, forwardRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { CheckIcon, CrossIcon } from '../../../icons/FacilityIcons'
 import { FACILITY_CATEGORIES } from '../../../../../constants/facilities'
 import styles from './index.module.scss'
@@ -13,13 +13,10 @@ interface RoomDrawerFacilitiesProps {
   onClose?: () => void
 }
 
-const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProps>((
-  {
-    expandedInitially = false,
-    onClose,
-  },
-  ref
-) => {
+const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps> = ({
+  expandedInitially = false,
+  onClose,
+}) => {
   const [isExpanded, setIsExpanded] = useState(expandedInitially)
 
   // 同步 expandedInitially 的变化
@@ -28,14 +25,12 @@ const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProp
   }, [expandedInitially])
 
   // 展开时显示所有分类，收起时只显示基础、卫浴、厨房
-  const visibleCategories = isExpanded 
-    ? FACILITY_CATEGORIES 
+  const visibleCategories = isExpanded
+    ? FACILITY_CATEGORIES
     : FACILITY_CATEGORIES.filter((c) => ['basic', 'bathroom', 'kitchen'].includes(c.id))
 
   return (
-    <div className={styles.facilitiesContainer} ref={ref}>
-      {/* Title区域 */}
-      <h3 className={styles.title}>设施/服务</h3>
+    <div className={styles.facilitiesContainer}>
 
       {/* 设施列表 */}
       <div className={styles.facilitiesList}>
@@ -69,8 +64,6 @@ const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProp
       </div>
     </div>
   )
-})
-
-RoomDrawerFacilities.displayName = 'RoomDrawerFacilities'
+}
 
 export default RoomDrawerFacilities

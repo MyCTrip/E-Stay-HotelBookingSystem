@@ -1,5 +1,5 @@
 /**
- * 房源卡片容器 - 提供卡片样式、标签、展开按钮
+ * 房源卡片容器 - 提供卡片样式、标签、展开按钮、Header 区域
  */
 
 import React, { useState } from 'react'
@@ -8,8 +8,27 @@ import UpArrowIcon from '../../../icons/UpArrowIcon'
 import DownArrowIcon from '../../../icons/DownArrowIcon'
 import { TipIcon } from '../../icons'
 
+interface HeaderConfig {
+  show?: boolean
+  title?: {
+    text: string
+    show: boolean
+  }
+  textButton?: {
+    text: string
+    show: boolean
+    onClick: () => void
+  }
+  tipTag?: {
+    show: boolean
+    icon: React.ComponentType<{ width: number; height: number }>
+    text: string
+  }
+}
+
 interface PropertyCardContainerProps {
   children: React.ReactNode
+  headerConfig?: HeaderConfig
   showLabel?: boolean
   labelText?: string
   tooltipText?: string
@@ -21,6 +40,7 @@ interface PropertyCardContainerProps {
 
 const PropertyCardContainer: React.FC<PropertyCardContainerProps> = ({
   children,
+  headerConfig,
   showLabel = false,
   labelText = '',
   tooltipText = '',
@@ -30,10 +50,40 @@ const PropertyCardContainer: React.FC<PropertyCardContainerProps> = ({
   onExpandToggle,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false)
+
   return (
     <div className={styles.container}>
       {/* 卡片容器 */}
       <div className={styles.card}>
+        {/* 头部区域 - Header */}
+        {headerConfig?.show && (
+          <>
+            {/* Header 标题和按钮行 */}
+            <div className={styles.header}>
+              {/* Title */}
+              {headerConfig?.title?.show && headerConfig?.title?.text && (
+                <h2 className={styles.headerTitle}>{headerConfig.title.text}</h2>
+              )}
+
+              {/* TextButton */}
+              {headerConfig?.textButton?.show && headerConfig?.textButton?.text && (
+                <button className={styles.headerTextBtn} onClick={headerConfig.textButton.onClick}>
+                  {headerConfig.textButton.text}
+                  <span className={styles.headerArrow}>›</span>
+                </button>
+              )}
+            </div>
+
+            {/* TipTag */}
+            {headerConfig?.tipTag?.show && (
+              <div className={styles.tipTag}>
+                <headerConfig.tipTag.icon width={12} height={12} />
+                <span className={styles.tipTagText}>{headerConfig.tipTag.text}</span>
+              </div>
+            )}
+          </>
+        )}
+
         {/* 左上角标签 - 可选显示 */}
         {showLabel && labelText && (
           <div className={styles.labelTag}>
@@ -70,7 +120,13 @@ const PropertyCardContainer: React.FC<PropertyCardContainerProps> = ({
             onClick={onExpandToggle}
           >
             <span className={styles.btnText}>{expandBtnText}</span>
-            <span className={styles.icon}>{isExpanded ? <UpArrowIcon width={10} height={10} color='#999'></UpArrowIcon> : <DownArrowIcon width={10} height={10} color='#999'></DownArrowIcon>}</span>
+            <span className={styles.icon}>
+              {isExpanded ? (
+                <UpArrowIcon width={10} height={10} color="#999"></UpArrowIcon>
+              ) : (
+                <DownArrowIcon width={10} height={10} color="#999"></DownArrowIcon>
+              )}
+            </span>
           </button>
         )}
       </div>

@@ -1,5 +1,5 @@
 /**
- * 设施图标组件
+ * 图标组件
  */
 export declare const CheckIcon: ({ width, height, color }: {
     width?: number | undefined;

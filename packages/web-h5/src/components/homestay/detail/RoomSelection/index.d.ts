@@ -13,11 +13,15 @@ interface Room {
     priceNote: string;
     benefits: string[];
     packageCount: number;
+    confirmTime: number;
 }
 interface RoomSelectionProps {
     data?: any;
     rooms?: Room[];
     displayCount?: number;
+    onSelectRoom?: (room: Room) => void;
+    checkIn?: string;
+    checkOut?: string;
 }
 declare const RoomSelection: React.FC<RoomSelectionProps>;
 export default RoomSelection;

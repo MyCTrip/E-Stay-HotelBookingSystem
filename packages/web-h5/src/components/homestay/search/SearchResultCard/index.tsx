@@ -6,7 +6,9 @@
 
 import React, { useState } from 'react'
 import type { HomeStay } from '@estay/shared'
+import { HeartIcon } from '../../../icons/HeartIcon'
 import styles from './index.module.scss'
+import { StarIcon, PositionIcon } from '../../icons'
 
 interface SearchResultCardProps {
   data: HomeStay
@@ -60,30 +62,21 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
           onClick={handleFavoriteClick}
           aria-label="收藏"
         >
-          <svg
-            viewBox="0 0 24 24"
-            width="28"
-            height="28"
-            fill={favorited ? 'rgba(255, 107, 107, 0.6)' : 'rgba(180, 183, 189, 0.6)'}
-            stroke="none"
-          >
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
+          <HeartIcon
+            size={28}
+            fillColor={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(68, 70, 72, 0.3)'}
+            strokeColor={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(255, 255, 255, 0.9)'}
+            strokeWidth={2}
+          />
         </button>
 
         {/* 评分和位置标签 - 左下角 */}
         <div className={styles.ratingBadge}>
-          <span className={styles.ratingBadgeText}>⭐ {data.baseInfo.star}</span>
-          <svg 
-            viewBox="0 0 1024 1024" 
-            version="1.1" 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="10" 
-            height="10"
-            fill="#4db4ea"
-          >
-            <path d="M512 0C312.32 0 153.6 158.72 153.6 358.4 153.6 624.64 512 1024 512 1024s358.4-399.36 358.4-665.6C870.4 158.72 711.68 0 512 0z m0 486.4c-71.68 0-128-56.32-128-128s56.32-128 128-128 128 56.32 128 128-56.32 128-128 128z" />
-          </svg>
+          <StarIcon width={12} height={12} color='#eec50f'></StarIcon>
+          <span className={styles.ratingBadgeText}>
+             {data.baseInfo.star}
+          </span>
+          <PositionIcon width={10} height={10} color='#8da5cd'/>
           <span className={styles.location}>{data.baseInfo.city} · 距您 3.2km</span>
         </div>
 

@@ -19,6 +19,7 @@ interface Room {
   priceNote: string
   benefits: string[]
   packageCount: number
+  confirmTime: number // 确认时间，单位为分钟
   // 新增属性
   showBreakfastTag?: boolean
   breakfastCount?: number
@@ -35,13 +36,13 @@ interface RoomCardProps {
   showLabel?: boolean
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ 
-  room, 
-  isExpanded, 
-  onToggleExpand, 
+const RoomCard: React.FC<RoomCardProps> = ({
+  room,
+  isExpanded,
+  onToggleExpand,
   onViewDetails,
   onOpenDetail,
-  showLabel = true
+  showLabel = true,
 }) => {
   // 只有套餐数为 1 时才显示预订按钮
   const showBookBtn = room.packageCount === 1
@@ -63,10 +64,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
             {/* 房间名字和下拉按钮行 */}
             <div className={styles.nameRow}>
               <h4 className={styles.roomName}>{room.name}</h4>
-              <button 
-                className={styles.expandToggleBtn}
-                title={isExpanded ? '收起' : '展开'}
-              >
+              <button className={styles.expandToggleBtn} title={isExpanded ? '收起' : '展开'}>
                 <DownArrowIcon width={12} height={12} color="#B1B1B1" />
               </button>
             </div>
@@ -90,28 +88,24 @@ const RoomCard: React.FC<RoomCardProps> = ({
             <div className={styles.benefits}>
               {/* 早餐tag */}
               {room.showBreakfastTag && (
-                <span className={`${styles.benefitTag} ${room.breakfastCount === 0 ? styles.breakfastNo : styles.breakfastYes}`}>
+                <span
+                  className={`${styles.benefitTag} ${room.breakfastCount === 0 ? styles.breakfastNo : styles.breakfastYes}`}
+                >
                   {room.breakfastCount === 0 ? '无早餐' : `${room.breakfastCount}份早餐`}
                 </span>
               )}
               {/* 取消tag */}
               {room.showCancelTag && (
-                <span className={`${styles.benefitTag} ${styles.cancelTag}`}>
-                  30分钟免费取消
-                </span>
+                <span className={`${styles.benefitTag} ${styles.cancelTag}`}>30分钟免费取消</span>
               )}
             </div>
 
             {/* 套餐可选tag */}
-            <div className={styles.packageCountTag}>
-              {room.packageCount}个套餐可选
-            </div>
+            <div className={styles.packageCountTag}>{room.packageCount}个套餐可选</div>
 
-            {/* 底部行：立即确定标签 + 价格 + 预订按钮 */}
+            {/* 底部行：确认时间标签 + 价格 + 预订按钮 */}
             <div className={styles.footerRow}>
-              {showLabel && (
-                <div className={styles.instantLabel}>立即确定</div>
-              )}
+              {showLabel && <div className={styles.instantLabel}>{room.confirmTime}内确认</div>}
               <div className={styles.priceBlock}>
                 <span className={styles.price}>¥{room.price}</span>
                 <span className={styles.priceNote}>{room.priceNote}</span>
@@ -136,10 +130,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
           {/* 房间名字和上拉按钮行 */}
           <div className={styles.expandedNameRow}>
             <h4 className={styles.expandedRoomName}>{room.name}</h4>
-            <button 
-              className={styles.expandToggleBtn}
-              title="收起"
-            >
+            <button className={styles.expandToggleBtn} title="收起">
               <UpArrowIcon width={12} height={12} color="#B1B1B1" />
             </button>
           </div>
@@ -170,26 +161,20 @@ const RoomCard: React.FC<RoomCardProps> = ({
           <div className={styles.packageList} onClick={(e) => e.stopPropagation()}>
             <h4 className={styles.packageTitle}>{room.packageCount}个套餐可选</h4>
             {[1, 2, 3].map((pkg) => (
-              <div 
-                key={pkg} 
-                className={styles.packageItem}
-                onClick={() => onOpenDetail?.(room)}
-              >
+              <div key={pkg} className={styles.packageItem} onClick={() => onOpenDetail?.(room)}>
                 {/* 左侧内容 */}
                 <div className={styles.packageLeft}>
                   {/* 是否有套餐标记 */}
-                  {room.hasPackageDetail && (
-                    <span className={styles.hasPackageTag}>有套餐</span>
-                  )}
+                  {room.hasPackageDetail && <span className={styles.hasPackageTag}>有套餐</span>}
                   {/* 套餐服务行 */}
-                  <div className={styles.packageService}>
-                    上海迪斯尼乐园专车接送服务{pkg}份
-                  </div>
-                  
+                  <div className={styles.packageService}>上海迪斯尼乐园专车接送服务{pkg}份</div>
+
                   {/* 权益标签 */}
                   <div className={styles.packageBenefits}>
                     {room.showBreakfastTag && (
-                      <span className={`${styles.pkgBenefitTag} ${room.breakfastCount === 0 ? styles.breakfastNo : styles.breakfastYes}`}>
+                      <span
+                        className={`${styles.pkgBenefitTag} ${room.breakfastCount === 0 ? styles.breakfastNo : styles.breakfastYes}`}
+                      >
                         {room.breakfastCount === 0 ? '无早餐' : `${room.breakfastCount}份早餐`}
                       </span>
                     )}
@@ -215,7 +200,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
                   </div>
 
                   {/* 预订按钮 */}
-                  <button 
+                  <button
                     className={styles.selectBtn}
                     onClick={(e) => {
                       e.stopPropagation()

@@ -55,7 +55,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
 
         {/* 地址 */}
         <div className={styles.location}>
-          <LocationIcon />
+          <LocationIcon />  
           <span className={styles.locationText}>{homestay.baseInfo?.address}</span>
         </div>
 

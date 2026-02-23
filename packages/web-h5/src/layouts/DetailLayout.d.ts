@@ -16,7 +16,7 @@ interface DetailLayoutProps {
     /** Tab变更回调 */
     onTabChange: (tab: DetailTabKey) => void;
     /** 页面数据 */
-    data?: any;
+    data?: unknown;
     /** 房东联系回调 */
     onContactHost?: () => void;
     /** 返回按钮点击 */
@@ -41,5 +41,4 @@ export interface SectionRefs {
 }
 declare const DetailLayout: React.ForwardRefExoticComponent<DetailLayoutProps & React.RefAttributes<HTMLDivElement>>;
 export default DetailLayout;
-export declare const createSectionRef: () => React.RefObject<HTMLDivElement>;
 //# sourceMappingURL=DetailLayout.d.ts.map

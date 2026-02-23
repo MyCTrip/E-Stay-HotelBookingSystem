@@ -44,6 +44,6 @@ export default function MainLayout({ children }) {
                             navigate('/hourlyHotel');
                         if (cat.id === 'homestay')
                             navigate('/homeStay');
-                    }, title: cat.label, children: [_jsx("span", { className: styles.mobileNavIcon, children: cat.icon }), _jsx("span", { className: styles.mobileNavLabel, children: cat.label })] }, cat.id))) }), _jsx("footer", { className: styles.footer, children: _jsx("p", { children: "\u00A9 2024 E-Stay Hotel Booking System. All rights reserved." }) })] }));
+                    }, title: cat.label, children: [_jsx("span", { className: styles.mobileNavIcon, children: cat.icon }), _jsx("span", { className: styles.mobileNavLabel, children: cat.label })] }, cat.id))) })] }));
 }
 //# sourceMappingURL=MainLayout.js.map

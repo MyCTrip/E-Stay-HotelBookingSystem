@@ -1,16 +1,14 @@
 .facilitiesContainer {
   display: flex;
   flex-direction: column;
-  padding: 20px 16px;
   background-color: #fff;
   border-radius: 12px;
-  margin: 0 16px;
 }
 
 .title {
   margin: 0 0 20px 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: #333;
 }
 
@@ -73,7 +71,6 @@
 
 /* 底部按钮区域 */
 .expandFooter {
-  padding: 16px 0 0 0;
   border-top: 1px solid #f0f0f0;
   text-align: center;
 }
@@ -85,7 +82,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  padding: 12px 0;
+  padding: 12px 0 0 0;
   transition: opacity 0.2s ease;
   display: inline-flex;
   align-items: center;

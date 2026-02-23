@@ -65,7 +65,9 @@ export default function RoomDetailPage() {
             <h2>房间设施</h2>
             <div className={styles.features}>
               <div className={styles.feature}>
-                <span><AreaIcon width={14} height={14} color="#333333" /> 房间大小</span>
+                <span>
+                  <AreaIcon width={14} height={14} color="#333333" /> 房间大小
+                </span>
                 <strong>{room.headInfo.size}</strong>
               </div>
               {room.headInfo.floor && (
