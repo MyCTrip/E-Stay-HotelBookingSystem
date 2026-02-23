@@ -1,0 +1,51 @@
+﻿.featuresSection {
+  margin: 24rpx;
+  margin-top: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+}
+
+.featuresTitle {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  display: block;
+  margin-bottom: 40rpx;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30rpx;
+}
+
+.featureCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20rpx;
+  background-color: #f9fbfc;
+  border-radius: 16rpx;
+}
+
+.featureIcon {
+  font-size: 48rpx;
+  margin-bottom: 16rpx;
+}
+
+.featureCardTitle {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.featureCardDesc {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.4;
+}

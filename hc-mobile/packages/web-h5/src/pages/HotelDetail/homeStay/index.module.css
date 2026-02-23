@@ -1,0 +1,7 @@
+/* 民宿详情页 - DetailPage (现已由DetailLayout管理样式) */
+
+/* 此文件保留以支持未来扩展，主要样式由 src/layouts/DetailLayout.module.scss 管理 */
+
+.spacer {
+  min-height: 20px;
+}

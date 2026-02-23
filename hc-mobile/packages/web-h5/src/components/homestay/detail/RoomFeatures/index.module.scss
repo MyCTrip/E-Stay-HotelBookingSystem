@@ -1,0 +1,135 @@
+.roomFeatures {
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 8px;
+
+  .header {
+    margin-bottom: 16px;
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+  }
+
+  .featuresList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .featureCard {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+
+    .featureHeader {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+
+      .icon {
+        font-size: 32px;
+        line-height: 1;
+      }
+
+      .titleSection {
+        flex: 1;
+
+        .featureTitle {
+          font-size: 16px;
+          font-weight: 600;
+          color: #333;
+          margin: 0 0 4px 0;
+        }
+
+        .subtitle {
+          font-size: 13px;
+          color: #999;
+          margin: 0;
+        }
+      }
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin: 0 0 12px 0;
+    }
+
+    .imageContainer {
+      margin-top: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+
+      .image {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+    }
+  }
+
+  .viewMoreBtn {
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #3366ff;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #1677ff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:active {
+      background: #f0f7ff;
+    }
+  }
+
+  @media (max-width: 680px) {
+    padding: 12px;
+
+    .featuresList {
+      gap: 12px;
+    }
+
+    .featureCard {
+      padding: 12px;
+
+      .featureHeader {
+        gap: 10px;
+
+        .icon {
+          font-size: 28px;
+        }
+
+        .titleSection {
+          .featureTitle {
+            font-size: 15px;
+          }
+
+          .subtitle {
+            font-size: 12px;
+          }
+        }
+      }
+
+      .description {
+        font-size: 12px;
+      }
+    }
+
+    .viewMoreBtn {
+      padding: 10px;
+      font-size: 13px;
+    }
+  }
+}
