@@ -16,6 +16,7 @@ exports.merchantQualificationSchema = zod_1.z.object({
     businessLicenseNo: zod_1.z.string().optional().refine((val) => !val || businessLicenseRegex.test(val), {
         message: '营业执照号格式不正确（18位统一社会信用代码）',
     }),
+    businessLicensePhoto: zod_1.z.string().optional(),
     idCardNo: zod_1.z.string().optional().refine((val) => !val || idCardRegex.test(val), {
         message: '身份证号格式不正确（18位）',
     }),

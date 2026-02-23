@@ -280,7 +280,19 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
   const user = (req as any).user;
   
   try {
-    const room = await Room.findById(id);
+    const room = await Room.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          'auditInfo.status': 'approved',
+          'auditInfo.auditedBy': user.id,
+          'auditInfo.auditedAt': new Date(),
+          'auditInfo.rejectReason': undefined,
+          pendingChanges: null,
+        },
+      },
+      { new: true }
+    );
     if (!room) return res.status(404).json({ message: 'Not found' });
 
     // 1. 构建 MongoDB 底层的更新指令对象
@@ -361,20 +373,21 @@ export const adminApproveDeleteRoom = async (req: Request, res: Response) => {
   const { reason } = req.body;
   const user = (req as any).user;
   try {
-    const room = await Room.findById(id);
+    const room = await Room.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          pendingDeletion: false,
+          deletedAt: new Date(),
+          'auditInfo.status': 'offline',
+          'auditInfo.auditedBy': user.id,
+          'auditInfo.auditedAt': new Date(),
+        },
+      },
+      { new: true }
+    );
     if (!room) return res.status(404).json({ message: 'Not found' });
     if (!room.pendingDeletion) return res.status(400).json({ message: 'No pending delete request' });
-
-    room.pendingDeletion = false;
-    room.deletedAt = new Date();
-    room.auditInfo = {
-      ...room.auditInfo,
-      status: 'offline',
-      auditedBy: user.id,
-      auditedAt: new Date(),
-    } as any;
-
-    await room.save();
 
     await AuditLog.create({
       targetType: 'room',
@@ -529,6 +542,7 @@ export const listMerchants = async (req: Request, res: Response) => {
   if (search) filter['baseInfo.merchantName'] = new RegExp(search, 'i');
   const total = await Merchant.find(filter).countDocuments();
   const data = await Merchant.find(filter)
+    .select('userId baseInfo qualificationInfo auditInfo createdAt updatedAt')
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);

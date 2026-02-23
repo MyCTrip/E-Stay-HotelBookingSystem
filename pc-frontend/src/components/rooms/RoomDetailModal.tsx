@@ -13,7 +13,7 @@ interface Props {
 export const RoomDetailModal: React.FC<Props> = ({ open, data, onCancel }) => {
   if (!data) return null;
 
-  const { baseInfo, headInfo, bedInfo, breakfastInfo } = data;
+  const { baseInfo, headInfo, bedInfo, breakfastInfo, auditInfo } = data;
 
   // 辅助函数：解析 HTML 字符串 (简单的去除 p 标签用于展示，或者使用 dangerouslySetInnerHTML)
   const renderHtmlContent = (html: string) => {
@@ -52,7 +52,7 @@ export const RoomDetailModal: React.FC<Props> = ({ open, data, onCancel }) => {
         </Descriptions.Item>
         <Descriptions.Item label="每日库存">{baseInfo.stock} 间</Descriptions.Item>
         <Descriptions.Item label="状态">
-          <Badge status={baseInfo.status === 'approved' ? 'success' : 'warning'} text={baseInfo.status} />
+          <Badge status={auditInfo?.status === 'approved' ? 'success' : 'warning'} text={auditInfo?.status} />
         </Descriptions.Item>
         <Descriptions.Item label="最大入住">{baseInfo.maxOccupancy} 人</Descriptions.Item>
         <Descriptions.Item label="早餐类型">

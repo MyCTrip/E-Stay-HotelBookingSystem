@@ -15,7 +15,7 @@ export interface MerchantProfile {
   };
   qualificationInfo?: {
     businessLicenseNo?: string;
-    licenseImage?: string[];    //营业执照图片 (数组)
+    businessLicensePhoto?: string;  // 营业执照图片
     realNameStatus: 'unverified' | 'verified' | 'rejected';
   };
   auditInfo?: {

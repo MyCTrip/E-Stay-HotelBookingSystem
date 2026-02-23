@@ -11,4 +11,7 @@ export const merchantApi = {
   
   // 提交审核
   submitAudit: () => request.post('/merchants/submit'),
+
+  // 上传营业执照图片
+  uploadImage: (formData: FormData) => request.post<{ url: string; filename: string; size: number }>('/upload', formData),
 };

@@ -38,7 +38,6 @@ export interface RoomBaseInfo {
   price: number;
   stock: number; // 对应 Schema 里的 inventory 或 stock (虽然Schema没细写，但业务必须有)
   images: string[];
-  status: AuditStatus;
   maxOccupancy: number;
   
   // ⚠️ Room Schema 里这些也是必填且非空的！

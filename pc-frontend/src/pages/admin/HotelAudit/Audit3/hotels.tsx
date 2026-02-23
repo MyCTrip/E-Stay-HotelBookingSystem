@@ -30,6 +30,15 @@ interface IHotel {
         star?: number;
         openTime?: string;
         images: string[];
+        // 👇 新增：商户端提交的详细字段
+        description?: string;
+        facilities?: { category: string; content: string }[];
+        policies?: { policyType: string; content: string }[];
+    };
+    // 👇 新增：入住规则（通常与 baseInfo 平级，取决于后端具体实现，参考 index.tsx 提交结构）
+    checkinInfo?: {
+        checkinTime?: string;
+        checkoutTime?: string;
     };
     auditInfo: {
         status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
@@ -37,6 +46,11 @@ interface IHotel {
     };
     createdAt: string;
 }
+
+// 辅助函数：去除 HTML 标签（因为商户端设施和政策是富文本）
+const stripHtml = (html?: string) => {
+    return html?.replace(/<[^>]*>?/gm, '') || '-';
+};
 
 const AuditHotel: React.FC = () => {
     const [hotels, setHotels] = useState<IHotel[]>([]);
@@ -64,7 +78,7 @@ const AuditHotel: React.FC = () => {
                     page,
                     limit: size,
                     status: filters.status,
-                    search: filters.search 
+                    search: filters.search
                 }
             });
             setHotels(res.data || []);
@@ -94,31 +108,27 @@ const AuditHotel: React.FC = () => {
         } catch (err) { /* 报错由拦截器处理 */ }
     };
 
-    // 3. ✅ 修复：表格列映射
+    // 3. 表格列映射
     const columns: ColumnsType<IHotel> = [
         {
             title: '酒店名称',
-            // 🔥 必须用数组格式穿透读取嵌套数据
             dataIndex: ['baseInfo', 'nameCn'],
             width: '20%',
             render: (text, record) => (
                 <Space direction="vertical" size={0}>
                     <Text strong>{text || '未知酒店名称'}</Text>
-                    {/* 🔥 同样从 baseInfo 里读取 city */}
                     <Text type="secondary" style={{ fontSize: '11px' }}>{record.baseInfo?.city || '未知城市'}</Text>
                 </Space>
             )
         },
         {
             title: '提交商户',
-            // 这个你写对了，保持不变
             dataIndex: ['merchantId', 'baseInfo', 'merchantName'],
             key: 'merchantName',
             render: (text) => <Text>{text || '未知商户'}</Text>
         },
         {
             title: '当前状态',
-            // 🔥 从 auditInfo 里读取 status
             dataIndex: ['auditInfo', 'status'],
             render: (status: IHotel['auditInfo']['status'], record) => {
                 const map = { pending: 'blue', approved: 'green', rejected: 'red', offline: 'default', draft: 'orange' };
@@ -148,7 +158,7 @@ const AuditHotel: React.FC = () => {
             title: '管理操作',
             key: 'action',
             render: (_, record) => {
-                const status = record.auditInfo?.status; // 🔥 从 auditInfo 取状态
+                const status = record.auditInfo?.status;
                 return (
                     <Space size="small">
                         {status === 'pending' && (
@@ -209,7 +219,7 @@ const AuditHotel: React.FC = () => {
                 />
             </Card>
 
-            {/* 4. ✅ 修复：详情展示 Modal，添加 baseInfo 路径前缀 */}
+            {/* 4. ✅ 修复：详情展示 Modal，增加更详细的信息 */}
             <Modal
                 title="酒店详细申报资料"
                 open={detailVisible}
@@ -226,7 +236,46 @@ const AuditHotel: React.FC = () => {
                             <Descriptions.Item label="星级">{selectedHotel.baseInfo?.star ? `${selectedHotel.baseInfo.star} 星` : '-'}</Descriptions.Item>
                             <Descriptions.Item label="详细地址" span={2}>{selectedHotel.baseInfo?.address || '-'}</Descriptions.Item>
                             <Descriptions.Item label="提交时间">{new Date(selectedHotel.createdAt).toLocaleString()}</Descriptions.Item>
+
+                            {/* 👇 新增：酒店简介 */}
+                            <Descriptions.Item label="酒店简介" span={2}>
+                                {selectedHotel.baseInfo?.description || '暂无简介'}
+                            </Descriptions.Item>
                         </Descriptions>
+
+                        {/* 👇 新增：服务与政策区域 */}
+                        <Divider orientation="left">服务与政策</Divider>
+                        <Descriptions bordered column={2} size="small">
+                            <Descriptions.Item label="最早入住时间">{selectedHotel.checkinInfo?.checkinTime || '14:00'}</Descriptions.Item>
+                            <Descriptions.Item label="最晚退房时间">{selectedHotel.checkinInfo?.checkoutTime || '12:00'}</Descriptions.Item>
+
+                            {/* 遍历政策 (Pet, Cancellation) */}
+                            {selectedHotel.baseInfo?.policies?.map((policy, idx) => {
+                                let label = '其他政策';
+                                if (policy.policyType === 'petAllowed') label = '宠物政策';
+                                if (policy.policyType === 'cancellation') label = '取消政策';
+                                return (
+                                    <Descriptions.Item label={label} key={idx} span={1}>
+                                        {stripHtml(policy.content)}
+                                    </Descriptions.Item>
+                                );
+                            })}
+                        </Descriptions>
+
+                        {/* 👇 新增：设施服务 */}
+                        {selectedHotel.baseInfo?.facilities && selectedHotel.baseInfo.facilities.length > 0 && (
+                            <div style={{ marginTop: 16 }}>
+                                <Text strong style={{ display: 'block', marginBottom: 8 }}>设施服务：</Text>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {selectedHotel.baseInfo.facilities.map((fac, idx) => (
+                                        <div key={idx} style={{ background: '#fafafa', padding: '8px 12px', borderRadius: 4, border: '1px solid #f0f0f0' }}>
+                                            <Tag color="blue">{fac.category}</Tag>
+                                            <Text type="secondary">{stripHtml(fac.content)}</Text>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <Divider>酒店实景照片</Divider>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
@@ -245,7 +294,9 @@ const AuditHotel: React.FC = () => {
                 open={modalVisible}
                 onOk={() => {
                     const ids = isBulk ? selectedRowKeys : [currentId!];
-                    actionType && executeAction(ids as string[], actionType, reason);
+                    if (actionType) {
+                        executeAction(ids as string[], actionType, reason);
+                    }
                 }}
                 onCancel={() => { setModalVisible(false); setReason(''); }}
             >
