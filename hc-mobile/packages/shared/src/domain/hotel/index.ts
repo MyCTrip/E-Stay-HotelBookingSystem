@@ -1,2 +1,27 @@
-export * from './hotel.types'
+export type {
+  ObjectId,
+  PropertyType as HotelPropertyType,
+  RoomCategory,
+  AuditStatus,
+  SurroundingType,
+  DiscountType,
+  RoomAvailabilityStatus,
+  GeoJSONPointModel,
+  FacilityItemModel,
+  FacilityModel,
+  PolicyModel,
+  SurroundingModel,
+  DiscountModel,
+  CheckinInfoModel,
+  AuditInfoModel,
+  HotelBaseInfoModel as HotelEntityBaseInfoModel,
+  HotelDomainModel as HotelEntityModel,
+  RoomBaseInfoModel as RoomEntityBaseInfoModel,
+  RoomHeadInfoModel as RoomEntityHeadInfoModel,
+  RoomBedInfoModel as RoomEntityBedInfoModel,
+  RoomBreakfastInfoModel as RoomEntityBreakfastInfoModel,
+  RoomDomainModel as RoomEntityModel,
+  RoomAvailabilityDomainModel,
+} from './hotel.types'
+export * from './hotel.view.types'
 export * from './price'

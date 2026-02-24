@@ -7,6 +7,8 @@ interface RoomDrawerPriceProps {
   sku: HotelRoomSKUModel
 }
 
+const CURRENCY_SYMBOL = '\u00A5'
+
 const RoomDrawerPrice: React.FC<RoomDrawerPriceProps> = ({ spu, sku }) => {
   const nightlyPrice = sku.priceInfo.nightlyPrice
   const soldOutHint = sku.status === 'sold_out' ? '当前套餐已满房' : '当前套餐可预订'
@@ -26,7 +28,10 @@ const RoomDrawerPrice: React.FC<RoomDrawerPriceProps> = ({ spu, sku }) => {
         <div className={styles.priceCard}>
           <div className={styles.priceRow}>
             <span className={styles.label}>房费</span>
-            <span className={styles.value}>¥{nightlyPrice}</span>
+            <span className={styles.value}>
+              {CURRENCY_SYMBOL}
+              {nightlyPrice}
+            </span>
           </div>
 
           <div className={styles.priceRow}>
@@ -58,7 +63,10 @@ const RoomDrawerPrice: React.FC<RoomDrawerPriceProps> = ({ spu, sku }) => {
 
           <div className={`${styles.priceRow} ${styles.finalPrice}`}>
             <span className={styles.label}>优惠后</span>
-            <span className={styles.value}>¥{nightlyPrice}</span>
+            <span className={styles.value}>
+              {CURRENCY_SYMBOL}
+              {nightlyPrice}
+            </span>
           </div>
 
           <div className={styles.priceHint}>{soldOutHint}</div>

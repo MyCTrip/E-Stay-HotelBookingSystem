@@ -1,100 +1,163 @@
-﻿export type HotelMarket = 'domestic' | 'international'
+export type ObjectId = string
 
-export interface GeoPoint {
-  lng: number
-  lat: number
+export type PropertyType = 'hotel' | 'hourlyHotel' | 'homeStay'
+
+export type RoomCategory = 'standard' | 'hourly' | 'homestay'
+
+export type AuditStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'offline'
+
+export type SurroundingType = 'metro' | 'attraction' | 'business'
+
+export type DiscountType = 'discount' | 'instant'
+
+export type RoomAvailabilityStatus = 'available' | 'booked' | 'blocked'
+
+export interface GeoJSONPointModel {
+  type: 'Point'
+  coordinates: [number, number]
 }
 
-export interface HotelBaseInfoModel {
+export interface FacilityItemModel {
   name: string
-  star: number
-  address: string
-  description: string
-  images: string[]
+  description?: string
+  icon?: string
+  available?: boolean
 }
 
-export interface HotelFacilityModel {
+export interface FacilityModel {
   category: string
   content: string
   summary?: string
+  icon?: string
+  order?: number
+  visible?: boolean
+  items?: FacilityItemModel[]
 }
 
-export interface HotelPolicyModel {
-  checkInTime: string
-  cancellationPolicy: string
-  checkOutTime?: string
+export interface PolicyModel {
+  policyType: string
+  content: string
+  summary?: string
+  flags?: Record<string, unknown>
+  effectiveFrom?: Date
 }
 
-export interface HotelSurroundingModel {
+export interface SurroundingModel {
+  surType: SurroundingType
   surName: string
-  surType: string
-  distanceMeters?: number
-  distanceText?: string
+  distance: number
 }
 
-export interface HotelRatingModel {
-  score: number
-  count: number
-  label?: string
+export interface DiscountModel {
+  title: string
+  type: DiscountType
+  content: string
+}
+
+export interface CheckinInfoModel {
+  checkinTime: string
+  checkoutTime: string
+  breakfastType?: string
+  breakfastPrice?: number
+}
+
+export interface AuditInfoModel {
+  status: AuditStatus
+  auditedBy: ObjectId | null
+  auditedAt: Date | null
+  rejectReason?: string
+}
+
+export interface HotelBaseInfoModel {
+  nameCn: string
+  nameEn?: string
+  address: string
+  city: string
+  propertyType: PropertyType
+  location?: GeoJSONPointModel
+  star: number
+  openTime: string
+  roomTotal: number
+  phone: string
+  description: string
+  images: string[]
+  facilities: [FacilityModel, ...FacilityModel[]]
+  policies: [PolicyModel, ...PolicyModel[]]
+  surroundings?: SurroundingModel[]
+  discounts?: DiscountModel[]
 }
 
 export interface HotelDomainModel {
-  id: string
-  market: HotelMarket
+  _id?: ObjectId
+  merchantId: ObjectId
   baseInfo: HotelBaseInfoModel
-  facilities: HotelFacilityModel[]
-  policies: HotelPolicyModel
-  surroundings: HotelSurroundingModel[]
-  rating: HotelRatingModel
-  distanceText?: string
+  typeConfig: Record<string, unknown>
+  checkinInfo: CheckinInfoModel
+  auditInfo: AuditInfoModel
+  pendingChanges: Record<string, unknown> | null
+  pendingDeletion: boolean
+  deletedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
 }
 
-export interface HotelRoomHeadInfoModel {
-  size?: string
-  floor?: string
-  wifi?: boolean
-  windowAvailable?: boolean
-  smokingAllowed?: boolean
+export interface RoomBaseInfoModel {
+  type: string
+  price: number
+  images: string[]
+  status: AuditStatus
+  maxOccupancy: number
+  facilities: [FacilityModel, ...FacilityModel[]]
+  policies: [PolicyModel, ...PolicyModel[]]
+  bedRemark: [string, ...string[]]
 }
 
-export interface HotelRoomBedInfoModel {
+export interface RoomHeadInfoModel {
+  size: string
+  floor: string
+  wifi: boolean
+  windowAvailable: boolean
+  smokingAllowed: boolean
+}
+
+export interface RoomBedInfoModel {
   bedType: string
   bedNumber: number
   bedSize: string
 }
 
-export interface HotelRoomSKUModel {
-  roomId: string
-  priceInfo: {
-    nightlyPrice: number
-  }
-  status: 'available' | 'sold_out'
-  cancellationRule: string
+export interface RoomBreakfastInfoModel {
+  breakfastType?: string
+  cuisine?: string
+  bussinessTime?: string
+  addBreakfast?: string
 }
 
-export interface HotelRoomSPUModel {
-  spuName: string
-  images: string[]
-  headInfo: HotelRoomHeadInfoModel
-  bedInfo: HotelRoomBedInfoModel[]
-  startingPrice: number
-  skus: HotelRoomSKUModel[]
+export interface RoomDomainModel {
+  _id?: ObjectId
+  hotelId: ObjectId
+  baseInfo: RoomBaseInfoModel
+  category: RoomCategory
+  typeConfig: Record<string, unknown>
+  headInfo: RoomHeadInfoModel
+  bedInfo: RoomBedInfoModel[]
+  breakfastInfo: RoomBreakfastInfoModel
+  auditInfo: AuditInfoModel
+  pendingChanges: Record<string, unknown> | null
+  pendingDeletion: boolean
+  deletedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
 }
 
-export interface HotelSearchParams {
-  city: string
-  keyword?: string
-  checkInDate: string
-  checkOutDate: string
-  market: HotelMarket
-  page: number
-  limit: number
-  stars?: number[]
-  minPrice?: number
-  maxPrice?: number
+export interface RoomAvailabilityDomainModel {
+  _id?: ObjectId
+  roomId: ObjectId
+  date: Date
+  status: RoomAvailabilityStatus
+  priceOverride?: number
+  availableCount: number
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
 }
-
-export interface HotelAdapterContext {
-  userLocation?: GeoPoint
-}
-

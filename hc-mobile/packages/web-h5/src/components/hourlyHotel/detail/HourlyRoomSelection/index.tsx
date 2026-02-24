@@ -1,14 +1,9 @@
-/**
- * 钟点房房型选择区 - 核心转化模块
- */
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
+import type { HourlyRoomDetail } from '../../types'
 import RoomCard from '../RoomCard'
 import styles from './index.module.scss'
 
-// 🌟 1. 引入共享类型
-import { HourlyRoomDetail } from '@estay/shared'
-
-interface Room {
+interface RoomViewModel {
   id: string
   name: string
   area: string
@@ -22,107 +17,118 @@ interface Room {
 }
 
 interface HourlyRoomSelectionProps {
-  data: any
-  // 🌟 2. 接收外部传入的打开抽屉方法
+  data?: { _id?: string }
   onOpenDetail?: (room: HourlyRoomDetail) => void
 }
 
-const mockHourlyRooms: Room[] = [
+const mockHourlyRooms: RoomViewModel[] = [
   {
     id: 'h1',
-    name: '高级大床房',
-    area: '25㎡',
-    beds: '1张1.8m大床',
-    guests: '2人',
+    name: 'Superior King Room',
+    area: '25sqm',
+    beds: '1 x 1.8m King Bed',
+    guests: '2 Guests',
     image: 'https://picsum.photos/100/100?random=hourly1',
     price: 90,
-    priceNote: '3小时',
-    benefits: ['有窗', '免费WiFi', '秒确认'],
+    priceNote: '3 hours',
+    benefits: ['Window', 'Free WiFi', 'Instant confirmation'],
     packageCount: 2,
   },
   {
     id: 'h2',
-    name: '精选双床房',
-    area: '30㎡',
-    beds: '2张1.2m单人床',
-    guests: '2人',
+    name: 'Twin Room',
+    area: '30sqm',
+    beds: '2 x 1.2m Single Bed',
+    guests: '2 Guests',
     image: 'https://picsum.photos/100/100?random=hourly2',
     price: 120,
-    priceNote: '4小时',
-    benefits: ['有窗', '免费WiFi'],
+    priceNote: '4 hours',
+    benefits: ['Window', 'Free WiFi'],
     packageCount: 1,
   },
   {
     id: 'h3',
-    name: '商务大床房',
-    area: '35㎡',
-    beds: '1张1.8m大床',
-    guests: '2人',
+    name: 'Business King Room',
+    area: '35sqm',
+    beds: '1 x 1.8m King Bed',
+    guests: '2 Guests',
     image: 'https://picsum.photos/100/100?random=hourly3',
     price: 150,
-    priceNote: '4小时',
-    benefits: ['高楼层', '免费WiFi', '免费停车'],
+    priceNote: '4 hours',
+    benefits: ['High floor', 'Free WiFi', 'Free parking'],
     packageCount: 1,
   },
 ]
 
-const HourlyRoomSelection: React.FC<HourlyRoomSelectionProps> = ({ data, onOpenDetail }) => {
-  const [expandedRoomId, setExpandedRoomId] = useState<string | null>(null)
-
-  const [selectedDate, setSelectedDate] = useState('02月20日 (今天)')
-  const [selectedTime, setSelectedTime] = useState('14:00')
-  const [selectedDuration, setSelectedDuration] = useState('3小时')
-
-  const handleToggleExpand = (roomId: string) => {
-    setExpandedRoomId(expandedRoomId === roomId ? null : roomId)
+const getDurationFromPriceNote = (priceNote: string): number => {
+  const matched = priceNote.match(/\d+/)
+  if (!matched) {
+    return 3
   }
 
-  // 🌟 3. 处理点击详情，将本地 Room 结构转为标准的 HourlyRoomDetail 传给父组件
-  const handleViewDetails = (room: Room) => {
-    if (onOpenDetail) {
-      const detailData: HourlyRoomDetail = {
-        _id: room.id,
-        hotelId: data?._id || 'temp_hotel_id',
-        baseInfo: {
-          type: room.name,
-          price: room.price,
-          images: [room.image],
-          maxOccupancy: parseInt(room.guests) || 2,
-          // 临时将字符串转为对象，兼容 facility 类型
-          facilities: room.benefits.map(b => ({ name: b })) as any,
-          windowAvailable: room.benefits.includes('有窗'),
-        },
-        durationOptions: [parseInt(room.priceNote) || 3],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      onOpenDetail(detailData)
+  const parsed = Number(matched[0])
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 3
+}
+
+const HourlyRoomSelection: React.FC<HourlyRoomSelectionProps> = ({ data, onOpenDetail }) => {
+  const [expandedRoomId, setExpandedRoomId] = useState<string | null>(null)
+  const [selectedDate] = useState('Today')
+  const [selectedTime] = useState('14:00')
+  const [selectedDuration] = useState('3 hours')
+
+  const handleToggleExpand = (roomId: string) => {
+    setExpandedRoomId((current) => (current === roomId ? null : roomId))
+  }
+
+  const handleViewDetails = (room: RoomViewModel) => {
+    if (!onOpenDetail) {
+      return
     }
+
+    const duration = getDurationFromPriceNote(room.priceNote)
+
+    const detailData: HourlyRoomDetail = {
+      _id: room.id,
+      hotelId: data?._id ?? 'temp_hotel_id',
+      baseInfo: {
+        type: room.name,
+        price: room.price,
+        images: [room.image],
+        maxOccupancy: 2,
+        facilities: room.benefits.map((name) => ({ name })),
+        windowAvailable: room.benefits.includes('Window'),
+      },
+      durationOptions: [duration],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    onOpenDetail(detailData)
   }
 
   return (
     <div className={styles.roomSelection}>
       <div className={styles.timeSelectorCard}>
         <div className={styles.timeBlock}>
-          <span className={styles.label}>入住日期</span>
+          <span className={styles.label}>Date</span>
           <span className={styles.value}>{selectedDate}</span>
         </div>
         <div className={styles.divider}></div>
         <div className={styles.timeBlock}>
-          <span className={styles.label}>预计到店</span>
+          <span className={styles.label}>Arrival</span>
           <span className={styles.value}>{selectedTime}</span>
         </div>
         <div className={styles.divider}></div>
         <div className={styles.timeBlock}>
-          <span className={styles.label}>入住时长</span>
+          <span className={styles.label}>Duration</span>
           <span className={styles.value}>{selectedDuration}</span>
         </div>
         <span className={styles.arrowIcon}>&gt;</span>
       </div>
 
       <div className={styles.header}>
-        <h2 className={styles.title}>选择房型</h2>
-        <p className={styles.subtitle}>共 {mockHourlyRooms.length} 个房型符合条件</p>
+        <h2 className={styles.title}>Select Room Type</h2>
+        <p className={styles.subtitle}>{mockHourlyRooms.length} room types available</p>
       </div>
 
       <div className={styles.roomList}>
@@ -132,13 +138,10 @@ const HourlyRoomSelection: React.FC<HourlyRoomSelectionProps> = ({ data, onOpenD
             room={room}
             isExpanded={expandedRoomId === room.id}
             onToggleExpand={() => handleToggleExpand(room.id)}
-            // 修改这里：调用转换函数
             onViewDetails={() => handleViewDetails(room)}
           />
         ))}
       </div>
-
-      {/* 🌟 4. 彻底删除这里的 RoomDetailDrawer，因为已经在 HotelDetail 页面统一渲染了！ */}
     </div>
   )
 }

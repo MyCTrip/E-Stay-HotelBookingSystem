@@ -6,6 +6,32 @@
   overflow: hidden;
 }
 
+.cardSoldOut {
+  .thumbnail,
+  .expandedImage {
+    filter: grayscale(100%);
+    opacity: 0.82;
+  }
+
+  .roomName,
+  .expandedRoomName,
+  .paramValue,
+  .packageCountTag {
+    color: #9ca3af;
+  }
+
+  .price,
+  .currentPrice,
+  .confirmTag {
+    color: #9ca3af;
+  }
+
+  .instantLabel {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+  }
+}
+
 /* 收起态内容 */
 .collapsedContent {
   display: flex;
@@ -197,6 +223,12 @@
   &:active {
     background-color: #e66a0a;
   }
+
+  &:disabled {
+    background-color: #d1d5db;
+    color: #f8fafc;
+    cursor: not-allowed;
+  }
 }
 
 /* 展开态内容 */
@@ -304,6 +336,11 @@
   &:active {
     background-color: #f9f9f9;
   }
+}
+
+.packageItemSoldOut {
+  background-color: #f8fafc;
+  border-color: #e5e7eb;
 }
 
 /* 套餐项左侧 */
@@ -418,6 +455,13 @@
 
   &:active {
     background-color: rgba(0, 102, 255, 0.1);
+  }
+
+  &:disabled {
+    background-color: #d1d5db;
+    border-color: #d1d5db;
+    color: #f8fafc;
+    cursor: not-allowed;
   }
 }
 

@@ -1,0 +1,20 @@
+.pageContainer {
+  position: relative;
+  padding-bottom: calc(40px + env(safe-area-inset-bottom));
+}
+
+.sectionGap {
+  margin-top: 2px;
+}
+
+.roomsSection {
+  position: relative;
+  z-index: 2;
+  margin-top: -64px;
+  padding-top: 52px;
+}
+
+.nearbyPropertiesSection {
+  margin-top: 4px;
+  border-top: 1px solid #f0f0f0;
+}

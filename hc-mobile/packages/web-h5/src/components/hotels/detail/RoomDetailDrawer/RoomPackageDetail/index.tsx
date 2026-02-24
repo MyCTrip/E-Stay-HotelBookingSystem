@@ -7,6 +7,8 @@ interface RoomPackageDetailProps {
   sku: HotelRoomSKUModel
 }
 
+const CURRENCY_SYMBOL = '\u00A5'
+
 const RoomPackageDetail: React.FC<RoomPackageDetailProps> = ({ spu, sku }) => {
   const bedSummary = spu.bedInfo
     .map((item) => `${item.bedNumber}${item.bedType}${item.bedSize ? `(${item.bedSize})` : ''}`)
@@ -21,7 +23,7 @@ const RoomPackageDetail: React.FC<RoomPackageDetailProps> = ({ spu, sku }) => {
       },
       {
         label: '价格',
-        value: `¥${sku.priceInfo.nightlyPrice}`,
+        value: `${CURRENCY_SYMBOL}${sku.priceInfo.nightlyPrice}`,
       },
       {
         label: '套餐状态',

@@ -1,7 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useHotelStore } from '@estay/shared'
-import type { HotelRoomSKUModel } from '@estay/shared'
+import type {
+  CheckinInfoModel,
+  FacilityModel,
+  HotelDomainModel,
+  HotelRoomSKUModel,
+  PolicyModel,
+  SurroundingModel,
+} from '@estay/shared'
 import type { DetailTabKey } from '../../../layouts/DetailLayout'
 import DetailLayout from '../../../layouts/DetailLayout'
 import DetailTabs from '../../../components/hotels/detail/DetailTabs'
@@ -16,9 +23,10 @@ import PolicySection from '../../../components/hotels/detail/PolicySection'
 import NearbyRecommendations from '../../../components/hotels/detail/NearbyRecommendations'
 import BookingBar from '../../../components/hotels/detail/BookingBar'
 import PropertyCardContainer from '../../../components/hotels/detail/PropertyCardContainer0'
-import styles from '../homeStay/index.module.scss'
+import styles from './index.module.scss'
 
 type VisibleDetailTabKey = Exclude<DetailTabKey, 'host'>
+type HotelBaseInfo = HotelDomainModel['baseInfo'] & { nameCn?: string; nameEn?: string }
 
 export default function HotelDetailHotelPage() {
   const navigate = useNavigate()
@@ -35,7 +43,6 @@ export default function HotelDetailHotelPage() {
   } = useHotelStore()
 
   const [activeTab, setActiveTab] = useState<DetailTabKey>('overview')
-  const [expandNearbyProperties, setExpandNearbyProperties] = useState(false)
   const sectionRefs: Record<VisibleDetailTabKey, React.RefObject<HTMLDivElement>> = {
     overview: useRef<HTMLDivElement>(null),
     rooms: useRef<HTMLDivElement>(null),
@@ -60,10 +67,7 @@ export default function HotelDetailHotelPage() {
     void fetchHotelRooms(hotelId)
   }, [fetchHotelRooms, hotelId, roomSPUList])
 
-  const roomGroups = useMemo(
-    () => (hotelId ? (roomSPUList[hotelId] ?? []) : []),
-    [hotelId, roomSPUList]
-  )
+  const roomGroups = useMemo(() => (hotelId ? (roomSPUList[hotelId] ?? []) : []), [hotelId, roomSPUList])
 
   const handleBook = useCallback(
     (sku: HotelRoomSKUModel | null) => {
@@ -111,45 +115,59 @@ export default function HotelDetailHotelPage() {
     return <div style={{ padding: 16 }}>暂无酒店详情</div>
   }
 
-  const roomDisplayCount = expandNearbyProperties ? roomGroups.length : Math.min(2, roomGroups.length)
+  const baseInfo = currentHotelDetail.baseInfo as HotelBaseInfo
+  const hotelBaseInfo = {
+    nameCn: baseInfo.nameCn ?? baseInfo.name,
+    nameEn: baseInfo.nameEn,
+    star: baseInfo.star,
+    address: baseInfo.address,
+    description: baseInfo.description,
+  }
+
+  const facilities = currentHotelDetail.facilities as FacilityModel[]
+
+  const policies: PolicyModel[] = [
+    {
+      policyType: 'cancellation',
+      content: currentHotelDetail.policies.cancellationPolicy,
+      summary: currentHotelDetail.policies.cancellationPolicy,
+    },
+  ]
+
+  const checkinInfo: CheckinInfoModel = {
+    checkinTime: currentHotelDetail.policies.checkInTime,
+    checkoutTime: currentHotelDetail.policies.checkOutTime ?? '12:00',
+  }
+
+  const nearbyBaseInfo = {
+    address: currentHotelDetail.baseInfo.address,
+    surroundings: currentHotelDetail.surroundings.map(
+      (item): SurroundingModel => ({
+        surName: item.surName,
+        surType:
+          item.surType === 'metro' || item.surType === 'attraction' || item.surType === 'business'
+            ? item.surType
+            : 'business',
+        distance: item.distanceMeters ?? 0,
+      })
+    ),
+  }
 
   const pageContent = (
-    <>
-      <ImageCarousel hotel={{ baseInfo: currentHotelDetail.baseInfo }} />
+    <div className={styles.pageContainer}>
+      <ImageCarousel baseInfo={{ images: currentHotelDetail.baseInfo.images }} />
 
-      <HotelInfo
-        baseInfo={{
-          name: currentHotelDetail.baseInfo.name,
-          star: currentHotelDetail.baseInfo.star,
-          address: currentHotelDetail.baseInfo.address,
-          description: currentHotelDetail.baseInfo.description,
-        }}
-        reviewCount={currentHotelDetail.rating.count}
-      />
+      <HotelInfo baseInfo={hotelBaseInfo} reviewCount={currentHotelDetail.rating.count} />
 
       <div ref={sectionRefs.overview} className={styles.sectionGap}>
-        <div style={{ height: '60px' }} />
+        <div style={{ height: '12px' }} />
       </div>
 
       <div ref={sectionRefs.rooms} className={`${styles.roomsSection} ${styles.sectionGap}`}>
         <PropertyCardContainer showLabel={false} showExpandBtn={false}>
           <DatePicker onDateChange={handleDateChange} />
-          <RoomSelection hotelId={hotelId} rooms={roomGroups} displayCount={1} />
+          <RoomSelection hotelId={hotelId} rooms={roomGroups} />
         </PropertyCardContainer>
-
-        <div className={styles.nearbyPropertiesSection}>
-          <PropertyCardContainer
-            showLabel={true}
-            labelText="同酒店更多房型"
-            tooltipText="推荐同酒店的其他可订房型"
-            showExpandBtn={true}
-            expandBtnText="展开查看全部房型"
-            isExpanded={expandNearbyProperties}
-            onExpandToggle={() => setExpandNearbyProperties(!expandNearbyProperties)}
-          >
-            <RoomSelection hotelId={hotelId} rooms={roomGroups} displayCount={roomDisplayCount} />
-          </PropertyCardContainer>
-        </div>
       </div>
 
       <div ref={sectionRefs.reviews} className={styles.sectionGap}>
@@ -157,30 +175,31 @@ export default function HotelDetailHotelPage() {
       </div>
 
       <div ref={sectionRefs.facilities} className={styles.sectionGap}>
-        <FacilitiesSection
-          facilities={currentHotelDetail.facilities}
-          previewImage={currentHotelDetail.baseInfo.images[0]}
-        />
+        <FacilitiesSection facilities={facilities} previewImage={currentHotelDetail.baseInfo.images[0]} />
       </div>
 
       <div ref={sectionRefs.policies} className={styles.sectionGap}>
-        <PolicySection policies={currentHotelDetail.policies} />
+        <PolicySection policies={policies} checkinInfo={checkinInfo} />
       </div>
 
       <div ref={sectionRefs.knowledge} className={styles.sectionGap}>
-        <RoomFeatures data={currentHotelDetail} />
-      </div>
-
-      <div ref={sectionRefs.nearby} className={styles.sectionGap}>
-        <NearbyRecommendations
-          address={currentHotelDetail.baseInfo.address}
-          distanceText={currentHotelDetail.distanceText}
-          surroundings={currentHotelDetail.surroundings}
+        <RoomFeatures
+          data={{
+            baseInfo: {
+              description: currentHotelDetail.baseInfo.description,
+              images: currentHotelDetail.baseInfo.images,
+            },
+            checkinInfo,
+          }}
         />
       </div>
 
+      <div ref={sectionRefs.nearby} className={styles.sectionGap}>
+        <NearbyRecommendations baseInfo={nearbyBaseInfo} distanceText={currentHotelDetail.distanceText} />
+      </div>
+
       <div style={{ height: '20px' }} />
-    </>
+    </div>
   )
 
   return (
@@ -192,9 +211,7 @@ export default function HotelDetailHotelPage() {
       onShare={handleShare}
       onCollectionChange={handleCollectionChange}
       tabs={<DetailTabs />}
-      footer={
-        <BookingBar hotelId={currentHotelDetail.id} onBook={handleBook} onDateChange={handleDateChange} />
-      }
+      footer={<BookingBar hotelId={currentHotelDetail.id} onBook={handleBook} onDateChange={handleDateChange} />}
     >
       {pageContent}
     </DetailLayout>

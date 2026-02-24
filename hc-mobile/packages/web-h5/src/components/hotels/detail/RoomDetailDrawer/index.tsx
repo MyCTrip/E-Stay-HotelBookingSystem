@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import type { HotelRoomSKUModel, HotelRoomSPUModel } from '@estay/shared'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import type { HotelRoomSKUModel, HotelRoomSPUModel, RoomEntityModel } from '@estay/shared'
 import RoomDrawerBanner from './RoomDrawerBanner'
 import RoomDrawerBasicInfo from './RoomDrawerBasicInfo'
 import RoomDrawerFacilities from './RoomDrawerFacilities'
@@ -11,6 +11,7 @@ import styles from '../../../../pages/RoomDetail/homeStay/index.module.css'
 interface RoomDetailDrawerProps {
   spu: HotelRoomSPUModel
   sku: HotelRoomSKUModel
+  room?: RoomEntityModel | null
   isOpen: boolean
   onClose: () => void
   onBook?: (roomId: string) => void
@@ -21,6 +22,7 @@ interface RoomDetailDrawerProps {
 const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
   spu,
   sku,
+  room,
   isOpen,
   onClose,
   onBook,
@@ -33,6 +35,28 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
   const drawerContentRef = useRef<HTMLDivElement>(null)
 
   const hasPackageDetail = true
+  const roomStatus: HotelRoomSKUModel['status'] = sku.status === 'sold_out' ? 'sold_out' : 'available'
+
+  const displaySpu = useMemo<HotelRoomSPUModel>(() => {
+    if (!room) {
+      return spu
+    }
+
+    return {
+      ...spu,
+      spuName: room.baseInfo.type,
+      images: room.baseInfo.images,
+      headInfo: {
+        size: room.headInfo.size,
+        floor: room.headInfo.floor,
+        wifi: room.headInfo.wifi,
+        windowAvailable: room.headInfo.windowAvailable,
+        smokingAllowed: room.headInfo.smokingAllowed,
+      },
+      bedInfo: room.bedInfo,
+      startingPrice: room.baseInfo.price,
+    }
+  }, [room, spu])
 
   useEffect(() => {
     if (isOpen) {
@@ -101,25 +125,36 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
         <div className={styles.drawerContent} ref={drawerContentRef}>
           {(activeTab === 'room' || !hasPackageDetail) && (
             <>
-              <RoomDrawerBanner spu={spu} sku={sku} showTabHeader={hasPackageDetail} />
+              <RoomDrawerBanner spu={displaySpu} sku={sku} showTabHeader={hasPackageDetail} />
 
-              <RoomDrawerBasicInfo spu={spu} sku={sku} />
+              <RoomDrawerBasicInfo
+                roomName={displaySpu.spuName}
+                roomStatus={roomStatus}
+                headInfo={displaySpu.headInfo}
+                bedInfo={displaySpu.bedInfo}
+              />
 
               <RoomDrawerFacilities
                 ref={facilitiesRef}
-                spu={spu}
+                facilities={room?.baseInfo.facilities}
                 expandedInitially={facilitiesExpanded}
               />
 
-              <RoomDrawerPolicy spu={spu} sku={sku} />
+              <RoomDrawerPolicy
+                roomName={displaySpu.spuName}
+                roomStatus={roomStatus}
+                roomId={sku.roomId}
+                policies={room?.baseInfo.policies}
+                cancellationRule={sku.cancellationRule}
+              />
 
-              <RoomDrawerPrice spu={spu} sku={sku} />
+              <RoomDrawerPrice spu={displaySpu} sku={sku} />
 
               <div className={styles.drawerSpacer} />
             </>
           )}
 
-          {hasPackageDetail && activeTab === 'package' && <RoomPackageDetail spu={spu} sku={sku} />}
+          {hasPackageDetail && activeTab === 'package' && <RoomPackageDetail spu={displaySpu} sku={sku} />}
         </div>
 
         <div className={styles.drawerFooter}>

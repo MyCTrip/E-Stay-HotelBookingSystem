@@ -1,173 +1,159 @@
-import React, { useMemo, useRef, useState } from 'react'
-import type { HotelFacilityModel } from '@estay/shared'
-import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay'
-import { CheckIcon, CrossIcon } from '../../../homestay/icons/FacilityIcons'
-import type { FacilityCategory } from '../../../../constants/facilities'
-import { FACILITY_CATEGORIES } from '../../../../constants/facilities'
+import React, { useMemo, useState } from 'react'
+import type { FacilityModel } from '@estay/shared'
+import BottomDrawer from '../../shared/BottomDrawer'
+import { CheckIcon, CrossIcon } from '../../icons/FacilityIcons'
+import { facilitiesData } from './facilitiesData'
 import styles from './index.module.scss'
 
 interface FacilitiesSectionProps {
-  facilities: HotelFacilityModel[]
+  facilities: FacilityModel[]
   previewImage?: string
   onOpenFullFacilities?: () => void
 }
 
-interface LegacyDrawerRoom {
+interface DisplayFacilityItem {
   id: string
   name: string
-  area: string
-  beds: string
-  guests: string
-  image: string
-  price: number
-  priceNote: string
-  benefits: string[]
-  packageCount: number
+  description?: string
+  icon?: string
+  available: boolean
 }
 
-const splitTokens = (text: string): string[] =>
-  text
-    .split(/[,\uFF0C\/\u3001;|\n]+/)
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0)
-
-const normalizeText = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
-
-const buildFacilityTokenSet = (facilities: HotelFacilityModel[]): Set<string> => {
-  const tokens = new Set<string>()
-
-  facilities.forEach((item) => {
-    splitTokens(item.category).forEach((token) => tokens.add(normalizeText(token)))
-    splitTokens(item.content).forEach((token) => tokens.add(normalizeText(token)))
-    splitTokens(item.summary ?? '').forEach((token) => tokens.add(normalizeText(token)))
-  })
-
-  return tokens
+interface DisplayFacilityCategory {
+  id: string
+  category: string
+  icon?: string
+  items: DisplayFacilityItem[]
 }
 
-const matchFacility = (facilityName: string, tokenSet: Set<string>): boolean => {
-  const normalizedName = normalizeText(facilityName)
-  if (tokenSet.has(normalizedName)) {
-    return true
-  }
+const normalizeFacilityData = (facilities: FacilityModel[]): DisplayFacilityCategory[] =>
+  facilities
+    .filter((facility) => facility.category.trim().length > 0)
+    .map((facility, categoryIndex) => ({
+      id: `${facility.category}-${categoryIndex}`,
+      category: facility.category,
+      icon: facility.icon,
+      items: (facility.items ?? [])
+        .filter((item) => item.name.trim().length > 0)
+        .map((item, itemIndex) => ({
+          id: `${facility.category}-${item.name}-${itemIndex}`,
+          name: item.name,
+          description: item.description?.trim(),
+          icon: item.icon,
+          available: item.available !== false,
+        })),
+    }))
+    .filter((facility) => facility.items.length > 0)
 
-  for (const token of tokenSet) {
-    if (token.includes(normalizedName) || normalizedName.includes(token)) {
-      return true
-    }
-  }
-  return false
-}
-
-const mapFacilitiesToCategories = (
-  facilities: HotelFacilityModel[],
-  categories: FacilityCategory[]
-): FacilityCategory[] => {
-  if (facilities.length === 0) {
-    return categories
-  }
-
-  const tokenSet = buildFacilityTokenSet(facilities)
-
-  return categories.map((category) => ({
-    ...category,
-    facilities: category.facilities.map((facility) => ({
-      ...facility,
-      available: matchFacility(facility.name, tokenSet),
+const normalizeMockData = (): DisplayFacilityCategory[] =>
+  facilitiesData.map((category, categoryIndex) => ({
+    id: `${category.name}-${categoryIndex}`,
+    category: category.name,
+    icon: category.icon,
+    items: category.items.map((item, itemIndex) => ({
+      id: `${category.name}-${item.name}-${itemIndex}`,
+      name: item.name,
+      description: item.description?.trim(),
+      icon: item.icon,
+      available: item.available ?? item.has ?? true,
     })),
   }))
-}
 
 const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
   facilities,
-  previewImage = '',
+  previewImage,
   onOpenFullFacilities,
 }) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const sectionRef = useRef<HTMLDivElement>(null)
+  void previewImage
 
-  const mappedCategories = useMemo(
-    () => mapFacilitiesToCategories(facilities, FACILITY_CATEGORIES),
-    [facilities]
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const normalizedCategories = useMemo(() => {
+    const fromDomain = normalizeFacilityData(facilities)
+    return fromDomain.length > 0 ? fromDomain : normalizeMockData()
+  }, [facilities])
+
+  const previewCategories = useMemo(
+    () =>
+      normalizedCategories.slice(0, 3).map((category) => ({
+        ...category,
+        items: category.items.slice(0, 4),
+      })),
+    [normalizedCategories]
   )
 
-  const facilitiesRoom: LegacyDrawerRoom = {
-    id: 'facilities',
-    name: '全部设施',
-    area: '',
-    beds: '',
-    guests: '',
-    image: previewImage,
-    price: 0,
-    priceNote: '',
-    benefits: [],
-    packageCount: 0,
-  }
-
-  const handleOpenAllFacilities = () => {
-    setIsDrawerOpen(true)
+  const handleOpenAll = () => {
+    setDrawerOpen(true)
     onOpenFullFacilities?.()
   }
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false)
-  }
-
-  const displayCategories = mappedCategories
-    .filter((c) => ['service', 'basic', 'bathroom'].includes(c.id))
-    .map((category) => {
-      const sortedFacilities = [
-        ...category.facilities.filter((f) => f.available),
-        ...category.facilities.filter((f) => !f.available),
-      ]
-      return {
-        ...category,
-        facilities: sortedFacilities.slice(0, 6),
-      }
-    })
-
-  return (
-    <>
-      <div className={styles.facilitiesSection} ref={sectionRef}>
-        <div className={styles.header}>
-          <h3 className={styles.title}>服务/设施</h3>
-          <button className={styles.viewAllBtn} onClick={handleOpenAllFacilities}>
-            全部设施 <span className={styles.arrow}>›</span>
-          </button>
-        </div>
-
-        <div className={styles.content}>
-          <div className={styles.facilitiesList}>
-            {displayCategories.map((category) => (
-              <div key={category.id} className={styles.categoryBlock}>
-                <div className={styles.categoryName}>{category.name}</div>
-
-                <div className={styles.itemsGrid}>
-                  {category.facilities.map((facility) => (
-                    <div key={facility.id} className={styles.facilityItem}>
-                      {facility.available ? (
-                        <CheckIcon width={18} height={18} color="#43ae4a" />
-                      ) : (
-                        <CrossIcon width={18} height={18} color="#d3d3d3" />
-                      )}
-                      <span className={styles.itemName}>{facility.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+  const renderCategory = (category: DisplayFacilityCategory, compact = false) => (
+    <div key={category.id} className={styles.categoryBlock}>
+      <div className={styles.categoryHeader}>
+        <div className={styles.categoryIcon}>{category.icon || '🏨'}</div>
+        <h4 className={styles.categoryTitle}>{category.category}</h4>
       </div>
 
-      <RoomDetailDrawer
-        room={isDrawerOpen ? facilitiesRoom : null}
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
-        scrollToFacilities={true}
-        facilitiesExpanded={true}
-      />
-    </>
+      <div className={styles.itemsGrid}>
+        {category.items.map((item) => {
+          const isFree = Boolean(item.description?.includes('免费'))
+          return (
+            <div key={item.id} className={styles.itemCard}>
+              <span className={styles.itemStatusIcon}>
+                {item.available ? (
+                  <CheckIcon width={16} height={16} color="#2bb24c" />
+                ) : (
+                  <CrossIcon width={16} height={16} color="#b8bec8" />
+                )}
+              </span>
+              <div className={styles.itemBody}>
+                <div className={`${styles.itemName} ${item.available ? '' : styles.itemNameDisabled}`}>
+                  {item.name}
+                </div>
+                {item.description ? (
+                  <div className={`${styles.itemDesc} ${isFree ? styles.itemDescFree : ''}`}>
+                    {item.description}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {!compact ? <div className={styles.categoryDivider} /> : null}
+    </div>
+  )
+
+  if (normalizedCategories.length === 0) {
+    return null
+  }
+
+  return (
+    <section className={styles.section}>
+      <div className={styles.header}>
+        <h3 className={styles.title}>服务/设施</h3>
+        <button type="button" className={styles.viewAllBtn} onClick={handleOpenAll}>
+          全部设施 &gt;
+        </button>
+      </div>
+
+      <div className={styles.cardWrapper}>
+        {previewCategories.map((category) => renderCategory(category, true))}
+      </div>
+
+      <BottomDrawer
+        visible={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title="所有设施"
+        showBackButton={true}
+        showHeader={true}
+        maxHeight="78vh"
+      >
+        <div className={styles.drawerContent}>
+          {normalizedCategories.map((category) => renderCategory(category))}
+        </div>
+      </BottomDrawer>
+    </section>
   )
 }
 

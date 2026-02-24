@@ -1,166 +1,150 @@
-import React from 'react'
-import type { HotelPolicyModel } from '@estay/shared'
-import { TipIcon, CheckIcon, CrossIcon } from '../../icons'
+import React, { useMemo, useState } from 'react'
+import type { CheckinInfoModel, PolicyModel } from '@estay/shared'
+import BottomDrawer from '../../shared/BottomDrawer'
 import styles from './index.module.scss'
 
-interface CancellationPolicyRow {
-  timeRange: string
-  cancellationFee: string
-}
-
 interface PolicySectionProps {
-  policies?: HotelPolicyModel | null
-  checkInTime?: string
-  checkOutTime?: string
-  amenities?: {
-    baby?: boolean
-    children?: boolean
-    elderly?: boolean
-    overseas?: boolean
-    hongKongMacaoTaiwan?: boolean
-    pets?: boolean
-  }
+  policies?: PolicyModel[] | null
+  checkinInfo?: Pick<CheckinInfoModel, 'checkinTime' | 'checkoutTime'> | null
 }
 
-const parseCancellationRows = (text: string): CancellationPolicyRow[] => {
-  const lines = text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
+interface PolicyRow {
+  id: string
+  label: string
+  mainText: string
+  extraText?: string
+  highlight: boolean
+}
 
-  return lines.map((line) => {
-    const [timeRange, cancellationFee] = line.split('|')
-    if (cancellationFee === undefined) {
-      return {
-        timeRange: '',
-        cancellationFee: line,
-      }
-    }
+const stripHtml = (value: string): string => value.replace(/<[^>]*>/g, ' ')
+
+const normalizeText = (value?: string): string => {
+  if (!value) {
+    return ''
+  }
+
+  return stripHtml(value)
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const mapPolicyLabel = (policyType: string): string => {
+  const type = policyType.toLowerCase()
+
+  if (type.includes('cancellation')) return '退订'
+  if (type.includes('breakfast')) return '早餐'
+  if (type.includes('pet')) return '宠物'
+  if (type.includes('payment')) return '支付'
+  if (type.includes('smoking')) return '吸烟'
+  if (type.includes('child')) return '儿童'
+
+  return '政策'
+}
+
+const isPositivePolicy = (policyType: string, text: string): boolean => {
+  const source = `${policyType} ${text}`.toLowerCase()
+
+  return (
+    source.includes('cancellation') ||
+    source.includes('free cancellation') ||
+    source.includes('免费取消') ||
+    source.includes('可免费取消')
+  )
+}
+
+const buildPolicyRows = (policies: PolicyModel[] | null | undefined): PolicyRow[] => {
+  if (!policies || policies.length === 0) {
+    return [
+      {
+        id: 'default-policy',
+        label: '政策',
+        mainText: '具体政策以酒店前台说明为准。',
+        highlight: false,
+      },
+    ]
+  }
+
+  return policies.map((policy, index) => {
+    const summaryText = normalizeText(policy.summary)
+    const contentText = normalizeText(policy.content)
+    const mainText = summaryText || contentText || '具体政策以酒店前台说明为准。'
+    const extraText = contentText && contentText !== mainText ? contentText : undefined
 
     return {
-      timeRange: timeRange.trim(),
-      cancellationFee: cancellationFee.trim(),
+      id: `${policy.policyType}-${index}`,
+      label: mapPolicyLabel(policy.policyType),
+      mainText,
+      extraText,
+      highlight: isPositivePolicy(policy.policyType, `${mainText} ${extraText ?? ''}`),
     }
   })
 }
 
-const PolicySection: React.FC<PolicySectionProps> = ({
-  policies,
-  checkInTime = '14:00',
-  checkOutTime = '12:00',
-  amenities = {
-    baby: true,
-    children: true,
-    elderly: true,
-    overseas: true,
-    hongKongMacaoTaiwan: true,
-    pets: false,
-  },
-}) => {
-  const cancellationPolicyText = policies?.cancellationPolicy ?? ''
-  const checkInPolicyText = policies?.checkInTime ?? `${checkInTime}-24:00入住`
-  const checkOutPolicyText = policies?.checkOutTime ?? `${checkOutTime}前退房`
+const PolicySection: React.FC<PolicySectionProps> = ({ policies = null, checkinInfo = null }) => {
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const cancellationPolicies = parseCancellationRows(cancellationPolicyText)
+  const checkinText = `入住：${checkinInfo?.checkinTime ?? '14:00'} 以后 / 退房：${
+    checkinInfo?.checkoutTime ?? '12:00'
+  } 以前`
 
-  const amenityItems = [
-    { label: '接待婴儿', enabled: amenities.baby },
-    { label: '接待儿童', enabled: amenities.children },
-    { label: '接待老人', enabled: amenities.elderly },
-    { label: '接待海外', enabled: amenities.overseas },
-    { label: '接待港澳台', enabled: amenities.hongKongMacaoTaiwan },
-    { label: '带宠物', enabled: amenities.pets },
-  ]
+  const policyRows = useMemo(() => buildPolicyRows(policies), [policies])
+  const previewRows = policyRows.slice(0, 3)
+
+  const renderRows = (rows: PolicyRow[]) =>
+    rows.map((row) => (
+      <div key={row.id} className={styles.row}>
+        <div className={styles.label}>{row.label}</div>
+        <div className={styles.content}>
+          <p className={`${styles.mainText} ${row.highlight ? styles.highlightText : ''}`}>
+            {row.highlight ? <span className={styles.highlightIcon}>✓</span> : null}
+            {row.mainText}
+          </p>
+          {row.extraText ? <p className={styles.extraText}>{row.extraText}</p> : null}
+        </div>
+      </div>
+    ))
 
   return (
-    <div className={styles.section}>
+    <section className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>预订须知</h2>
-        <button className={styles.allPoliciesBtn}>
-          全部须知 <span className={styles.arrow}>→</span>
+        <button type="button" className={styles.viewAllBtn} onClick={() => setDrawerOpen(true)}>
+          全部须知 &gt;
         </button>
       </div>
 
-      <div className={styles.tipContainer}>
-        <TipIcon width={16} height={16} />
-        <span className={styles.tipText}>以下规则由酒店制定，请仔细阅读并遵守</span>
+      <div className={styles.card}>
+        <div className={styles.row}>
+          <div className={styles.label}>入离</div>
+          <div className={styles.content}>
+            <p className={styles.mainText}>{checkinText}</p>
+          </div>
+        </div>
+
+        {renderRows(previewRows)}
       </div>
 
-      <div className={styles.content}>
-        <div className={styles.sectionRow}>
-          <h3 className={styles.sectionTitle}>入离</h3>
-          <div className={styles.checkInOut}>
-            <div className={styles.item}>
-              <span className={styles.label}>入住</span>
-              <span className={styles.value}>{checkInPolicyText || null}</span>
-            </div>
-            <div className={styles.item}>
-              <span className={styles.label}>退房</span>
-              <span className={styles.value}>{checkOutPolicyText || null}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.sectionRow}>
-          <div className={styles.sectionTitleWrapper}>
-            <h3 className={styles.sectionTitle}>退订</h3>
-          </div>
-          <div className={styles.sectionContent}>
-            <div className={styles.highlight}>{cancellationPolicies[0]?.cancellationFee || null}</div>
-            <p className={styles.description}>{cancellationPolicyText || null}</p>
-          </div>
-        </div>
-
-        <div className={styles.tableSection}>
-          <table className={styles.policyTable}>
-            <thead>
-              <tr>
-                <th>退订时间</th>
-                <th>退订费用</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cancellationPolicies.map((policy, idx) => (
-                <tr key={idx}>
-                  <td>
-                    <div className={styles.timeCell}>
-                      {idx === 0 && (
-                        <>
-                          <span className={styles.tag}>当前阶段</span>
-                          <div>{policy.timeRange || null}</div>
-                        </>
-                      )}
-                      {idx > 0 && <div>{policy.timeRange || null}</div>}
-                    </div>
-                  </td>
-                  <td>
-                    <div className={styles.feeCell}>{policy.cancellationFee || null}</div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className={styles.sectionRow}>
-          <div className={styles.sectionTitleWrapper}>
-            <h3 className={styles.sectionTitle}>要求</h3>
-          </div>
-          <div className={styles.amenitiesGrid}>
-            {amenityItems.map((item, idx) => (
-              <div key={idx} className={styles.amenityItem}>
-                {item.enabled ? (
-                  <CheckIcon width={20} height={20} />
-                ) : (
-                  <CrossIcon width={20} height={20} />
-                )}
-                <span className={styles.amenityLabel}>{item.label}</span>
+      <BottomDrawer
+        visible={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title="全部须知"
+        showBackButton={true}
+        showHeader={true}
+        maxHeight="78vh"
+      >
+        <div className={styles.drawerContent}>
+          <div className={styles.card}>
+            <div className={styles.row}>
+              <div className={styles.label}>入离</div>
+              <div className={styles.content}>
+                <p className={styles.mainText}>{checkinText}</p>
               </div>
-            ))}
+            </div>
+            {renderRows(policyRows)}
           </div>
         </div>
-      </div>
-    </div>
+      </BottomDrawer>
+    </section>
   )
 }
 

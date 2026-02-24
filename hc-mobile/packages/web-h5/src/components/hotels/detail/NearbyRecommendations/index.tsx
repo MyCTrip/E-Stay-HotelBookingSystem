@@ -1,11 +1,10 @@
 import React from 'react'
-import type { HotelSurroundingModel } from '@estay/shared'
+import type { HotelEntityBaseInfoModel } from '@estay/shared'
 import styles from './index.module.scss'
 
 interface NearbyRecommendationsProps {
-  address?: string | null
+  baseInfo: Pick<HotelEntityBaseInfoModel, 'address' | 'surroundings'>
   distanceText?: string
-  surroundings: HotelSurroundingModel[]
 }
 
 interface SurroundingItemViewModel {
@@ -15,80 +14,88 @@ interface SurroundingItemViewModel {
 }
 
 const getIconByType = (type: string): string => {
-  if (['metro', 'transport'].includes(type)) {
+  if (type === 'metro') {
     return '🚇'
   }
   if (type === 'attraction') {
     return '🏞️'
   }
-  return '🍽️'
+  return '🏬'
 }
 
-const toViewModel = (item: HotelSurroundingModel): SurroundingItemViewModel => ({
+const formatDistance = (distanceMeters: number): string => {
+  if (distanceMeters < 1000) {
+    return `${Math.round(distanceMeters)}m`
+  }
+  return `${(distanceMeters / 1000).toFixed(1)}km`
+}
+
+const toViewModel = (item: NonNullable<HotelEntityBaseInfoModel['surroundings']>[number]): SurroundingItemViewModel => ({
   name: item.surName,
-  distanceText: item.distanceText || '',
+  distanceText: formatDistance(item.distance),
   icon: getIconByType(item.surType),
 })
 
 const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
-  address = null,
+  baseInfo,
   distanceText = '',
-  surroundings,
 }) => {
+  const surroundings = baseInfo.surroundings ?? []
+
   const transportations = surroundings
-    .filter((item) => ['metro', 'transport'].includes(item.surType))
+    .filter((item) => item.surType === 'metro')
     .map(toViewModel)
 
   const attractions = surroundings
     .filter((item) => item.surType === 'attraction')
     .map(toViewModel)
 
-  const restaurants = surroundings
-    .filter((item) => !['metro', 'transport', 'attraction'].includes(item.surType))
+  const businesses = surroundings
+    .filter((item) => item.surType === 'business')
     .map(toViewModel)
 
   return (
     <div className={styles.section}>
       <div className={styles.header}>
-        <h2 className={styles.title}>位置周边</h2>
+        <h2 className={styles.title}>Location</h2>
         <a href="#" className={styles.mapLink}>
-          地图/周边 →
+          Map / Nearby →
         </a>
       </div>
 
       <div className={styles.addressBlock}>
         <div className={styles.addressItem}>
-          <span className={styles.label}>完整地址</span>
-          <span className={styles.address}>{address || null}</span>
+          <span className={styles.label}>Address</span>
+          <span className={styles.address}>{baseInfo.address || null}</span>
         </div>
         <p className={styles.detailAddress}>{distanceText || null}</p>
 
         <div className={styles.detailsGrid}>
           <div className={styles.detailItem}>
-            <span className={styles.label}>小区名称</span>
+            <span className={styles.label}>Community</span>
             <span className={styles.value}>{null}</span>
           </div>
           <div className={styles.detailItem}>
-            <span className={styles.label}>所属商圈</span>
+            <span className={styles.label}>Business area</span>
             <span className={styles.value}>{null}</span>
           </div>
           <div className={styles.detailItem}>
-            <span className={styles.label}>建筑年代</span>
+            <span className={styles.label}>Building age</span>
             <span className={styles.value}>{null}</span>
           </div>
           <div className={styles.detailItem}>
-            <span className={styles.label}>小区类型</span>
+            <span className={styles.label}>Property type</span>
             <span className={styles.value}>{null}</span>
           </div>
         </div>
 
         <div className={styles.mapContainer}>
-          <div className={styles.mapPlaceholder}>🗺 地图加载中...</div>
+          <div className={styles.mapPlaceholder}>🗺 Loading map...</div>
         </div>
       </div>
 
       <div className={styles.transportSection}>
-        <h3 className={styles.sectionTitle}>交通</h3>
+        <h3 className={styles.sectionTitle}>Transport</h3>
         <div className={styles.itemList}>
           {transportations.map((item, idx) => (
             <div key={idx} className={styles.listItem}>
@@ -96,7 +103,7 @@ const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
               <div className={styles.itemInfo}>
                 <h4 className={styles.itemName}>{item.name}</h4>
                 <div className={styles.meta}>
-                  <span className={styles.distance}>直线距离 {item.distanceText || null}</span>
+                  <span className={styles.distance}>Straight line {item.distanceText || null}</span>
                   <span className={styles.separator}>·</span>
                   <span className={styles.rating}>{null}</span>
                 </div>
@@ -107,7 +114,7 @@ const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
       </div>
 
       <div className={styles.attractionsSection}>
-        <h3 className={styles.sectionTitle}>景点</h3>
+        <h3 className={styles.sectionTitle}>Attractions</h3>
         <div className={styles.itemList}>
           {attractions.map((item, idx) => (
             <div key={idx} className={styles.listItem}>
@@ -115,7 +122,7 @@ const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
               <div className={styles.itemInfo}>
                 <h4 className={styles.itemName}>{item.name}</h4>
                 <div className={styles.meta}>
-                  <span className={styles.distance}>直线 {item.distanceText || null}</span>
+                  <span className={styles.distance}>Straight line {item.distanceText || null}</span>
                   <span className={styles.separator}>·</span>
                   <span className={styles.rating}>{null}</span>
                 </div>
@@ -126,15 +133,15 @@ const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
       </div>
 
       <div className={styles.foodSection}>
-        <h3 className={styles.sectionTitle}>逛吃</h3>
+        <h3 className={styles.sectionTitle}>Business</h3>
         <div className={styles.itemList}>
-          {restaurants.map((item, idx) => (
+          {businesses.map((item, idx) => (
             <div key={idx} className={styles.listItem}>
               <span className={styles.icon}>{item.icon}</span>
               <div className={styles.itemInfo}>
                 <h4 className={styles.itemName}>{item.name}</h4>
                 <div className={styles.meta}>
-                  <span className={styles.distance}>直线 {item.distanceText || null}</span>
+                  <span className={styles.distance}>Straight line {item.distanceText || null}</span>
                   <span className={styles.separator}>·</span>
                   <span className={styles.rating}>{null}</span>
                 </div>

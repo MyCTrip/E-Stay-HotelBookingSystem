@@ -19,7 +19,7 @@ const createDefaultSearchParams = (): HotelSearchParams => {
   const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
 
   return {
-    city: 'Beijing',
+    city: '北京',
     keyword: '',
     checkInDate: formatDate(today),
     checkOutDate: formatDate(tomorrow),
@@ -75,29 +75,29 @@ const MOCK_HOTEL_LIST: HotelDomainModel[] = [
     id: 'mock-hotel-001',
     market: 'domestic',
     baseInfo: {
-      name: 'Mock City Center Hotel',
+      name: '全季酒店(北京新国展后沙峪店)',
       star: 4.6,
-      address: 'Beijing CBD, Chaoyang District',
-      description: 'Business hotel near metro and shopping area.',
+      address: '北京市顺义区后沙峪镇双裕北街21号院1号楼',
+      description: '靠近地铁与商圈，适合商务出行与中转入住。',
       images: [
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80',
         'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200&q=80',
       ],
     },
     facilities: [
-      { category: 'Star', content: '4 Star', summary: 'Urban business hotel' },
-      { category: 'BreakfastIncluded', content: 'Breakfast Included' },
-      { category: 'Brand', content: 'Domestic Chain' },
+      { category: '星级', content: '4星级', summary: '城市商务型酒店' },
+      { category: '早餐', content: '含早餐' },
+      { category: '品牌', content: '连锁品牌' },
     ],
     policies: {
       checkInTime: '14:00',
       checkOutTime: '12:00',
-      cancellationPolicy: 'Free cancellation before 18:00 on check-in date',
+      cancellationPolicy: '入住当天18:00前可免费取消',
     },
     surroundings: [
-      { surName: 'Metro Line 10', surType: 'metro', distanceMeters: 350, distanceText: '350m' },
+      { surName: '后沙峪地铁站', surType: 'metro', distanceMeters: 350, distanceText: '350m' },
       {
-        surName: 'International Trade Center',
+        surName: '中粮祥云小镇',
         surType: 'business',
         distanceMeters: 1200,
         distanceText: '1.2km',
@@ -106,7 +106,7 @@ const MOCK_HOTEL_LIST: HotelDomainModel[] = [
     rating: {
       score: 4.7,
       count: 1280,
-      label: 'Excellent',
+      label: '超棒',
     },
     distanceText: '1.2km',
   },
@@ -114,24 +114,24 @@ const MOCK_HOTEL_LIST: HotelDomainModel[] = [
     id: 'mock-hotel-002',
     market: 'international',
     baseInfo: {
-      name: 'Mock Marina Bay Hotel',
+      name: '滨海湾精选酒店(新加坡)',
       star: 4.9,
       address: 'Marina Bay, Singapore',
-      description: 'International chain hotel with skyline view.',
+      description: '近地铁与会展中心，适合国际商务出行。',
       images: [
         'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&q=80',
         'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=1200&q=80',
       ],
     },
     facilities: [
-      { category: 'Star', content: '5 Star' },
-      { category: 'BreakfastIncluded', content: 'Breakfast Included' },
-      { category: 'Brand', content: 'International Chain' },
+      { category: '星级', content: '5星级' },
+      { category: '早餐', content: '含早餐' },
+      { category: '品牌', content: '国际连锁' },
     ],
     policies: {
       checkInTime: '15:00',
       checkOutTime: '11:00',
-      cancellationPolicy: 'Free cancellation up to 24 hours before arrival',
+      cancellationPolicy: '入住前24小时可免费取消',
     },
     surroundings: [
       { surName: 'Bayfront MRT', surType: 'metro', distanceMeters: 500, distanceText: '500m' },
@@ -145,7 +145,7 @@ const MOCK_HOTEL_LIST: HotelDomainModel[] = [
     rating: {
       score: 4.9,
       count: 2034,
-      label: 'Outstanding',
+      label: '极好',
     },
     distanceText: '500m',
   },
@@ -154,7 +154,7 @@ const MOCK_HOTEL_LIST: HotelDomainModel[] = [
 const MOCK_ROOM_SPU_LIST: Record<string, HotelRoomSPUModel[]> = {
   'mock-hotel-001': [
     {
-      spuName: 'Deluxe King Room',
+      spuName: '高级大床房',
       images: ['https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80'],
       headInfo: {
         size: '32m²',
@@ -163,25 +163,25 @@ const MOCK_ROOM_SPU_LIST: Record<string, HotelRoomSPUModel[]> = {
         windowAvailable: true,
         smokingAllowed: false,
       },
-      bedInfo: [{ bedType: 'King Bed', bedNumber: 1, bedSize: '1.8m' }],
+      bedInfo: [{ bedType: '大床', bedNumber: 1, bedSize: '1.8m' }],
       startingPrice: 688,
       skus: [
         {
           roomId: 'mock-room-001-a',
           priceInfo: { nightlyPrice: 688 },
           status: 'available',
-          cancellationRule: 'Free cancellation before 18:00 on check-in date',
+          cancellationRule: '入住当天18:00前可免费取消',
         },
         {
           roomId: 'mock-room-001-b',
           priceInfo: { nightlyPrice: 768 },
           status: 'sold_out',
-          cancellationRule: 'No cancellation',
+          cancellationRule: '不可取消',
         },
       ],
     },
     {
-      spuName: 'Executive Twin Room',
+      spuName: '行政双床房',
       images: ['https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1200&q=80'],
       headInfo: {
         size: '36m²',
@@ -190,21 +190,21 @@ const MOCK_ROOM_SPU_LIST: Record<string, HotelRoomSPUModel[]> = {
         windowAvailable: true,
         smokingAllowed: false,
       },
-      bedInfo: [{ bedType: 'Twin Bed', bedNumber: 2, bedSize: '1.2m' }],
+      bedInfo: [{ bedType: '双床', bedNumber: 2, bedSize: '1.2m' }],
       startingPrice: 758,
       skus: [
         {
           roomId: 'mock-room-001-c',
           priceInfo: { nightlyPrice: 758 },
           status: 'available',
-          cancellationRule: 'Free cancellation before 18:00 on check-in date',
+          cancellationRule: '入住当天18:00前可免费取消',
         },
       ],
     },
   ],
   'mock-hotel-002': [
     {
-      spuName: 'Skyline Suite',
+      spuName: '天际线套房',
       images: ['https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80'],
       headInfo: {
         size: '48m²',
@@ -213,19 +213,19 @@ const MOCK_ROOM_SPU_LIST: Record<string, HotelRoomSPUModel[]> = {
         windowAvailable: true,
         smokingAllowed: false,
       },
-      bedInfo: [{ bedType: 'King Bed', bedNumber: 1, bedSize: '2.0m' }],
+      bedInfo: [{ bedType: '大床', bedNumber: 1, bedSize: '2.0m' }],
       startingPrice: 1288,
       skus: [
         {
           roomId: 'mock-room-002-a',
           priceInfo: { nightlyPrice: 1288 },
           status: 'available',
-          cancellationRule: 'Free cancellation up to 24 hours before arrival',
+          cancellationRule: '入住前24小时可免费取消',
         },
       ],
     },
     {
-      spuName: 'Family Connecting Room',
+      spuName: '家庭连通房',
       images: ['https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80'],
       headInfo: {
         size: '58m²',
@@ -234,14 +234,14 @@ const MOCK_ROOM_SPU_LIST: Record<string, HotelRoomSPUModel[]> = {
         windowAvailable: true,
         smokingAllowed: false,
       },
-      bedInfo: [{ bedType: 'Family Bed', bedNumber: 2, bedSize: '1.5m' }],
+      bedInfo: [{ bedType: '家庭床', bedNumber: 2, bedSize: '1.5m' }],
       startingPrice: 1688,
       skus: [
         {
           roomId: 'mock-room-002-b',
           priceInfo: { nightlyPrice: 1688 },
           status: 'available',
-          cancellationRule: 'Free cancellation up to 24 hours before arrival',
+          cancellationRule: '入住前24小时可免费取消',
         },
       ],
     },

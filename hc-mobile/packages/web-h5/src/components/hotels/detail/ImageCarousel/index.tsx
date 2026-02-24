@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
-import type { HotelDomainModel } from '@estay/shared'
+import type { HotelEntityBaseInfoModel } from '@estay/shared'
 import styles from './index.module.scss'
 
 interface ImageCarouselProps {
-  hotel: Pick<HotelDomainModel, 'baseInfo'>
+  baseInfo: Pick<HotelEntityBaseInfoModel, 'images'>
   onFullscreen?: () => void
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ hotel, onFullscreen }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ baseInfo, onFullscreen }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [offset, setOffset] = useState(0)
@@ -15,7 +15,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ hotel, onFullscreen }) =>
   const startOffsetRef = useRef(0)
   const trackRef = useRef<HTMLDivElement>(null)
 
-  const images = hotel.baseInfo.images.length > 0 ? hotel.baseInfo.images : ['']
+  const images = baseInfo.images.length > 0 ? baseInfo.images : ['']
 
   const calculateOffset = (index: number) => -index * 100
 
@@ -140,7 +140,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ hotel, onFullscreen }) =>
           <span>{currentIndex + 1}</span>/<span>{images.length}</span>
         </div>
 
-        <button className={styles.vrButton} title="VR全景">
+        <button className={styles.vrButton} title="VR">
           VR
         </button>
       </div>

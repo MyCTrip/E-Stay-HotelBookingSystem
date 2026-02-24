@@ -1,26 +1,20 @@
-/**
- * 钟点房搜索结果列表容器 - 组合所有层组件
- */
-
-import React, { useRef, useEffect, useState, useCallback } from 'react'
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
-import type { HourlyRoom } from '@estay/shared'
-// 注意：以下这些通用子组件，如果你已经在 homestay 写好了，建议直接抽取到 common 目录下复用
+import type { HourlyRoom } from '../../types'
 import SearchResultHeader from '../SearchResultHeader'
 import FilterSortBar from '../FilterSortBar'
 import SelectedTagsBar from '../SelectedTagsBar'
 import FloatingActionButtons from '../FloatingActionButtons'
-import HourlyRoomCard from '../../home/HourlyRoomCard' // 🌟 直接复用我们写好的钟点房大卡片
+import HourlyRoomCard from '../../home/HourlyRoomCard'
 import FilterPanel, { type FilterState } from '../FilterPanel'
 import MapView from '../MapView'
 import styles from './index.module.scss'
 
-// 🌟 核心修改 1：搜索条件适配钟点房（改用 date 和 duration）
 export interface HourlySearchFilters {
   city?: string
   date?: string
-  duration?: number // 入住时长：如 3, 4, 6
+  duration?: number
   guestCount?: number
   priceMin?: number
   priceMax?: number
@@ -37,104 +31,84 @@ export interface HourlySearchResultListProps {
   filters?: HourlySearchFilters
   onFiltersChange?: (filters: HourlySearchFilters) => void
   onModifySearch?: () => void
-  // ✅ 新增 onClick 属性声明，解决报错
   onClick?: (id: string) => void
+}
+
+const DEFAULT_FILTERS: HourlySearchFilters = {
+  city: 'Shanghai',
+  date: dayjs().format('YYYY-MM-DD'),
+  duration: 4,
+  guestCount: 1,
 }
 
 const HourlySearchResultList: React.FC<HourlySearchResultListProps> = ({
   data = [],
   loading = false,
-  filters = {
-    city: '上海',
-    date: dayjs().format('YYYY-MM-DD'),
-    duration: 4,
-    guestCount: 1,
-  },
+  filters = DEFAULT_FILTERS,
   onFiltersChange,
   onModifySearch,
-  onClick, // ✅ 解构 onClick
+  onClick,
 }) => {
   const navigate = useNavigate()
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  // 状态管理
   const [scrollTop, setScrollTop] = useState(0)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [sortBy, setSortBy] = useState<SortType>('smart')
   const [containerHeight, setContainerHeight] = useState(0)
   const [containerScrollHeight, setContainerScrollHeight] = useState(0)
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768)
   const [filterPanelVisible, setFilterPanelVisible] = useState(false)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [displayedData, setDisplayedData] = useState<HourlyRoom[]>(data)
-  const [pageSize] = useState(12)
-  const [currentPage, setCurrentPage] = useState(1)
 
-  // 计算选中的标签
-  const selectedTags = useCallback(() => {
-    const tags: Array<{ key: string; label: string }> = []
-    if (filters.priceMin || filters.priceMax) {
-      tags.push({
-        key: 'price',
-        label: `¥${filters.priceMin || '0'}-${filters.priceMax || '∞'}`,
-      })
-    }
-    if (filters.stars && filters.stars.length > 0) {
-      tags.push({ key: 'stars', label: `${filters.stars.join('/')}星` })
-    }
-    if (filters.facilities && filters.facilities.length > 0) {
-      tags.push({ key: 'facilities', label: `${filters.facilities.length}项设施` })
-    }
-    return tags
-  }, [filters])
-
-  // 监听容器大小变化
   useEffect(() => {
     const container = containerRef.current
-    if (!container) return
+    if (!container) {
+      return
+    }
+
     const handleResize = () => setContainerHeight(container.clientHeight)
     const resizeObserver = new ResizeObserver(handleResize)
     resizeObserver.observe(container)
     handleResize()
+
     return () => resizeObserver.disconnect()
   }, [])
 
-  // 数据同步
-  useEffect(() => {
-    setDisplayedData(data.slice(0, pageSize))
-    setCurrentPage(1)
-  }, [data, pageSize])
-
-  // 监听窗口大小变化
-  useEffect(() => {
-    const handleWindowResize = () => {
-      const width = window.innerWidth
-      setWindowWidth(width)
-      if (width <= 768 && viewMode !== 'map') {
-        setViewMode('list')
-      }
-    }
-    window.addEventListener('resize', handleWindowResize)
-    handleWindowResize()
-    return () => window.removeEventListener('resize', handleWindowResize)
-  }, [viewMode])
-
   useEffect(() => {
     const content = contentRef.current
-    if (content) setContainerScrollHeight(content.scrollHeight)
+    if (content) {
+      setContainerScrollHeight(content.scrollHeight)
+    }
   }, [data, viewMode])
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget
+  const tags = useMemo<Array<{ key: string; label: string }>>(() => {
+    const selected: Array<{ key: string; label: string }> = []
+
+    if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
+      selected.push({
+        key: 'price',
+        label: `Price ¥${filters.priceMin ?? 0}-${filters.priceMax ?? 'NoLimit'}`,
+      })
+    }
+
+    if ((filters.stars?.length ?? 0) > 0) {
+      selected.push({ key: 'stars', label: `Stars ${filters.stars?.join('/')}` })
+    }
+
+    if ((filters.facilities?.length ?? 0) > 0) {
+      selected.push({ key: 'facilities', label: `Facilities ${filters.facilities?.length}` })
+    }
+
+    return selected
+  }, [filters])
+
+  const hasActiveFilters = tags.length > 0
+
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const target = event.currentTarget
     setScrollTop(target.scrollTop)
     setContainerHeight(target.clientHeight)
     setContainerScrollHeight(target.scrollHeight)
-
-    const distanceToBottom = target.scrollHeight - (target.scrollTop + target.clientHeight)
-    if (distanceToBottom < 200 && !isLoadingMore && currentPage * pageSize < data.length) {
-      handleLoadMore()
-    }
   }
 
   const handleScrollToTop = () => {
@@ -142,91 +116,83 @@ const HourlySearchResultList: React.FC<HourlySearchResultListProps> = ({
   }
 
   const handleTagRemove = (key: string) => {
-    const newFilters = { ...filters }
-    switch (key) {
-      case 'price':
-        delete newFilters.priceMin
-        delete newFilters.priceMax
-        break
-      case 'stars':
-        delete newFilters.stars
-        break
-      case 'facilities':
-        delete newFilters.facilities
-        break
+    const nextFilters: HourlySearchFilters = { ...filters }
+
+    if (key === 'price') {
+      delete nextFilters.priceMin
+      delete nextFilters.priceMax
     }
-    onFiltersChange?.(newFilters)
+
+    if (key === 'stars') {
+      delete nextFilters.stars
+    }
+
+    if (key === 'facilities') {
+      delete nextFilters.facilities
+    }
+
+    onFiltersChange?.(nextFilters)
   }
 
   const handleResetAll = () => {
-    const resetFilters: HourlySearchFilters = {
+    onFiltersChange?.({
       city: filters.city,
       date: filters.date,
       duration: filters.duration,
       guestCount: filters.guestCount,
-    }
-    onFiltersChange?.(resetFilters)
+    })
   }
 
-  const handleSortChange = (sort: SortType) => setSortBy(sort)
-  const handleViewModeChange = (mode: ViewMode) => setViewMode(mode)
-  const handleOpenFilterPanel = () => setFilterPanelVisible(true)
-  const handleCloseFilterPanel = () => setFilterPanelVisible(false)
+  const handleApplyFilters = useCallback(
+    (nextState: FilterState) => {
+      onFiltersChange?.({
+        ...filters,
+        priceMin: nextState.priceMin || undefined,
+        priceMax: nextState.priceMax || undefined,
+        stars: nextState.stars.length > 0 ? nextState.stars : undefined,
+        facilities: nextState.facilities.length > 0 ? nextState.facilities : undefined,
+      })
+      setFilterPanelVisible(false)
+    },
+    [filters, onFiltersChange]
+  )
 
-  const handleApplyFilters = (filterState: FilterState) => {
-    const newFilters: HourlySearchFilters = {
-      ...filters,
-      priceMin: filterState.priceMin || undefined,
-      priceMax: filterState.priceMax || undefined,
-      stars: filterState.stars.length > 0 ? filterState.stars : undefined,
-      facilities: filterState.facilities.length > 0 ? filterState.facilities : undefined,
+  const sortedData = useMemo(() => {
+    const copied = [...data]
+
+    if (sortBy === 'priceAsc') {
+      copied.sort((a, b) => (a.baseInfo.price ?? 0) - (b.baseInfo.price ?? 0))
     }
-    Object.keys(newFilters).forEach(
-      key => newFilters[key as keyof HourlySearchFilters] === undefined && delete newFilters[key as keyof HourlySearchFilters]
-    )
-    onFiltersChange?.(newFilters)
-    setFilterPanelVisible(false)
-    setCurrentPage(1)
-    setDisplayedData(data.slice(0, pageSize))
-  }
 
-  const handleLoadMore = useCallback(() => {
-    if (isLoadingMore || currentPage * pageSize >= data.length) return
-    setIsLoadingMore(true)
-    setTimeout(() => {
-      const nextPage = currentPage + 1
-      setDisplayedData(data.slice(0, nextPage * pageSize))
-      setCurrentPage(nextPage)
-      setIsLoadingMore(false)
-    }, 300)
-  }, [currentPage, pageSize, data, isLoadingMore])
+    if (sortBy === 'priceDesc') {
+      copied.sort((a, b) => (b.baseInfo.price ?? 0) - (a.baseInfo.price ?? 0))
+    }
 
-  const tags = selectedTags()
-  const hasActiveFilters = tags.length > 0
+    if (sortBy === 'ratingDesc') {
+      copied.sort((a, b) => (b.baseInfo.star ?? 0) - (a.baseInfo.star ?? 0))
+    }
+
+    return copied
+  }, [data, sortBy])
 
   return (
     <div className={styles.container} ref={containerRef} onScroll={handleScroll}>
-      {/* 顶部导航栏 */}
-      <SearchResultHeader
-        filters={filters as any} // ⚠️ 注意：这里的 SearchResultHeader 内部需要适配钟点房显示 date 和 duration
-        onModifyClick={onModifySearch}
-      />
+      <SearchResultHeader filters={filters} onModifyClick={onModifySearch} />
 
       <FilterSortBar
         sortBy={sortBy}
-        onSortChange={handleSortChange}
+        onSortChange={setSortBy}
         viewMode={viewMode}
-        onViewModeChange={handleViewModeChange}
+        onViewModeChange={setViewMode}
         hasActiveFilters={hasActiveFilters}
-        onFilterClick={handleOpenFilterPanel}
+        onFilterClick={() => setFilterPanelVisible(true)}
       />
 
       {viewMode === 'map' ? (
         <MapView
-          data={displayedData}
-          filters={filters as any}
-          // ✅ 替换为 onClick
-          onMarkerClick={(id) => onClick ? onClick(id) : navigate(`/hotel-detail/hourly/${id}`)}
+          data={sortedData}
+          filters={{ city: filters.city, checkInDate: filters.date }}
+          onMarkerClick={(id) => (onClick ? onClick(id) : navigate(`/hotel-detail/hourly/${id}`))}
         />
       ) : (
         <div className={styles.content} ref={contentRef}>
@@ -237,46 +203,29 @@ const HourlySearchResultList: React.FC<HourlySearchResultListProps> = ({
           <div className={`${styles.listWrapper} ${styles[viewMode]}`}>
             {loading ? (
               <div className={styles.skeletonContainer}>
-                {[...Array(6)].map((_, i) => <div key={i} className={styles.skeletonCard} />)}
-              </div>
-            ) : displayedData.length > 0 ? (
-              <>
-                {/* 🌟 核心修改 2：不论是网格还是列表，钟点房直接复用我们的 HourlyRoomCard (因为它自适应极好) */}
-                {displayedData.map((item) => (
-                  <HourlyRoomCard
-                    key={item._id}
-                    data={item}
-                    // ✅ 替换为调用外部传入的 onClick
-                    onClick={() => onClick ? onClick(item._id) : navigate(`/hotel-detail/hourly/${item._id}`)}
-                  />
+                {[...Array(6)].map((_, index) => (
+                  <div key={index} className={styles.skeletonCard} />
                 ))}
-              </>
+              </div>
+            ) : sortedData.length > 0 ? (
+              sortedData.map((item) => (
+                <HourlyRoomCard
+                  key={item._id}
+                  data={item}
+                  onClick={() => (onClick ? onClick(item._id) : navigate(`/hotel-detail/hourly/${item._id}`))}
+                />
+              ))
             ) : (
               <div className={styles.emptyState}>
-                {/* 换成了钟点房的图标和文案 */}
                 <div className={styles.emptyIcon}>⏱️</div>
-                <div className={styles.emptyTitle}>找不到匹配的钟点房</div>
-                <div className={styles.emptyDesc}>
-                  试试调整可住时段、入住时长或查看其他城市
-                </div>
+                <div className={styles.emptyTitle}>No matching hourly rooms</div>
+                <div className={styles.emptyDesc}>Try adjusting filters or switching city</div>
                 <button className={styles.resetBtn} onClick={handleResetAll}>
-                  重置筛选条件
+                  Reset filters
                 </button>
               </div>
             )}
           </div>
-
-          {displayedData.length > 0 && currentPage * pageSize < data.length && (
-            <div className={styles.loadingMore}>
-              {isLoadingMore ? <p>加载中...</p> : <p>上拉加载更多</p>}
-            </div>
-          )}
-
-          {displayedData.length > 0 && currentPage * pageSize >= data.length && data.length > 0 && (
-            <div className={styles.loadingMore}>
-              <p>已为您加载全部{data.length}个钟点房</p>
-            </div>
-          )}
         </div>
       )}
 
@@ -289,7 +238,7 @@ const HourlySearchResultList: React.FC<HourlySearchResultListProps> = ({
 
       <FilterPanel
         visible={filterPanelVisible}
-        onClose={handleCloseFilterPanel}
+        onClose={() => setFilterPanelVisible(false)}
         onApply={handleApplyFilters}
         initialFilters={{
           priceMin: filters.priceMin || 0,

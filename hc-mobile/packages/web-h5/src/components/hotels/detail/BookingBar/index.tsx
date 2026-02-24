@@ -11,6 +11,8 @@ interface BookingBarProps {
   onDateChange?: (checkIn: string, checkOut: string) => void
 }
 
+const CURRENCY_SYMBOL = '\u00A5'
+
 const parseDate = (value: string): Date => {
   const [year, month, day] = value.split('-').map(Number)
   return new Date(year, (month || 1) - 1, day || 1)
@@ -34,13 +36,8 @@ const BookingBar: React.FC<BookingBarProps> = ({ hotelId, onBook, onDateChange }
   const [showCalendar, setShowCalendar] = useState(false)
   const dateAreaRef = useRef<HTMLDivElement>(null)
 
-  const {
-    searchParams,
-    setSearchParams,
-    roomSPUList,
-    currentSelectedRoomId,
-    currentHotelDetail,
-  } = useHotelStore()
+  const { searchParams, setSearchParams, roomSPUList, currentSelectedRoomId, currentHotelDetail } =
+    useHotelStore()
 
   const resolvedHotelId = hotelId || currentHotelDetail?.id || ''
 
@@ -64,15 +61,14 @@ const BookingBar: React.FC<BookingBarProps> = ({ hotelId, onBook, onDateChange }
       return 0
     }
 
-    return calculateNightlyPrice(
-      selectedSku,
-      searchParams.checkInDate,
-      searchParams.checkOutDate
-    )
+    return calculateNightlyPrice(selectedSku, searchParams.checkInDate, searchParams.checkOutDate)
   }, [searchParams.checkInDate, searchParams.checkOutDate, selectedSku])
 
   const hotelLogo = currentHotelDetail?.baseInfo.images[0] || ''
-  const hotelName = currentHotelDetail?.baseInfo.name || '酒店'
+  const hotelName =
+    (currentHotelDetail?.baseInfo as { nameCn?: string; name?: string } | undefined)?.nameCn ??
+    currentHotelDetail?.baseInfo.name ??
+    '\u9152\u5e97'
 
   const handleDateChange = (checkIn: Date, checkOut: Date) => {
     const checkInDate = toYYYYMMDD(checkIn)
@@ -87,28 +83,24 @@ const BookingBar: React.FC<BookingBarProps> = ({ hotelId, onBook, onDateChange }
     setShowCalendar(false)
   }
 
-  const handleOpenCalendar = () => {
-    setShowCalendar(true)
-  }
-
   return (
     <>
       <div className={styles.bookingBar}>
         <button className={styles.hostButton} onClick={() => undefined} title={hotelName}>
           <img src={hotelLogo} alt={hotelName} className={styles.hostAvatar} />
-          <span className={styles.tooltip}>{null}</span>
+          <span className={styles.tooltip}>{hotelName}</span>
         </button>
 
-        <div className={styles.dateArea} ref={dateAreaRef} onClick={handleOpenCalendar}>
+        <div className={styles.dateArea} ref={dateAreaRef} onClick={() => setShowCalendar(true)}>
           <div className={styles.dateItem}>
-            <label className={styles.dateLabel}>入住</label>
+            <label className={styles.dateLabel}>{'\u5165\u4f4f'}</label>
             <div className={styles.dateInput}>{toMMDD(searchParams.checkInDate)}</div>
           </div>
 
           <div className={styles.separator}>-</div>
 
           <div className={styles.dateItem}>
-            <label className={styles.dateLabel}>离住</label>
+            <label className={styles.dateLabel}>{'\u79bb\u5e97'}</label>
             <div className={styles.dateInput}>{toMMDD(searchParams.checkOutDate)}</div>
           </div>
         </div>
@@ -119,10 +111,10 @@ const BookingBar: React.FC<BookingBarProps> = ({ hotelId, onBook, onDateChange }
           onClick={() => onBook?.(selectedSku)}
         >
           {selectedSku?.status === 'sold_out'
-            ? '满房'
+            ? '\u6ee1\u623f'
             : totalPrice > 0
-              ? `¥${totalPrice} 立即预订`
-              : '立即预订'}
+              ? `${CURRENCY_SYMBOL}${totalPrice} \u7acb\u5373\u9884\u8ba2`
+              : '\u7acb\u5373\u9884\u8ba2'}
         </button>
       </div>
 

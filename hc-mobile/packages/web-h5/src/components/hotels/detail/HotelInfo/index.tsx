@@ -1,115 +1,68 @@
 import React from 'react'
-import type { HotelDomainModel } from '@estay/shared'
-import { AreaIcon, BedIcon, UserIcon, MapIcon, HouseIcon, StarIcon } from '../../icons'
+import type { HotelEntityBaseInfoModel } from '@estay/shared'
 import styles from './index.module.scss'
 
 interface HotelInfoProps {
-  baseInfo: Pick<HotelDomainModel['baseInfo'], 'name' | 'star' | 'address' | 'description'>
+  baseInfo: Pick<HotelEntityBaseInfoModel, 'nameCn' | 'nameEn' | 'star' | 'address' | 'description'>
   reviewCount?: number | null
-  brandText?: string | null
-  highlights?: string[]
-  coreParams?: {
-    area?: string | null
-    rooms?: string | null
-    beds?: string | null
-    guests?: string | null
-  }
 }
 
-const HotelInfo: React.FC<HotelInfoProps> = ({
-  baseInfo,
-  reviewCount = null,
-  brandText = null,
-  highlights = [],
-  coreParams,
-}) => {
-  const normalizedCoreParams = {
-    area: coreParams?.area ?? null,
-    rooms: coreParams?.rooms ?? null,
-    beds: coreParams?.beds ?? null,
-    guests: coreParams?.guests ?? null,
+const MAX_STAR_COUNT = 5
+
+const sanitizeScore = (star: number): number => {
+  if (!Number.isFinite(star)) {
+    return 0
   }
 
+  return Math.max(0, Math.min(MAX_STAR_COUNT, star))
+}
+
+const HotelInfo: React.FC<HotelInfoProps> = ({ baseInfo, reviewCount = null }) => {
+  const score = sanitizeScore(baseInfo.star)
+  const fullStarCount = Math.floor(score)
+  const emptyStarCount = MAX_STAR_COUNT - fullStarCount
+  const showReviewCount = typeof reviewCount === 'number' && reviewCount > 0
+
   return (
-    <div className={styles.infoCard}>
+    <section className={styles.infoCard}>
       <div className={styles.headerRow}>
-        <div className={styles.left}>
-          <h1 className={styles.name}>{baseInfo.name}</h1>
-          <div className={styles.badges}>
-            <span className={styles.brand}>{brandText}</span>
-            <span className={styles.stars}>
-              <StarIcon width={16} height={16} color="#fa7b1f" />
-              <StarIcon width={16} height={16} color="#fa7b1f" />
-              <StarIcon width={16} height={16} color="#fa7b1f" />
-              <StarIcon width={16} height={16} color="#fa7b1f" />
+        <div className={styles.titleBlock}>
+          <h1 className={styles.nameCn}>{baseInfo.nameCn}</h1>
+          {baseInfo.nameEn ? <p className={styles.nameEn}>{baseInfo.nameEn}</p> : null}
+
+          <div className={styles.starRow}>
+            <span className={styles.starIcons}>
+              {'\u2605'.repeat(fullStarCount)}
+              <span className={styles.starEmpty}>{'\u2606'.repeat(emptyStarCount)}</span>
             </span>
+            <span className={styles.starText}>{`${score.toFixed(1)}\u661f\u7ea7`}</span>
           </div>
         </div>
-        <div className={styles.right}>
-          <div className={styles.rating}>{baseInfo.star}</div>
-          <div className={styles.ratingLabel}>很好</div>
-          <div className={styles.reviewCount}>{reviewCount}</div>
+
+        <div className={styles.ratingCard}>
+          <div className={styles.ratingScore}>{score.toFixed(1)}</div>
+          <div className={styles.ratingLabel}>{'\u8d85\u68d2'}</div>
+          {showReviewCount ? (
+            <div className={styles.reviewCount}>{`${reviewCount}\u6761\u70b9\u8bc4`}</div>
+          ) : null}
         </div>
       </div>
 
-      <div className={styles.locationRow}>
-        <div className={styles.address}>
-          <svg
-            viewBox="0 0 1024 1024"
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlnsXlink="http://www.w3.org/1999/xlink"
-            width="14"
-            height="14"
-          >
-            <path
-              d="M513.024 1024h-1.024c-17.92 0-34.816-7.168-47.104-20.48-9.728-10.24-97.28-102.912-184.832-219.648C162.304 625.664 102.4 499.2 102.4 409.088 102.4 183.296 286.208 0 512 0s409.6 183.296 409.6 409.088c0 54.784-20.992 121.856-62.976 199.68-39.936 74.752-100.352 161.792-179.712 258.048l-0.512 0.512-117.76 134.144c-11.776 14.336-29.184 22.528-47.616 22.528z m-1.024-423.936c105.984 0 191.488-86.016 191.488-191.488S617.984 217.6 512 217.6 320 303.104 320 409.088s86.016 190.976 192 190.976z"
-              fill="#333333"
-            />
-          </svg>
-          <span>{baseInfo.address}</span>
+      <div className={styles.addressRow}>
+        <div className={styles.addressMain}>
+          <span className={styles.locationIcon} aria-hidden>
+            <svg viewBox="0 0 1024 1024" width="14" height="14" fill="currentColor">
+              <path d="M512 64c-176.72 0-320 143.28-320 320 0 71.04 25.6 145.92 76.8 224.64C337.28 714.24 512 896 512 896s174.72-181.76 243.2-287.36C806.4 529.92 832 455.04 832 384c0-176.72-143.28-320-320-320z m0 448a128 128 0 1 1 0-256 128 128 0 0 1 0 256z" />
+            </svg>
+          </span>
+          <span className={styles.addressText}>{baseInfo.address}</span>
         </div>
-        <button className={styles.mapBtn} title="查看地图">
-          <MapIcon width={14} height={14} color="#333333" /> 地图
+
+        <button type="button" className={styles.mapBtn}>
+          {'\u5730\u56fe/\u5bfc\u822a >'}
         </button>
       </div>
-
-      <div className={styles.coreParamsCard}>
-        <div className={styles.paramItem}>
-          <span className={styles.paramIcon}><AreaIcon width={20} height={20} color="#333333" /></span>
-          <span className={styles.paramValue}>{normalizedCoreParams.area}</span>
-          <span className={styles.paramLabel}>面积</span>
-        </div>
-        <div className={styles.divider} />
-        <div className={styles.paramItem}>
-          <span className={styles.paramIcon}><HouseIcon width={20} height={20} color="#333333" /></span>
-          <span className={styles.paramValue}>{normalizedCoreParams.rooms}</span>
-          <span className={styles.paramLabel}>房间</span>
-        </div>
-        <div className={styles.divider} />
-        <div className={styles.paramItem}>
-          <span className={styles.paramIcon}><BedIcon width={20} height={20} color="#333333" /></span>
-          <span className={styles.paramValue}>{normalizedCoreParams.beds}</span>
-          <span className={styles.paramLabel}>床位</span>
-        </div>
-        <div className={styles.divider} />
-        <div className={styles.paramItem}>
-          <span className={styles.paramIcon}><UserIcon width={20} height={20} color="#333333" /></span>
-          <span className={styles.paramValue}>{normalizedCoreParams.guests}</span>
-          <span className={styles.paramLabel}>人数</span>
-        </div>
-      </div>
-
-      <div className={styles.highlightsRow}>
-        <div className={styles.highlights}>
-          {highlights.map((highlight, idx) => (
-            <span key={idx} className={styles.tag}>
-              {highlight}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
+    </section>
   )
 }
 

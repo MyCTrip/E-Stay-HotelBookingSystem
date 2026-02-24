@@ -1,5 +1,5 @@
-import React from 'react'
-import { HourlyRoomDetail } from '@estay/shared'
+﻿import React from 'react'
+import type { HourlyRoomDetail } from '../../../types'
 
 interface RoomDrawerBasicInfoProps {
   room: HourlyRoomDetail
@@ -8,43 +8,42 @@ interface RoomDrawerBasicInfoProps {
 }
 
 const RoomDrawerBasicInfo: React.FC<RoomDrawerBasicInfoProps> = ({ room, duration, availableTime }) => {
-  const { baseInfo } = room;
+  const roomType = room.baseInfo.type || 'Hourly Room'
+  const maxOccupancy = room.baseInfo.maxOccupancy ?? 2
+  const hasWindow = room.baseInfo.windowAvailable ? 'Yes' : 'No / inner window'
 
   return (
     <div style={{ padding: '16px', borderBottom: '1px solid #eee', backgroundColor: '#fff' }}>
-      <h3 style={{ fontSize: '18px', margin: '0 0 12px 0', color: '#333' }}>基本信息</h3>
+      <h3 style={{ fontSize: '18px', margin: '0 0 12px 0', color: '#333' }}>Basic Information</h3>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '14px', color: '#666' }}>
         <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>房型</span>
-          {baseInfo.type}
+          <span style={{ color: '#999', marginRight: '8px' }}>Room Type</span>
+          {roomType}
         </div>
         <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>入住人数</span>
-          最多{baseInfo.maxOccupancy}人
+          <span style={{ color: '#999', marginRight: '8px' }}>Occupancy</span>
+          Up to {maxOccupancy} guests
         </div>
         <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>有无窗户</span>
-          {baseInfo.windowAvailable ? '有窗' : '无窗/内窗'}
+          <span style={{ color: '#999', marginRight: '8px' }}>Window</span>
+          {hasWindow}
         </div>
-        {/* 如果后续后端加上了 area 面积字段，可以在这里放开 */}
-        {/* <div style={{ width: '45%' }}>
-          <span style={{ color: '#999', marginRight: '8px' }}>面积</span>
-          {baseInfo.area}
-        </div> */}
       </div>
 
-      <div style={{
-        marginTop: '16px',
-        padding: '12px',
-        backgroundColor: '#f0f5ff',
-        borderRadius: '8px',
-        color: '#1752d4',
-        fontSize: '14px',
-        fontWeight: '500'
-      }}>
-        <div style={{ marginBottom: '4px' }}>⏱ 可用时段：{availableTime}</div>
-        <div>⏳ 入住时长：{duration} 小时</div>
+      <div
+        style={{
+          marginTop: '16px',
+          padding: '12px',
+          backgroundColor: '#f0f5ff',
+          borderRadius: '8px',
+          color: '#1752d4',
+          fontSize: '14px',
+          fontWeight: '500',
+        }}
+      >
+        <div style={{ marginBottom: '4px' }}>Available time: {availableTime}</div>
+        <div>Duration: {duration} hour(s)</div>
       </div>
     </div>
   )

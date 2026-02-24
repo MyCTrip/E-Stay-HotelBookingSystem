@@ -4,11 +4,15 @@
 
 export interface FacilityItem {
   name: string
-  has?: boolean // true=有, false=没有
+  description?: string
+  icon?: string
+  available?: boolean
+  has?: boolean // 兼容旧 mock 字段，组件层会统一映射为 available
 }
 
 export interface FacilityCategory {
   name: string
+  icon?: string
   items: FacilityItem[]
 }
 

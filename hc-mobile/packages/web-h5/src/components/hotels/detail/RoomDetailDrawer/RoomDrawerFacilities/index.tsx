@@ -1,18 +1,62 @@
-import React, { forwardRef, useEffect, useState } from 'react'
-import type { HotelRoomSPUModel } from '@estay/shared'
+import React, { forwardRef, useEffect, useMemo, useState } from 'react'
+import type { FacilityModel } from '@estay/shared'
 import { CheckIcon, CrossIcon } from '../../../icons/FacilityIcons'
-import { FACILITY_CATEGORIES } from '../../../../../constants/facilities'
 import styles from './index.module.scss'
 
 interface RoomDrawerFacilitiesProps {
-  spu: HotelRoomSPUModel
+  facilities?: FacilityModel[]
   expandedInitially?: boolean
   onClose?: () => void
 }
 
+interface DisplayFacilityItem {
+  id: string
+  name: string
+  available: boolean
+}
+
+interface DisplayFacilityCategory {
+  id: string
+  name: string
+  facilities: DisplayFacilityItem[]
+}
+
+const normalizeText = (value: string): string => value.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+
+const mapFacilitiesToCategories = (facilities: FacilityModel[]): DisplayFacilityCategory[] =>
+  facilities
+    .filter((facility) => facility.visible !== false)
+    .sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+    .map((facility, index) => {
+      const items = (facility.items ?? [])
+        .filter((item) => item.name.trim().length > 0)
+        .map((item, itemIndex) => ({
+          id: `${facility.category}-${index}-${itemIndex}`,
+          name: item.name,
+          available: item.available !== false,
+        }))
+
+      if (items.length === 0) {
+        const fallbackName = facility.summary?.trim() || normalizeText(facility.content)
+        if (fallbackName) {
+          items.push({
+            id: `${facility.category}-${index}-fallback`,
+            name: fallbackName,
+            available: true,
+          })
+        }
+      }
+
+      return {
+        id: `${facility.category}-${index}`,
+        name: facility.category,
+        facilities: items,
+      }
+    })
+    .filter((category) => category.facilities.length > 0)
+
 const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProps>(
-  ({ spu, expandedInitially = false, onClose }, ref) => {
-    void spu
+  ({ facilities, expandedInitially = false, onClose }, ref) => {
     void onClose
 
     const [isExpanded, setIsExpanded] = useState(expandedInitially)
@@ -21,9 +65,13 @@ const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProp
       setIsExpanded(expandedInitially)
     }, [expandedInitially])
 
-    const visibleCategories = isExpanded
-      ? FACILITY_CATEGORIES
-      : FACILITY_CATEGORIES.filter((c) => ['basic', 'bathroom', 'kitchen'].includes(c.id))
+    const categories = useMemo(() => mapFacilitiesToCategories(facilities ?? []), [facilities])
+
+    if (categories.length === 0) {
+      return null
+    }
+
+    const visibleCategories = isExpanded ? categories : categories.slice(0, 3)
 
     return (
       <div className={styles.facilitiesContainer} ref={ref}>
@@ -52,7 +100,7 @@ const RoomDrawerFacilities = forwardRef<HTMLDivElement, RoomDrawerFacilitiesProp
 
         <div className={styles.expandFooter}>
           <button className={styles.expandBtn} onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? '收起全部设施' : '展开全部设施'} <span className={styles.arrow}>▾</span>
+            {isExpanded ? '收起部分设施' : '展开全部设施'} <span className={styles.arrow}>▼</span>
           </button>
         </div>
       </div>

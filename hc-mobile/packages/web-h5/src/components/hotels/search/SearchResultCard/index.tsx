@@ -15,6 +15,17 @@ interface SearchResultCardProps {
   isFavorited?: boolean
 }
 
+type SearchCardBaseInfo = HotelDomainModel['baseInfo'] & {
+  nameCn?: string
+  nameEn?: string
+  rating?: {
+    score?: number
+    count?: number
+  }
+}
+
+const CURRENCY_SYMBOL = '\u00A5'
+
 const SearchResultCard: React.FC<SearchResultCardProps> = ({
   data,
   startingPrice = 0,
@@ -26,7 +37,10 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
   const [imageError, setImageError] = useState(false)
   const [favorited, setFavorited] = useState(isFavorited)
 
-  const primaryImage = data.baseInfo.images?.[0] || null
+  const baseInfo = data.baseInfo as SearchCardBaseInfo
+  const hotelName = baseInfo.nameCn ?? baseInfo.nameEn ?? baseInfo.name ?? ''
+  const primaryImage = baseInfo.images?.[0] || null
+  const ratingScore = baseInfo.rating?.score ?? data.rating.score
   const roomPrice = Math.max(0, startingPrice)
   const hotelTags = useMemo(() => {
     if (tags && tags.length > 0) {
@@ -61,7 +75,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         {primaryImage && !imageError ? (
           <img
             src={primaryImage}
-            alt={data.baseInfo.name}
+            alt={hotelName}
             className={styles.image}
             loading="lazy"
             onError={() => setImageError(true)}
@@ -89,7 +103,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
 
         {/* 评分和位置标签 */}
         <div className={styles.ratingBadge}>
-          <span className={styles.ratingBadgeText}>⭐ {data.rating.score.toFixed(1)}</span>
+          <span className={styles.ratingBadgeText}>⭐ {ratingScore.toFixed(1)}</span>
           <svg
             viewBox="0 0 1024 1024"
             version="1.1"
@@ -101,18 +115,18 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
             <path d="M512 0C312.32 0 153.6 158.72 153.6 358.4 153.6 624.64 512 1024 512 1024s358.4-399.36 358.4-665.6C870.4 158.72 711.68 0 512 0z m0 486.4c-71.68 0-128-56.32-128-128s56.32-128 128-128 128 56.32 128 128-56.32 128-128 128z" />
           </svg>
           <span className={styles.location}>
-            {data.baseInfo.address}
+            {baseInfo.address}
             {data.distanceText ? ` · 距您 ${data.distanceText}` : ''}
           </span>
         </div>
 
         {/* 图片数量标识 */}
-        <div className={styles.photoCount}>📷 {data.baseInfo.images?.length || 1}</div>
+        <div className={styles.photoCount}>📷 {baseInfo.images?.length || 1}</div>
       </div>
 
       {/* 信息区 */}
       <div className={styles.infoSection}>
-        <h3 className={styles.name}>{data.baseInfo.name}</h3>
+        <h3 className={styles.name}>{hotelName}</h3>
 
         <div className={styles.tags}>
           {hotelTags.slice(0, 3).map((tag, index) => (
@@ -123,11 +137,14 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         </div>
 
         <div className={styles.roomInfo}>
-          {data.market === 'domestic' ? '国内酒店' : '国际酒店'} · {data.baseInfo.address}
+          {data.market === 'domestic' ? '国内酒店' : '国际酒店'} · {baseInfo.address}
         </div>
 
         <div className={styles.priceSection}>
-          <span className={styles.price}>¥{roomPrice}</span>
+          <span className={styles.price}>
+            {CURRENCY_SYMBOL}
+            {roomPrice}
+          </span>
           <span className={styles.unit}>/晚起</span>
         </div>
       </div>
