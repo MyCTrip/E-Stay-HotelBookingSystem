@@ -1,15 +1,10 @@
 /* 酒店核心信息区样式 */
 
-.infoCard {
-  top: -140px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+/* 外层包装 - 仅保留特殊定位 */
+.infoCardWrapper {
   position: relative;
+  top: -140px;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
 }
 
 /* 名称 & 评分行 */
@@ -27,7 +22,7 @@
 
 .name {
   margin: 0;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
   color: #333;
   line-height: 1.4;
@@ -62,7 +57,7 @@
 }
 
 .rating {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
   color: #0066ff;
 }
@@ -273,13 +268,12 @@
 }
 
 @media (max-width: 768px) {
-  .infoCard {
+  .infoCardWrapper {
     margin: 8px 12px;
-    padding: 12px;
   }
 
   .name {
-    font-size: 16px;
+    font-size: 24px;
   }
 
   .headerRow {
@@ -292,7 +286,7 @@
   }
 
   .rating {
-    font-size: 18px;
+    font-size: 26px;
   }
 
   .locationRow {

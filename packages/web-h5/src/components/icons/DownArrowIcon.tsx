@@ -10,7 +10,11 @@ interface DownArrowIconProps {
   color?: string
 }
 
-const DownArrowIcon: React.FC<DownArrowIconProps> = ({ width = 20, height = 20, color = '#B1B1B1' }) => {
+const DownArrowIcon: React.FC<DownArrowIconProps> = ({
+  width = 20,
+  height = 20,
+  color = '#B1B1B1',
+}) => {
   return (
     <svg
       viewBox="0 0 1024 1024"

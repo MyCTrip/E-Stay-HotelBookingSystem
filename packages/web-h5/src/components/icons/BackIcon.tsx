@@ -23,10 +23,7 @@ export const BackIcon: React.FC<BackIconProps> = ({
       className={className}
     >
       {/* 左箭头 */}
-      <path
-        d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"
-        fill={color}
-      />
+      <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill={color} />
     </svg>
   )
 }

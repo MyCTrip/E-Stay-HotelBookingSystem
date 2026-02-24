@@ -19,13 +19,17 @@ export {
   resetHotelStore,
 } from './stores/hotelStore'
 export type { SearchParams } from './stores/hotelStore'
-export {
-  createHomeStayStore,
-  initHomeStayStore,
-  useHomeStayStore,
-  resetHomeStayStore,
+
+// Homestay Store (与 Mock 数据集成)
+export { useHomestayStore } from './stores/homestayStore'
+export type {
+  HomestayStoreState,
+  DetailContextState,
+  SearchUIState,
 } from './stores/homestayStore'
-export type { HomeStayState } from './stores/homestayStore'
+
+// Mock 数据
+export * from './mocks'
 
 // 中间件管理
 export {
@@ -66,10 +70,8 @@ export type { SearchHistory, FavoriteHotel, UserPreferences } from './persistenc
 // 类型定义
 export * from './types'
 export * from './types/hourlyHotel'
-
 // 常量定义
 export { QUICK_FILTER_TAGS } from './constants/homestay'
-export { HOURLY_QUICK_FILTER_TAGS, QUICK_DURATION_OPTIONS } from './constants/hourlyHotel' // <--- 加上这一行，导出钟点房快捷标签
-
+export { HOURLY_QUICK_FILTER_TAGS, QUICK_DURATION_OPTIONS } from './constants/hourlyHotel' // 
 // 工具函数
 export * from './utils'

@@ -1,112 +1,103 @@
-/* 设施区域 */
-
-.facilitiesSection {
-  background-color: #fff;
+.facilitiesWrapper {
+  background: #ffffff;
+  margin: 0 0 8px 0;
   padding: 16px;
-  border-radius: 8px;
-  width: calc(100% - 28px);
-  margin-left: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
+  /* 模块化白底黑字的经典区块边界 */
 }
 
-/* Header区域 */
-.header {
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 12px 0;
+}
+
+/* 顶部的高分评价金句 */
+.highlightReview {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+  background-color: #f2f8ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+
+  .badge {
+    background-color: #0086f6;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px 0 4px 0;
+    /* 携程特有的异形圆角 */
+    margin-right: 8px;
+    font-weight: 500;
+  }
+
+  span:last-child {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+  }
 }
 
-.title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
+/* 分类列表 */
+.facilityGroup {
+  margin-bottom: 20px;
+
+  .groupHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+
+    span {
+      font-size: 16px;
+    }
+
+    h4 {
+      font-size: 15px;
+      font-weight: bold;
+      color: #111;
+      margin: 0;
+    }
+  }
+
+  .groupItems {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 两列等宽布局 */
+    gap: 12px 16px;
+    /* 行间距12px，列间距16px */
+
+    .item {
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+
+      .free {
+        color: #0086f6;
+        /* 免费字样使用蓝色 */
+        font-size: 11px;
+        margin-left: 6px;
+        background-color: #e5f3ff;
+        padding: 1px 4px;
+        border-radius: 2px;
+      }
+    }
+  }
 }
 
 .viewAllBtn {
-  padding: 6px 12px;
-  border: none;
-  background-color: transparent;
-  color: #0066ff;
+  text-align: center;
   font-size: 14px;
-  font-weight: 500;
+  color: #333;
+  padding: 10px 0;
+  margin-top: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
 
   &:active {
-    opacity: 0.7;
+    background-color: #f9f9f9;
   }
 }
-
-.arrow {
-  font-size: 18px;
-  font-weight: 300;
-}
-
-/* Content区域 */
-.content {
-  display: flex;
-  flex-direction: column;
-}
-
-.facilitiesList {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* 分类块区域 */
-.categoryBlock {
-  display: flex;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-/* 分类名 - 左侧，固定宽度 */
-.categoryName {
-  flex-shrink: 0;
-  width: 70px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  text-align: left;
-}
-
-/* 设施网格 - 右侧，一行三个 */
-.itemsGrid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  row-gap: 16px;
-}
-
-/* 单个设施项 */
-.facilityItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  font-size: 13px;
-  color: #666;
-}
-
-.itemName {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-}
-

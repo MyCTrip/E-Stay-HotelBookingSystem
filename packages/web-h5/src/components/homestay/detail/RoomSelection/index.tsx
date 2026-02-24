@@ -2,7 +2,7 @@
  * 房型选择区 - 核心转化模块
  */
 
-import React, { useState } from 'react' 
+import React, { useState } from 'react'
 import RoomCard from '../RoomCard'
 import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay'
 import styles from './index.module.scss'
@@ -18,12 +18,16 @@ interface Room {
   priceNote: string
   benefits: string[]
   packageCount: number
+  confirmTime: number
 }
 
 interface RoomSelectionProps {
   data?: any
   rooms?: Room[]
   displayCount?: number
+  onSelectRoom?: (room: Room) => void
+  checkIn?: string    // ISO格式日期，如 '2025-02-25'
+  checkOut?: string   // ISO格式日期，如 '2025-02-27'
 }
 
 // 模拟房型数据
@@ -39,10 +43,16 @@ const mockRooms = [
     priceNote: '晚/起',
     benefits: ['免费WiFi', '免费停车', '房间内免费WiFi'],
     packageCount: 3,
+    confirmTime: 30,
     showBreakfastTag: true,
     breakfastCount: 2,
     showCancelTag: true,
     hasPackageDetail: true,
+    discounts: [
+      { name: '钻石贵宾', description: '钻石贵宾享受', amount: 230 },
+      { name: '连住优惠', description: '连住3晚及以上', amount: 138 },
+      { name: '扫零取整', description: '价格优化', amount: 2 },
+    ],
   },
   {
     id: '2',
@@ -55,10 +65,15 @@ const mockRooms = [
     priceNote: '晚/起',
     benefits: ['免费WiFi', '免费停车'],
     packageCount: 2,
+    confirmTime: 30,
     showBreakfastTag: true,
     breakfastCount: 0,
     showCancelTag: true,
     hasPackageDetail: true,
+    discounts: [
+      { name: '早鸟优惠', description: '提前30天预订', amount: 100 },
+      { name: '会员折扣', description: 'VIP 会员', amount: 50 },
+    ],
   },
   {
     id: '3',
@@ -71,10 +86,12 @@ const mockRooms = [
     priceNote: '晚/起',
     benefits: ['免费WiFi'],
     packageCount: 1,
+    confirmTime: 30,
     showBreakfastTag: true,
     breakfastCount: 1,
     showCancelTag: false,
     hasPackageDetail: false,
+    discounts: [],
   },
   {
     id: '4',
@@ -87,10 +104,14 @@ const mockRooms = [
     priceNote: '晚/起',
     benefits: ['免费WiFi'],
     packageCount: 1,
+    confirmTime: 30,
     showBreakfastTag: false,
     breakfastCount: 0,
     showCancelTag: false,
     hasPackageDetail: false,
+    discounts: [
+      { name: '平台优惠', description: '平台满减', amount: 50 },
+    ],
   },
   {
     id: '5',
@@ -103,22 +124,57 @@ const mockRooms = [
     priceNote: '晚/起',
     benefits: ['免费停车', '儿童福利'],
     packageCount: 2,
+    confirmTime: 30,
     showBreakfastTag: true,
     breakfastCount: 2,
     showCancelTag: true,
     hasPackageDetail: false,
+    discounts: [
+      { name: '家庭优惠', description: '亲子房特享', amount: 150 },
+      { name: '套餐折扣', description: '多晚更优惠', amount: 80 },
+    ],
   },
 ]
 
-const RoomSelection: React.FC<RoomSelectionProps> = ({ rooms, displayCount }) => {
+const RoomSelection: React.FC<RoomSelectionProps> = ({ 
+  rooms, 
+  displayCount, 
+  onSelectRoom,
+  checkIn,
+  checkOut
+}) => {
   const [expandedRoomId, setExpandedRoomId] = useState<string | null>(null)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
+  // 类型转换函数：将外部Room类型转换为本地Room类型
+  const convertRoom = (room: any): Room => {
+    // 如果已经是本地Room格式，直接返回
+    if (room.id && room.name && room.area && room.confirmTime !== undefined) {
+      return room as Room
+    }
+    // 否则从共享包的Room类型转换
+    return {
+      id: room._id || room.id,
+      name: room.roomDisplayData?.name || room.name,
+      area: room.roomDisplayData?.area || room.area,
+      beds: room.roomDisplayData?.beds || room.beds,
+      guests: room.roomDisplayData?.guests || room.guests,
+      image: room.roomDisplayData?.image || room.image || room.baseInfo?.images?.[0],
+      price: room.baseInfo?.price || room.price,
+      priceNote: room.priceNote || '晚/起',
+      benefits: room.benefits || [],
+      packageCount: room.packageCount || 1,
+      confirmTime: room.confirmTime || 30,
+    }
+  }
+
   // 使用传入的 rooms，如果没有则使用 mockRooms
-  const roomsToDisplay = rooms || mockRooms
+  const rawRooms = rooms || mockRooms
+  const convertedRooms = Array.isArray(rawRooms) ? rawRooms.map(convertRoom) : mockRooms
   // 使用传入的 displayCount，如果没有则显示全部
-  const itemsToShow = displayCount !== undefined ? roomsToDisplay.slice(0, displayCount) : roomsToDisplay
+  const itemsToShow =
+    displayCount !== undefined ? convertedRooms.slice(0, displayCount) : convertedRooms
 
   const handleToggleExpand = (roomId: string) => {
     setExpandedRoomId(expandedRoomId === roomId ? null : roomId)
@@ -127,6 +183,7 @@ const RoomSelection: React.FC<RoomSelectionProps> = ({ rooms, displayCount }) =>
   const handleViewDetails = (room: Room) => {
     setSelectedRoom(room)
     setIsDrawerOpen(true)
+    onSelectRoom?.(room)
   }
 
   const handleCloseDrawer = () => {
@@ -160,6 +217,8 @@ const RoomSelection: React.FC<RoomSelectionProps> = ({ rooms, displayCount }) =>
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         onBook={handleBooking}
+        checkIn={checkIn}
+        checkOut={checkOut}
       />
     </div>
   )

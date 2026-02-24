@@ -23,11 +23,10 @@
   }
 }
 
-// 搜索栏占位符 - 为固定的SearchBar让出空间
 .searchBarSpacer {
   height: 56px;
   width: 100%;
-  
+
   @media (max-height: 400px) {
     height: 52px;
   }
@@ -57,6 +56,14 @@
   z-index: 1;
 }
 
+.bannerContainer {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
 // 搜索筛选区 - 卡片式布局
 .compactSearchSection {
   background-color: transparent;
@@ -64,8 +71,8 @@
   padding-left: max(16px, env(safe-area-inset-left));
   padding-right: max(16px, env(safe-area-inset-right));
   box-sizing: border-box;
-  margin-top: -350px;
-  margin-bottom: -10px;
+  margin-top: -40px;
+  margin-bottom: 8px;
   position: relative;
   z-index: 50;
 }
@@ -187,7 +194,7 @@
 
 // 列表标题
 .listTitle {
-  display: none; // 使用 recommendHeader 代替
+  display: none;
 }
 
 // 刷新提示
@@ -229,40 +236,24 @@
   padding-left: 4px;
 }
 
-// 瀑布流网格布局 - 按规范实现
+// 列表布局 - 改为单列纵向排列
 .cardGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   width: 100%;
-
-  // 响应式断点
-  @media (min-width: 375px) {
-    gap: 12px;
-  }
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
 }
 
 .cardWrapper {
-  aspect-ratio: 160 / 280;
   background-color: #ffffff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
   }
 }
 
@@ -295,4 +286,44 @@
 .bottomSpacer {
   height: 100px;
   visibility: hidden;
+}
+
+// ====== 新增：横向 Tab 栏样式 ======
+.tabContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px 8px;
+  background-color: #fafafa;
+  margin-top: 8px; // 给上面的卡片留一点空间
+  position: relative;
+  z-index: 40;
+}
+
+.tabItem {
+  font-size: 15px;
+  color: #666;
+  position: relative;
+  padding-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  // 选中状态
+  &.activeTab {
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+// 底部蓝色指示条 (类似携程的样式)
+.tabIndicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background-color: #0066FF; // 使用你项目中已有的蓝色
+  border-radius: 2px;
 }

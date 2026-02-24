@@ -1,263 +1,184 @@
-/* 预订须知区样式 */
-
-.section {
-  background-color: #fff;
-  margin: 8px 0;
-  padding: 16px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-}
-
-.allPoliciesBtn {
-  padding: 6px 12px;
-  border: none;
-  background-color: transparent;
-  color: #0066ff;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-
-  &:active {
-    opacity: 0.7;
-  }
-}
-
-.arrow {
-  font-size: 18px;
-  font-weight: 300;
-}
-
-.tipContainer {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  background-color: #f5f5f5;
-  padding: 8px 12px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.tipText {
-  font-size: 12px;
-  color: #666;
-  line-height: 1.4;
-  flex: 1;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.contentSection {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sectionRow {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-}
-
-.sectionTitleWrapper {
-  flex-shrink: 0;
-  padding-top: 2px;
-}
-
-.sectionContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.policyWrapper {
+  background: #ffffff;
+  margin: 0 0 8px 0;
+  padding: 20px 16px;
+  /* 增加上下内边距让内容更透气 */
 }
 
 .sectionTitle {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 20px 0;
 }
 
-.highlight {
-  color: #18a058;
-  font-weight: 700;
-}
+/* 城市通知段落 */
+.policyItem {
+  margin-bottom: 24px;
 
-.checkInOut {
-  display: flex;
-  gap: 24px;
-  flex: 1;
-}
+  .itemHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
 
-.item {
-  display: flex;
-  gap: 12px;
-  font-size: 14px;
-  color: #666;
-}
+    .icon {
+      font-size: 18px;
+    }
 
-.label {
-  color: #999;
-  min-width: 40px;
-}
-
-.value {
-  color: #333;
-}
-
-.description {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
-  line-height: 1.6;
-}
-
-/* 表格控件 */
-.tableSection {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* 表格样式 */
-.policyTable {
-  width: 100%;
-  border-collapse: collapse;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;
-  overflow: hidden;
-
-  thead {
-    background-color: #f5f5f5;
-
-    th {
-      padding: 12px;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 600;
-      color: #333;
-      border-bottom: 1px solid #e0e0e0;
-      border-right: 1px solid #e0e0e0;
-
-      &:last-child {
-        border-right: none;
-      }
+    h4 {
+      font-size: 16px;
+      font-weight: bold;
+      color: #111;
+      margin: 0;
     }
   }
 
-  tbody {
-    tr {
-      &:not(:last-child) {
-        border-bottom: 1px solid #e0e0e0;
+  .noticeText {
+    font-size: 13px;
+    color: #333;
+    /* 携程这里的正文颜色相对较深 */
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+/* 分割线 */
+.divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 24px 0;
+}
+
+.subTitle {
+  font-size: 20px;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 20px 0;
+}
+
+/* 酒店政策列表 */
+.policyList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  /* 列表项之间的间距拉大，符合原图 */
+
+  .listItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    .icon {
+      font-size: 18px;
+      margin-top: 0px;
+      color: #333;
+      /* 图标偏深色 */
+    }
+
+    .content {
+      flex: 1;
+
+      h4 {
+        font-size: 15px;
+        font-weight: bold;
+        color: #111;
+        margin: 0 0 8px 0;
       }
 
-      td {
-        padding: 12px;
+      p {
         font-size: 13px;
-        color: #666;
-        border-right: 1px solid #e0e0e0;
+        color: #333;
+        margin: 0 0 6px 0;
+        line-height: 1.5;
 
         &:last-child {
-          border-right: none;
+          margin-bottom: 0;
         }
+      }
+
+      /* 针对早餐等密集的文字列表 */
+      .detailsList {
+        margin-bottom: 12px;
+
+        p {
+          margin: 0 0 4px 0;
+        }
+      }
+
+      /* 入离时间的横向排布 */
+      .times {
+        display: flex;
+        gap: 32px;
+        /* 拉开两个时间的间距 */
+        font-size: 13px;
+        color: #333;
       }
     }
   }
 }
 
-.timeCell {
+/* 政策数据表格 (如儿童政策、早餐政策) */
+.policyTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  /* 保证圆角生效 */
+
+  th,
+  td {
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  th {
+    background-color: #f4f8ff;
+    /* 浅蓝色表头背景 */
+    color: #333;
+    font-weight: normal;
+  }
+
+  td {
+    color: #333;
+  }
+
+  .highlight {
+    color: #0086f6;
+    /* 免费字样使用携程蓝 */
+  }
+}
+
+/* 支付方式图标组 */
+.paymentMethods {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tag {
-  display: block;
-  padding: 0;
-  background-color: transparent;
-  border: none;
-  border-radius: 0;
-  font-size: 13px;
-  color: #999;
-  width: auto;
-  margin-bottom: 0;
-}
-
-.feeCell {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  white-space: pre-wrap;
-}
-
-/* 要求网格 */
-.amenitiesGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  flex: 1;
-}
-
-.amenityItem {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  font-size: 14px;
-  color: #333;
+  margin-top: 8px;
 
-  svg {
-    flex-shrink: 0;
-  }
-}
-
-.amenityLabel {
-  flex: 1;
-}
-
-@media (max-width: 768px) {
-  .section {
-    padding: 16px 12px;
-  }
-
-  .header {
+  .payIcon {
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 12px;
-  }
-
-  .allPoliciesBtn {
-    white-space: nowrap;
-  }
-
-  .amenitiesGrid {
-    grid-template-columns: repeat(2, 1fr);
+    justify-content: center;
+    height: 24px;
   }
 }

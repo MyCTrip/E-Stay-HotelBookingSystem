@@ -6,6 +6,8 @@
 import React, { useState } from 'react'
 import type { HomeStay } from '@estay/shared'
 import styles from './index.module.scss'
+import { HeartIcon } from '../../../icons/HeartIcon'
+import { PositionIcon, StarIcon } from '../../icons'
 
 interface HomeStayCardProps {
   data: HomeStay
@@ -67,18 +69,25 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
           onClick={handleFavoriteClick}
           title={favorited ? '取消收藏' : '收藏'}
         >
-          ♡
+        <HeartIcon
+                    size={28}
+                    fillColor={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(68, 70, 72, 0.3)'}
+                    strokeColor={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(255, 255, 255, 0.9)'}
+                    strokeWidth={2}
+                  />
         </button>
 
         {/* 热门标签 */}
-        {discount > 0 && <div className={styles.hotBadge}>网红热酒</div>}
+        {discount > 0 && <div className={styles.hotBadge}>严选民宿</div>}
       </div>
 
       {/* 信息容器 */}
       <div className={styles.infoContainer}>
         {/* 位置信息 */}
         <div className={styles.locationRow}>
-          <span className={styles.locationIcon}>📍</span>
+          <span className={styles.locationIcon}>
+            <PositionIcon width={12} height={12} color='#8da5cd'/>
+          </span>
           <span className={styles.locationText}>
             {data.baseInfo.city} · {data.baseInfo.address.substring(0, 15)}
           </span>
@@ -86,7 +95,7 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
 
         {/* 标题 */}
         <h3 className={styles.title}>{data.baseInfo.nameCn}</h3>
-
+        <div style={{display:"flex"}}>
         {/* 价格区域 */}
         <div className={styles.priceRow}>
           <div className={styles.priceBlock}>
@@ -96,13 +105,15 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
             )}
           </div>
         </div>
-
         {/* 评价区域 */}
         <div className={styles.ratingRow}>
+          <StarIcon width={14} height={14} color='#eec50f'></StarIcon>
           {showStar && data.baseInfo.star > 0 && (
-            <span className={styles.rating}>⭐ {data.baseInfo.star}</span>
+            <span className={styles.rating}>
+              {data.baseInfo.star}</span>
           )}
           <span className={styles.reviewCount}>{reviewCount}+ 人赞同</span>
+        </div>
         </div>
       </div>
     </div>

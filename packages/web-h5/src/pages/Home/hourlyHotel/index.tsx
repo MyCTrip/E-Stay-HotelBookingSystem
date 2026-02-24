@@ -2,19 +2,14 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import LocationInput from '../../../components/hourlyHotel/home/LocationInput'
-import DateDurationSelector from '../../../components/hourlyHotel/home/DateDurationSelector' // 替换原有的 DateRange
-import RoomTypeSelector from '../../../components/hourlyHotel/home/RoomTypeSelector'
-import PriceSelector from '../../../components/hourlyHotel/home/PriceSelector'
-import QuickFilters from '../../../components/hourlyHotel/home/QuickFilters'
+import DateDurationSelector from '../../../components/hourlyHotel/home/DateDurationSelector'
 import SearchButton from '../../../components/hourlyHotel/home/SearchButton'
-import RecommendTypes from '../../../components/hourlyHotel/home/RecommendTypes'
-import HourlyRoomCard from '../../../components/hourlyHotel/home/HourlyRoomCard' // 钟点房专属卡片
+import HourlyRoomCard from '../../../components/hourlyHotel/home/HourlyRoomCard'
 import HourlyRoomCardSkeleton from '../../../components/hourlyHotel/home/HourlyRoomCardSkeleton'
-import BannerCarousel from '../../../components/hourlyHotel/home/BannerCarousel'//要改
+import BannerCarousel from '../../../components/hourlyHotel/home/BannerCarousel'
 
 import type { HourlyRoomSearchParams, HourlyRoom } from '@estay/shared'
-import { HOURLY_QUICK_FILTER_TAGS } from '@estay/shared'
-import styles from './index.module.scss' // 直接复用民宿的样式表
+import styles from './index.module.scss'
 
 // 模拟热门钟点房数据 (偏向机场、高铁站、商圈)
 const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
@@ -148,15 +143,15 @@ const HourlyRoomPage: React.FC = () => {
   // 钟点房核心搜索参数状态
   const [searchParams, setSearchParams] = useState<HourlyRoomSearchParams>({
     city: '上海',
-    date: dayjs().toDate(), // 钟点房只需要单日
-    startTime: '14:00',     // 预计入住时间
-    duration: 4,            // 默认4小时
+    date: dayjs().toDate(),
+    startTime: '14:00',
+    duration: 4,
     guests: 1,
     rooms: 1,
     keyword: '',
     selectedTags: [],
     priceMin: 0,
-    priceMax: 500, // 钟点房价格区间通常较小
+    priceMax: 500,
   })
 
   // UI状态
@@ -164,6 +159,10 @@ const HourlyRoomPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false)
   const [hourlyRooms, setHourlyRooms] = useState<HourlyRoom[]>([])
   const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 })
+
+  // 新增：Tab 栏状态
+  const [activeTab, setActiveTab] = useState('特色精选')
+  const tabs = ['特色精选', '限时特惠', '情侣约会', '影音电竞']
 
   // 首次加载时显示热门推荐
   useEffect(() => {
@@ -190,7 +189,7 @@ const HourlyRoomPage: React.FC = () => {
     }, 800)
   }
 
-  // 监听移动端下拉动作 (与民宿一致)
+  // 监听移动端下拉动作 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -230,7 +229,7 @@ const HourlyRoomPage: React.FC = () => {
     }
   }, [refreshing])
 
-  // 处理日期与时长变化 (钟点房专属逻辑)
+  // 处理日期与时长变化 
   const handleDateDurationChange = (date: Date, duration: number) => {
     setSearchParams((prev) => ({
       ...prev,
@@ -273,16 +272,23 @@ const HourlyRoomPage: React.FC = () => {
     }
   }
 
+  // 切换 Tab 的处理逻辑（可后续扩展请求不同接口）
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    // 这里可以加上请求新数据的逻辑
+    // loadPopularHourlyRooms() 
+  }
+
   return (
     <div ref={containerRef} className={styles.container}>
-      {/* 轮播 Banner - 可以换成钟点房的素材 */}
-      <BannerCarousel
-        autoPlay={true}
-        interval={3500}
-        onBannerClick={(item) => navigate(item.link || '#')}
-      />
+      <div className={styles.bannerContainer}>
+        <BannerCarousel
+          autoPlay={true}
+          interval={3500}
+          onBannerClick={(item) => navigate(item.link || '#')}
+        />
+      </div>
 
-      {/* 紧凑搜索筛选区 - 完全复用卡片样式 */}
       <div className={styles.compactSearchSection}>
         <div className={styles.searchCard}>
           {/* 位置选择 */}
@@ -293,61 +299,39 @@ const HourlyRoomPage: React.FC = () => {
             />
           </div>
 
-          {/* 日期与时长选择 (钟点房核心改动点) */}
+          {/* 日期与时长选择 */}
           <div className={styles.cardItem}>
             <DateDurationSelector
               date={searchParams.date}
-              // startTime={searchParams.startTime}
               duration={searchParams.duration}
               onChange={handleDateDurationChange}
             />
           </div>
 
-          {/* 房间数 + 价格筛选 同一行 */}
-          <div className={styles.dualRowContainer}>
-            <div className={styles.cardItem}>
-              <RoomTypeSelector
-                rooms={searchParams.rooms}
-                guests={searchParams.guests}
-                onChange={(guests, beds, rooms) => setSearchParams(prev => ({ ...prev, guests, rooms }))}
-              />
-            </div>
-            <div className={styles.cardItem}>
-              <PriceSelector
-                minPrice={searchParams.priceMin}
-                maxPrice={searchParams.priceMax}
-                onPriceChange={(priceMin, priceMax) => setSearchParams(prev => ({ ...prev, priceMin, priceMax }))}
-              />
-            </div>
-          </div>
-
-          {/* 快速筛选 - 标签换成"近地铁"、"含淋浴"等 */}
-          <div className={styles.cardItem}>
-            <QuickFilters
-              tags={HOURLY_QUICK_FILTER_TAGS}
-              selectedTags={searchParams.selectedTags}
-              onTagSelect={(tagId, selected) => {
-                setSearchParams(prev => {
-                  const tags = new Set(prev.selectedTags)
-                  selected ? tags.add(tagId) : tags.delete(tagId)
-                  return { ...prev, selectedTags: Array.from(tags) }
-                })
-              }}
-            />
-          </div>
-
+          {/* 查找按钮（直接跟在日期下面） */}
           <div className={styles.cardItem}>
             <SearchButton
               loading={loading}
               onClick={handleSearch}
-              label="查找钟点房"
+              label="查询" // 参考携程改成了"查询"
             />
           </div>
         </div>
       </div>
 
-      {/* 推荐类型区域 */}
-      <RecommendTypes />
+      {/* 替换原有的 RecommendTypes 为新的 Tab 栏 */}
+      <div className={styles.tabContainer}>
+        {tabs.map((tab) => (
+          <div
+            key={tab}
+            className={`${styles.tabItem} ${activeTab === tab ? styles.activeTab : ''}`}
+            onClick={() => handleTabChange(tab)}
+          >
+            {tab}
+            {activeTab === tab && <div className={styles.tabIndicator} />}
+          </div>
+        ))}
+      </div>
 
       {/* 钟点房列表 */}
       <div className={styles.listSection}>

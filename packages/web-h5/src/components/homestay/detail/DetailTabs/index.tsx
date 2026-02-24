@@ -5,7 +5,15 @@
 import React from 'react'
 import styles from './index.module.scss'
 
-export type TabKey = 'overview' | 'rooms' | 'reviews' | 'facilities' | 'policies' | 'knowledge' | 'nearby' | 'host'
+export type TabKey =
+  | 'overview'
+  | 'rooms'
+  | 'reviews'
+  | 'facilities'
+  | 'policies'
+  | 'knowledge'
+  | 'nearby'
+  | 'host'
 
 interface Tab {
   key: TabKey
@@ -18,9 +26,9 @@ const tabs: Tab[] = [
   { key: 'reviews', label: '点评' },
   { key: 'facilities', label: '设施' },
   { key: 'policies', label: '须知' },
+  { key: 'host', label: '房东' },
   { key: 'knowledge', label: '周边' },
   { key: 'nearby', label: '附近' },
-  { key: 'host', label: '房东' },
 ]
 
 interface DetailTabsProps {
@@ -28,7 +36,7 @@ interface DetailTabsProps {
   onChange?: (tab: TabKey) => void
 }
 
-const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab = 'overview', onChange = () => { } }) => {
+const DetailTabs: React.FC<DetailTabsProps> = ({ activeTab = 'overview', onChange = () => {} }) => {
   return (
     <div className={styles.tabsWrapper}>
       <div className={styles.tabs}>

@@ -2,14 +2,19 @@
  * 用户评价区
  */
 
-import React from 'react'
+import React, { useState } from 'react'
+import PropertyCardContainer from '../PropertyCardContainer'
 import styles from './index.module.scss'
 
 interface ReviewSectionProps {
   hostelId: string
+  roomName?: string
 }
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ hostelId }) => {
+/**
+ * ReviewSection 内容组件
+ */
+const ReviewSectionContent: React.FC<ReviewSectionProps> = ({ hostelId }) => {
   const reviews = [
     {
       id: '1',
@@ -30,9 +35,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ hostelId }) => {
   ]
 
   return (
-    <div className={styles.section}>
-      <h2 className={styles.title}>用户评价</h2>
-
+    <>
       {/* 评分概览 */}
       <div className={styles.scoreOverview}>
         <div className={styles.scoreMain}>
@@ -81,7 +84,23 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ hostelId }) => {
       </div>
 
       <button className={styles.viewAll}>查看全部90条评价</button>
-    </div>
+    </>
+  )
+}
+
+const ReviewSection: React.FC<ReviewSectionProps> = ({ hostelId }) => {
+  return (
+    <PropertyCardContainer
+      headerConfig={{
+        show: true,
+        title: {
+          text: '用户评价',
+          show: true,
+        },
+      }}
+    >
+      <ReviewSectionContent hostelId={hostelId} />
+    </PropertyCardContainer>
   )
 }
 

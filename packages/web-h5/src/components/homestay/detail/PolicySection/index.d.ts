@@ -3,12 +3,13 @@
  */
 import React from 'react';
 interface PolicySectionProps {
+    room?: any;
     data?: any;
     cancelMinutes?: number;
     checkInDate?: string;
     checkInTime?: string;
     checkOutTime?: string;
-    deadlinetime?: number;
+    deadlineTime?: number;
     amenities?: {
         baby?: boolean;
         children?: boolean;
@@ -17,7 +18,10 @@ interface PolicySectionProps {
         hongKongMacaoTaiwan?: boolean;
         pets?: boolean;
     };
+    roomName?: string;
 }
 declare const PolicySection: React.FC<PolicySectionProps>;
+export { PolicySection };
+export type { PolicySectionProps };
 export default PolicySection;
 //# sourceMappingURL=index.d.ts.map

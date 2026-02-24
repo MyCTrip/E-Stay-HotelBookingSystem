@@ -1,137 +1,100 @@
-.card {
-    // 🌟 改动 1：确保卡片本身占满外层网格的高度，并使用竖向 Flex 布局
+.cardContainer {
     display: flex;
-    flex-direction: column;
-    height: 100%;
-
-    background-color: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:active {
-        transform: scale(0.98);
-    }
-}
-
-.imageContainer {
-    position: relative;
-    width: 100%;
-
-    // 🌟 改动 2 (核心中的核心)：
-    // 去掉之前的所有高度设置 (如 height: 180px 或 padding-bottom: 80%)
-    // 加上 flex: 1; 这会让图片容器自动拉伸，占据卡片里除了内容区以外的所有剩余空间！
-    flex: 1;
-
-    background-color: #f5f5f5;
-    min-height: 150px; // 给一个最小高度兜底，防止极端情况下图片太矮
-}
-
-.coverImg {
-    position: absolute; // 配合相对定位的父容器
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%; // 确保图片撑满这个动态拉伸的容器
-    object-fit: cover; // 裁剪以保持比例，不拉扁
-}
-
-// 图片左下角的橘色标签
-.imageBadge {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    background: linear-gradient(90deg, #ff7a00, #ffa033);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 6px;
-    border-radius: 4px;
-    z-index: 2;
-}
-
-// 右上角心形图标
-// 右上角心形图标
-.heartIcon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 28px;
-    height: 28px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.9);
-    z-index: 2;
-    cursor: pointer; // 🌟 加上小手光标
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); // 🌟 加上平滑动画
-
-    // 🌟 鼠标点按下去时的缩放效果
-    &:active {
-        transform: scale(0.85);
-    }
-
-    svg {
-        width: 14px;
-        height: 14px;
-        transition: fill 0.2s ease;
-    }
-
-    // 🌟 核心：被收藏时的样式，变成红色
-    &.favorited {
-        color: #ff4d4f; // 红色
-        background: rgba(255, 255, 255, 0.9); // 收藏后背景变成白色，更醒目
-    }
-}
-
-.infoContainer {
     padding: 12px;
+    gap: 12px;
+    background-color: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+// 左侧图片容器
+.imageWrapper {
+    width: 110px; // 加宽，接近携程的竖图比例
+    height: 154px; // 加高，容纳右边更丰富的信息
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+
+    .coverImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+// 右侧信息容器
+.infoWrapper {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    background: #fff;
-
-    // 🌟 改动 3：确保内容区域不拉伸
-    // flex-grow: 0; 让它只占用内容本身需要的高度，保持紧凑。
-    flex-grow: 0;
-    flex-shrink: 0; // 也不许压缩
+    min-width: 0;
 }
 
-// --- 以下为内容区域的样式 (保持不变) ---
-
-.locationRow {
+.topSection {
     display: flex;
-    align-items: center;
-    margin-bottom: 6px;
+    flex-direction: column;
 }
 
-.pinIcon {
-    width: 12px;
-    height: 12px;
-    color: #ff4d4f;
-    margin-right: 4px;
-    flex-shrink: 0;
-}
-
-.address {
-    font-size: 12px;
-    color: #666;
-    // 原生CSS省略
+.title {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.title {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    line-height: 1.4;
-    // 原生CSS省略
+.diamondRow {
+    color: #FFB800; // 携程的黄钻色
+    font-size: 10px;
+    margin-bottom: 4px;
+    display: flex;
+    gap: 2px;
+}
+
+.scoreRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+
+    .scoreBox {
+        background-color: #0066FF; // 携程蓝
+        color: #fff;
+        font-size: 13px;
+        font-weight: bold;
+        padding: 0 4px;
+        border-radius: 4px;
+        border-bottom-left-radius: 0; // 模仿携程特殊的小圆角样式
+    }
+
+    .scoreText {
+        color: #0066FF;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .reviewCount {
+        color: #666;
+        font-size: 12px;
+    }
+}
+
+.address {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.featureText {
+    font-size: 12px;
+    color: #0066FF;
+    margin-bottom: 6px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -140,74 +103,78 @@
 .tagsRow {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: 4px;
+    margin-bottom: 4px;
+
+    .timeTag {
+        font-size: 11px;
+        color: #0066FF;
+        border: 1px solid rgba(0, 102, 255, 0.3); // 蓝色边框的时段标签
+        border-radius: 2px;
+        padding: 0 4px;
+        line-height: 16px;
+    }
+
+    .tag {
+        font-size: 11px;
+        color: #666;
+        background-color: #f5f5f5;
+        border-radius: 2px;
+        padding: 0 4px;
+        line-height: 18px;
+    }
 }
 
-.timeSlotBadge {
-    font-size: 10px;
-    color: #0066ff;
-    background-color: #e6f0ff;
-    border: 1px solid rgba(0, 102, 255, 0.2);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 500;
-}
-
-.tag {
-    font-size: 10px;
-    color: #666;
-    background-color: #f5f5f5;
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.priceRow {
+// 底部容器：把评价推到左下角，时长和价格推到右下角
+.bottomSection {
     display: flex;
-    align-items: flex-end;
     justify-content: space-between;
-    margin-top: 4px; // 内容紧凑，不需要 auto
+    align-items: flex-end;
+    margin-top: auto;
+}
+
+.guestReview {
+    font-size: 11px;
+    color: #FF8C00; // 橙色评价文字
 }
 
 .priceContainer {
     display: flex;
-    align-items: baseline;
-    color: #ff6b00;
-    line-height: 1;
+    flex-direction: column;
+    align-items: flex-end; // 右对齐
 }
 
-.currency {
-    font-size: 14px;
-    font-weight: 600;
-    margin-right: 2px;
-}
-
-.price {
-    font-size: 22px;
-    font-weight: 700;
-    font-family: DINAlternate-Bold, sans-serif;
-}
-
-.unit {
+.duration {
     font-size: 12px;
-    color: #999;
-    margin-left: 4px;
+    color: #666;
+    margin-bottom: -2px;
 }
 
-.scoreRow {
+.priceRow {
     display: flex;
     align-items: baseline;
-}
+    color: #0066FF; // 携程钟点房的特有蓝色价格
 
-.score {
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffb000;
-    margin-right: 4px;
-    font-family: DINAlternate-Bold, sans-serif;
-}
+    .originalPrice {
+        font-size: 11px;
+        color: #999;
+        text-decoration: line-through;
+        margin-right: 4px;
+    }
 
-.commentText {
-    font-size: 12px;
-    color: #999;
+    .currentPrice {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .currency {
+        font-size: 12px;
+        font-weight: bold;
+        margin-right: 1px;
+    }
+
+    .priceSuffix {
+        font-size: 11px;
+        margin-left: 2px;
+    }
 }

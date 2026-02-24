@@ -47,8 +47,8 @@ const BookingBar: React.FC<BookingBarProps> = ({ data, onBook, onContactHost, on
     <>
       <div className={styles.bookingBar}>
         {/* 左侧：房东头像按钮 */}
-        <button 
-          className={styles.hostButton} 
+        <button
+          className={styles.hostButton}
           onClick={handleContactHost}
           title={`联系房东 - ${hostName}`}
         >
@@ -92,10 +92,7 @@ const BookingBar: React.FC<BookingBarProps> = ({ data, onBook, onContactHost, on
         showBackButton={false}
         showHeader={false}
       >
-        <DateRangeCalendar
-          onSelect={handleDateChange}
-          onClose={() => setShowCalendar(false)}
-        />
+        <DateRangeCalendar onSelect={handleDateChange} onClose={() => setShowCalendar(false)} />
       </SlideDrawer>
     </>
   )

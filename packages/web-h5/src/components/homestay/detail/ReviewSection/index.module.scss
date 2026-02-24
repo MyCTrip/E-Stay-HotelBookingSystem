@@ -1,23 +1,6 @@
 /* 用户评价区样式 */
 
-.section {
-  padding: 24px 16px;
-  background-color: #fff;
-  margin: 8px 0;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
-}
-
-.title {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-}
-
-/* 评分概览 */
+/* 不需要 wrapper 样式 - PropertyCardContainer 自己处理所有宽度和间距 */
 .scoreOverview {
   display: flex;
   gap: 24px;
@@ -168,8 +151,8 @@
 }
 
 @media (max-width: 768px) {
-  .section {
-    padding: 16px 12px;
+  .sectionWrapper {
+    margin: 8px 12px;
   }
 
   .scoreOverview {

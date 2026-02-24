@@ -1,137 +1,78 @@
 /**
  * 民宿详情页 - 主容器
- * 使用DetailLayout组件实现三层固定结构
+ * 集成 Zustand Store 管理详情数据
  */
 
-import React, { useRef, useState, useCallback } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import type { HomeStay } from '@estay/shared'
+import dayjs from 'dayjs'
+import { useHomestayStore, NEARBY_ROOMS } from '@estay/shared'
 import DetailLayout, { type DetailTabKey } from '../../../layouts/DetailLayout'
 import DetailTabs from '../../../components/homestay/detail/DetailTabs'
 import ImageCarousel from '../../../components/homestay/detail/ImageCarousel'
 import HotelInfo from '../../../components/homestay/detail/HotelInfo'
 import DatePicker from '../../../components/homestay/detail/DatePicker'
 import RoomSelection from '../../../components/homestay/detail/RoomSelection'
-import RoomFeatures from '../../../components/homestay/detail/RoomFeatures'
 import ReviewSection from '../../../components/homestay/detail/ReviewSection'
 import FacilitiesSection from '../../../components/homestay/detail/FacilitiesSection'
 import PolicySection from '../../../components/homestay/detail/PolicySection'
+import FeeNoticeSection from '../../../components/homestay/detail/FeeNoticeSection'
 import NearbyRecommendations from '../../../components/homestay/detail/NearbyRecommendations'
 import HostInfo from '../../../components/homestay/detail/HostInfo'
 import BookingBar from '../../../components/homestay/detail/BookingBar'
 import PropertyCardContainer from '../../../components/homestay/detail/PropertyCardContainer'
+import RecommendCard from '../../../components/homestay/home/RecommendCard'
+import type { HomeStay } from '@estay/shared'
 import styles from './index.module.scss'
 
-// 模拟数据 - 实际应从API获取
-const mockHomeStayData: any = {
-  _id: '123',
+interface HomeStayData {
+  _id: string
   baseInfo: {
-    nameCn: '蓬笙·榕奕美宿',
-    address: '上海市黄浦区中福城三期北楼',
-    star: 4.9,
-    reviewCount: 90,
-    price: 1280,
-  },
-  images: [
-    '/img/OIP.jpg',
-    '/img/OIP (1).jpg',
-    '/img/OIP (2).jpg',
-    '/img/OIP (3).jpg',
-    '/img/OIP (4).jpg',
-    '/img/OIP (5).jpg',
-    '/img/OIP (6).jpg',
-    '/img/OIP (7).jpg',
-    '/img/OIP (8).jpg',
-    '/img/OIP (9).jpg',
-    '/img/OIP (10).jpg',
-    '/img/OIP (11).jpg',
-    '/img/OIP (12).jpg',
-  ],
-  price: 1280,
-  location: '上海市黄浦区中福城三期北楼',
+    nameCn: string
+    address: string
+    star: number
+    reviewCount: number
+    price: number
+  }
+  images: string[]
+  price: number
+  location: string
   host: {
-    name: '逸可民宿',
-    avatar: 'https://picsum.photos/40/40?random=host',
-  },
+    name: string
+    avatar: string
+  }
 }
 
-// 同房东附近的其他房源列表（作为 Room 类型）
-const mockNearbyProperties = [
-  {
-    id: 'nearby1',
-    name: '精选人气民宿套房1',
-    area: '120㎡',
-    beds: '4床',
-    guests: '8人',
-    image: 'https://picsum.photos/240/320?random=room2',
-    price: 899,
-    priceNote: '含税',
-    benefits: ['免费WiFi', '免费停车'],
-    packageCount: 2,
-    showBreakfastTag: true,
-    breakfastCount: 1,
-    showCancelTag: true,
-  },
-  {
-    id: 'nearby2',
-    name: '精选人气民宿套房2',
-    area: '150㎡',
-    beds: '5床',
-    guests: '10人',
-    image: 'https://picsum.photos/240/320?random=room3',
-    price: 1099,
-    priceNote: '含税',
-    benefits: ['免费WiFi', '免费停车', '免费早餐'],
-    packageCount: 2,
-    showBreakfastTag: true,
-    breakfastCount: 2,
-    showCancelTag: true,
-  },
-  {
-    id: 'nearby3',
-    name: '精选人气民宿套房3',
-    area: '180㎡',
-    beds: '5床',
-    guests: '11人',
-    image: 'https://picsum.photos/240/320?random=room4',
-    price: 1299,
-    priceNote: '含税',
-    benefits: ['免费WiFi', '免费停车'],
-    packageCount: 3,
-    showBreakfastTag: true,
-    breakfastCount: 0,
-    showCancelTag: false,
-  },
-  {
-    id: 'nearby4',
-    name: '精选人气民宿套房4',
-    area: '200㎡',
-    beds: '6床',
-    guests: '12人',
-    image: 'https://picsum.photos/240/320?random=room5',
-    price: 1499,
-    priceNote: '含税',
-    benefits: ['免费WiFi', '免费停车', '免费早餐'],
-    packageCount: 3,
-    showBreakfastTag: true,
-    breakfastCount: 3,
-    showCancelTag: true,
-  },
-]
-
-interface DetailPageProps {
-  initialData?: any
+interface PageContentProps {
+  registerSentinel?: (key: DetailTabKey, sentinelEl: HTMLDivElement) => void
+  expandNearbyProperties: boolean
+  onExpandNearbyProperties: (expand: boolean) => void
+  initialData: HomeStayData
+  checkInDate: string
+  checkOutDate: string
+  deadlineTime: number
+  onDateChange: (checkIn: string, checkOut: string) => void
+  recommendedHomestays: HomeStay[]
+  currentRooms: any[]
 }
 
-const DetailPage: React.FC<DetailPageProps> = ({ initialData = mockHomeStayData }) => {
-  // 状态
-  const [activeTab, setActiveTab] = useState<DetailTabKey>('overview')
-  const [expandNearbyProperties, setExpandNearbyProperties] = useState(false)
-  const [checkInDate, setCheckInDate] = useState<string>('')
-  const [checkOutDate, setCheckOutDate] = useState<string>('')
-
-  // 各区域的ref用于滚动联动
-  const sectionRefs: Record<DetailTabKey, React.RefObject<HTMLDivElement>> = {
+/**
+ * 页面内容组件 - 接收registerSentinel来注册各区域的哨兵
+ */
+const PageContent: React.FC<PageContentProps> = ({
+  registerSentinel,
+  expandNearbyProperties,
+  onExpandNearbyProperties,
+  initialData,
+  checkInDate,
+  checkOutDate,
+  deadlineTime,
+  onDateChange,
+  recommendedHomestays,
+  currentRooms,
+}) => {
+  // 为每个 section 创建哨兵 ref
+  const sentinelRefs: Record<DetailTabKey, React.RefObject<HTMLDivElement>> = {
     overview: useRef<HTMLDivElement>(null),
     rooms: useRef<HTMLDivElement>(null),
     reviews: useRef<HTMLDivElement>(null),
@@ -142,9 +83,196 @@ const DetailPage: React.FC<DetailPageProps> = ({ initialData = mockHomeStayData 
     host: useRef<HTMLDivElement>(null),
   }
 
+  // 选中的房间名称状态
+  const [selectedRoomName, setSelectedRoomName] = useState<string>('市景五室二厅套房')
+
+  /**
+   * 组件挂载时注册所有哨兵
+   */
+  useEffect(() => {
+    if (registerSentinel) {
+      Object.entries(sentinelRefs).forEach(([key, ref]) => {
+        if (ref.current) {
+          registerSentinel(key as DetailTabKey, ref.current)
+        }
+      })
+    }
+  }, [registerSentinel])
+
+  return (
+    <>
+      {/* 图片轮播 - 在overview外 */}
+      <ImageCarousel images={initialData.images} />
+
+      {/* 酒店信息 - 覆盖在轮播上 */}
+      <HotelInfo data={initialData} />
+
+      {/* 1. 概览区 - 基本信息 */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.overview} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <div style={{ height: '76px' }} />
+      </div>
+
+      {/* 2. 房源区 - 分两块：当前房源 + 同房东附近房源 */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.rooms} style={{ height: 0 }} />
+      <div className={`${styles.roomsSection} ${styles.sectionGap}`}>
+        {/* Block 1: 当前房源 - 只显示1个房间 */}
+        <PropertyCardContainer showLabel={false} showExpandBtn={false}>
+          <DatePicker onDateChange={onDateChange} />
+          <RoomSelection 
+            data={initialData} 
+            displayCount={1}
+            onSelectRoom={(room) => setSelectedRoomName(room.name)}
+            checkIn={checkInDate}
+            checkOut={checkOutDate}
+          />
+        </PropertyCardContainer>
+
+        {/* Block 2: 同房东附近其他房源 - 初始显示2个，展开显示全部 */}
+        <PropertyCardContainer
+          showLabel={true}
+          labelText="同房东附近其他房源"
+          tooltipText="推荐同房东的其他房源，高性价比选择"
+          showExpandBtn={true}
+          expandBtnText="展开查看全部房源"
+          isExpanded={expandNearbyProperties}
+          onExpandToggle={() => onExpandNearbyProperties(!expandNearbyProperties)}
+        >
+          <RoomSelection
+            data={initialData}
+            rooms={NEARBY_ROOMS}
+            displayCount={expandNearbyProperties ? NEARBY_ROOMS.length : 2}
+            checkIn={checkInDate}
+            checkOut={checkOutDate}
+          />
+        </PropertyCardContainer>
+      </div>
+
+      {/* 3. 点评区 */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.reviews} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <ReviewSection hostelId={initialData._id} roomName={selectedRoomName} />
+      </div>
+
+      {/* 4. 设施区 */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.facilities} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <FacilitiesSection data={initialData} roomName={selectedRoomName} />
+      </div>
+
+      {/* 5. 须知区（政策） */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.policies} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <PolicySection
+          data={initialData}
+          checkInDate={checkInDate}
+          checkInTime="14:00"
+          deadlineTime={deadlineTime}          roomName={selectedRoomName}        />
+      </div>
+
+      {/* 6. 费用须知区 */}
+      <div className={styles.sectionGap}>
+        <FeeNoticeSection
+          deposit={500}
+          standardGuests={2}
+          joinNumber={2}
+          joinPrice={100}
+          otherDescription="房东要求请保持房间整洁，不可在房间内吸烟，宠物需提前沟通。"
+          showOther={true}          roomName={selectedRoomName}        />
+      </div>
+
+      {/* 7. 房东区 */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.host} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <HostInfo data={initialData} />
+      </div>
+      {/* 7. 周边区（知识内容） */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.knowledge} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <NearbyRecommendations location={initialData.location || '上海'} />
+      </div>
+      {/* 8. 附近区（推荐） */}
+      {/* 哨兵 */}
+      <div ref={sentinelRefs.nearby} style={{ height: 0 }} />
+      <div className={styles.sectionGap}>
+        <div style={{ padding: '16px' }}>
+          <h3 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600' }}>周边相似房屋</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {recommendedHomestays.length > 0 ? (
+              recommendedHomestays.map((homestay) => (
+                <div key={homestay._id}>
+                  <RecommendCard homestay={homestay} />
+                </div>
+              ))
+            ) : (
+              <p>暂无推荐房屋</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 底部间隔 */}
+      <div style={{ height: '60px' }} />
+    </>
+  )
+}
+
+const DetailPage: React.FC = () => {
+  // 获取 URL 参数
+  const { id } = useParams<{ id: string }>()
+  
+  // 获取 Store 状态和 Action
+  const {
+    currentHomestay,
+    detailContext,
+    updateDetailContext,
+    detailLoading,
+    recommendedHomestays,
+    loadRecommendedHomestays,
+    fetchHomestayDetail,
+  } = useHomestayStore()
+
+  // 本地状态
+  const [activeTab, setActiveTab] = useState<DetailTabKey>('overview')
+
+  // 首次加载详情和推荐
+  useEffect(() => {
+    if (id) {
+      fetchHomestayDetail(id)
+      loadRecommendedHomestays()
+    }
+  }, [id, fetchHomestayDetail, loadRecommendedHomestays])
+
+  // 转换 currentHomestay 为 HomeStayData 格式
+  const homeStayData: HomeStayData | null = currentHomestay
+    ? {
+        _id: currentHomestay._id,
+        baseInfo: {
+          nameCn: currentHomestay.baseInfo.nameCn,
+          address: currentHomestay.baseInfo.address,
+          star: currentHomestay.baseInfo.star,
+          reviewCount: 90, // 使用默认值
+          price: currentHomestay.rooms?.[0]?.baseInfo?.price || 0,
+        },
+        images: currentHomestay.images || [],
+        price: currentHomestay.rooms?.[0]?.baseInfo?.price || 0,
+        location: currentHomestay.baseInfo.city,
+        host: {
+          name: currentHomestay.typeConfig?.hostName || '房东',
+          avatar: 'https://picsum.photos/40/40?random=host',
+        },
+      }
+    : null
+
   // 处理预订按钮点击
   const handleBook = () => {
-    // 滚动到房型选择区
     console.log('Book clicked')
   }
 
@@ -156,9 +284,10 @@ const DetailPage: React.FC<DetailPageProps> = ({ initialData = mockHomeStayData 
 
   // 处理日期变更
   const handleDateChange = (checkIn: string, checkOut: string) => {
-    setCheckInDate(checkIn)
-    setCheckOutDate(checkOut)
-    console.log('Date changed:', checkIn, checkOut)
+    updateDetailContext({
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
+    })
   }
 
   // 处理返回
@@ -177,94 +306,17 @@ const DetailPage: React.FC<DetailPageProps> = ({ initialData = mockHomeStayData 
     console.log('Collection toggled')
   }
 
-  // 页面内容结构
-  const pageContent = (
-    <>
-      {/* 图片轮播 - 在overview外 */}
-      <ImageCarousel images={initialData.images} />
-      
-      {/* 酒店信息 - 覆盖在轮播上 */}
-      <HotelInfo data={initialData} />
-      
-      {/* 1. 概览区 - 基本信息 */}
-      <div ref={sectionRefs.overview} className={styles.sectionGap}>
-        <div style={{ height: '60px' }} />
+  if (detailLoading || !homeStayData) {
+    return (
+      <div className={styles.container}>
+        <div style={{ padding: '20px', textAlign: 'center' }}>加载中...</div>
       </div>
-
-      {/* 2. 房源区 - 分两块：当前房源 + 同房东附近房源 */}
-      <div ref={sectionRefs.rooms} className={`${styles.roomsSection} ${styles.sectionGap}`}>
-        {/* Block 1: 当前房源 - 只显示1个房间 */}
-        <PropertyCardContainer showLabel={false} showExpandBtn={false}>
-          <DatePicker onDateChange={handleDateChange} />
-          <RoomSelection data={initialData} displayCount={1} />
-        </PropertyCardContainer>
-
-        {/* Block 2: 同房东附近其他房源 - 初始显示2个，展开显示全部 */}
-        <div className={styles.nearbyPropertiesSection}>
-          <PropertyCardContainer
-            showLabel={true}
-            labelText="同房东附近其他房源"
-            tooltipText="推荐同房东的其他房源，高性价比选择"
-            showExpandBtn={true}
-            expandBtnText="展开查看全部房源"
-            isExpanded={expandNearbyProperties}
-            onExpandToggle={() => setExpandNearbyProperties(!expandNearbyProperties)}
-          >
-            <RoomSelection 
-              data={initialData}
-              rooms={mockNearbyProperties}
-              displayCount={expandNearbyProperties ? mockNearbyProperties.length : 2}
-            />
-          </PropertyCardContainer>
-        </div>
-      </div>
-      {/* 3. 点评区 */}
-      <div ref={sectionRefs.reviews} className={styles.sectionGap}>
-        <ReviewSection hostelId={initialData._id} />
-      </div>
-
-      {/* 4. 设施区 */}
-      <div ref={sectionRefs.facilities} className={styles.sectionGap}>
-        <FacilitiesSection data={initialData} />
-      </div>
-
-      {/* 5. 须知区（政策） */}
-      <div ref={sectionRefs.policies} className={styles.sectionGap}>
-        <PolicySection 
-          data={initialData}
-          checkInDate={checkInDate}
-          checkInTime="14:00"
-          deadlinetime={24}
-        />
-      </div>
-
-      {/* 6. 周边区（知识内容） */}
-      <div ref={sectionRefs.knowledge} className={styles.sectionGap}>
-        {/* 预留位置：周边信息、攻略等 */}
-        <div style={{ padding: '16px', color: '#999' }}>
-          <h3>周边信息</h3>
-          <p>内容待完善...</p>
-        </div>
-      </div>
-
-      {/* 7. 附近区（推荐） */}
-      <div ref={sectionRefs.nearby} className={styles.sectionGap}>
-        <NearbyRecommendations location={initialData.location || '上海'} />
-      </div>
-
-      {/* 8. 房东区 */}
-      <div ref={sectionRefs.host} className={styles.sectionGap}>
-        <HostInfo data={initialData} />
-      </div>
-
-      {/* 底部间隔 */}
-      <div style={{ height: '20px' }} />
-    </>
-  )
+    )
+  }
 
   return (
     <DetailLayout
-      data={initialData}
+      data={homeStayData}
       activeTab={activeTab}
       onTabChange={setActiveTab}
       onContactHost={handleContactHost}
@@ -274,14 +326,26 @@ const DetailPage: React.FC<DetailPageProps> = ({ initialData = mockHomeStayData 
       tabs={<DetailTabs />}
       footer={
         <BookingBar
-          data={initialData}
+          data={homeStayData}
           onBook={handleBook}
           onContactHost={handleContactHost}
           onDateChange={handleDateChange}
         />
       }
     >
-      {pageContent}
+      <PageContent
+        expandNearbyProperties={detailContext.expandNearbyProperties}
+        onExpandNearbyProperties={(expand) =>
+          updateDetailContext({ expandNearbyProperties: expand })
+        }
+        initialData={homeStayData}
+        checkInDate={detailContext.checkInDate}
+        checkOutDate={detailContext.checkOutDate}
+        deadlineTime={detailContext.deadlineTime}
+        onDateChange={handleDateChange}
+        recommendedHomestays={recommendedHomestays}
+        currentRooms={currentHomestay?.rooms || []}
+      />
     </DetailLayout>
   )
 }

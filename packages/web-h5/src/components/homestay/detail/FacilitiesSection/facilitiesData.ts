@@ -99,15 +99,11 @@ export const facilitiesData: FacilityCategory[] = [
   },
   {
     name: '娱乐',
-    items: [
-      { name: '投影设备', has: true },
-    ],
+    items: [{ name: '投影设备', has: true }],
   },
   {
     name: '休闲',
-    items: [
-      { name: '独立客厅', has: true },
-    ],
+    items: [{ name: '独立客厅', has: true }],
   },
   {
     name: '儿童',

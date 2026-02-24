@@ -24,7 +24,7 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'luggage_storage', name: '行李寄存', available: true },
       { id: 'front_desk', name: '前台接待', available: true },
       { id: 'concierge', name: '管家式服务', available: false },
-    ]
+    ],
   },
   {
     id: 'basic',
@@ -47,7 +47,7 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'dryer', name: '烘干机', available: false },
       { id: 'iron', name: '电熨斗', available: true },
       { id: 'water', name: '免费瓶装水', available: true },
-    ]
+    ],
   },
   {
     id: 'bathroom',
@@ -62,7 +62,7 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'bath_towel', name: '浴巾', available: true },
       { id: 'towel', name: '毛巾', available: true },
       { id: 'smart_toilet', name: '智能马桶', available: false },
-    ]
+    ],
   },
   {
     id: 'kitchen',
@@ -78,7 +78,7 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'rice_cooker', name: '电饭煲', available: false },
       { id: 'oven', name: '烤箱', available: false },
       { id: 'dining_table', name: '餐桌', available: true },
-    ]
+    ],
   },
   {
     id: 'nearby',
@@ -92,7 +92,7 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'market', name: '菜市场', available: true },
       { id: 'atm', name: '提款机', available: true },
       { id: 'playground', name: '儿童乐园', available: false },
-    ]
+    ],
   },
   {
     id: 'safety',
@@ -103,21 +103,17 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'security', name: '保安', available: false },
       { id: 'fire_alarm', name: '火灾警报器', available: true },
       { id: 'extinguisher', name: '灭火器', available: true },
-    ]
+    ],
   },
   {
     id: 'entertainment',
     name: '娱乐',
-    facilities: [
-      { id: 'projector', name: '投影设备', available: false },
-    ]
+    facilities: [{ id: 'projector', name: '投影设备', available: false }],
   },
   {
     id: 'leisure',
     name: '休闲',
-    facilities: [
-      { id: 'living_room', name: '独立客厅', available: true },
-    ]
+    facilities: [{ id: 'living_room', name: '独立客厅', available: true }],
   },
   {
     id: 'children',
@@ -126,19 +122,19 @@ export const FACILITY_CATEGORIES: FacilityCategory[] = [
       { id: 'toys', name: '儿童玩具', available: false },
       { id: 'high_chair', name: '儿童餐椅', available: false },
       { id: 'baby_tub', name: '婴儿浴盆', available: false },
-    ]
+    ],
   },
 ]
 
 // 获取指定分类的设施
 export const getFacilitiesByCategory = (categoryId: string): Facility[] => {
-  const category = FACILITY_CATEGORIES.find(c => c.id === categoryId)
+  const category = FACILITY_CATEGORIES.find((c) => c.id === categoryId)
   return category?.facilities || []
 }
 
 // 获取特定分类中有的设施
 export const getAvailableFacilitiesByCategory = (categoryId: string): Facility[] => {
-  return getFacilitiesByCategory(categoryId).filter(f => f.available)
+  return getFacilitiesByCategory(categoryId).filter((f) => f.available)
 }
 
 // 获取FacilitiesSection需要显示的设施（优先显示有的，最多两行6个）

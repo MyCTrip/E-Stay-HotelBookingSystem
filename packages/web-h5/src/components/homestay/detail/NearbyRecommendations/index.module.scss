@@ -1,47 +1,20 @@
 /* 位置周边区域样式 */
 
+/* wrapper 样式 - PropertyCardContainer 处理所有宽度和间距 */
+
 .section {
-  padding: 16px;
-  background-color: #fff;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
-  border-radius: 12px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  .title {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .mapLink {
-    font-size: 13px;
-    color: #1677ff;
-    text-decoration: none;
-
-    &:active {
-      color: #0d47a1;
-    }
-  }
+  padding: 0;
+  margin-bottom: 0;
 }
 
 /* 地址块 */
 .addressBlock {
-  margin-bottom: 16px;
-  padding-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #f0f0f0;
 
   .addressItem {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -51,10 +24,39 @@
       color: #999;
     }
 
-    .address {
-      font-size: 14px;
-      color: #333;
-      line-height: 1.4;
+    .addressWithCopy {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      .address {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.4;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .copyBtn {
+        padding: 4px 12px;
+        font-size: 12px;
+        color: #999;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &:active {
+          background: #f5f5f5;
+          color: #666;
+        }
+      }
     }
   }
 
@@ -65,25 +67,38 @@
     line-height: 1.4;
   }
 
-  .detailsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
+  /* 地址详情卡片 */
+  .detailCard {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
 
-    .detailItem {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .cardTitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 12px 0;
+    }
 
-      .label {
-        font-size: 11px;
-        color: #999;
-      }
+    .detailsGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
 
-      .value {
-        font-size: 13px;
-        color: #666;
+      .detailItem {
+        display: flex;
+        gap: 4px;
+
+        .label {
+          font-size: 14px;
+          color: #999;
+        }
+
+        .value {
+          font-size: 14px;
+          color: #666;
+        }
       }
     }
   }
@@ -105,96 +120,129 @@
   }
 }
 
-/* 分类段落 */
-.transportSection,
-.attractionsSection,
-.foodSection {
+/* Tab切换Section */
+.tabSection {
   margin-bottom: 16px;
 
-  &:last-child {
-    margin-bottom: 0;
+  .tabButtons {
+    display: flex;
+    margin-bottom: 12px;
+
+    .tabBtn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 13px;
+      color: #999;
+      background: transparent;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:active {
+        color: #333;
+        border-color: #999;
+      }
+
+      &.active {
+        color: #fff;
+        background: #0088ff;
+        border-color: #0088ff;
+      }
+    }
+  }
+
+  .tabContent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .contentItem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 6px;
+
+      .itemName {
+        font-size: 14px;
+        color: #333;
+        flex: 1;
+      }
+
+      .itemDistance {
+        font-size: 12px;
+        color: #999;
+        flex-shrink: 0;
+      }
+    }
   }
 }
 
-.sectionTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 12px 0;
+/* 底部Tip */
+.tipSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0;
+  font-size: 12px;
+  color: #999;
+
+  .tipText {
+    color: #999;
+  }
 }
 
-.itemList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* 复制成功Toast */
+.copyToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeInOut 2.4s ease-in-out;
+}
 
-  .listItem {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 6px;
-
-    .icon {
-      font-size: 24px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
-    .itemInfo {
-      flex: 1;
-      min-width: 0;
-
-      .itemName {
-        margin: 0 0 4px 0;
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-      }
-
-      .meta {
-        font-size: 12px;
-        color: #999;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-
-        .distance {
-          color: #666;
-        }
-
-        .separator {
-          color: #ddd;
-        }
-
-        .rating {
-          color: #ff8800;
-        }
-      }
-    }
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
 @media (max-width: 680px) {
-  .section {
-    padding: 12px;
-  }
-
-  .header {
-    .title {
-      font-size: 16px;
-    }
-
-    .mapLink {
-      font-size: 12px;
-    }
-  }
-
   .addressBlock {
-    .detailsGrid {
-      grid-template-columns: 1fr;
+    .addressItem {
+      .addressWithCopy {
+        align-items: flex-start;
+
+        .copyBtn {
+          align-self: flex-start;
+        }
+      }
+    }
+
+    .detailCard {
+      .detailsGrid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     .mapContainer {
@@ -202,27 +250,29 @@
     }
   }
 
-  .sectionTitle {
-    font-size: 13px;
-  }
+  .tabSection {
+    .tabButtons {
+      gap: 6px;
 
-  .itemList {
-    .listItem {
-      padding: 8px;
-
-      .icon {
-        font-size: 20px;
+      .tabBtn {
+        font-size: 12px;
       }
+    }
 
-      .itemInfo {
-        .itemName {
-          font-size: 13px;
-        }
+    .tabContent {
+      .contentItem {
+        align-items: flex-start;
+        gap: 4px;
 
-        .meta {
+        .itemDistance {
           font-size: 11px;
         }
       }
     }
   }
+
+  .tipSection {
+    font-size: 11px;
+  }
 }
+

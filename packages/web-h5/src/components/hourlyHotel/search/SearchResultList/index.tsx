@@ -142,7 +142,7 @@ const HourlySearchResultList: React.FC<HourlySearchResultListProps> = ({
               </span>
               {/* 点击时只开启 date，关闭其他 */}
               <div className={styles.dateInfo} onClick={() => handleOpenPopup('date')}>
-                <span>{formattedDate}入驻</span>
+                <span>{formattedDate}</span>
                 <span>{filters?.duration || 4}小时</span>
               </div>
             </div>

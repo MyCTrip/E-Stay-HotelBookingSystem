@@ -1,162 +1,258 @@
-.policySection {
-  padding: 16px;
-  border-bottom: 8px solid #f5f5f5;
+/* 预订须知区样式 */
 
-  .sectionTitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 16px 0;
+.section {
+  background-color: #fff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.allPoliciesBtn {
+  padding: 6px 12px;
+  border: none;
+  background-color: transparent;
+  color: #0066ff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.arrow {
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.tipContainer {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.tipText {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionRow {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.sectionTitleWrapper {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.sectionContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.highlight {
+  color: #18a058;
+  font-weight: 700;
+}
+
+.checkInOut {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.label {
+  color: #999;
+  min-width: 40px;
+}
+
+.value {
+  color: #333;
+}
+
+.description {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 表格控件 */
+.tableSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 表格样式 */
+.policyTable {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;
+  overflow: hidden;
+
+  thead {
+    background-color: #f5f5f5;
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
   }
 
-  .cancellationPolicyCard {
-    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
-    border-left: 4px solid #ff6b6b;
-    padding: 12px 16px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-
-    .policyHeader {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-
-      .policyIcon {
-        color: #ff6b6b;
-        font-size: 16px;
+  tbody {
+    tr {
+      &:not(:last-child) {
+        border-bottom: 1px solid #e0e0e0;
       }
 
-      .policyLabel {
+      td {
+        padding: 12px;
         font-size: 13px;
-        font-weight: 600;
-        color: #333;
-      }
-    }
-
-    .policyText {
-      font-size: 12px;
-      color: #666;
-      margin: 0;
-      line-height: 1.5;
-    }
-  }
-
-  .policyContent {
-    .policyItem {
-      margin-bottom: 16px;
-
-      .policyItemHeader {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-
-        .stepIcon {
-          font-size: 20px;
-        }
-
-        .stepTitle {
-          font-size: 13px;
-          font-weight: 600;
-          color: #333;
-        }
-      }
-
-      .policyDescription {
-        font-size: 12px;
         color: #666;
-        margin: 0 0 0 28px;
-        line-height: 1.5;
-      }
-    }
+        border-right: 1px solid #e0e0e0;
 
-    .policyBox {
-      background: #f9f9f9;
-      border-radius: 4px;
-      padding: 12px;
-      margin-bottom: 16px;
-
-      .boxTitle {
-        font-size: 13px;
-        font-weight: 600;
-        color: #333;
-        margin: 0 0 8px 0;
-      }
-
-      .timeRange {
-        margin-bottom: 12px;
-
-        .timeItem {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12px;
-          margin-bottom: 4px;
-
-          .timeLabel {
-            color: #666;
-          }
-
-          .timeValue {
-            color: #333;
-            font-weight: 500;
-          }
-
-          &:last-child {
-            margin-bottom: 0;
-          }
-        }
-      }
-
-      .paymentInfo {
-        padding-top: 8px;
-        border-top: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: space-between;
-
-        .paymentDate {
-          font-size: 12px;
-          color: #333;
-          font-weight: 500;
-        }
-
-        .paymentLabel {
-          font-size: 12px;
-          color: #999;
+        &:last-child {
+          border-right: none;
         }
       }
     }
+  }
+}
 
-    .noticeBox {
-      background: #f0f8ff;
-      border-left: 4px solid #2196f3;
-      padding: 12px;
-      border-radius: 4px;
-      display: flex;
-      gap: 12px;
+.timeCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-      .noticeIcon {
-        font-size: 18px;
-        flex-shrink: 0;
-      }
+.tag {
+  display: block;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 13px;
+  color: #999;
+  width: auto;
+  margin-bottom: 0;
+}
 
-      .noticeContent {
-        flex: 1;
+.feeCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: pre-wrap;
+}
 
-        .noticeTitle {
-          font-size: 12px;
-          font-weight: 600;
-          color: #333;
-          margin: 0 0 4px 0;
-        }
+/* 要求网格 */
+.amenitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  flex: 1;
+}
 
-        .noticeText {
-          font-size: 12px;
-          color: #666;
-          margin: 0;
-          line-height: 1.4;
-        }
-      }
-    }
+.amenityItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.amenityLabel {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 16px 12px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .allPoliciesBtn {
+    white-space: nowrap;
+  }
+
+  .amenitiesGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

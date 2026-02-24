@@ -1,109 +1,191 @@
 .container {
-    margin-bottom: 0px;
+    width: 100%;
 }
 
-// 外部展示块 (原封不动保留你的设计)
+/* 首页触发区域极简样式 */
 .wrapper {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    border-radius: 0px;
-    padding: 0 12px;
+    width: 100%;
     cursor: pointer;
-    transition: all 0.2s ease;
-    gap: 8px;
-
-    &:active {
-        opacity: 0.95;
-        background-color: #f9f9f9;
-        border-color: #e8e8e8;
-    }
+    padding: 4px 0;
 }
 
 .dateSection {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    flex: 1;
-    cursor: pointer;
-    min-height: 40px;
+    align-items: baseline;
+    gap: 8px;
 }
 
 .dateValue {
-    font-size: 17px;
+    font-size: 20px;
+    font-weight: bold;
     color: #333;
-    font-weight: 650;
-    line-height: 1;
-    margin-bottom: 4px;
-    order: 1;
 }
 
 .dateLabel {
-    font-size: 11px;
-    color: #999;
-    line-height: 1;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    order: 0;
-    margin-bottom: 3px;
-    display: block;
+    font-size: 13px;
+    color: #666;
 }
 
-.divider {
-    width: 1px;
-    height: 20px;
-    background-color: #f0f0f0;
-    display: block;
-    margin: 0 4px;
-    flex-shrink: 0;
-}
-
-.rightSection {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-shrink: 0;
-    min-width: 60px;
-}
-
-.nightsInfo {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 4px;
-}
-
-.nightsLabel {
-    font-size: 16px;
-    font-weight: 500;
-    color: #ff6b00; // 钟点房时长用主题色高亮
-    margin-right: 4px;
-}
-
-// ============ 底部弹窗选择器样式 ============
-
+/* 遮罩层 */
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
 }
 
-.pickerModal {
+/* 携程风格日历弹窗底板 */
+.calendarModal {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: #fff;
+    height: 85vh;
+    /* 占满屏幕下方85% */
+    background-color: #ffffff;
     border-radius: 16px 16px 0 0;
-    z-index: 1000;
-    padding-bottom: max(16px, env(safe-area-inset-bottom)); // 适配刘海屏
-    animation: slideUp 0.3s ease-out;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.closeBtn {
+    position: absolute;
+    left: 16px;
+    font-size: 20px;
+    color: #666;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.headerTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+/* 星期表头 */
+.weekHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+    background: #fff;
+
+    span {
+        font-size: 14px;
+        color: #333;
+        width: 14.28%;
+        text-align: center;
+    }
+
+    .weekend {
+        color: #ff1a1a;
+        /* 周末标红 */
+    }
+}
+
+/* 日历滚动区域 */
+.calendarBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.monthBlock {
+    margin-top: 24px;
+}
+
+.monthTitle {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+/* 日期网格 7列 */
+.daysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    row-gap: 16px;
+}
+
+.dayEmpty {
+    height: 54px;
+}
+
+.dayCell {
+    height: 54px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+
+    .dateNum {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+    }
+
+    .checkInOut {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+    /* 过去的时间置灰 */
+    &.disabled {
+        pointer-events: none;
+
+        .dateNum {
+            color: #ccc;
+        }
+    }
+
+    /* 携程同款蓝色选中状态 */
+    &.selected {
+        background-color: #0066FF;
+        color: #ffffff;
+
+        .dateNum {
+            color: #ffffff;
+            font-weight: bold;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes slideUp {
@@ -116,96 +198,23 @@
     }
 }
 
-.pickerHeader {
-    padding: 16px;
+
+.bottomTip {
     text-align: center;
-    border-bottom: 1px solid #f0f0f0;
-
-    h3 {
-        margin: 0;
-        font-size: 16px;
-        color: #333;
-    }
-}
-
-.pickerContainer {
-    padding: 16px;
-}
-
-.pickerRow {
+    font-size: 12px;
+    color: #999;
+    padding: 24px 0 40px;
+    position: relative;
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    justify-content: center;
 
-    label {
-        width: 60px;
-        font-size: 14px;
-        color: #666;
-        font-weight: 500;
+    &::before,
+    &::after {
+        content: '';
+        width: 30px;
+        height: 1px;
+        background-color: #eee;
+        margin: 0 10px;
     }
-}
-
-.optionsGroup {
-    display: flex;
-    gap: 12px;
-    flex: 1;
-}
-
-.optionBtn {
-    flex: 1;
-    padding: 8px 0;
-    border: 1px solid #ddd;
-    background: #fff;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #333;
-    cursor: pointer;
-}
-
-.activeOption {
-    @extend .optionBtn;
-    background: #FFF9E6;
-    border-color: #ff6b00;
-    color: #ff6b00;
-    font-weight: bold;
-}
-
-.timeSelect {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    background: #fff;
-    color: #333;
-    outline: none;
-}
-
-.pickerFooter {
-    display: flex;
-    gap: 12px;
-    padding: 0 16px 16px;
-}
-
-.cancelBtn,
-.confirmBtn {
-    flex: 1;
-    height: 44px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-}
-
-.cancelBtn {
-    background-color: #f5f5f5;
-    color: #666;
-}
-
-.confirmBtn {
-    background-color: #ff6b00;
-    color: #ffffff;
 }

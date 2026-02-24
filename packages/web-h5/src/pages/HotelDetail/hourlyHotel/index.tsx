@@ -180,12 +180,13 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
         <div ref={sectionRefs.facilities}>
           <FacilitiesSection data={initialData} />
         </div>
-        <div ref={sectionRefs.policies}>
-          <PolicySection data={initialData} />
-        </div>
         <div ref={sectionRefs.nearby}>
           <NearbyRecommendations location={initialData.location} />
         </div>
+        <div ref={sectionRefs.policies}>
+          <PolicySection data={initialData} />
+        </div>
+
 
         {/* 底部的留白垫片 */}
         <div className={styles.spacer} />

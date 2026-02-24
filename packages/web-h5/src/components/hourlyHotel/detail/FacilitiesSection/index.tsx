@@ -1,110 +1,68 @@
-/**
- * 设施区模块 - 点击全部设施打开详情抽屉
- */
+import React from 'react';
+import styles from './index.module.scss';
 
-import React, { useState, useRef } from 'react'
-import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay'
-import { CheckIcon, CrossIcon } from '../../../homestay/icons/FacilityIcons'
-import { FACILITY_CATEGORIES } from '../../../../constants/facilities'
-import styles from './index.module.scss'
-
-interface FacilitiesSectionProps {
-  data?: any
-  onOpenFullFacilities?: () => void
-}
-
-const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({
-  data,
-  onOpenFullFacilities,
-}) => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const sectionRef = useRef<HTMLDivElement>(null)
-
-  // 创建虚拟room对象用于显示设施信息
-  const facilitiesRoom = {
-    id: 'facilities',
-    name: '所有设施',
-    area: '',
-    beds: '',
-    guests: '',
-    image: data?.images?.[0] || '',
-    price: 0,
-    priceNote: '',
-    benefits: [],
-    packageCount: 0,
-  }
-
-  const handleOpenAllFacilities = () => {
-    setIsDrawerOpen(true)
-    onOpenFullFacilities?.()
-  }
-
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false)
-  }
-
-  // 只显示服务、基础、卫浴三个类别，并优先显示有的设施，最多两行（6个）
-  const displayCategories = FACILITY_CATEGORIES.filter((c) =>
-    ['service', 'basic', 'bathroom'].includes(c.id)
-  ).map((category) => {
-    const sortedFacilities = [
-      ...category.facilities.filter((f) => f.available),
-      ...category.facilities.filter((f) => !f.available),
-    ]
-    return {
-      ...category,
-      facilities: sortedFacilities.slice(0, 6), // 每个分类最多显示 6 个设施
-    }
-  })
-
+const FacilitiesSection = ({ data }) => {
   return (
-    <>
-      <div className={styles.facilitiesSection} ref={sectionRef}>
-        {/* Header区域 */}
-        <div className={styles.header}>
-          <h3 className={styles.title}>服务/设施</h3>
-          <button className={styles.viewAllBtn} onClick={handleOpenAllFacilities}>
-            全部设施 <span className={styles.arrow}>›</span>
-          </button>
+    <div className={styles.facilitiesWrapper}>
+      <h3 className={styles.sectionTitle}>设施服务</h3>
+
+      {/* 顶部的高分评价金句 */}
+      <div className={styles.highlightReview}>
+        <span className={styles.badge}>设施 4.9 超棒</span>
+        <span>“有健身房，环境舒适服务周到”</span>
+      </div>
+
+      {/* 分类列表 */}
+      <div className={styles.facilityGroup}>
+        <div className={styles.groupHeader}>
+          <span>🚌</span> <h4>交通服务</h4>
         </div>
-
-        {/* Content区域 - 展示服务、基础、卫浴三种类型，优先显示有的设施，最多两行 */}
-        <div className={styles.content}>
-          <div className={styles.facilitiesList}>
-            {displayCategories.map((category) => (
-              <div key={category.id} className={styles.categoryBlock}>
-                {/* 分类名 - 左侧 */}
-                <div className={styles.categoryName}>{category.name}</div>
-
-                {/* 分类设施 - 右侧，一行三个 */}
-                <div className={styles.itemsGrid}>
-                  {category.facilities.map((facility) => (
-                    <div key={facility.id} className={styles.facilityItem}>
-                      {facility.available ? (
-                        <CheckIcon width={18} height={18} color="#43ae4a" />
-                      ) : (
-                        <CrossIcon width={18} height={18} color="#d3d3d3" />
-                      )}
-                      <span className={styles.itemName}>{facility.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className={styles.groupItems}>
+          <div className={styles.item}>班车送机 <span className={styles.free}>免费</span></div>
+          <div className={styles.item}>班车接机 <span className={styles.free}>免费</span></div>
+          <div className={styles.item}>叫车服务</div>
+          <div className={styles.item}>停车场 <span className={styles.free}>免费</span></div>
         </div>
       </div>
 
-      {/* 设施详情抽屉 - 使用RoomDetailDrawer展示 */}
-      <RoomDetailDrawer
-        room={isDrawerOpen ? facilitiesRoom : null}
-        isOpen={isDrawerOpen}
-        onClose={handleCloseDrawer}
-        scrollToFacilities={true}
-        facilitiesExpanded={true}
-      />
-    </>
-  )
-}
+      <div className={styles.facilityGroup}>
+        <div className={styles.groupHeader}>
+          <span>🎠</span> <h4>亲子设施</h4>
+        </div>
+        <div className={styles.groupItems}>
+          <div className={styles.item}>儿童乐园</div>
+          <div className={styles.item}>儿童牙刷</div>
+          <div className={styles.item}>儿童浴袍</div>
+        </div>
+      </div>
 
-export default FacilitiesSection
+      <div className={styles.facilityGroup}>
+        <div className={styles.groupHeader}>
+          <span>🎠</span> <h4>餐饮服务</h4>
+        </div>
+        <div className={styles.groupItems}>
+          <div className={styles.item}>餐厅</div>
+          <div className={styles.item}>大堂吧</div>
+        </div>
+      </div>
+
+      <div className={styles.facilityGroup}>
+        <div className={styles.groupHeader}>
+          <span>🎠</span> <h4>前台服务</h4>
+        </div>
+        <div className={styles.groupItems}>
+          <div className={styles.item}>行李寄存</div>
+          <div className={styles.item}>叫醒服务</div>
+          <div className={styles.item}>礼宾服务</div>
+          <div className={styles.item}>专职行李员</div>
+        </div>
+      </div>
+
+      <div className={styles.viewAllBtn}>
+        查看全部 37 项设施
+      </div>
+    </div>
+  );
+};
+
+export default FacilitiesSection;

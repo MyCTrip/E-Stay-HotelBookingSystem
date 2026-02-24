@@ -7,6 +7,6 @@ interface RoomDrawerFacilitiesProps {
     expandedInitially?: boolean;
     onClose?: () => void;
 }
-declare const RoomDrawerFacilities: React.ForwardRefExoticComponent<RoomDrawerFacilitiesProps & React.RefAttributes<HTMLDivElement>>;
+declare const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps>;
 export default RoomDrawerFacilities;
 //# sourceMappingURL=index.d.ts.map

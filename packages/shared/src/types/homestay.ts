@@ -41,7 +41,6 @@ export interface Facility {
   items?: FacilityItem[]
   order?: number
   visible?: boolean
-  
 }
 
 /**

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom' // 🌟 1. 新增：引入 createPortal
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import styles from './index.module.scss'
@@ -9,18 +10,10 @@ interface DateDurationSelectorProps {
     date?: Date
     duration?: number
     onChange?: (date: Date, duration: number) => void
-    // 🌟 新增：为了在 SearchResult 页面作为纯弹窗受控使用
     visible?: boolean
     onClose?: () => void
-    isPopupOnly?: boolean // 为 true 时，不渲染首页的那个展示块，只渲染弹窗
+    isPopupOnly?: boolean
 }
-
-const DURATION_OPTIONS = [
-    { label: '3小时', value: 3 },
-    { label: '4小时', value: 4 },
-    { label: '6小时', value: 6 },
-    { label: '8小时', value: 8 },
-]
 
 const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
     date,
@@ -31,16 +24,13 @@ const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
     isPopupOnly = false,
 }) => {
     const [tempDate, setTempDate] = useState<Date>(date || dayjs().toDate())
-    const [tempDuration, setTempDuration] = useState<number>(duration)
     const [showPicker, setShowPicker] = useState(false)
 
-    // 🌟 每次弹窗打开时，重置为外部传入的最新状态
     useEffect(() => {
         if (visible || showPicker) {
             setTempDate(date || dayjs().toDate())
-            setTempDuration(duration || 4)
         }
-    }, [visible, showPicker, date, duration])
+    }, [visible, showPicker, date])
 
     const formatDateLabel = (d: Date): string => dayjs(d).format('M月D日')
 
@@ -51,8 +41,8 @@ const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
         const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
         const weekday = days[targetDate.day()]
 
-        if (targetDate.isSame(today, 'day')) return `${weekday} 今天`
-        if (targetDate.isSame(tomorrow, 'day')) return `${weekday} 明天`
+        if (targetDate.isSame(today, 'day')) return `今天`
+        if (targetDate.isSame(tomorrow, 'day')) return `明天`
         return weekday
     }
 
@@ -61,77 +51,103 @@ const DateDurationSelector: React.FC<DateDurationSelectorProps> = ({
         onClose?.()
     }
 
-    const handleConfirm = () => {
-        onChange?.(tempDate, tempDuration)
+    // 选中日期后自动关闭并保存
+    const handleDateSelect = (selectedDate: Date) => {
+        setTempDate(selectedDate)
+        onChange?.(selectedDate, duration)
         handleClose()
     }
 
     const isModalVisible = showPicker || visible
-    const todayStr = dayjs().format('YYYY-MM-DD')
+
+    // 渲染单个月份的日历网格
+    const renderMonthCalendar = (monthOffset: number) => {
+        const targetMonth = dayjs().add(monthOffset, 'month')
+        const year = targetMonth.year()
+        const month = targetMonth.month()
+        const daysInMonth = targetMonth.daysInMonth()
+        const firstDayOfWeek = targetMonth.startOf('month').day() // 0(日) - 6(六)
+
+        // 填充空白天数
+        const blanks = Array.from({ length: firstDayOfWeek }).map((_, i) => (
+            <div key={`blank-${i}`} className={styles.dayEmpty} />
+        ))
+
+        // 填充真实天数
+        const days = Array.from({ length: daysInMonth }).map((_, i) => {
+            const dateNum = i + 1
+            const currentDate = dayjs(new Date(year, month, dateNum))
+            const isPast = currentDate.isBefore(dayjs(), 'day')
+            const isSelected = currentDate.isSame(tempDate, 'day')
+            const isToday = currentDate.isSame(dayjs(), 'day')
+
+            return (
+                <div
+                    key={dateNum}
+                    className={`${styles.dayCell} ${isPast ? styles.disabled : ''} ${isSelected ? styles.selected : ''}`}
+                    onClick={() => !isPast && handleDateSelect(currentDate.toDate())}
+                >
+                    <span className={styles.dateNum}>
+                        {isToday && !isSelected ? '今天' : dateNum}
+                    </span>
+                    {/* 选中时的 "住/离" 标识 */}
+                    {isSelected && <span className={styles.checkInOut}>住/离</span>}
+                </div>
+            )
+        })
+
+        return (
+            <div className={styles.monthBlock} key={`${year}-${month}`}>
+                <div className={styles.monthTitle}>{year}年{month + 1}月</div>
+                <div className={styles.daysGrid}>
+                    {blanks}
+                    {days}
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className={isPopupOnly ? '' : styles.container}>
-            {/* 🌟 如果不是纯弹窗模式（如在首页），则渲染展示块 */}
+            {/* 首页触发卡片 - 只保留日期，极简风格 */}
             {!isPopupOnly && (
                 <div className={styles.wrapper} onClick={() => setShowPicker(true)}>
                     <div className={styles.dateSection}>
-                        <div className={styles.dateValue}>{formatDateLabel(tempDate)}</div>
-                        <div className={styles.dateLabel}>{getWeekdayLabel(tempDate)}</div>
-                    </div>
-                    <div className={styles.rightSection}>
-                        <div className={styles.nightsInfo}>
-                            <span className={styles.nightsLabel}>入住时长{tempDuration}小时</span>
-                        </div>
+                        <span className={styles.dateValue}>{formatDateLabel(tempDate)}</span>
+                        <span className={styles.dateLabel}>{getWeekdayLabel(tempDate)}</span>
                     </div>
                 </div>
             )}
 
-            {/* --- 底部选择弹窗 --- */}
-            {isModalVisible && (
+            {/* 🌟 2. 核心修改：使用 createPortal 把弹窗传送到 document.body */}
+            {isModalVisible && createPortal(
                 <>
                     <div className={styles.overlay} onClick={handleClose} />
-                    <div className={styles.pickerModal}>
-                        <div className={styles.pickerHeader}>
-                            <h3>选择入住信息</h3>
+                    <div className={styles.calendarModal}>
+                        <div className={styles.calendarHeader}>
+                            <span className={styles.closeBtn} onClick={handleClose}>✕</span>
+                            <h3 className={styles.headerTitle}>选择日期</h3>
                         </div>
 
-                        <div className={styles.pickerContainer}>
-                            <div className={styles.pickerRow}>
-                                <label>日期</label>
-                                <input
-                                    type="date"
-                                    // 修复了你原代码里 class 不匹配的问题（原生用 timeSelect 样式）
-                                    className={styles.timeSelect}
-                                    value={dayjs(tempDate).format('YYYY-MM-DD')}
-                                    min={todayStr}
-                                    onChange={(e) => {
-                                        if (e.target.value) setTempDate(dayjs(e.target.value).toDate())
-                                    }}
-                                />
-                            </div>
-
-                            <div className={styles.pickerRow}>
-                                <label>时长</label>
-                                <div className={styles.optionsGroup}>
-                                    {DURATION_OPTIONS.map((opt) => (
-                                        <button
-                                            key={opt.value}
-                                            className={tempDuration === opt.value ? styles.activeOption : styles.optionBtn}
-                                            onClick={() => setTempDuration(opt.value)}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                        {/* 星期的表头 */}
+                        <div className={styles.weekHeader}>
+                            <span className={styles.weekend}>日</span>
+                            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span>
+                            <span className={styles.weekend}>六</span>
                         </div>
 
-                        <div className={styles.pickerFooter}>
-                            <button className={styles.cancelBtn} onClick={handleClose}>取消</button>
-                            <button className={styles.confirmBtn} onClick={handleConfirm}>确定</button>
+                        <div className={styles.calendarBody}>
+                            {/* 动态渲染未来 6 个月 (当月 + 往后推5个月) */}
+                            {Array.from({ length: 6 }).map((_, index) => renderMonthCalendar(index))}
+
+                            {/* 底部提示语 */}
+                            <div className={styles.bottomTip}>
+                                到底了，最长可订6个月内的房量
+                            </div>
                         </div>
                     </div>
-                </>
+                </>,
+                document.body // 传送的目标位置
             )}
         </div>
     )
