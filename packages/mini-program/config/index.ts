@@ -14,20 +14,15 @@ export default defineConfig<'vite'>(async (merge, _env) => {
       640: 2.34 / 2,
       750: 1,
       375: 2,
-      828: 1.81 / 2
+      828: 1.81 / 2,
     },
     sourceRoot: 'src',
     outputRoot: 'dist',
-    plugins: [
-      "@tarojs/plugin-generator"
-    ],
-    defineConstants: {
-    },
+    plugins: ['@tarojs/plugin-generator'],
+    defineConstants: {},
     copy: {
-      patterns: [
-      ],
-      options: {
-      }
+      patterns: [],
+      options: {},
     },
     framework: 'react',
     compiler: 'vite',
@@ -36,24 +31,22 @@ export default defineConfig<'vite'>(async (merge, _env) => {
         alias: {
           '@': path.resolve(__dirname, '../src'),
           '@estay/shared': path.resolve(__dirname, '../../packages/shared/dist'),
-        }
-      }
+        },
+      },
     },
     mini: {
       postcss: {
         pxtransform: {
           enable: true,
-          config: {
-
-          }
+          config: {},
         },
         cssModules: {
           enable: true, // 启用 CSS Modules 功能
           config: {
             namingPattern: 'module', // 转换模式，取值为 global/module
-            generateScopedName: '[name]__[local]___[hash:base64:5]'
-          }
-        }
+            generateScopedName: '[name]__[local]___[hash:base64:5]',
+          },
+        },
       },
     },
     h5: {
@@ -63,20 +56,20 @@ export default defineConfig<'vite'>(async (merge, _env) => {
       miniCssExtractPluginOption: {
         ignoreOrder: true,
         filename: 'css/[name].[hash].css',
-        chunkFilename: 'css/[name].[chunkhash].css'
+        chunkFilename: 'css/[name].[chunkhash].css',
       },
       postcss: {
         autoprefixer: {
           enable: true,
-          config: {}
+          config: {},
         },
         cssModules: {
           enable: false, // 默认为 false，如需使用 css modules 功能，则设为 true
           config: {
             namingPattern: 'module', // 转换模式，取值为 global/module
-            generateScopedName: '[name]__[local]___[hash:base64:5]'
-          }
-        }
+            generateScopedName: '[name]__[local]___[hash:base64:5]',
+          },
+        },
       },
     },
     rn: {
@@ -84,11 +77,10 @@ export default defineConfig<'vite'>(async (merge, _env) => {
       postcss: {
         cssModules: {
           enable: false, // 默认为 false，如需使用 css modules 功能，则设为 true
-        }
-      }
-    }
+        },
+      },
+    },
   }
-
 
   if (process.env.NODE_ENV === 'development') {
     // 本地开发构建配置（不混淆压缩）

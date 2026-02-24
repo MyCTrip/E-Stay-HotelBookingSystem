@@ -83,7 +83,9 @@
   font-size: 20rpx;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   width: 100%;
 
   &:active {

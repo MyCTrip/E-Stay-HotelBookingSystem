@@ -22,12 +22,15 @@ const HomeStayCardSkeleton: React.FC<HomeStayCardSkeletonProps> = ({ count = 6 }
           {/* 信息骨架 */}
           <div className={styles.skeletonInfo}>
             {/* 位置骨架 */}
-            <div className={styles.skeletonLine} style={{ width: '60%', height: 12 }} >
+            <div className={styles.skeletonLine} style={{ width: '60%', height: 12 }}>
               <div className={styles.shimmer} />
             </div>
 
             {/* 标题骨架 */}
-            <div className={styles.skeletonLine} style={{ width: '100%', height: 16, marginTop: 8 }}>
+            <div
+              className={styles.skeletonLine}
+              style={{ width: '100%', height: 16, marginTop: 8 }}
+            >
               <div className={styles.shimmer} />
             </div>
             <div className={styles.skeletonLine} style={{ width: '80%', height: 16, marginTop: 4 }}>

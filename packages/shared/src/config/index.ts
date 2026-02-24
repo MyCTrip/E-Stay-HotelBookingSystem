@@ -150,7 +150,7 @@ export class ConfigManager {
     } else if ((globalThis as any).__ENV__) {
       envStr = (globalThis as any).__ENV__
     }
-    
+
     if (envStr === 'production') return 'production'
     if (envStr === 'staging') return 'staging'
     return 'development'

@@ -1,40 +1,18 @@
 /**
- * 搜索结果页 - 顶部返回栏 + 搜索条件修改栏
+ * 搜索结果页 - 顶部返回栏
+ * 只显示左侧返回按钮和中间的城市民宿 title
  */
 
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import dayjs from 'dayjs'
 import styles from './index.module.scss'
 
-interface SearchFilters {
-  city?: string
-  checkInDate?: string
-  checkOutDate?: string
-  roomCount?: number
-  guestCount?: number
-  priceMin?: number
-  priceMax?: number
-  stars?: number[]
-  facilities?: string[]
-}
-
 interface SearchResultHeaderProps {
-  filters: SearchFilters
-  onModifyClick?: () => void
+  city?: string
 }
 
-const SearchResultHeader: React.FC<SearchResultHeaderProps> = ({ filters, onModifyClick }) => {
+const SearchResultHeader: React.FC<SearchResultHeaderProps> = ({ city = '城市' }) => {
   const navigate = useNavigate()
-
-  const formatCondition = () => {
-    const checkIn = filters.checkInDate ? dayjs(filters.checkInDate).format('M.DD') : ''
-    const checkOut = filters.checkOutDate ? dayjs(filters.checkOutDate).format('M.DD') : ''
-    const roomsText = filters.roomCount ? `${filters.roomCount}间` : ''
-    const guestsText = filters.guestCount ? `${filters.guestCount}人` : ''
-
-    return `${filters.city || '城市'} | ${checkIn}-${checkOut}・${roomsText}${guestsText}`
-  }
 
   return (
     <div className={styles.headerWrapper}>
@@ -42,18 +20,21 @@ const SearchResultHeader: React.FC<SearchResultHeaderProps> = ({ filters, onModi
       <div className={styles.header}>
         {/* 返回按钮 */}
         <button className={styles.backBtn} onClick={() => navigate(-1)} title="返回">
-          ‹
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
         </button>
 
-        {/* 搜索条件区 */}
-        <div className={styles.conditionArea} onClick={onModifyClick}>
-          <div className={styles.conditionText}>{formatCondition()}</div>
-        </div>
+        {/* 中间标题 */}
+        <h1 className={styles.title}>{city}民宿</h1>
 
-        {/* 修改图标 */}
-        <button className={styles.modifyBtn} onClick={onModifyClick} title="修改搜索条件">
-          🔍
-        </button>
+        {/* 右边占位 */}
+        <div className={styles.placeholder}></div>
       </div>
     </div>
   )

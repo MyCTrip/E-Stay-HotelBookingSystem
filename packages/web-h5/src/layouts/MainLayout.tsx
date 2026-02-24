@@ -23,9 +23,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   useEffect(() => {
     // 根据当前路径设置 activeCategory
-    if (location.pathname.startsWith('/hourlyHotel') || location.pathname.includes('/hourlyHotel')) {
+    if (
+      location.pathname.startsWith('/hourlyHotel') ||
+      location.pathname.includes('/hourlyHotel')
+    ) {
       setActiveCategory('hourly')
-    } else if (location.pathname.startsWith('/homeStay') || location.pathname.includes('/homeStay')) {
+    } else if (
+      location.pathname.startsWith('/homeStay') ||
+      location.pathname.includes('/homeStay')
+    ) {
       setActiveCategory('homestay')
     } else {
       setActiveCategory('domestic')
@@ -61,9 +67,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </header>
 
       {/* 主要内容 */}
-      <main className={styles.main}>
-        {children || <Outlet />}
-      </main>
+      <main className={styles.main}>{children || <Outlet />}</main>
 
       {/* 底部导航 - 仅在移动端显示 */}
       <nav className={styles.mobileNav}>
@@ -86,9 +90,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </nav>
 
       {/* 底部 */}
-      <footer className={styles.footer}>
+      {/* <footer className={styles.footer}>
         <p>&copy; 2024 E-Stay Hotel Booking System. All rights reserved.</p>
-      </footer>
+      </footer> */}
     </div>
   )
 }

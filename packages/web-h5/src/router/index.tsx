@@ -27,7 +27,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     errorElement: <NotFoundPage />,
     children: [
       {
-        path: "/",
+        path: '/',
         element: <Navigate to="/hotel" replace />,
       },
       {

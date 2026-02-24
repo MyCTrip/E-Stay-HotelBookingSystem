@@ -11,18 +11,15 @@ export default function NotFoundPage() {
   return (
     <MainLayout>
       <View className={styles.container}>
-      <View className={styles.content}>
-        <Text className={styles.code}>404</Text>
-        <Text className={styles.title}>页面未找到</Text>
-        <Text className={styles.message}>抱歉，您要查找的页面不存在</Text>
-        <View
-          className={styles.button}
-          onClick={() => navigate.toHome()}
-        >
-          <Text>返回首页</Text>
+        <View className={styles.content}>
+          <Text className={styles.code}>404</Text>
+          <Text className={styles.title}>页面未找到</Text>
+          <Text className={styles.message}>抱歉，您要查找的页面不存在</Text>
+          <View className={styles.button} onClick={() => navigate.toHome()}>
+            <Text>返回首页</Text>
+          </View>
         </View>
       </View>
-    </View>
     </MainLayout>
   )
 }

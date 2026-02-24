@@ -1,0 +1,14 @@
+/* RoomSelection 房型选择组件 */
+
+.roomSelection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.roomList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

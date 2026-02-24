@@ -77,7 +77,6 @@ export default function SearchResultPage() {
                 <View className={styles.image}>
                   <Image
                     src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/300x200'}
-
                     className={styles.img}
                     mode="aspectFill"
                   />
@@ -85,19 +84,13 @@ export default function SearchResultPage() {
                 <View className={styles.content}>
                   <Text className={styles.hotelName}>{hotel.baseInfo?.nameCn}</Text>
                   <View className={styles.rating}>
-                    <Text className={styles.stars}>
-                      {'⭐'.repeat(hotel.baseInfo?.star || 3)}
-                    </Text>
+                    <Text className={styles.stars}>{'⭐'.repeat(hotel.baseInfo?.star || 3)}</Text>
                     <Text className={styles.star}>{hotel.baseInfo?.star} 星</Text>
                   </View>
                   <Text className={styles.address}>{hotel.baseInfo?.address}</Text>
-                  <Text className={styles.description}>
-                    {hotel.baseInfo?.description}
-                  </Text>
+                  <Text className={styles.description}>{hotel.baseInfo?.description}</Text>
                   <View className={styles.footer}>
-                    <Text className={styles.price}>
-                      ¥{hotel.baseInfo?.price || '0'}/晚
-                    </Text>
+                    <Text className={styles.price}>¥{hotel.baseInfo?.price || '0'}/晚</Text>
                     <Text className={styles.cta}>查看详情 →</Text>
                   </View>
                 </View>

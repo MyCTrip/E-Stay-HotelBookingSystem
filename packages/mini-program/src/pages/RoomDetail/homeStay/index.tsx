@@ -87,7 +87,9 @@ export default function RoomDetailHomeStayPage() {
         <View className="basicInfo">
           <Text className="roomName">{currentRoom.baseInfo?.nameCn}</Text>
           <View className="dateInfo">
-            <Text>📅 {checkInStr} 至 {checkOutStr}</Text>
+            <Text>
+              📅 {checkInStr} 至 {checkOutStr}
+            </Text>
             <Text className="nights">({nights}晚)</Text>
           </View>
         </View>
@@ -162,13 +164,20 @@ export default function RoomDetailHomeStayPage() {
         {selectedTab === 'amenities' && (
           <View className="tabContent">
             <View className="amenitiesGrid">
-              {['📶 WiFi', '❄️ 空调', '📺 电视', '🧊 冰箱', '🍳 厨房', '🚿 浴室', '🧴 洗漱用品', '🔌 充电器'].map(
-                (item) => (
-                  <View key={item} className="amenityCard">
-                    {item}
-                  </View>
-                )
-              )}
+              {[
+                '📶 WiFi',
+                '❄️ 空调',
+                '📺 电视',
+                '🧊 冰箱',
+                '🍳 厨房',
+                '🚿 浴室',
+                '🧴 洗漱用品',
+                '🔌 充电器',
+              ].map((item) => (
+                <View key={item} className="amenityCard">
+                  {item}
+                </View>
+              ))}
             </View>
           </View>
         )}
@@ -193,7 +202,9 @@ export default function RoomDetailHomeStayPage() {
         <View className="priceBreakdown">
           <Text className="breakdownTitle">价格明细</Text>
           <View className="priceRow">
-            <Text>￥{basePrice} × {nights}晚</Text>
+            <Text>
+              ￥{basePrice} × {nights}晚
+            </Text>
             <Text>￥{priceInfo.subtotal.toFixed(0)}</Text>
           </View>
           {cleaningFee > 0 && (

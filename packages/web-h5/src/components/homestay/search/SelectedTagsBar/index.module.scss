@@ -1,8 +1,13 @@
-/* 已选条件标签栏 */
-
-.tagsWrapper {
+/* 已选条件标签栏容器 */
+.tagsContainer {
+  display: flex;
+  flex-direction: column;
   background-color: #ffffff;
   border-bottom: 1px solid #f0f0f0;
+}
+
+/* 标签包装器 */
+.tagsWrapper {
   padding: 0 16px;
   height: 32px;
   display: flex;
@@ -15,7 +20,8 @@
   align-items: center;
   overflow-x: auto;
   scrollbar-width: none;
-  
+  width: 100%;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -65,10 +71,10 @@
 .resetBtn {
   height: 32px;
   padding: 0 12px;
-  border: 1px solid #0066FF;
+  border: 1px solid #0066ff;
   border-radius: 4px;
   background-color: transparent;
-  color: #0066FF;
+  color: #0066ff;
   cursor: pointer;
   font-size: 12px;
   white-space: nowrap;
@@ -77,4 +83,23 @@
   &:active {
     background-color: rgba(0, 102, 255, 0.1);
   }
+}
+
+/* 滑动条指示器 */
+.scrollIndicator {
+  position: relative;
+  height: 3px;
+  background-color: #f0f0f0;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.scrollThumb {
+  position: absolute;
+  height: 3px;
+  background-color: #0066ff;
+  border-radius: 2px;
+  transition: left 0.08s ease;
+  top: 0;
+  min-width: 8px;
 }

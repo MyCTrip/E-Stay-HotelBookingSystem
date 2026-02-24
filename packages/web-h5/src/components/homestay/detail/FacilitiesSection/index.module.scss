@@ -1,0 +1,58 @@
+/* 设施区域 */
+
+/* wrapper 样式 - PropertyCardContainer 处理所有宽度和间距 */
+
+.facilitiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* 分类块区域 */
+.categoryBlock {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+/* 分类名 - 左侧，固定宽度 */
+.categoryName {
+  flex-shrink: 0;
+  width: 70px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+/* 设施网格 - 右侧，一行三个 */
+.itemsGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  row-gap: 16px;
+}
+
+/* 单个设施项 */
+.facilityItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.itemName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}

@@ -1,213 +1,460 @@
 /**
- * 民宿Zustand Store
+ * 民宿 Zustand Store
+ * 管理搜索、详情、推荐等所有民宿相关状态
  */
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import dayjs from 'dayjs'
-import type {
-  HomeStay,
-  HomeStaySearchParams,
-  Room,
-  HomeStaySearchResponse,
-  PaginationMeta,
-} from '../types/homestay'
-import type { IApiService } from '../api'
+import type { Hotel, Room, HomeStaySearchParams, PaginationMeta } from '../types'
+import type { HomeStay } from '../types/homestay'
+import {
+  POPULAR_HOMESTAYS,
+  SEARCH_RESULT_HOMESTAYS,
+  getRecommendedHomestays,
+  HOMESTAY_DETAIL_MOCK,
+  NEARBY_ROOMS,
+} from '../mocks'
 
-export interface HomeStayState {
-  // 搜索状态
+// ============ 类型定义 ============
+
+/** 本地副本类型 - 用于暂存修改不直接更新Store */
+export interface DetailLocalCopy {
+  homeStay: HomeStay
+  selectedRoomId?: string
+  checkInDate?: string
+  checkOutDate?: string
+  otherModifications?: Record<string, any>
+}
+
+/** 详情页上下文状态 - 仅UI交互状态 */
+export interface DetailContextState {
+  selectedRoomName: string
+  selectedRoomId?: string
+  expandNearbyProperties: boolean
+  currentTab: string
+  activeDrawer?: 'room' | 'facilities' | null
+  scrollPosition?: number
+  checkInDate?: string
+  checkOutDate?: string
+  deadlineTime?: number
+  // 本地副本相关
+  isEditing?: boolean
+  localCopy?: DetailLocalCopy
+  modifiedFields?: Set<string>
+}
+
+/** 搜索 UI 状态 */
+export interface SearchUIState {
+  activeModal?: 'location' | 'date' | 'guests' | 'filter' | null
+  isFilterPanelOpen: boolean
+  currentSort: 'price' | 'rating' | 'popularity' | 'newest'
+  viewMode: 'list' | 'map'
+}
+
+/** Store 状态接口 */
+export interface HomestayStoreState {
+  // ===== 搜索域 =====
   searchParams: HomeStaySearchParams | null
-
-  // 列表数据
   homestays: HomeStay[]
   pagination: PaginationMeta
+  searchLoading: boolean
+  searchError: string | null
 
-  // 详情页数据
+  // ===== 详情域 =====
   currentHomestay: HomeStay | null
-  currentRoom: Room | null
+  detailContext: DetailContextState
+  detailLoading: boolean
+  detailError: string | null
 
-  // UI状态
-  loading: boolean
-  error: string | null
+  // ===== 推荐域 =====
+  hotHomestays: HomeStay[]
+  recommendedHomestays: HomeStay[]
+  nearbyRooms: Room[]
 
-  // Actions
+  // ===== UI 状态 =====
+  searchUIState: SearchUIState
+
+  // ===== Actions: 搜索 =====
   setSearchParams(params: HomeStaySearchParams): void
-  fetchHomestays(params: HomeStaySearchParams): Promise<void>
-  fetchMoreHomestays(): Promise<void>
-  fetchHotStays(limit?: number): Promise<HomeStay[]>
+  fetchSearchResults(params: HomeStaySearchParams): Promise<void>
+  loadMoreSearchResults(): Promise<void>
+  setSearchUIState(state: Partial<SearchUIState>): void
+
+  // ===== Actions: 详情 =====
   fetchHomestayDetail(id: string): Promise<void>
-  fetchRoomDetail(roomId: string): Promise<void>
+  setCurrentHomestay(homestay: HomeStay | null): void
+  updateDetailContext(context: Partial<DetailContextState>): void
+  // 本地副本相关
+  startEditingDetail(): void
+  setDetailLocalCopy(data: Partial<DetailLocalCopy>): void
+  commitDetailLocalCopy(): void
+  revertDetailLocalCopy(): void
+  resetDetailLocalCopy(): void
+
+  // ===== Actions: 推荐 =====
+  loadHotHomestays(): Promise<void>
+  loadRecommendedHomestays(city?: string, priceMin?: number, priceMax?: number): Promise<void>
+  loadNearbyRooms(homestayId: string): Promise<void>
+
+  // ===== Actions: 清理 =====
   clearCurrentHomestay(): void
-  clearCurrentRoom(): void
-  resetStore(): void
+  clearErrors(): void
+  reset(): void
 }
 
-export const createHomeStayStore = (api: IApiService) => {
-  return create<HomeStayState>()(
-    persist(
-      (set, get) => ({
-        searchParams: null,
-        homestays: [],
-        pagination: { page: 1, limit: 20, total: 0 },
-        currentHomestay: null,
-        currentRoom: null,
-        loading: false,
-        error: null,
+// ============ Store 创建 ============
 
-        setSearchParams: (params: HomeStaySearchParams) => {
-          set({ searchParams: params })
-        },
+export const useHomestayStore = create<HomestayStoreState>()(
+  persist(
+    (set, get) => ({
+      // ===== 初始状态 =====
+      searchParams: null,
+      homestays: [],
+      pagination: { page: 1, limit: 20, total: 0 },
+      searchLoading: false,
+      searchError: null,
 
-        fetchHomestays: async (params: HomeStaySearchParams) => {
-          set({ loading: true, error: null })
-          try {
-            const result: any = await api.homestays.search({
-              ...params,
-              page: params.page || 1,
-              limit: params.limit || 20,
-              checkIn: dayjs(params.checkIn).format('YYYY-MM-DD'),
-              checkOut: dayjs(params.checkOut).format('YYYY-MM-DD'),
+      currentHomestay: null,
+      detailContext: {
+        selectedRoomName: '',
+        expandNearbyProperties: false,
+        currentTab: 'overview',
+        checkInDate: dayjs().format('YYYY-MM-DD'),
+        checkOutDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+        deadlineTime: 30,
+      },
+      detailLoading: false,
+      detailError: null,
+
+      hotHomestays: [],
+      recommendedHomestays: [],
+      nearbyRooms: [],
+
+      searchUIState: {
+        activeModal: null,
+        isFilterPanelOpen: false,
+        currentSort: 'popularity',
+        viewMode: 'list',
+      },
+
+      // ===== 搜索 Actions =====
+
+      /** 设置搜索参数 */
+      setSearchParams: (params: HomeStaySearchParams) => {
+        set({ searchParams: params })
+      },
+
+      /** 执行搜索 */
+      fetchSearchResults: async (params: HomeStaySearchParams) => {
+        set({ searchLoading: true, searchError: null })
+        try {
+          // 模拟 API 延迟
+          await new Promise((resolve) => setTimeout(resolve, 500))
+
+          // Mock 数据处理：根据参数筛选
+          let results = [...(SEARCH_RESULT_HOMESTAYS as any[])]
+
+          // TODO: 暂时不按城市筛选，显示所有民宿卡片
+          // 匹配搜索条件的功能后续实现
+          // results = results.filter((h) => h.baseInfo.city === params.city)
+
+          // 按价格筛选
+          if (params.priceMin || params.priceMax) {
+            results = results.filter((h: any) => {
+              const minPrice = h.rooms?.[0]?.baseInfo?.price || h.price || 0
+              if (params.priceMin && minPrice < params.priceMin) return false
+              if (params.priceMax && minPrice > params.priceMax) return false
+              return true
             })
-            set({
-              homestays: result.data || [],
-              pagination: result.pagination || { page: 1, limit: 20, total: 0 },
-              searchParams: params,
-              loading: false,
-            })
-          } catch (err: any) {
-            set({
-              error: err.message || '搜索失败，请重试',
-              loading: false,
-            })
-            throw err
           }
-        },
 
-        fetchMoreHomestays: async () => {
-          const { searchParams, pagination } = get()
-          if (!searchParams) {
-            console.warn('No search params set')
-            return
+          // 按关键词筛选
+          if (params.keyword) {
+            results = results.filter((h: any) =>
+              (h.baseInfo?.name || h.baseInfo?.nameCn || '').toLowerCase().includes(params.keyword || '')
+            )
           }
 
-          set({ loading: true })
-          try {
-            const result: any = await api.homestays.search({
-              ...searchParams,
-              page: (pagination.page || 1) + 1,
-              limit: pagination.limit || 20,
-              checkIn: dayjs(searchParams.checkIn).format('YYYY-MM-DD'),
-              checkOut: dayjs(searchParams.checkOut).format('YYYY-MM-DD'),
-            })
-            set((state) => ({
-              homestays: [...state.homestays, ...result.data],
-              pagination: result.pagination,
-              loading: false,
-            }))
-          } catch (err: any) {
-            set({
-              error: err.message || '加载更多失败',
-              loading: false,
-            })
-            throw err
-          }
-        },
+          // 分页处理
+          const page = params.page || 1
+          const limit = params.limit || 20
+          const start = (page - 1) * limit
+          const end = start + limit
 
-        fetchHotStays: async (limit: number = 10): Promise<HomeStay[]> => {
-          try {
-            const data: any = await api.homestays.getHot({ limit })
-            return data.data || data || []
-          } catch (err: any) {
-            set({ error: err.message || '获取热门民宿失败' })
-            return []
-          }
-        },
+          const paginatedResults = results.slice(start, end)
 
-        fetchHomestayDetail: async (id: string) => {
-          set({ loading: true, error: null })
-          try {
-            const data: any = await api.homestays.getDetail(id)
-            set({ currentHomestay: data, loading: false })
-          } catch (err: any) {
-            set({
-              error: err.message || '获取民宿详情失败',
-              loading: false,
-            })
-            throw err
-          }
-        },
-
-        fetchRoomDetail: async (roomId: string) => {
-          set({ loading: true })
-          try {
-            const data: any = await api.homestays.getDetail(roomId)
-            set({ currentRoom: data, loading: false })
-          } catch (err: any) {
-            set({
-              error: err.message || '获取房型详情失败',
-              loading: false,
-            })
-            throw err
-          }
-        },
-
-        clearCurrentHomestay: () => set({ currentHomestay: null }),
-        clearCurrentRoom: () => set({ currentRoom: null }),
-        resetStore: () =>
           set({
-            searchParams: null,
-            homestays: [],
-            pagination: { page: 1, limit: 20, total: 0 },
-            currentHomestay: null,
-            currentRoom: null,
-            loading: false,
-            error: null,
-          }),
+            homestays: paginatedResults as HomeStay[],
+            pagination: {
+              page,
+              limit,
+              total: results.length,
+            },
+            searchParams: params,
+            searchLoading: false,
+          })
+        } catch (error: any) {
+          set({
+            searchError: error.message || '搜索失败，请重试',
+            searchLoading: false,
+          })
+        }
+      },
+
+      /** 加载更多搜索结果 */
+      loadMoreSearchResults: async () => {
+        const { searchParams, pagination } = get()
+        if (!searchParams) return
+
+        try {
+          await get().fetchSearchResults({
+            ...searchParams,
+            page: (pagination.page || 1) + 1,
+          })
+        } catch (error: any) {
+          set({ searchError: error.message || '加载失败' })
+        }
+      },
+
+      /** 设置搜索 UI 状态 */
+      setSearchUIState: (state: Partial<SearchUIState>) => {
+        set((store) => ({
+          searchUIState: { ...store.searchUIState, ...state },
+        }))
+      },
+
+      // ===== 详情 Actions =====
+
+      /** 获取民宿详情 */
+      fetchHomestayDetail: async (id: string) => {
+        set({ detailLoading: true, detailError: null })
+        try {
+          // 模拟 API 延迟
+          await new Promise((resolve) => setTimeout(resolve, 300))
+
+          // Mock 数据：如果 ID 匹配则返回详情数据，否则构造
+          let homestay: HomeStay = (HOMESTAY_DETAIL_MOCK || SEARCH_RESULT_HOMESTAYS[0]) as HomeStay
+
+          if (id !== 'homestay-001') {
+            // 对于其他 ID，从搜索结果中查找
+            const found = SEARCH_RESULT_HOMESTAYS.find((h) => h._id === id)
+            if (found) {
+              homestay = found
+            }
+          }
+
+          set({
+            currentHomestay: homestay,
+            detailLoading: false,
+          })
+        } catch (error: any) {
+          set({
+            detailError: error.message || '获取详情失败',
+            detailLoading: false,
+          })
+        }
+      },
+
+      /** 设置当前民宿 */
+      setCurrentHomestay: (homestay: HomeStay | null) => {
+        set({ currentHomestay: homestay })
+      },
+
+      /** 更新详情页上下文 */
+      updateDetailContext: (context: Partial<DetailContextState>) => {
+        set((store) => ({
+          detailContext: { ...store.detailContext, ...context },
+        }))
+      },
+
+      /** 开始编辑详情 - 创建本地副本 */
+      startEditingDetail: () => {
+        set((store) => {
+          const { currentHomestay, detailContext } = store
+          if (!currentHomestay) return {}
+
+          return {
+            detailContext: {
+              ...detailContext,
+              isEditing: true,
+              localCopy: {
+                homeStay: JSON.parse(JSON.stringify(currentHomestay)), // 深拷贝
+                selectedRoomId: detailContext.selectedRoomName,
+                checkInDate: detailContext.checkInDate,
+                checkOutDate: detailContext.checkOutDate,
+              },
+              modifiedFields: new Set<string>(),
+            },
+          }
+        })
+      },
+
+      /** 更新本地副本中的数据 */
+      setDetailLocalCopy: (data: Partial<DetailLocalCopy>) => {
+        set((store) => {
+          const { detailContext } = store
+          if (!detailContext.localCopy) return {}
+
+          // 记录修改的字段
+          const modifiedFields = new Set(detailContext.modifiedFields || [])
+          Object.keys(data).forEach((key) => {
+            if (key !== 'homeStay') {
+              modifiedFields.add(key)
+            }
+          })
+
+          return {
+            detailContext: {
+              ...detailContext,
+              localCopy: {
+                ...detailContext.localCopy,
+                ...data,
+              },
+              modifiedFields,
+            },
+          }
+        })
+      },
+
+      /** 提交本地副本 - 将修改保存到currentHomestay和detailContext */
+      commitDetailLocalCopy: () => {
+        set((store) => {
+          const { detailContext } = store
+          if (!detailContext.localCopy) return {}
+
+          return {
+            currentHomestay: detailContext.localCopy.homeStay,
+            detailContext: {
+              ...detailContext,
+              isEditing: false,
+              selectedRoomName: detailContext.localCopy.selectedRoomId || detailContext.selectedRoomName,
+              checkInDate: detailContext.localCopy.checkInDate || detailContext.checkInDate,
+              checkOutDate: detailContext.localCopy.checkOutDate || detailContext.checkOutDate,
+              localCopy: undefined,
+              modifiedFields: undefined,
+            },
+          }
+        })
+      },
+
+      /** 撤销本地副本 - 恢复到编辑前的状态 */
+      revertDetailLocalCopy: () => {
+        set((store) => {
+          const { detailContext } = store
+          return {
+            detailContext: {
+              ...detailContext,
+              isEditing: false,
+              localCopy: undefined,
+              modifiedFields: undefined,
+            },
+          }
+        })
+      },
+
+      /** 重置本地副本 */
+      resetDetailLocalCopy: () => {
+        set((store) => {
+          const { detailContext } = store
+          return {
+            detailContext: {
+              ...detailContext,
+              isEditing: false,
+              localCopy: undefined,
+              modifiedFields: undefined,
+            },
+          }
+        })
+      },
+
+      // ===== 推荐 Actions =====
+
+      /** 加载热门民宿 */
+      loadHotHomestays: async () => {
+        try {
+          // 模拟 API 延迟
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          set({ hotHomestays: POPULAR_HOMESTAYS })
+        } catch (error: any) {
+          set({ searchError: error.message || '加载热门民宿失败' })
+        }
+      },
+
+      /** 加载推荐民宿 */
+      loadRecommendedHomestays: async (
+        city: string = '上海',
+        priceMin?: number,
+        priceMax?: number
+      ) => {
+        try {
+          // 模拟 API 延迟
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          const recommended = getRecommendedHomestays(city, priceMin, priceMax)
+          set({ recommendedHomestays: recommended })
+        } catch (error: any) {
+          set({ searchError: error.message || '加载推荐民宿失败' })
+        }
+      },
+
+      /** 加载周边房源 */
+      loadNearbyRooms: async (homestayId: string) => {
+        try {
+          // 模拟 API 延迟
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          // Mock 数据：直接返回周边房源
+          set({ nearbyRooms: (NEARBY_ROOMS as unknown as Room[]) })
+        } catch (error: any) {
+          set({ searchError: error.message || '加载周边房源失败' })
+        }
+      },
+
+      // ===== 清理 Actions =====
+
+      /** 清除当前民宿 */
+      clearCurrentHomestay: () => {
+        set({
+          currentHomestay: null,
+          detailContext: {
+            selectedRoomName: '',
+            expandNearbyProperties: false,
+            currentTab: 'overview',
+          },
+        })
+      },
+
+      /** 清除错误 */
+      clearErrors: () => {
+        set({ searchError: null, detailError: null })
+      },
+
+      /** 重置 Store */
+      reset: () => {
+        set({
+          searchParams: null,
+          homestays: [],
+          pagination: { page: 1, limit: 20, total: 0 },
+          currentHomestay: null,
+          hotHomestays: [],
+          recommendedHomestays: [],
+          nearbyRooms: [],
+          searchError: null,
+          detailError: null,
+          searchUIState: {
+            activeModal: null,
+            isFilterPanelOpen: false,
+            currentSort: 'popularity',
+            viewMode: 'list',
+          },
+        })
+      },
+    }),
+    {
+      name: 'homestay-store', // LocalStorage 键名
+      partialize: (state) => ({
+        searchParams: state.searchParams,
+        detailContext: state.detailContext,
       }),
-      {
-        name: 'homestay-store',
-        partialize: (state) => ({
-          searchParams: state.searchParams,
-        }),
-      }
-    )
+    }
   )
-}
-
-// 全局store实例
-let storeInstance: ReturnType<typeof createHomeStayStore> | null = null
-
-/**
- * 获取或创建 HomeStayStore hook
- * @param api 可选的API实例，如果不提供则使用全局实例
- */
-export const useHomeStayStore = (api?: IApiService) => {
-  if (!storeInstance && api) {
-    storeInstance = createHomeStayStore(api)
-  }
-  if (!storeInstance) {
-    throw new Error('HomeStayStore not initialized. Call initHomeStayStore first.')
-  }
-  return storeInstance
-}
-
-/**
- * 初始化 HomeStay Store（幂等性）
- * @param api API 服务实例
- */
-export function initHomeStayStore(api: IApiService): void {
-  if (storeInstance) {
-    console.warn('⚠️ HomeStayStore already initialized, skipping...')
-    return
-  }
-  storeInstance = createHomeStayStore(api)
-}
-
-/**
- * 重置 Store 状态（用于测试或用户登出）
- */
-export function resetHomeStayStore(): void {
-  if (!storeInstance) return
-  const state = storeInstance.getState() as any
-  state.resetStore?.()
-}
+)

@@ -1,0 +1,278 @@
+/* 位置周边区域样式 */
+
+/* wrapper 样式 - PropertyCardContainer 处理所有宽度和间距 */
+
+.section {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+/* 地址块 */
+.addressBlock {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+
+  .addressItem {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .label {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .addressWithCopy {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      .address {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.4;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .copyBtn {
+        padding: 4px 12px;
+        font-size: 12px;
+        color: #999;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &:active {
+          background: #f5f5f5;
+          color: #666;
+        }
+      }
+    }
+  }
+
+  .detailAddress {
+    font-size: 12px;
+    color: #999;
+    margin: 8px 0 12px 0;
+    line-height: 1.4;
+  }
+
+  /* 地址详情卡片 */
+  .detailCard {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+
+    .cardTitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 12px 0;
+    }
+
+    .detailsGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      .detailItem {
+        display: flex;
+        gap: 4px;
+
+        .label {
+          font-size: 14px;
+          color: #999;
+        }
+
+        .value {
+          font-size: 14px;
+          color: #666;
+        }
+      }
+    }
+  }
+
+  .mapContainer {
+    margin-top: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f5f5f5;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .mapPlaceholder {
+      color: #999;
+      font-size: 14px;
+    }
+  }
+}
+
+/* Tab切换Section */
+.tabSection {
+  margin-bottom: 16px;
+
+  .tabButtons {
+    display: flex;
+    margin-bottom: 12px;
+
+    .tabBtn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 13px;
+      color: #999;
+      background: transparent;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:active {
+        color: #333;
+        border-color: #999;
+      }
+
+      &.active {
+        color: #fff;
+        background: #0088ff;
+        border-color: #0088ff;
+      }
+    }
+  }
+
+  .tabContent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .contentItem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 6px;
+
+      .itemName {
+        font-size: 14px;
+        color: #333;
+        flex: 1;
+      }
+
+      .itemDistance {
+        font-size: 12px;
+        color: #999;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+/* 底部Tip */
+.tipSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0;
+  font-size: 12px;
+  color: #999;
+
+  .tipText {
+    color: #999;
+  }
+}
+
+/* 复制成功Toast */
+.copyToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeInOut 2.4s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .addressBlock {
+    .addressItem {
+      .addressWithCopy {
+        align-items: flex-start;
+
+        .copyBtn {
+          align-self: flex-start;
+        }
+      }
+    }
+
+    .detailCard {
+      .detailsGrid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .mapContainer {
+      height: 160px;
+    }
+  }
+
+  .tabSection {
+    .tabButtons {
+      gap: 6px;
+
+      .tabBtn {
+        font-size: 12px;
+      }
+    }
+
+    .tabContent {
+      .contentItem {
+        align-items: flex-start;
+        gap: 4px;
+
+        .itemDistance {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+
+  .tipSection {
+    font-size: 11px;
+  }
+}
+

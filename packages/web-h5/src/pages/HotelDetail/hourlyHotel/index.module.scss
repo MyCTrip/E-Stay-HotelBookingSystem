@@ -1,0 +1,58 @@
+/* 替换你现有的 index.module.scss 对应部分 */
+
+.container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  /* 整体浅灰背景 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 999;
+
+  @supports (padding: max(0px)) {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* 🌟 修改：移除全局的白色背景和阴影，变成一个单纯的包装器 */
+.content {
+  position: relative;
+  /* 负 margin 可以让轮播图顶到最上面，如果你的 Header 是透明的话 */
+  /* margin-top: -44px; */
+}
+
+/* 🌟 新增：统一的卡片区块样式，每个子组件外层套用这个 */
+.cardSection {
+  background: #ffffff;
+  margin-bottom: 8px;
+  /* 区块之间的灰色缝隙 */
+  padding: 16px;
+  border-radius: 0 0 12px 12px;
+  /* 根据需要调整圆角，携程顶部概览通常底部有圆角 */
+}
+
+/* 后续的非顶部区块通常是上下都有小圆角 */
+.standardSection {
+  background: #ffffff;
+  margin: 0 12px 12px 12px;
+  /* 携程现在流行两边留白的小卡片风格 */
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.stickyTabsWrapper {
+  position: sticky;
+  top: 0;
+  /* 如果有顶部导航栏，这里可能是 44px */
+  z-index: 99;
+  background-color: #fff;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.spacer {
+  height: 80px;
+}

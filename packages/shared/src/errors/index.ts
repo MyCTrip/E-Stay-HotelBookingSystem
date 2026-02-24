@@ -138,12 +138,7 @@ export class ErrorFactory {
     details?: Record<string, any>
   ): BusinessError {
     const code = HTTP_CODE_MAP[statusCode] || ErrorCode.UNKNOWN
-    return new BusinessError(
-      code,
-      message || this.getDefaultMessage(code),
-      statusCode,
-      details
-    )
+    return new BusinessError(code, message || this.getDefaultMessage(code), statusCode, details)
   }
 
   /**
@@ -154,31 +149,26 @@ export class ErrorFactory {
     const message = response?.data?.message || response?.message
     const code = response?.data?.code || HTTP_CODE_MAP[statusCode] || ErrorCode.UNKNOWN
 
-    return new BusinessError(code, message || this.getDefaultMessage(code as ErrorCode), statusCode, response?.data?.details)
+    return new BusinessError(
+      code,
+      message || this.getDefaultMessage(code as ErrorCode),
+      statusCode,
+      response?.data?.details
+    )
   }
 
   /**
    * 创建验证错误
    */
   static validationError(message: string, details?: Record<string, any>): BusinessError {
-    return new BusinessError(
-      ErrorCode.VALIDATION_ERROR,
-      message || '数据验证失败',
-      400,
-      details
-    )
+    return new BusinessError(ErrorCode.VALIDATION_ERROR, message || '数据验证失败', 400, details)
   }
 
   /**
    * 创建业务错误
    */
   static businessError(message: string, details?: Record<string, any>): BusinessError {
-    return new BusinessError(
-      ErrorCode.BUSINESS_ERROR,
-      message,
-      400,
-      details
-    )
+    return new BusinessError(ErrorCode.BUSINESS_ERROR, message, 400, details)
   }
 
   /**

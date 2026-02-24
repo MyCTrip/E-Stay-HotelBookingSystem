@@ -6,7 +6,9 @@
 
 import React, { useState } from 'react'
 import type { HomeStay } from '@estay/shared'
+import { HeartIcon } from '../../../icons/HeartIcon'
 import styles from './index.module.scss'
+import { StarIcon, PositionIcon } from '../../icons'
 
 interface SearchResultCardProps {
   data: HomeStay
@@ -25,12 +27,8 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
   const [favorited, setFavorited] = useState(isFavorited)
 
   const primaryImage = data.images?.[0] || null
-  const roomPrice = data.rooms?.[0]?.baseInfo?.price || 358
-  const originalPrice = Math.ceil(roomPrice * 1.5)
-  const reviewCount = Math.floor(Math.random() * 5000) + 100
-  const discountAmount = Math.floor(Math.random() * 100) + 20
+  const roomPrice = data.rooms?.[0]?.price?.currentPrice || data.rooms?.[0]?.price?.originPrice || 358
   const tags = ['含双早', '免费取消', '热门']
-  const features = ['无忧保障', '实拍看房', '免费取消', '近地铁']
 
   const handleCardClick = () => {
     onClick?.(data._id)
@@ -49,7 +47,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         {primaryImage && !imageError ? (
           <img
             src={primaryImage}
-            alt={data.baseInfo.nameCn}
+            alt={data.baseInfo.name}
             className={styles.image}
             loading="lazy"
             onError={() => setImageError(true)}
@@ -62,29 +60,34 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         <button
           className={`${styles.favoriteBtn} ${favorited ? styles.favorited : ''}`}
           onClick={handleFavoriteClick}
+          aria-label="收藏"
         >
-          ♡
+          <HeartIcon
+            size={28}
+            fillColor={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(68, 70, 72, 0.3)'}
+            strokeColor={favorited ? 'rgba(255, 107, 107, 0.9)' : 'rgba(255, 255, 255, 0.9)'}
+            strokeWidth={2}
+          />
         </button>
 
-        {/* 图片数量标识 */}
-        <div className={styles.photoCount}>
-          📷 {data.images?.length || 1}
+        {/* 评分和位置标签 - 左下角 */}
+        <div className={styles.ratingBadge}>
+          <StarIcon width={12} height={12} color='#eec50f'></StarIcon>
+          <span className={styles.ratingBadgeText}>
+             {data.baseInfo.star}
+          </span>
+          <PositionIcon width={10} height={10} color='#8da5cd'/>
+          <span className={styles.location}>{data.baseInfo.city} · 距您 3.2km</span>
         </div>
+
+        {/* 图片数量标识 - 右下角 */}
+        <div className={styles.photoCount}>📷 {data.images?.length || 1}</div>
       </div>
 
       {/* 右侧信息区 - PC端右侧，移动端下方 */}
       <div className={styles.infoSection}>
         {/* 名称 */}
-        <h3 className={styles.name}>{data.baseInfo.nameCn}</h3>
-
-        {/* 评分 & 位置 */}
-        <div className={styles.ratingRow}>
-          <span className={styles.rating}>⭐ {data.baseInfo.star}</span>
-          <span className={styles.ratingText}>超棒</span>
-          <span className={styles.location}>
-            {data.baseInfo.city} · 距您 3.2km
-          </span>
-        </div>
+        <h3 className={styles.name}>{data.baseInfo.name}</h3>
 
         {/* 核心标签 */}
         <div className={styles.tags}>
@@ -95,30 +98,13 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
           ))}
         </div>
 
-        {/* 优惠提示 */}
-        <div className={styles.discount}>
-          🔥 今日特价，比原价低 ¥{discountAmount}
-        </div>
-
-        {/* 功能特性 - 仅移动端显示 */}
-        <div className={styles.features}>
-          {features.slice(0, 4).map((feature, index) => (
-            <span key={index} className={styles.feature}>
-              {feature}
-            </span>
-          ))}
-        </div>
-
         {/* 房间配置 - 仅移动端显示 */}
-        <div className={styles.roomInfo}>
-          1居1床2人 · 整套40㎡ · 近{data.baseInfo.city}路步行街
-        </div>
+        <div className={styles.roomInfo}>1居1床2人 · 整套40㎡ · 近{data.baseInfo.city}路步行街</div>
 
         {/* 价格区 */}
         <div className={styles.priceSection}>
           <span className={styles.price}>¥{roomPrice}</span>
           <span className={styles.unit}>/晚起</span>
-          <span className={styles.sold}>已售 {reviewCount}</span>
         </div>
       </div>
     </div>

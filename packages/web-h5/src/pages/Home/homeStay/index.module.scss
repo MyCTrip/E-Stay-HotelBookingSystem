@@ -23,12 +23,21 @@
   }
 }
 
+// 搜索栏占位符 - 为固定的SearchBar让出空间
+.searchBarSpacer {
+  height: 56px;
+  width: 100%;
+
+  @media (max-height: 400px) {
+    height: 52px;
+  }
+}
+
 // 轮播 Banner
 .banner {
   width: 100%;
   height: 180px;
   background: linear-gradient(135deg, #ff6b00 0%, #ffa500 100%);
-  padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   box-sizing: border-box;
@@ -37,6 +46,7 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  margin-top: 0;
 }
 
 .bannerContent {
@@ -47,26 +57,121 @@
   z-index: 1;
 }
 
-// 搜索筛选区
-.searchSection {
-  background-color: #ffffff;
-  margin: 12px;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  padding: 12px;
+// 搜索筛选区 - 卡片式布局
+.compactSearchSection {
+  background-color: transparent;
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
   box-sizing: border-box;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 16px;
-  max-width: calc(100% - 24px);
+  margin-top: -350px;
+  margin-bottom: -10px;
+  position: relative;
+  z-index: 50;
 }
 
-.trustText {
-  font-size: 12px;
-  color: #999;
-  padding: 0 4px;
-  text-align: center;
-  margin-top: 8px;
+// 搜索卡片 - 毛玻璃样式
+.searchCard {
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+// 卡片内的每一项
+.cardItem {
+  width: 95%;
+  padding: 4px -2px;
+  margin: auto;
+  border-bottom: none;
+  box-sizing: border-box;
+
+  &:last-child {
+    border-bottom: none;
+    padding: 0;
+  }
+}
+
+// 双列行容器 - 房间选择和价格筛选在同一行
+.dualRowContainer {
+  width: 95%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: none;
+
+  .cardItem {
+    width: 100%;
+    margin: 0;
+    border-bottom: none;
+    border-right: none;
+    padding: 4px -2px;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+.searchGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rowContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.itemWrapper {
+  width: 100%;
+}
+
+.filtersRow {
+  width: calc(100% + 24px);
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.buttonRow {
+  padding: 8px 12px;
+  margin-left: -12px;
+  margin-right: -12px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+// 热门推荐区域
+.recommendSection {
+  background-color: #fafafa;
+}
+
+.recommendHeader {
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+}
+
+// 老的searchSection - 保留但隐藏用作兼容
+.searchSection {
+  display: none;
 }
 
 // 民宿卡片列表区
@@ -74,9 +179,15 @@
   padding: 16px;
   padding-left: max(16px, env(safe-area-inset-left));
   padding-right: max(16px, env(safe-area-inset-right));
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   position: relative;
+  background-color: #fafafa;
+}
+
+// 列表标题
+.listTitle {
+  display: none; // 使用 recommendHeader 代替
 }
 
 // 刷新提示
@@ -90,7 +201,7 @@
   background-color: #f0f7ff;
   border-radius: 8px;
   font-size: 13px;
-  color: #0066FF;
+  color: #0066ff;
   border: 1px solid rgba(0, 102, 255, 0.1);
 
   .spinner {
@@ -98,7 +209,7 @@
     width: 14px;
     height: 14px;
     border: 2px solid rgba(0, 102, 255, 0.2);
-    border-top-color: #0066FF;
+    border-top-color: #0066ff;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -142,12 +253,13 @@
 }
 
 .cardWrapper {
-  aspect-ratio: 160 / 280;
   background-color: #ffffff;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:active {
     transform: translateY(2px);

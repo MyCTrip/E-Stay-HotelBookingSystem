@@ -66,10 +66,7 @@ export class PersistenceManager {
       // 保持最多 20 条记录
       const updated = [search, ...filtered].slice(0, 20)
       const storage = useStorage()
-      await storage.setItem(
-        this.getStorageKey('search_history'),
-        JSON.stringify(updated)
-      )
+      await storage.setItem(this.getStorageKey('search_history'), JSON.stringify(updated))
     } catch (err) {
       console.error('[PersistenceManager] Failed to save search history:', err)
     }
@@ -112,10 +109,7 @@ export class PersistenceManager {
       }
       const updated = [...all, { hotelId, timestamp: Date.now() }]
       const storage = useStorage()
-      await storage.setItem(
-        this.getStorageKey('favorites'),
-        JSON.stringify(updated)
-      )
+      await storage.setItem(this.getStorageKey('favorites'), JSON.stringify(updated))
     } catch (err) {
       console.error('[PersistenceManager] Failed to add favorite:', err)
     }
@@ -129,10 +123,7 @@ export class PersistenceManager {
       const all = await this.getFavorites()
       const updated = all.filter((f) => f.hotelId !== hotelId)
       const storage = useStorage()
-      await storage.setItem(
-        this.getStorageKey('favorites'),
-        JSON.stringify(updated)
-      )
+      await storage.setItem(this.getStorageKey('favorites'), JSON.stringify(updated))
     } catch (err) {
       console.error('[PersistenceManager] Failed to remove favorite:', err)
     }
@@ -168,10 +159,7 @@ export class PersistenceManager {
       const current = await this.getPreferences()
       const updated = { ...current, ...preferences }
       const storage = useStorage()
-      await storage.setItem(
-        this.getStorageKey('preferences'),
-        JSON.stringify(updated)
-      )
+      await storage.setItem(this.getStorageKey('preferences'), JSON.stringify(updated))
     } catch (err) {
       console.error('[PersistenceManager] Failed to save preferences:', err)
     }

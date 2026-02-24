@@ -20,7 +20,7 @@ export default function SearchResultPage() {
     queryKey: ['hotels', { city, checkIn, checkOut, propertyType }],
     queryFn: async () => {
       try {
-        await hotelStore.fetchHotels({ city, checkIn, checkOut })
+        await hotelStore.fetchHotels({ city, checkInDate: checkIn, checkOutDate: checkOut })
         return hotelStore.hotels
       } catch (err) {
         console.error('Failed to fetch hotels:', err)
@@ -56,11 +56,7 @@ export default function SearchResultPage() {
       ) : (
         <div className={styles.hotelList}>
           {hotels.map((hotel: any) => (
-            <Link
-              key={hotel._id}
-              to={`/hotel/${hotel._id}`}
-              className={styles.hotelCard}
-            >
+            <Link key={hotel._id} to={`/hotel/${hotel._id}`} className={styles.hotelCard}>
               <div className={styles.image}>
                 <img
                   src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/300x200'}
@@ -70,19 +66,13 @@ export default function SearchResultPage() {
               <div className={styles.content}>
                 <h3>{hotel.baseInfo?.nameCn}</h3>
                 <div className={styles.rating}>
-                  <span className={styles.stars}>
-                    {'⭐'.repeat(hotel.baseInfo?.star || 3)}
-                  </span>
+                  <span className={styles.stars}>{'⭐'.repeat(hotel.baseInfo?.star || 3)}</span>
                   <span className={styles.star}>{hotel.baseInfo?.star} 星</span>
                 </div>
                 <p className={styles.address}>{hotel.baseInfo?.address}</p>
-                <p className={styles.description}>
-                  {hotel.baseInfo?.description}
-                </p>
+                <p className={styles.description}>{hotel.baseInfo?.description}</p>
                 <div className={styles.footer}>
-                  <span className={styles.price}>
-                    ¥{hotel.baseInfo?.price || '0'}/晚
-                  </span>
+                  <span className={styles.price}>¥{hotel.baseInfo?.price || '0'}/晚</span>
                   <span className={styles.cta}>查看详情 →</span>
                 </div>
               </div>
