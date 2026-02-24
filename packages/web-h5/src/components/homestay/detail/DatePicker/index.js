@@ -7,16 +7,20 @@ import { useState } from 'react';
 import styles from './index.module.scss';
 import SlideDrawer from '../../shared/SlideDrawer';
 import DateRangeCalendar from '../../home/DateRangeCalendar';
-const DatePicker = ({ onDateChange }) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const afterTomorrow = new Date(tomorrow);
-    afterTomorrow.setDate(afterTomorrow.getDate() + 2);
+const DatePicker = ({ checkInDate, checkOutDate, onDateChange }) => {
+    const parseDate = (dateStr) => {
+        if (!dateStr)
+            return new Date();
+        const date = new Date(dateStr);
+        return isNaN(date.getTime()) ? new Date() : date;
+    };
+    const checkInDate_init = parseDate(checkInDate);
+    const checkOutDate_init = parseDate(checkOutDate);
     const formatDate = (date) => {
         return date.toISOString().split('T')[0];
     };
-    const [checkIn, setCheckIn] = useState(tomorrow);
-    const [checkOut, setCheckOut] = useState(afterTomorrow);
+    const [checkIn, setCheckIn] = useState(checkInDate_init);
+    const [checkOut, setCheckOut] = useState(checkOutDate_init);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const handleDateChange = (newCheckIn, newCheckOut) => {
         setCheckIn(newCheckIn);

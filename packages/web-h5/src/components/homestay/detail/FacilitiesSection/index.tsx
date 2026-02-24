@@ -13,14 +13,21 @@ interface FacilitiesSectionProps {
   data?: any
   onOpenFullFacilities?: () => void
   roomName?: string
+  facilities?: any[]  // 中间件数据
+  // 抽屉用中间件数据
+  policiesData?: any[]
+  feeInfoData?: any
 }
 
 /**
  * FacilitiesSection 内容组件
  */
-const FacilitiesSectionContent: React.FC<FacilitiesSectionProps> = ({ data }) => {
+const FacilitiesSectionContent: React.FC<FacilitiesSectionProps> = ({ facilities = [] }) => {
+  // 安全处理 facilities，如果为 undefined 则使用空数组
+  const safelyFacilities = Array.isArray(facilities) ? facilities : []
+  
   // 只显示服务、基础、卫浴三个类别，并优先显示有的设施，最多两行（6个）
-  const displayCategories = FACILITY_CATEGORIES.filter((c) =>
+  const displayCategories = safelyFacilities.filter((c) =>
     ['service', 'basic', 'bathroom'].includes(c.id)
   ).map((category) => {
     const sortedFacilities = [
@@ -59,26 +66,11 @@ const FacilitiesSectionContent: React.FC<FacilitiesSectionProps> = ({ data }) =>
   )
 }
 
-const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({ data, onOpenFullFacilities, roomName = '' }) => {
+const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({ facilities, policiesData, feeInfoData }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-
-  // 创建虚拟room对象用于显示设施信息
-  const facilitiesRoom = {
-    id: 'facilities',
-    name: '所有设施',
-    area: '',
-    beds: '',
-    guests: '',
-    image: data?.images?.[0] || '',
-    price: 0,
-    priceNote: '',
-    benefits: [],
-    packageCount: 0,
-  }
 
   const handleOpenAllFacilities = () => {
     setIsDrawerOpen(true)
-    onOpenFullFacilities?.()
   }
 
   const handleCloseDrawer = () => {
@@ -101,17 +93,18 @@ const FacilitiesSection: React.FC<FacilitiesSectionProps> = ({ data, onOpenFullF
           },
         }}
       >
-        <FacilitiesSectionContent data={data} />
+        <FacilitiesSectionContent facilities={facilities} />
       </PropertyCardContainer>
 
       {/* 设施详情抽屉 - 使用RoomDetailDrawer展示 */}
       <RoomDetailDrawer
-        room={isDrawerOpen ? facilitiesRoom : null}
+        room={isDrawerOpen ? { id: 'facilities', name: '所有设施', area: '', beds: '', guests: '', image: '', priceList: [], priceNote: '', benefits: [], packageCount: 0 } : null}
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         scrollToFacilities={true}
         facilitiesExpanded={true}
-        actualRoomName={roomName}
+        policiesData={policiesData}
+        feeInfoData={feeInfoData}
       />
     </>
   )

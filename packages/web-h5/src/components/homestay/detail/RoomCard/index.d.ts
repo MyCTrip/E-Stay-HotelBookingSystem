@@ -9,22 +9,37 @@ interface Room {
     beds: string;
     guests: string;
     image: string;
-    price: number;
+    priceList: Array<{
+        packageId: number;
+        originPrice: number;
+        currentPrice: number;
+    }>;
     priceNote: string;
     benefits: string[];
     packageCount: number;
-    confirmTime: number;
+    confirmTime: string;
     showBreakfastTag?: boolean;
     breakfastCount?: number;
     showCancelTag?: boolean;
     hasPackageDetail?: boolean;
+    packages?: Array<{
+        packageId: number;
+        name: string;
+        showPackageDetail?: boolean;
+        showBreakfastTag?: boolean;
+        breakfastCount?: number;
+        showCancelTag?: boolean;
+        cancelMunite?: number;
+        showComfirmTag?: boolean;
+        confirmTime?: number;
+    }>;
 }
 interface RoomCardProps {
     room: Room;
     isExpanded: boolean;
     onToggleExpand: () => void;
-    onViewDetails?: (room: Room) => void;
-    onOpenDetail?: (room: Room) => void;
+    onViewDetails?: (room: Room, packageId?: number) => void;
+    onOpenDetail?: (room: Room, packageId?: number) => void;
     showLabel?: boolean;
 }
 declare const RoomCard: React.FC<RoomCardProps>;

@@ -10,3 +10,6 @@ export * from './homestays'
 
 // 房型数据
 export * from './rooms'
+
+// Detail 页面-中央数据
+export * from './detailCenterData'

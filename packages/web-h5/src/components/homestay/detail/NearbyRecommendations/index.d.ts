@@ -4,7 +4,8 @@
  */
 import React from 'react';
 interface NearbyRecommendationsProps {
-    location?: string;
+    surroundings?: any[];
+    baseInfo?: any;
 }
 declare const NearbyRecommendations: React.FC<NearbyRecommendationsProps>;
 export default NearbyRecommendations;

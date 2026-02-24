@@ -9,21 +9,31 @@ import SlideDrawer from '../../shared/SlideDrawer'
 import DateRangeCalendar from '../../home/DateRangeCalendar'
 
 interface DatePickerProps {
+  checkInDate?: string
+  checkOutDate?: string
   onDateChange?: (checkIn: string, checkOut: string) => void
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const afterTomorrow = new Date(tomorrow)
-  afterTomorrow.setDate(afterTomorrow.getDate() + 2)
+const DatePicker: React.FC<DatePickerProps> = ({ 
+  checkInDate, 
+  checkOutDate, 
+  onDateChange 
+}) => {
+  const parseDate = (dateStr?: string): Date => {
+    if (!dateStr) return new Date()
+    const date = new Date(dateStr)
+    return isNaN(date.getTime()) ? new Date() : date
+  }
+
+  const checkInDate_init = parseDate(checkInDate)
+  const checkOutDate_init = parseDate(checkOutDate)
 
   const formatDate = (date: Date) => {
     return date.toISOString().split('T')[0]
   }
 
-  const [checkIn, setCheckIn] = useState<Date>(tomorrow)
-  const [checkOut, setCheckOut] = useState<Date>(afterTomorrow)
+  const [checkIn, setCheckIn] = useState<Date>(checkInDate_init)
+  const [checkOut, setCheckOut] = useState<Date>(checkOutDate_init)
   const [drawerVisible, setDrawerVisible] = useState(false)
 
   const handleDateChange = (newCheckIn: Date, newCheckOut: Date) => {

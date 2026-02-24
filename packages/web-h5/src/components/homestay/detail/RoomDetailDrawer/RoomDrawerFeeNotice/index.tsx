@@ -15,6 +15,7 @@ interface RoomDrawerFeeNoticeProps {
   joinPrice?: number
   otherDescription?: string
   showOther?: boolean
+  feeInfo?: any  // 中间件数据
 }
 
 const RoomDrawerFeeNotice: React.FC<RoomDrawerFeeNoticeProps> = ({
@@ -25,7 +26,11 @@ const RoomDrawerFeeNotice: React.FC<RoomDrawerFeeNoticeProps> = ({
   joinPrice = 100,
   otherDescription = '',
   showOther = false,
+  feeInfo: middlewareFeeInfo,
 }) => {
+  // 使用中间件数据，如果有则优先使用
+  const finalDeposit = middlewareFeeInfo?.basePrice || deposit
+  const finalDescription = middlewareFeeInfo?.description || otherDescription
   return (
     <PropertyCardContainer
       headerConfig={{
@@ -46,7 +51,7 @@ const RoomDrawerFeeNotice: React.FC<RoomDrawerFeeNoticeProps> = ({
         <div className={styles.feeRow}>
           <div className={styles.feeTitle}>押金</div>
           <div className={styles.feeContent}>
-            ¥{deposit}，下单时支付，离店后原路退还，无纠纷不扣押
+            ¥{finalDeposit}，下单时支付，离店后原路退还，无纠纷不扣押
           </div>
         </div>
 
@@ -70,7 +75,7 @@ const RoomDrawerFeeNotice: React.FC<RoomDrawerFeeNoticeProps> = ({
             {/* 其他说明文本区域 - 显示全部文本 */}
             <div className={styles.otherDescriptionContainer}>
               <div className={styles.otherDescriptionTextFull}>
-                {otherDescription}
+                {finalDescription}
               </div>
             </div>
           </>

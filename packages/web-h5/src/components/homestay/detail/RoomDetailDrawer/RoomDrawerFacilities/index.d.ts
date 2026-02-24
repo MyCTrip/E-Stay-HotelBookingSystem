@@ -6,6 +6,7 @@ interface RoomDrawerFacilitiesProps {
     room?: any;
     expandedInitially?: boolean;
     onClose?: () => void;
+    facilities?: any[];
 }
 declare const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps>;
 export default RoomDrawerFacilities;

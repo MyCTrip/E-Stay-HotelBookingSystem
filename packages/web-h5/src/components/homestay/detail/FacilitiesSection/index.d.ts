@@ -6,6 +6,9 @@ interface FacilitiesSectionProps {
     data?: any;
     onOpenFullFacilities?: () => void;
     roomName?: string;
+    facilities?: any[];
+    policiesData?: any[];
+    feeInfoData?: any;
 }
 declare const FacilitiesSection: React.FC<FacilitiesSectionProps>;
 export default FacilitiesSection;

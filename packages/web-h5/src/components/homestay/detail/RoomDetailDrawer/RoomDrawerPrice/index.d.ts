@@ -10,7 +10,11 @@ interface Discount {
 }
 interface Room {
     id: string;
-    price: number;
+    priceList: Array<{
+        packageId: number;
+        originPrice: number;
+        currentPrice: number;
+    }>;
     discounts?: Discount[];
 }
 interface RoomDrawerPriceProps {

@@ -3,6 +3,7 @@
  */
 
 import React, { useState } from 'react'
+import { useHomestayStore } from '@estay/shared'
 import PropertyCardContainer from '../PropertyCardContainer'
 import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay'
 import { TipIcon, CheckIcon, CrossIcon } from '../../icons'
@@ -14,96 +15,106 @@ interface CancellationPolicy {
 }
 
 interface PolicySectionProps {
-  room?: any
-  data?: any
-  cancelMinutes?: number
-  checkInDate?: string // 格式: "YYYY-MM-DD"
-  checkInTime?: string // 格式: "HH:mm"
-  checkOutTime?: string
-  deadlineTime?: number // 超过入住时间多少小时后扣全款，单位: 小时，默认24
-  amenities?: {
-    baby?: boolean
-    children?: boolean
-    elderly?: boolean
-    overseas?: boolean
-    hongKongMacaoTaiwan?: boolean
-    pets?: boolean
-  }
-  roomName?: string
+  policies?: any  // 中间件数据
+  checkInDate?: string  // 搜索参数：检入日期
+  checkOutDate?: string  // 搜索参数：检出日期
+  // 抽屉用中间件数据
+  facilitiesData?: any[]
+  feeInfoData?: any
 }
 
 /**
  * PolicySection 内容组件
  */
 const PolicySectionContent: React.FC<Omit<PolicySectionProps, 'room'>> = ({
-  data,
-  cancelMinutes = 30,
-  checkInDate = '2026-02-21',
-  checkInTime = '14:00',
-  checkOutTime = '12:00',
-  deadlineTime = 24,
-  amenities = {
-    baby: true,
-    children: true,
-    elderly: true,
-    overseas: true,
-    hongKongMacaoTaiwan: true,
-    pets: false,
-  },
+  policies: middlewarePolicies,
+  checkInDate: propsCheckInDate,
+  checkOutDate,
 }) => {
+  // 从 store 获取 detailContext 中的日期（优先级高于 Props）
+  const { detailContext } = useHomestayStore()
+  const storeCheckInDate = detailContext?.checkInDate
+  
+  // 优先使用 store 中的日期，再用 Props，最后用默认值
+  let checkInDate = storeCheckInDate || propsCheckInDate
+  
+  // 如果还是没有，使用默认值（MM-DD 格式的今天）
+  if (!checkInDate) {
+    const now = new Date()
+    checkInDate = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  }
+
+  // 日期时间计算辅助函数 - 从指定日期和时间加上小时数
+  const addHoursToDateTime = (mmdd: string, timeStr: string, hoursToAdd: number): { date: string; time: string } => {
+    if (!mmdd || !timeStr) return { date: '', time: '' }
+    
+    // 解析 MM-DD 格式
+    const [month, day] = mmdd.split('-').map(Number)
+    // 解析 HH:MM 格式
+    const [hour, min] = timeStr.split(':').map(Number)
+    
+    const now = new Date()
+    // 创建日期对象（使用当前年份作为基准）
+    let date = new Date(now.getFullYear(), month - 1, day, hour, min)
+    
+    // 添加小时
+    date.setHours(date.getHours() + hoursToAdd)
+    
+    // 返回格式化后的日期和时间
+    const resultMonth = String(date.getMonth() + 1).padStart(2, '0')
+    const resultDay = String(date.getDate()).padStart(2, '0')
+    const resultHour = String(date.getHours()).padStart(2, '0')
+    const resultMin = String(date.getMinutes()).padStart(2, '0')
+    
+    return {
+      date: `${resultMonth}月${resultDay}日`,
+      time: `${resultHour}:${resultMin}`,
+    }
+  }
+
   // 解析日期时间，生成表格数据
   const generateCancellationPolicies = () => {
-    // 解析checkInDate (YYYY-MM-DD)
-    const [year, month, day] = checkInDate.split('-')
-    const checkInDateStr = `${month}月${day}日`
+    const checkInSpan = middlewarePolicies?.checkInSpan?.[0]
+    const checkoutTime = middlewarePolicies?.checkoutTime
+    const deadlineTime = middlewarePolicies?.deadlineTime
 
-    // 计算deadline时间：checkInTime + deadlineTime小时
-    const [checkInHour, checkInMin] = checkInTime.split(':').map(Number)
-    const deadlineHour = (checkInHour + deadlineTime) % 24
-    const addDays = Math.floor((checkInHour + deadlineTime) / 24)
+    if (!checkInSpan || !checkoutTime || !deadlineTime || !checkInDate) {
+      return []
+    }
 
-    // 计算deadline日期
-    const checkInDateObj = new Date(Number(year), Number(month) - 1, Number(day))
-    const deadlineDateObj = new Date(
-      checkInDateObj.getFullYear(),
-      checkInDateObj.getMonth(),
-      checkInDateObj.getDate() + addDays
-    )
-    const deadlineMonth = String(deadlineDateObj.getMonth() + 1).padStart(2, '0')
-    const deadlineDay = String(deadlineDateObj.getDate()).padStart(2, '0')
-    const deadlineDateStr = `${deadlineMonth}月${deadlineDay}日`
-    const deadlineTimeStr = `${String(deadlineHour).padStart(2, '0')}:${String(checkInMin).padStart(2, '0')}`
+    // 获取入住时间范围的开始时间作为 cancellationHour
+    const cancellationHour = checkInSpan.early // 如 '14:00'
+
+    // 计算各个时间点（第一个时间点，加0小时）
+    const firstTimepoint = addHoursToDateTime(checkInDate, cancellationHour, 0)
+    // 计算第二个时间点，加上deadlineTime小时
+    const secondTimepoint = addHoursToDateTime(checkInDate, cancellationHour, deadlineTime)
 
     return [
       {
-        // 第一行：当前阶段 + 入住日期 + 入住时间前
-        firstRow: true,
-        timeRange: `${checkInDateStr} ${checkInTime}前`,
+        timeRange: `${firstTimepoint.date} ${firstTimepoint.time}前`,
         cancellationFee: '免费取消',
       },
       {
-        // 第二行：两行文本
-        secondRow: true,
-        timeRange: `${checkInDateStr} ${checkInTime}后\n${deadlineDateStr} ${deadlineTimeStr}前`,
+        timeRange: `${firstTimepoint.date} ${firstTimepoint.time}后\n${secondTimepoint.date} ${secondTimepoint.time}前`,
         cancellationFee: '取消扣首晚房费的\n100%',
       },
       {
-        // 第三行：取消全款时间后
-        thirdRow: true,
-        timeRange: `${deadlineDateStr} ${deadlineTimeStr}后`,
+        timeRange: `${secondTimepoint.date} ${secondTimepoint.time}后`,
         cancellationFee: '取消扣全款',
       },
     ]
   }
 
   const cancellationPolicies = generateCancellationPolicies()
+  const amenities = middlewarePolicies?.amenities
   const amenityItems = [
-    { label: '接待婴儿', enabled: amenities.baby },
-    { label: '接待儿童', enabled: amenities.children },
-    { label: '接待老人', enabled: amenities.elderly },
-    { label: '接待海外', enabled: amenities.overseas },
-    { label: '接待港澳台', enabled: amenities.hongKongMacaoTaiwan },
-    { label: '带宠物', enabled: amenities.pets },
+    { label: '接待婴儿', enabled: amenities?.baby },
+    { label: '接待儿童', enabled: amenities?.children },
+    { label: '接待老人', enabled: amenities?.elderly },
+    { label: '接待海外', enabled: amenities?.overseas },
+    { label: '接待港澳台', enabled: amenities?.hongKongMacaoTaiwan },
+    { label: '带宠物', enabled: amenities?.pets },
   ]
 
   return (
@@ -116,11 +127,11 @@ const PolicySectionContent: React.FC<Omit<PolicySectionProps, 'room'>> = ({
           <div className={styles.checkInOut}>
             <div className={styles.item}>
               <span className={styles.label}>入住</span>
-              <span className={styles.value}>{checkInTime}-24:00入住</span>
+              <span className={styles.value}>{middlewarePolicies?.checkInSpan?.[0]?.early}-{middlewarePolicies?.checkInSpan?.[0]?.later}入住</span>
             </div>
             <div className={styles.item}>
               <span className={styles.label}>退房</span>
-              <span className={styles.value}>{checkOutTime}前退房</span>
+              <span className={styles.value}>{middlewarePolicies?.checkoutTime}前退房</span>
             </div>
           </div>
         </div>
@@ -131,9 +142,9 @@ const PolicySectionContent: React.FC<Omit<PolicySectionProps, 'room'>> = ({
             <h3 className={styles.sectionTitle}>退订</h3>
           </div>
           <div className={styles.sectionContent}>
-            <div className={styles.highlight}>{cancelMinutes}分钟内免费取消</div>
+            <div className={styles.highlight}>{middlewarePolicies?.cancelMinute}分钟内免费取消</div>
             <p className={styles.description}>
-              订单确认{cancelMinutes}
+              订单确认{middlewarePolicies?.cancelMinute}
               分钟后，取消订单将扣除全部房费（订单需等商家确认生效，订单确认结果以公众号、短信或app通知为准，如订单不确认将全额退款至你的付款账号）
             </p>
           </div>
@@ -153,15 +164,7 @@ const PolicySectionContent: React.FC<Omit<PolicySectionProps, 'room'>> = ({
                 <tr key={idx}>
                   <td>
                     <div className={styles.timeCell}>
-                      {idx === 0 && (
-                        <>
-                          <span className={styles.tag}>当前阶段</span>
-                          <div>{policy.timeRange}</div>
-                        </>
-                      )}
-                      {idx === 1 &&
-                        policy.timeRange.split('\n').map((line, i) => <div key={i}>{line}</div>)}
-                      {idx === 2 && <div>{policy.timeRange}</div>}
+                      {policy.timeRange.split('\n').map((line, i) => <div key={i}>{line}</div>)}
                     </div>
                   </td>
                   <td>
@@ -197,22 +200,9 @@ const PolicySectionContent: React.FC<Omit<PolicySectionProps, 'room'>> = ({
 }
 
 const PolicySection: React.FC<PolicySectionProps> = ({
-  room,
-  data,
-  cancelMinutes = 30,
-  checkInDate = '2026-02-21',
-  checkInTime = '14:00',
-  checkOutTime = '12:00',
-  deadlineTime = 24,
-  amenities = {
-    baby: true,
-    children: true,
-    elderly: true,
-    overseas: true,
-    hongKongMacaoTaiwan: true,
-    pets: false,
-  },
-  roomName = '',
+  facilitiesData,
+  feeInfoData,
+  policies,
 }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
@@ -223,8 +213,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({
     area: '',
     beds: '',
     guests: '',
-    image: data?.images?.[0] || '',
-    price: 0,
+    image: '',
+    priceList: [],
     priceNote: '',
     benefits: [],
     packageCount: 0,
@@ -260,13 +250,7 @@ const PolicySection: React.FC<PolicySectionProps> = ({
         }}
       >
         <PolicySectionContent
-          data={data}
-          cancelMinutes={cancelMinutes}
-          checkInDate={checkInDate}
-          checkInTime={checkInTime}
-          checkOutTime={checkOutTime}
-          deadlineTime={deadlineTime}
-          amenities={amenities}
+          policies={policies}
         />
       </PropertyCardContainer>
 
@@ -276,7 +260,8 @@ const PolicySection: React.FC<PolicySectionProps> = ({
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         scrollToPolicy={true}
-        actualRoomName={roomName}
+        facilitiesData={facilitiesData}
+        feeInfoData={feeInfoData}
       />
     </>
   )

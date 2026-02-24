@@ -5,6 +5,7 @@
 import React from 'react';
 interface HostInfoProps {
     data?: any;
+    hostInfo?: any;
 }
 declare const HostInfo: React.FC<HostInfoProps>;
 export default HostInfo;

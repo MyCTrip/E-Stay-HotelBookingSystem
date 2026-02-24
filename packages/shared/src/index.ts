@@ -28,8 +28,13 @@ export type {
   SearchUIState,
 } from './stores/homestayStore'
 
-// Mock 数据
-export * from './mocks'
+// Mock 数据（选择性导出以避免冲突）
+export { SEARCH_RESULT_HOMESTAYS, getRecommendedHomestays, POPULAR_HOMESTAYS, HOMESTAY_DETAIL_MOCK } from './mocks'
+export { NEARBY_ROOMS } from './mocks'
+
+// Constants（常量）
+export { FACILITY_CATEGORIES, getFacilitiesByCategory, getAvailableFacilitiesByCategory, getFacilitiesSectionData, getFacilitiesInCategory, getFacilitiesWithStatus } from './constants/facilities'
+export type { Facility, FacilityCategory } from './constants/facilities'
 
 // 中间件管理
 export {
@@ -40,6 +45,10 @@ export {
   createPerformanceMiddleware,
 } from './middleware'
 export type { IMiddleware } from './middleware'
+
+// 组件数据中间件
+export * from './services'
+export { DETAIL_CENTER_DATA_MOCK } from './mocks/detailCenterData'
 
 // 错误处理
 export {

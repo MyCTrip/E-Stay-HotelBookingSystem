@@ -14,164 +14,91 @@ interface Room {
   beds: string
   guests: string
   image: string
-  price: number
+  priceList: Array<{
+    packageId: number
+    originPrice: number
+    currentPrice: number
+  }>
   priceNote: string
   benefits: string[]
   packageCount: number
-  confirmTime: number
+  confirmTime: string
+  // 新增属性：早餐和取消标签
+  showBreakfastTag?: boolean
+  breakfastCount?: number
+  showCancelTag?: boolean
+  cancelMunite?: number
+  hasPackageDetail?: boolean
+  // 套餐列表
+  packages?: Array<{
+    packageId: number
+    name: string
+    showPackageDetail?: boolean
+    showBreakfastTag?: boolean
+    breakfastCount?: number
+    showCancelTag?: boolean
+    cancelMunite?: number
+    showComfirmTag?: boolean
+    confirmTime?: number
+  }>
 }
 
 interface RoomSelectionProps {
-  data?: any
-  rooms?: Room[]
+  rooms: Room[]  // 必须传入rooms数据，无默认值
   displayCount?: number
   onSelectRoom?: (room: Room) => void
   checkIn?: string    // ISO格式日期，如 '2025-02-25'
   checkOut?: string   // ISO格式日期，如 '2025-02-27'
+  // 中间件数据
+  facilities?: any[]
+  policies?: any[]
+  feeInfo?: any
 }
 
-// 模拟房型数据
-const mockRooms = [
-  {
-    id: '1',
-    name: '市景五室二厅套房',
-    area: '190㎡',
-    beds: '5床 | 1.8m大床',
-    guests: '12人',
-    image: 'https://picsum.photos/240/320?random=room1',
-    price: 1280,
-    priceNote: '晚/起',
-    benefits: ['免费WiFi', '免费停车', '房间内免费WiFi'],
-    packageCount: 3,
-    confirmTime: 30,
-    showBreakfastTag: true,
-    breakfastCount: 2,
-    showCancelTag: true,
-    hasPackageDetail: true,
-    discounts: [
-      { name: '钻石贵宾', description: '钻石贵宾享受', amount: 230 },
-      { name: '连住优惠', description: '连住3晚及以上', amount: 138 },
-      { name: '扫零取整', description: '价格优化', amount: 2 },
-    ],
-  },
-  {
-    id: '2',
-    name: '惠选经典三室一厅套房',
-    area: '95㎡',
-    beds: '3床 | 1.8m大床',
-    guests: '6人',
-    image: 'https://picsum.photos/240/320?random=room2',
-    price: 840,
-    priceNote: '晚/起',
-    benefits: ['免费WiFi', '免费停车'],
-    packageCount: 2,
-    confirmTime: 30,
-    showBreakfastTag: true,
-    breakfastCount: 0,
-    showCancelTag: true,
-    hasPackageDetail: true,
-    discounts: [
-      { name: '早鸟优惠', description: '提前30天预订', amount: 100 },
-      { name: '会员折扣', description: 'VIP 会员', amount: 50 },
-    ],
-  },
-  {
-    id: '3',
-    name: '温馨二室二厅套房',
-    area: '95㎡',
-    beds: '2床 | 1.8m大床',
-    guests: '4人',
-    image: 'https://picsum.photos/240/320?random=room3',
-    price: 1189,
-    priceNote: '晚/起',
-    benefits: ['免费WiFi'],
-    packageCount: 1,
-    confirmTime: 30,
-    showBreakfastTag: true,
-    breakfastCount: 1,
-    showCancelTag: false,
-    hasPackageDetail: false,
-    discounts: [],
-  },
-  {
-    id: '4',
-    name: '豪华单床间',
-    area: '45㎡',
-    beds: '1床 | 1.5m大床',
-    guests: '2人',
-    image: 'https://picsum.photos/240/320?random=room4',
-    price: 520,
-    priceNote: '晚/起',
-    benefits: ['免费WiFi'],
-    packageCount: 1,
-    confirmTime: 30,
-    showBreakfastTag: false,
-    breakfastCount: 0,
-    showCancelTag: false,
-    hasPackageDetail: false,
-    discounts: [
-      { name: '平台优惠', description: '平台满减', amount: 50 },
-    ],
-  },
-  {
-    id: '5',
-    name: '亲子家庭房',
-    area: '120㎡',
-    beds: '2床 | 1.8m+1.5m',
-    guests: '6人',
-    image: 'https://picsum.photos/240/320?random=room5',
-    price: 1050,
-    priceNote: '晚/起',
-    benefits: ['免费停车', '儿童福利'],
-    packageCount: 2,
-    confirmTime: 30,
-    showBreakfastTag: true,
-    breakfastCount: 2,
-    showCancelTag: true,
-    hasPackageDetail: false,
-    discounts: [
-      { name: '家庭优惠', description: '亲子房特享', amount: 150 },
-      { name: '套餐折扣', description: '多晚更优惠', amount: 80 },
-    ],
-  },
-]
+// 已删除所有硬编码的 mockRooms 数据
 
 const RoomSelection: React.FC<RoomSelectionProps> = ({ 
   rooms, 
   displayCount, 
   onSelectRoom,
   checkIn,
-  checkOut
+  checkOut,
+  facilities,
+  policies,
+  feeInfo,
 }) => {
   const [expandedRoomId, setExpandedRoomId] = useState<string | null>(null)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [selectedPackageId, setSelectedPackageId] = useState<number | undefined>(undefined)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
-  // 类型转换函数：将外部Room类型转换为本地Room类型
+  // 类型转换函数：直接使用中间件提供的房间数据，无默认值
   const convertRoom = (room: any): Room => {
-    // 如果已经是本地Room格式，直接返回
-    if (room.id && room.name && room.area && room.confirmTime !== undefined) {
-      return room as Room
-    }
-    // 否则从共享包的Room类型转换
     return {
       id: room._id || room.id,
-      name: room.roomDisplayData?.name || room.name,
-      area: room.roomDisplayData?.area || room.area,
-      beds: room.roomDisplayData?.beds || room.beds,
-      guests: room.roomDisplayData?.guests || room.guests,
-      image: room.roomDisplayData?.image || room.image || room.baseInfo?.images?.[0],
-      price: room.baseInfo?.price || room.price,
-      priceNote: room.priceNote || '晚/起',
-      benefits: room.benefits || [],
-      packageCount: room.packageCount || 1,
-      confirmTime: room.confirmTime || 30,
+      name: room.name,
+      area: room.area,
+      beds: room.beds,
+      guests: room.guests,
+      image: room.image,
+      priceList: room.priceList,
+      priceNote: room.priceNote,
+      benefits: room.benefits,
+      packageCount: room.packageCount,
+      confirmTime: room.confirmTime,
+      hasPackageDetail: room.hasPackageDetail,
+      // 映射新增字段
+      showBreakfastTag: room.showBreakfastTag,
+      breakfastCount: room.breakfastCount,
+      showCancelTag: room.showCancelTag,
+      cancelMunite: room.cancelMunite,
+      // 映射套餐数组
+      packages: room.packages,
     }
   }
 
-  // 使用传入的 rooms，如果没有则使用 mockRooms
-  const rawRooms = rooms || mockRooms
-  const convertedRooms = Array.isArray(rawRooms) ? rawRooms.map(convertRoom) : mockRooms
+  // 直接使用传入的 rooms 数据，无默认值
+  const convertedRooms = Array.isArray(rooms) ? rooms.map(convertRoom) : []
   // 使用传入的 displayCount，如果没有则显示全部
   const itemsToShow =
     displayCount !== undefined ? convertedRooms.slice(0, displayCount) : convertedRooms
@@ -180,8 +107,9 @@ const RoomSelection: React.FC<RoomSelectionProps> = ({
     setExpandedRoomId(expandedRoomId === roomId ? null : roomId)
   }
 
-  const handleViewDetails = (room: Room) => {
+  const handleViewDetails = (room: Room, packageId?: number) => {
     setSelectedRoom(room)
+    setSelectedPackageId(packageId)
     setIsDrawerOpen(true)
     onSelectRoom?.(room)
   }
@@ -214,11 +142,15 @@ const RoomSelection: React.FC<RoomSelectionProps> = ({
       {/* 房型详情抽屉 */}
       <RoomDetailDrawer
         room={selectedRoom}
+        selectedPackageId={selectedPackageId}
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         onBook={handleBooking}
         checkIn={checkIn}
         checkOut={checkOut}
+        facilitiesData={facilities}
+        policiesData={policies}
+        feeInfoData={feeInfo}
       />
     </div>
   )

@@ -15,32 +15,19 @@ interface HotelInfoProps {
  * HotelInfo 内容组件 - 不包含容器样式
  */
 const HotelInfoContent: React.FC<HotelInfoProps> = ({ data }) => {
-  // 模拟品牌/星级
-  const brand = '精选'
-  const highlights = ['复式loft房', '可带宠物', '有停车位', '24小时前台']
-
-  // 核心参数（规范化展示）
-  const coreParams = {
-    area: '190㎡',
-    rooms: '3间卧室',
-    beds: '5张床',
-    guests: '12人',
+  // 安全处理 data 为 undefined 的情况
+  if (!data) {
+    return null
   }
-
-  // 获取基础信息
-  const name = data?.baseInfo?.nameCn || '民宿名称'
-  const rating = data?.baseInfo?.star || 4.9
-  const reviewCount = data?.baseInfo?.reviewCount || 128
-  const location = data?.baseInfo?.address || '城市位置'
 
   return (
     <>
       {/* 名称 & 评分行 */}
       <div className={styles.headerRow}>
         <div className={styles.left}>
-          <h1 className={styles.name}>{name}</h1>
+          <h1 className={styles.name}>{data.name}</h1>
           <div className={styles.badges}>
-            <span className={styles.brand}>{brand}</span>
+            <span className={styles.brand}>{data.brand}</span>
             <span className={styles.stars}>
               <StarIcon width={16} height={16} color="#fa7b1f" />
               <StarIcon width={16} height={16} color="#fa7b1f" />
@@ -50,9 +37,9 @@ const HotelInfoContent: React.FC<HotelInfoProps> = ({ data }) => {
           </div>
         </div>
         <div className={styles.right}>
-          <div className={styles.rating}>{rating}</div>
+          <div className={styles.rating}>{data.rating}</div>
           <div className={styles.ratingLabel}>很好</div>
-          <div className={styles.reviewCount}>{reviewCount}条评价</div>
+          <div className={styles.reviewCount}>{data.reviewCount}条评价</div>
         </div>
       </div>
 
@@ -60,7 +47,7 @@ const HotelInfoContent: React.FC<HotelInfoProps> = ({ data }) => {
       <div className={styles.locationRow}>
         <div className={styles.address}>
           <PositionIcon width={14} height={14} color="#8da5cd" />
-          <span>{location}</span>
+          <span>{data.address}</span>
         </div>
         <button className={styles.mapBtn} title="查看地图">
           <MapIcon width={14} height={14} color="#333333" /> 地图
@@ -73,37 +60,37 @@ const HotelInfoContent: React.FC<HotelInfoProps> = ({ data }) => {
           <span className={styles.paramIcon}>
             <AreaIcon width={20} height={20} color="#333333" />
           </span>
-          <span className={styles.paramValue}>{coreParams.area}</span>
+          <span className={styles.paramValue}>{data.area}</span>
         </div>
         <div className={styles.divider} />
         <div className={styles.paramItem}>
           <span className={styles.paramIcon}>
             <HouseIcon width={20} height={20} color="#333333" />
           </span>
-          <span className={styles.paramValue}>{coreParams.rooms}</span>
+          <span className={styles.paramValue}>{data.room}</span>
         </div>
         <div className={styles.divider} />
         <div className={styles.paramItem}>
           <span className={styles.paramIcon}>
             <BedIcon width={20} height={20} color="#333333" />
           </span>
-          <span className={styles.paramValue}>{coreParams.beds}</span>
+          <span className={styles.paramValue}>{data.bed}床</span>
         </div>
         <div className={styles.divider} />
         <div className={styles.paramItem}>
           <span className={styles.paramIcon}>
             <UserIcon width={20} height={20} color="#333333" />
           </span>
-          <span className={styles.paramValue}>{coreParams.guests}</span>
+          <span className={styles.paramValue}>{data.guests}人入住</span>
         </div>
       </div>
 
       {/* 核心亮点标签 */}
       <div className={styles.highlightsRow}>
         <div className={styles.highlights}>
-          {highlights.map((highlight, idx) => (
+          {data.tags?.map((tag, idx) => (
             <span key={idx} className={styles.tag}>
-              {highlight}
+              {tag}
             </span>
           ))}
         </div>

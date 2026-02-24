@@ -5,6 +5,7 @@ import React from 'react';
 interface ReviewSectionProps {
     hostelId: string;
     roomName?: string;
+    reviews?: any[];
 }
 declare const ReviewSection: React.FC<ReviewSectionProps>;
 export default ReviewSection;

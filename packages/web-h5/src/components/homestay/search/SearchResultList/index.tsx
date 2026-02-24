@@ -4,7 +4,9 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { HomeStay } from '@estay/shared'
+import type { HomeStay, HomeStaySearchParams } from '@estay/shared'
+import { formatDateToString, formatStringToDate } from '@estay/shared'
+import { useHomestayStore } from '@estay/shared'
 import SearchResultHeader from '../SearchResultHeader'
 import SearchBar from '../SearchBar'
 import FilterSortBar from '../FilterSortBar'
@@ -41,7 +43,7 @@ interface SearchResultListProps {
 const SearchResultList: React.FC<SearchResultListProps> = ({
   data = [],
   loading = false,
-  filters = {
+  filters: initialFilters = {
     city: '上海',
     checkInDate: '2024-02-17',
     checkOutDate: '2024-02-18',
@@ -54,7 +56,10 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
   const navigate = useNavigate()
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-
+  
+  // 从Store读取searchParams
+  const { searchParams } = useHomestayStore()
+  
   // 状态管理
   const [scrollTop, setScrollTop] = useState(0)
   const [viewMode, setViewMode] = useState<ViewMode>('list')
@@ -68,6 +73,23 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
   const [displayedData, setDisplayedData] = useState<HomeStay[]>(data)
   const [pageSize] = useState(12)
   const [currentPage, setCurrentPage] = useState(1)
+
+  // ===== 关键改动：从Store初始化本地filters =====
+  const [filters, setFilters] = useState<SearchFilters>(() => {
+    if (searchParams) {
+      return {
+        city: searchParams.city,
+        checkInDate: formatDateToString(searchParams.checkIn),
+        checkOutDate: formatDateToString(searchParams.checkOut),
+        roomCount: searchParams.rooms,
+        guestCount: searchParams.guests,
+        priceMin: searchParams.priceMin,
+        priceMax: searchParams.priceMax,
+        facilities: searchParams.selectedTags,
+      }
+    }
+    return initialFilters
+  })
 
   // 计算选中的标签
   const selectedTags = useCallback(() => {
@@ -147,6 +169,38 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
     }
   }, [data, viewMode])
 
+  // ===== 关键改动：统一的筛选变化处理函数 =====
+  // 同时更新本地state和Store中的searchParams
+  const handleFiltersChange = useCallback(
+    (newFilters: SearchFilters) => {
+      setFilters(newFilters)
+      
+      // 同时更新Store中的searchParams
+      const updatedSearchParams: HomeStaySearchParams = {
+        city: newFilters.city || searchParams?.city || '',
+        checkIn: formatStringToDate(newFilters.checkInDate || ''),
+        checkOut: formatStringToDate(newFilters.checkOutDate || ''),
+        guests: newFilters.guestCount || searchParams?.guests || 1,
+        rooms: newFilters.roomCount || searchParams?.rooms,
+        beds: searchParams?.beds,
+        keyword: searchParams?.keyword,
+        selectedTags: newFilters.facilities || searchParams?.selectedTags,
+        priceMin: newFilters.priceMin || searchParams?.priceMin,
+        priceMax: newFilters.priceMax || searchParams?.priceMax,
+        page: searchParams?.page || 1,
+        limit: searchParams?.limit || 20,
+      }
+      
+      useHomestayStore.setState({ searchParams: updatedSearchParams })
+      onFiltersChange?.(newFilters)
+      
+      // 重置分页
+      setCurrentPage(1)
+      setDisplayedData(data.slice(0, pageSize))
+    },
+    [searchParams, onFiltersChange, data, pageSize]
+  )
+
   // 处理容器滚动
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget
@@ -205,7 +259,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         break
     }
 
-    onFiltersChange?.(newFilters)
+    handleFiltersChange(newFilters)
   }
 
   // 重置所有筛选
@@ -217,7 +271,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
       roomCount: filters.roomCount,
       guestCount: filters.guestCount,
     }
-    onFiltersChange?.(resetFilters)
+    handleFiltersChange(resetFilters)
   }
 
   // 处理排序变化
@@ -243,9 +297,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         newFilters[key as keyof SearchFilters] === undefined &&
         delete newFilters[key as keyof SearchFilters]
     )
-    onFiltersChange?.(newFilters)
-    setCurrentPage(1)
-    setDisplayedData(data.slice(0, pageSize))
+    handleFiltersChange(newFilters)
   }
 
   // 处理人数/房间变化
@@ -260,9 +312,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         newFilters[key as keyof SearchFilters] === undefined &&
         delete newFilters[key as keyof SearchFilters]
     )
-    onFiltersChange?.(newFilters)
-    setCurrentPage(1)
-    setDisplayedData(data.slice(0, pageSize))
+    handleFiltersChange(newFilters)
   }
 
   // 处理位置变化
@@ -281,9 +331,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         newFilters[key as keyof SearchFilters] === undefined &&
         delete newFilters[key as keyof SearchFilters]
     )
-    onFiltersChange?.(newFilters)
-    setCurrentPage(1)
-    setDisplayedData(data.slice(0, pageSize))
+    handleFiltersChange(newFilters)
   }
 
   // 处理无限滚动 - 加载更多数据
@@ -313,15 +361,17 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         {/* 搜索条件栏 */}
         <SearchBar
           initialCity={filters?.city}
+          initialCheckIn={filters?.checkInDate ? formatStringToDate(filters.checkInDate) : undefined}
+          initialCheckOut={filters?.checkOutDate ? formatStringToDate(filters.checkOutDate) : undefined}
           initialLocation=""
           onCityChange={(city) => {
-            onFiltersChange?.({ ...filters, city })
+            handleFiltersChange({ ...filters, city })
           }}
           onDateChange={(checkIn, checkOut) => {
-            onFiltersChange?.({
+            handleFiltersChange({
               ...filters,
-              checkInDate: checkIn.toISOString().split('T')[0],
-              checkOutDate: checkOut.toISOString().split('T')[0],
+              checkInDate: formatDateToString(checkIn),
+              checkOutDate: formatDateToString(checkOut),
             })
           }}
           onLocationChange={(location) => {

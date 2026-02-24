@@ -9,13 +9,15 @@ import styles from './index.module.scss'
 interface ReviewSectionProps {
   hostelId: string
   roomName?: string
+  reviews?: any[]  // 中间件数据
 }
 
 /**
  * ReviewSection 内容组件
  */
-const ReviewSectionContent: React.FC<ReviewSectionProps> = ({ hostelId }) => {
-  const reviews = [
+const ReviewSectionContent: React.FC<ReviewSectionProps> = ({ hostelId, reviews: middlewareReviews }) => {
+  // 使用中间件数据，如果没有则使用mock数据
+  const reviews = middlewareReviews && middlewareReviews.length > 0 ? middlewareReviews : [
     {
       id: '1',
       author: '李女士',
@@ -50,9 +52,9 @@ const ReviewSectionContent: React.FC<ReviewSectionProps> = ({ hostelId }) => {
             <div key={score} className={styles.scoreRow}>
               <span className={styles.label}>{score}分</span>
               <div className={styles.bar}>
-                <div className={styles.fill} style={{ width: `${(6 - score) * 20}%` }} />
+                <div className={styles.fill} style={{ width: `${(1 + score) * 20}%` }} />
               </div>
-              <span className={styles.count}>{(6 - score) * 15}</span>
+              <span className={styles.count}>{(1 + score) * 15}</span>
             </div>
           ))}
         </div>

@@ -3,13 +3,9 @@
  */
 import React from 'react';
 interface FeeNoticeSectionProps {
-    deposit: number;
-    standardGuests: number;
-    joinNumber: number;
-    joinPrice: number;
-    otherDescription?: string;
-    showOther?: boolean;
-    roomName?: string;
+    feeInfo?: any;
+    policiesData?: any[];
+    facilitiesData?: any[];
 }
 declare const FeeNoticeSection: React.FC<FeeNoticeSectionProps>;
 export default FeeNoticeSection;

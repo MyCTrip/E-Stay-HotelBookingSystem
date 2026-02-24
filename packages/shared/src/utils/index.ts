@@ -82,3 +82,8 @@ export function throttle<T extends (...args: any[]) => any>(
     }
   }
 }
+
+/**
+ * 日期格式化工具
+ */
+export * from './dateFormatter'

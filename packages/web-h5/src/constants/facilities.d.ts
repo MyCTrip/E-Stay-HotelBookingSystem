@@ -1,23 +1,6 @@
 /**
- * 设施数据定义
+ * 设施常量和工具函数 - 从 shared 中导入
+ * 该文件作为 web-h5 的本地别名，所有定义都在 @estay/shared 中统一管理
  */
-export interface Facility {
-    id: string;
-    name: string;
-    available: boolean;
-}
-export interface FacilityCategory {
-    id: string;
-    name: string;
-    facilities: Facility[];
-}
-export declare const FACILITY_CATEGORIES: FacilityCategory[];
-export declare const getFacilitiesByCategory: (categoryId: string) => Facility[];
-export declare const getAvailableFacilitiesByCategory: (categoryId: string) => Facility[];
-export declare const getFacilitiesSectionData: () => Facility[];
-export declare const getFacilitiesInCategory: (categoryId: string, hasFacilities?: string[]) => Facility[];
-export declare const getFacilitiesWithStatus: (categoryId: string, hasFacilities?: string[]) => {
-    name: string;
-    has: boolean;
-}[];
+export { FACILITY_CATEGORIES, getFacilitiesByCategory, getAvailableFacilitiesByCategory, getFacilitiesSectionData, getFacilitiesInCategory, getFacilitiesWithStatus, type Facility, type FacilityCategory, } from '@estay/shared';
 //# sourceMappingURL=facilities.d.ts.map

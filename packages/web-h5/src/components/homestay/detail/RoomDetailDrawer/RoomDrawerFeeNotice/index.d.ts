@@ -10,6 +10,7 @@ interface RoomDrawerFeeNoticeProps {
     joinPrice?: number;
     otherDescription?: string;
     showOther?: boolean;
+    feeInfo?: any;
 }
 declare const RoomDrawerFeeNotice: React.FC<RoomDrawerFeeNoticeProps>;
 export default RoomDrawerFeeNotice;

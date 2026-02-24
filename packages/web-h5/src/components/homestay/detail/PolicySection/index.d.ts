@@ -3,22 +3,11 @@
  */
 import React from 'react';
 interface PolicySectionProps {
-    room?: any;
-    data?: any;
-    cancelMinutes?: number;
+    policies?: any;
     checkInDate?: string;
-    checkInTime?: string;
-    checkOutTime?: string;
-    deadlineTime?: number;
-    amenities?: {
-        baby?: boolean;
-        children?: boolean;
-        elderly?: boolean;
-        overseas?: boolean;
-        hongKongMacaoTaiwan?: boolean;
-        pets?: boolean;
-    };
-    roomName?: string;
+    checkOutDate?: string;
+    facilitiesData?: any[];
+    feeInfoData?: any;
 }
 declare const PolicySection: React.FC<PolicySectionProps>;
 export { PolicySection };

@@ -4,15 +4,15 @@
  */
 import React from 'react';
 interface BookingBarProps {
-    data?: {
-        host?: {
-            avatar?: string;
-            name?: string;
-        };
-    };
+    data?: any;
+    checkIn?: string;
+    checkOut?: string;
     onBook?: () => void;
     onContactHost?: () => void;
     onDateChange?: (checkIn: string, checkOut: string) => void;
+    onSave?: () => void;
+    onCancel?: () => void;
+    isEditing?: boolean;
 }
 declare const BookingBar: React.FC<BookingBarProps>;
 export default BookingBar;

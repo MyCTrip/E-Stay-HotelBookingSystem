@@ -18,6 +18,7 @@ interface RoomDrawerPolicyProps {
         hongKongMacaoTaiwan?: boolean;
         pets?: boolean;
     };
+    policies?: any[];
 }
 declare const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps>;
 export { RoomDrawerPolicy };

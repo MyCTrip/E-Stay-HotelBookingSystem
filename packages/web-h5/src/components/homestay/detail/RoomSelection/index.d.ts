@@ -9,19 +9,41 @@ interface Room {
     beds: string;
     guests: string;
     image: string;
-    price: number;
+    priceList: Array<{
+        packageId: number;
+        originPrice: number;
+        currentPrice: number;
+    }>;
     priceNote: string;
     benefits: string[];
     packageCount: number;
-    confirmTime: number;
+    confirmTime: string;
+    showBreakfastTag?: boolean;
+    breakfastCount?: number;
+    showCancelTag?: boolean;
+    cancelMunite?: number;
+    hasPackageDetail?: boolean;
+    packages?: Array<{
+        packageId: number;
+        name: string;
+        showPackageDetail?: boolean;
+        showBreakfastTag?: boolean;
+        breakfastCount?: number;
+        showCancelTag?: boolean;
+        cancelMunite?: number;
+        showComfirmTag?: boolean;
+        confirmTime?: number;
+    }>;
 }
 interface RoomSelectionProps {
-    data?: any;
-    rooms?: Room[];
+    rooms: Room[];
     displayCount?: number;
     onSelectRoom?: (room: Room) => void;
     checkIn?: string;
     checkOut?: string;
+    facilities?: any[];
+    policies?: any[];
+    feeInfo?: any;
 }
 declare const RoomSelection: React.FC<RoomSelectionProps>;
 export default RoomSelection;

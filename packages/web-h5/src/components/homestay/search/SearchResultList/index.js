@@ -4,6 +4,8 @@ import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-run
  */
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatDateToString, formatStringToDate } from '@estay/shared';
+import { useHomestayStore } from '@estay/shared';
 import SearchResultHeader from '../SearchResultHeader';
 import SearchBar from '../SearchBar';
 import FilterSortBar from '../FilterSortBar';
@@ -13,7 +15,7 @@ import SearchResultCard from '../SearchResultCard';
 import HomeStayCard from '../../home/HomeStayCard';
 import { SlideDrawerProvider } from '../../shared/SlideDrawer/context';
 import styles from './index.module.scss';
-const SearchResultList = ({ data = [], loading = false, filters = {
+const SearchResultList = ({ data = [], loading = false, filters: initialFilters = {
     city: '上海',
     checkInDate: '2024-02-17',
     checkOutDate: '2024-02-18',
@@ -23,6 +25,8 @@ const SearchResultList = ({ data = [], loading = false, filters = {
     const navigate = useNavigate();
     const containerRef = useRef(null);
     const contentRef = useRef(null);
+    // 从Store读取searchParams
+    const { searchParams } = useHomestayStore();
     // 状态管理
     const [scrollTop, setScrollTop] = useState(0);
     const [viewMode, setViewMode] = useState('list');
@@ -34,6 +38,22 @@ const SearchResultList = ({ data = [], loading = false, filters = {
     const [displayedData, setDisplayedData] = useState(data);
     const [pageSize] = useState(12);
     const [currentPage, setCurrentPage] = useState(1);
+    // ===== 关键改动：从Store初始化本地filters =====
+    const [filters, setFilters] = useState(() => {
+        if (searchParams) {
+            return {
+                city: searchParams.city,
+                checkInDate: formatDateToString(searchParams.checkIn),
+                checkOutDate: formatDateToString(searchParams.checkOut),
+                roomCount: searchParams.rooms,
+                guestCount: searchParams.guests,
+                priceMin: searchParams.priceMin,
+                priceMax: searchParams.priceMax,
+                facilities: searchParams.selectedTags,
+            };
+        }
+        return initialFilters;
+    });
     // 计算选中的标签
     const selectedTags = useCallback(() => {
         const tags = [];
@@ -99,6 +119,31 @@ const SearchResultList = ({ data = [], loading = false, filters = {
             setContainerScrollHeight(content.scrollHeight);
         }
     }, [data, viewMode]);
+    // ===== 关键改动：统一的筛选变化处理函数 =====
+    // 同时更新本地state和Store中的searchParams
+    const handleFiltersChange = useCallback((newFilters) => {
+        setFilters(newFilters);
+        // 同时更新Store中的searchParams
+        const updatedSearchParams = {
+            city: newFilters.city || searchParams?.city || '',
+            checkIn: formatStringToDate(newFilters.checkInDate || ''),
+            checkOut: formatStringToDate(newFilters.checkOutDate || ''),
+            guests: newFilters.guestCount || searchParams?.guests || 1,
+            rooms: newFilters.roomCount || searchParams?.rooms,
+            beds: searchParams?.beds,
+            keyword: searchParams?.keyword,
+            selectedTags: newFilters.facilities || searchParams?.selectedTags,
+            priceMin: newFilters.priceMin || searchParams?.priceMin,
+            priceMax: newFilters.priceMax || searchParams?.priceMax,
+            page: searchParams?.page || 1,
+            limit: searchParams?.limit || 20,
+        };
+        useHomestayStore.setState({ searchParams: updatedSearchParams });
+        onFiltersChange?.(newFilters);
+        // 重置分页
+        setCurrentPage(1);
+        setDisplayedData(data.slice(0, pageSize));
+    }, [searchParams, onFiltersChange, data, pageSize]);
     // 处理容器滚动
     const handleScroll = (e) => {
         const target = e.currentTarget;
@@ -148,7 +193,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
                 delete newFilters.facilities;
                 break;
         }
-        onFiltersChange?.(newFilters);
+        handleFiltersChange(newFilters);
     };
     // 重置所有筛选
     const handleResetAll = () => {
@@ -159,7 +204,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
             roomCount: filters.roomCount,
             guestCount: filters.guestCount,
         };
-        onFiltersChange?.(resetFilters);
+        handleFiltersChange(resetFilters);
     };
     // 处理排序变化
     const handleSortChange = (sort) => {
@@ -179,9 +224,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
         // 清除undefined属性
         Object.keys(newFilters).forEach((key) => newFilters[key] === undefined &&
             delete newFilters[key]);
-        onFiltersChange?.(newFilters);
-        setCurrentPage(1);
-        setDisplayedData(data.slice(0, pageSize));
+        handleFiltersChange(newFilters);
     };
     // 处理人数/房间变化
     const handleGuestChange = (guests, beds, rooms) => {
@@ -192,9 +235,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
         };
         Object.keys(newFilters).forEach((key) => newFilters[key] === undefined &&
             delete newFilters[key]);
-        onFiltersChange?.(newFilters);
-        setCurrentPage(1);
-        setDisplayedData(data.slice(0, pageSize));
+        handleFiltersChange(newFilters);
     };
     // 处理位置变化
     const handleLocationChange = (location) => {
@@ -208,9 +249,7 @@ const SearchResultList = ({ data = [], loading = false, filters = {
         };
         Object.keys(newFilters).forEach((key) => newFilters[key] === undefined &&
             delete newFilters[key]);
-        onFiltersChange?.(newFilters);
-        setCurrentPage(1);
-        setDisplayedData(data.slice(0, pageSize));
+        handleFiltersChange(newFilters);
     };
     // 处理无限滚动 - 加载更多数据
     const handleLoadMore = useCallback(() => {
@@ -228,13 +267,13 @@ const SearchResultList = ({ data = [], loading = false, filters = {
     }, [currentPage, pageSize, data, isLoadingMore]);
     const tags = selectedTags();
     const hasActiveFilters = tags.length > 0;
-    return (_jsx(SlideDrawerProvider, { children: _jsxs("div", { className: styles.container, ref: containerRef, children: [_jsx(SearchResultHeader, { city: filters?.city || '城市' }), _jsx(SearchBar, { initialCity: filters?.city, initialLocation: "", onCityChange: (city) => {
-                        onFiltersChange?.({ ...filters, city });
+    return (_jsx(SlideDrawerProvider, { children: _jsxs("div", { className: styles.container, ref: containerRef, children: [_jsx(SearchResultHeader, { city: filters?.city || '城市' }), _jsx(SearchBar, { initialCity: filters?.city, initialCheckIn: filters?.checkInDate ? formatStringToDate(filters.checkInDate) : undefined, initialCheckOut: filters?.checkOutDate ? formatStringToDate(filters.checkOutDate) : undefined, initialLocation: "", onCityChange: (city) => {
+                        handleFiltersChange({ ...filters, city });
                     }, onDateChange: (checkIn, checkOut) => {
-                        onFiltersChange?.({
+                        handleFiltersChange({
                             ...filters,
-                            checkInDate: checkIn.toISOString().split('T')[0],
-                            checkOutDate: checkOut.toISOString().split('T')[0],
+                            checkInDate: formatDateToString(checkIn),
+                            checkOutDate: formatDateToString(checkOut),
                         });
                     }, onLocationChange: (location) => {
                         // location changed

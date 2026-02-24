@@ -4,6 +4,8 @@
  */
 import React from 'react';
 interface DatePickerProps {
+    checkInDate?: string;
+    checkOutDate?: string;
     onDateChange?: (checkIn: string, checkOut: string) => void;
 }
 declare const DatePicker: React.FC<DatePickerProps>;

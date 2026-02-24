@@ -13,7 +13,7 @@ import RoomDrawerPrice from '../../../components/homestay/detail/RoomDetailDrawe
 import RoomPackageDetail from '../../../components/homestay/detail/RoomDetailDrawer/RoomPackageDetail';
 import PropertyCardContainer from '../../../components/homestay/detail/PropertyCardContainer';
 import { TipIcon } from '../../../components/homestay/icons';
-const RoomDetailDrawer = ({ room, isOpen, onClose, onBook, scrollToFacilities = false, facilitiesExpanded = false, scrollToPolicy = false, scrollToFeeNotice = false, actualRoomName = '', checkIn, checkOut, }) => {
+const RoomDetailDrawer = ({ room, selectedPackageId, isOpen, onClose, onBook, scrollToFacilities = false, facilitiesExpanded = false, scrollToPolicy = false, scrollToFeeNotice = false, actualRoomName = '', checkIn, checkOut, facilitiesData, policiesData, feeInfoData, }) => {
     const [isAnimatingIn, setIsAnimatingIn] = useState(false);
     const [activeTab, setActiveTab] = useState('room');
     const facilitiesRef = useRef(null);
@@ -77,7 +77,7 @@ const RoomDetailDrawer = ({ room, isOpen, onClose, onBook, scrollToFacilities = 
                                                     text: '设施/服务',
                                                     show: true,
                                                 }
-                                            }, children: _jsx(RoomDrawerFacilities, { room: room, expandedInitially: facilitiesExpanded }) }) }), _jsx("div", { ref: policyRef, children: _jsx(PropertyCardContainer, { showExpandBtn: false, headerConfig: {
+                                            }, children: _jsx(RoomDrawerFacilities, { room: room, expandedInitially: facilitiesExpanded, facilities: facilitiesData }) }) }), _jsx("div", { ref: policyRef, children: _jsx(PropertyCardContainer, { showExpandBtn: false, headerConfig: {
                                                 show: true,
                                                 title: {
                                                     text: '预订须知',
@@ -88,13 +88,13 @@ const RoomDetailDrawer = ({ room, isOpen, onClose, onBook, scrollToFacilities = 
                                                     icon: TipIcon,
                                                     text: '以下规则由房东制定，请仔细读并遵守',
                                                 }
-                                            }, children: _jsx(RoomDrawerPolicy, { room: room }) }) }), _jsx("div", { ref: feeNoticeRef, children: _jsx(RoomDrawerFeeNotice, { room: room, deposit: 500, standardGuests: 2, joinNumber: 2, joinPrice: 100, otherDescription: "\u623F\u4E1C\u8981\u6C42\u8BF7\u4FDD\u6301\u623F\u95F4\u6574\u6D01\uFF0C\u4E0D\u53EF\u5728\u623F\u95F4\u5185\u5438\u70DF\uFF0C\u5BA0\u7269\u9700\u63D0\u524D\u6C9F\u901A\u3002", showOther: true }) }), _jsx(PropertyCardContainer, { headerConfig: {
+                                            }, children: _jsx(RoomDrawerPolicy, { room: room, policies: policiesData }) }) }), _jsx("div", { ref: feeNoticeRef, children: _jsx(RoomDrawerFeeNotice, { room: room, deposit: 500, standardGuests: 2, joinNumber: 2, joinPrice: 100, otherDescription: "\u623F\u4E1C\u8981\u6C42\u8BF7\u4FDD\u6301\u623F\u95F4\u6574\u6D01\uFF0C\u4E0D\u53EF\u5728\u623F\u95F4\u5185\u5438\u70DF\uFF0C\u5BA0\u7269\u9700\u63D0\u524D\u6C9F\u901A\u3002", showOther: true, feeInfo: feeInfoData }) }), _jsx(PropertyCardContainer, { headerConfig: {
                                             show: true,
                                             title: {
                                                 text: '价格和优惠',
                                                 show: true,
                                             },
-                                        }, children: _jsx(RoomDrawerPrice, { room: room, checkIn: checkIn, checkOut: checkOut }) }), _jsx("div", { className: styles.drawerSpacer })] })), room?.hasPackageDetail && activeTab === 'package' && _jsx(RoomPackageDetail, { room: room })] })] })] }));
+                                        }, children: _jsx(RoomDrawerPrice, { room: room, checkIn: checkIn, checkOut: checkOut }) }), _jsx("div", { className: styles.drawerSpacer })] })), room?.hasPackageDetail && activeTab === 'package' && _jsx(RoomPackageDetail, { room: room, selectedPackageId: selectedPackageId })] })] })] }));
 };
 export default RoomDetailDrawer;
 //# sourceMappingURL=index.js.map

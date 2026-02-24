@@ -9,14 +9,35 @@ interface Room {
     beds: string;
     guests: string;
     image: string;
-    price: number;
+    priceList: Array<{
+        packageId: number;
+        originPrice: number;
+        currentPrice: number;
+    }>;
     priceNote: string;
     benefits: string[];
     packageCount: number;
     hasPackageDetail?: boolean;
+    showBreakfastTag?: boolean;
+    breakfastCount?: number;
+    showCancelTag?: boolean;
+    cancelMunite?: number;
+    confirmTime?: string;
+    packages?: Array<{
+        packageId: number;
+        name: string;
+        showPackageDetail?: boolean;
+        showBreakfastTag?: boolean;
+        breakfastCount?: number;
+        showCancelTag?: boolean;
+        cancelMunite?: number;
+        showComfirmTag?: boolean;
+        confirmTime?: number;
+    }>;
 }
 interface RoomDetailDrawerProps {
     room: Room | null;
+    selectedPackageId?: number;
     isOpen: boolean;
     onClose: () => void;
     onBook?: (roomId: string) => void;
@@ -27,6 +48,9 @@ interface RoomDetailDrawerProps {
     actualRoomName?: string;
     checkIn?: string;
     checkOut?: string;
+    facilitiesData?: any[];
+    policiesData?: any[];
+    feeInfoData?: any;
 }
 declare const RoomDetailDrawer: React.FC<RoomDetailDrawerProps>;
 export default RoomDetailDrawer;

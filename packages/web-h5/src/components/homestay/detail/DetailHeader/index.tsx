@@ -47,16 +47,6 @@ const DetailHeader = forwardRef<HTMLDivElement, DetailHeaderProps>(
 
         {/* 右侧操作按钮组 */}
         <div className={styles.actionGroup}>
-          {/* 与房东联系（聊天） */}
-          <button className={styles.iconBtn} onClick={handleContactHost} title="与房东联系">
-            <span style={{ color: iconColor }}>💬</span>
-          </button>
-
-          {/* 分享 */}
-          <button className={styles.iconBtn} onClick={onShare} title="分享">
-            <span style={{ color: iconColor }}>⤴</span>
-          </button>
-
           {/* 收藏 */}
           <button
             className={`${styles.iconBtn} ${isCollected ? styles.collected : ''}`}

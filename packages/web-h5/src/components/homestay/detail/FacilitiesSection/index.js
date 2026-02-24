@@ -6,14 +6,15 @@ import { useState } from 'react';
 import PropertyCardContainer from '../PropertyCardContainer';
 import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay';
 import { CheckIcon, CrossIcon } from '../../../homestay/icons/FacilityIcons';
-import { FACILITY_CATEGORIES } from '../../../../constants/facilities';
 import styles from './index.module.scss';
 /**
  * FacilitiesSection 内容组件
  */
-const FacilitiesSectionContent = ({ data }) => {
+const FacilitiesSectionContent = ({ facilities = [] }) => {
+    // 安全处理 facilities，如果为 undefined 则使用空数组
+    const safelyFacilities = Array.isArray(facilities) ? facilities : [];
     // 只显示服务、基础、卫浴三个类别，并优先显示有的设施，最多两行（6个）
-    const displayCategories = FACILITY_CATEGORIES.filter((c) => ['service', 'basic', 'bathroom'].includes(c.id)).map((category) => {
+    const displayCategories = safelyFacilities.filter((c) => ['service', 'basic', 'bathroom'].includes(c.id)).map((category) => {
         const sortedFacilities = [
             ...category.facilities.filter((f) => f.available),
             ...category.facilities.filter((f) => !f.available),
@@ -25,24 +26,10 @@ const FacilitiesSectionContent = ({ data }) => {
     });
     return (_jsx("div", { className: styles.facilitiesList, children: displayCategories.map((category) => (_jsxs("div", { className: styles.categoryBlock, children: [_jsx("div", { className: styles.categoryName, children: category.name }), _jsx("div", { className: styles.itemsGrid, children: category.facilities.map((facility) => (_jsxs("div", { className: styles.facilityItem, children: [facility.available ? (_jsx(CheckIcon, { width: 18, height: 18, color: "#43ae4a" })) : (_jsx(CrossIcon, { width: 18, height: 18, color: "#d3d3d3" })), _jsx("span", { className: styles.itemName, children: facility.name })] }, facility.id))) })] }, category.id))) }));
 };
-const FacilitiesSection = ({ data, onOpenFullFacilities, roomName = '' }) => {
+const FacilitiesSection = ({ facilities, policiesData, feeInfoData }) => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    // 创建虚拟room对象用于显示设施信息
-    const facilitiesRoom = {
-        id: 'facilities',
-        name: '所有设施',
-        area: '',
-        beds: '',
-        guests: '',
-        image: data?.images?.[0] || '',
-        price: 0,
-        priceNote: '',
-        benefits: [],
-        packageCount: 0,
-    };
     const handleOpenAllFacilities = () => {
         setIsDrawerOpen(true);
-        onOpenFullFacilities?.();
     };
     const handleCloseDrawer = () => {
         setIsDrawerOpen(false);
@@ -58,7 +45,7 @@ const FacilitiesSection = ({ data, onOpenFullFacilities, roomName = '' }) => {
                         show: true,
                         onClick: handleOpenAllFacilities,
                     },
-                }, children: _jsx(FacilitiesSectionContent, { data: data }) }), _jsx(RoomDetailDrawer, { room: isDrawerOpen ? facilitiesRoom : null, isOpen: isDrawerOpen, onClose: handleCloseDrawer, scrollToFacilities: true, facilitiesExpanded: true, actualRoomName: roomName })] }));
+                }, children: _jsx(FacilitiesSectionContent, { facilities: facilities }) }), _jsx(RoomDetailDrawer, { room: isDrawerOpen ? { id: 'facilities', name: '所有设施', area: '', beds: '', guests: '', image: '', priceList: [], priceNote: '', benefits: [], packageCount: 0 } : null, isOpen: isDrawerOpen, onClose: handleCloseDrawer, scrollToFacilities: true, facilitiesExpanded: true, policiesData: policiesData, feeInfoData: feeInfoData })] }));
 };
 export default FacilitiesSection;
 //# sourceMappingURL=index.js.map

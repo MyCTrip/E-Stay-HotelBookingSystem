@@ -4,8 +4,9 @@ import styles from './index.module.scss';
 /**
  * ReviewSection 内容组件
  */
-const ReviewSectionContent = ({ hostelId }) => {
-    const reviews = [
+const ReviewSectionContent = ({ hostelId, reviews: middlewareReviews }) => {
+    // 使用中间件数据，如果没有则使用mock数据
+    const reviews = middlewareReviews && middlewareReviews.length > 0 ? middlewareReviews : [
         {
             id: '1',
             author: '李女士',
@@ -23,7 +24,7 @@ const ReviewSectionContent = ({ hostelId }) => {
             images: [],
         },
     ];
-    return (_jsxs(_Fragment, { children: [_jsxs("div", { className: styles.scoreOverview, children: [_jsxs("div", { className: styles.scoreMain, children: [_jsx("div", { className: styles.number, children: "4.9" }), _jsx("div", { className: styles.stars, children: "\u2B50\u2B50\u2B50\u2B50\u2B50" }), _jsx("div", { className: styles.count, children: "90\u6761\u8BC4\u4EF7" })] }), _jsx("div", { className: styles.scoreDistribution, children: [5, 4, 3, 2, 1].map((score) => (_jsxs("div", { className: styles.scoreRow, children: [_jsxs("span", { className: styles.label, children: [score, "\u5206"] }), _jsx("div", { className: styles.bar, children: _jsx("div", { className: styles.fill, style: { width: `${(6 - score) * 20}%` } }) }), _jsx("span", { className: styles.count, children: (6 - score) * 15 })] }, score))) })] }), _jsx("div", { className: styles.tags, children: ['位置方便', '设施完整', '干净舒适', '房东热心', '性价比高'].map((tag) => (_jsx("button", { className: styles.tag, children: tag }, tag))) }), _jsx("div", { className: styles.reviewList, children: reviews.map((review) => (_jsxs("div", { className: styles.reviewItem, children: [_jsxs("div", { className: styles.header, children: [_jsxs("div", { children: [_jsx("div", { className: styles.author, children: review.author }), _jsxs("div", { className: styles.rating, children: ["\u2B50 ", review.rating] })] }), _jsx("div", { className: styles.date, children: review.date })] }), _jsx("p", { className: styles.content, children: review.content })] }, review.id))) }), _jsx("button", { className: styles.viewAll, children: "\u67E5\u770B\u5168\u90E890\u6761\u8BC4\u4EF7" })] }));
+    return (_jsxs(_Fragment, { children: [_jsxs("div", { className: styles.scoreOverview, children: [_jsxs("div", { className: styles.scoreMain, children: [_jsx("div", { className: styles.number, children: "4.9" }), _jsx("div", { className: styles.stars, children: "\u2B50\u2B50\u2B50\u2B50\u2B50" }), _jsx("div", { className: styles.count, children: "90\u6761\u8BC4\u4EF7" })] }), _jsx("div", { className: styles.scoreDistribution, children: [5, 4, 3, 2, 1].map((score) => (_jsxs("div", { className: styles.scoreRow, children: [_jsxs("span", { className: styles.label, children: [score, "\u5206"] }), _jsx("div", { className: styles.bar, children: _jsx("div", { className: styles.fill, style: { width: `${(1 + score) * 20}%` } }) }), _jsx("span", { className: styles.count, children: (1 + score) * 15 })] }, score))) })] }), _jsx("div", { className: styles.tags, children: ['位置方便', '设施完整', '干净舒适', '房东热心', '性价比高'].map((tag) => (_jsx("button", { className: styles.tag, children: tag }, tag))) }), _jsx("div", { className: styles.reviewList, children: reviews.map((review) => (_jsxs("div", { className: styles.reviewItem, children: [_jsxs("div", { className: styles.header, children: [_jsxs("div", { children: [_jsx("div", { className: styles.author, children: review.author }), _jsxs("div", { className: styles.rating, children: ["\u2B50 ", review.rating] })] }), _jsx("div", { className: styles.date, children: review.date })] }), _jsx("p", { className: styles.content, children: review.content })] }, review.id))) }), _jsx("button", { className: styles.viewAll, children: "\u67E5\u770B\u5168\u90E890\u6761\u8BC4\u4EF7" })] }));
 };
 const ReviewSection = ({ hostelId }) => {
     return (_jsx(PropertyCardContainer, { headerConfig: {

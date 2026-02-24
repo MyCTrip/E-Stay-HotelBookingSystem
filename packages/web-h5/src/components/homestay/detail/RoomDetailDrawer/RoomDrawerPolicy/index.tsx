@@ -27,6 +27,7 @@ interface RoomDrawerPolicyProps {
     hongKongMacaoTaiwan?: boolean
     pets?: boolean
   }
+  policies?: any[]  // 中间件数据
 }
 
 const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({

@@ -9,6 +9,7 @@ interface Room {
 }
 interface RoomPackageDetailProps {
     room: Room;
+    selectedPackageId?: number;
 }
 declare const RoomPackageDetail: React.FC<RoomPackageDetailProps>;
 export default RoomPackageDetail;

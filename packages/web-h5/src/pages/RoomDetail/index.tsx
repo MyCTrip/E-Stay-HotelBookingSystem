@@ -38,8 +38,8 @@ export default function RoomDetailPage() {
       {/* 图片 */}
       <section className={styles.gallery}>
         <img
-          src={room.baseInfo?.images?.[0] || 'https://via.placeholder.com/800x400'}
-          alt={room.baseInfo?.type}
+          src={room.banner?.images?.[0]?.url || 'https://via.placeholder.com/800x400'}
+          alt={room.basicInfo?.name}
           className={styles.mainImage}
         />
       </section>
@@ -48,15 +48,15 @@ export default function RoomDetailPage() {
       <section className={styles.info}>
         <div className={styles.header}>
           <div>
-            <h1>{room.baseInfo?.type}</h1>
-            <p className={styles.price}>¥{room.baseInfo?.price}/晚</p>
+            <h1>{room.basicInfo?.name}</h1>
+            <p className={styles.price}>¥{room.price?.currentPrice || room.price?.originPrice}/晚</p>
           </div>
         </div>
 
         {/* 客容量 */}
         <div className={styles.section}>
           <h2>客容量</h2>
-          <p>最多可容纳 {room.baseInfo?.maxOccupancy} 位客人</p>
+          <p>最多可容纳 {room.basicInfo?.guests} 位客人</p>
         </div>
 
         {/* 房间信息 */}
