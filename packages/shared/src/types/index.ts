@@ -44,6 +44,16 @@ export type {
   HomeStay,
 } from './homestay'
 
+// 钟点房相关类型
+export type {
+  HourlyRoomSearchParams,
+  HourlyRoomBaseInfo,
+  HourlyRoomTypeBaseInfo,
+  HourlyRoomDetail,
+  HourlyRoom,
+  HourlyRoomSearchResponse,
+} from './hourlyHotel'
+
 // Detail页数据中间件 - 导出所有
 export * from './detailDataMiddleware'
 export * from './detail'

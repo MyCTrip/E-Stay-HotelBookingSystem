@@ -1,0 +1,10 @@
+export { default as HouseIcon } from './HouseIcon';
+export { default as AreaIcon } from './AreaIcon';
+export { default as BedIcon } from './BedIcon';
+export { default as UserIcon } from './UserIcon';
+export { default as MapIcon } from './MapIcon';
+export { default as BreakfastIcon } from './BreakfastIcon';
+export { default as TipIcon } from './TipIcon';
+export { default as StarIcon } from './StarIcon';
+export { CheckIcon, CrossIcon } from './FacilityIcons';
+//# sourceMappingURL=index.js.map

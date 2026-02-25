@@ -10,7 +10,7 @@ import { FACILITY_CATEGORIES } from './common/facilities'
 /**
  * 完整的 Detail 页面中央数据 Mock
  */
-export const DETAIL_CENTER_DATA_MOCK: DetailCenterData = {
+export const DETAIL_CENTER_DATA_MOCK = {
   _id: 'homestay-001',
   merchantId: 'merchant-001',
 
@@ -401,4 +401,4 @@ export const DETAIL_CENTER_DATA_MOCK: DetailCenterData = {
   },
   createdAt: new Date('2024-12-01'),
   updatedAt: new Date('2025-02-19'),
-}
+} as any

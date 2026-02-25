@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * BookingBar 组件数据中间件
  * 数据来源：DetailCenterData

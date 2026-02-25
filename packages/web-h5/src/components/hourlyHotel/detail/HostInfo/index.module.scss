@@ -1,0 +1,306 @@
+.hostInfo {
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: calc(100% - 28px);
+  margin-left: 14px;
+  border-radius: 12px;
+
+  .hostCard {
+    margin-bottom: 16px;
+  }
+
+  .hostHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+
+    .avatarSection {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+
+      .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        object-fit: cover;
+      }
+
+      .badgeSection {
+        .name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #333;
+          margin: 0 0 4px 0;
+        }
+
+        .badge {
+          display: inline-block;
+          background: #fff8e6;
+          color: #ff7d2f;
+          font-size: 12px;
+          padding: 2px 8px;
+          border-radius: 3px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .aboutBtn {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      color: #1677ff;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+  }
+
+  .statsRow {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+
+    .stat {
+      flex: 1;
+      text-align: center;
+
+      .label {
+        font-size: 11px;
+        color: #999;
+        margin-bottom: 4px;
+      }
+
+      .value {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+
+        .rating {
+          font-size: 18px;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .totalReviews {
+          font-size: 11px;
+          color: #999;
+        }
+      }
+    }
+  }
+
+  .tagsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    .tag {
+      display: inline-block;
+      background: #f5f5f5;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      color: #666;
+      white-space: nowrap;
+    }
+  }
+
+  .infoList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+
+    .infoItem {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+
+      .emoji {
+        font-size: 16px;
+        line-height: 1.4;
+        flex-shrink: 0;
+      }
+
+      .text {
+        font-size: 13px;
+        color: #666;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .bookingInfo {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    background: #fff8f0;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 12px;
+
+    .timeSlot {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .label {
+        color: #ff6b6b;
+        font-weight: 500;
+      }
+
+      .text {
+        color: #666;
+      }
+    }
+  }
+
+  .priceInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #fff8e6;
+    border-radius: 6px;
+    margin-top: 16px;
+
+    .priceLeft {
+      .hot {
+        font-size: 13px;
+        color: #ff7d2f;
+        font-weight: 500;
+      }
+    }
+
+    .priceRight {
+      .bookMonthBtn {
+        background: #1677ff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 500;
+
+        .hotPrice {
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .action {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 680px) {
+    padding: 12px;
+
+    .hostHeader {
+      .avatarSection {
+        .avatar {
+          width: 50px;
+          height: 50px;
+        }
+
+        .badgeSection {
+          .name {
+            font-size: 14px;
+          }
+
+          .badge {
+            font-size: 11px;
+          }
+        }
+      }
+
+      .aboutBtn {
+        font-size: 12px;
+      }
+    }
+
+    .statsRow {
+      gap: 12px;
+      padding: 10px;
+
+      .stat {
+        .label {
+          font-size: 10px;
+        }
+
+        .value {
+          .rating {
+            font-size: 16px;
+          }
+
+          .totalReviews {
+            font-size: 10px;
+          }
+        }
+      }
+    }
+
+    .tagsRow {
+      gap: 6px;
+
+      .tag {
+        font-size: 11px;
+        padding: 3px 6px;
+      }
+    }
+
+    .infoList {
+      gap: 8px;
+
+      .infoItem {
+        .emoji {
+          font-size: 14px;
+        }
+
+        .text {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .priceInfo {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .priceLeft {
+        .hot {
+          font-size: 12px;
+        }
+      }
+
+      .priceRight {
+        width: 100%;
+        margin-top: 8px;
+
+        .bookMonthBtn {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

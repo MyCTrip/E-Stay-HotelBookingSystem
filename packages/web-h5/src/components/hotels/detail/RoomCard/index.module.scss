@@ -1,0 +1,480 @@
+/* 房型卡片样式 */
+
+.card {
+  width: 100%;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.cardSoldOut {
+  .thumbnail,
+  .expandedImage {
+    filter: grayscale(100%);
+    opacity: 0.82;
+  }
+
+  .roomName,
+  .expandedRoomName,
+  .paramValue,
+  .packageCountTag {
+    color: #9ca3af;
+  }
+
+  .price,
+  .currentPrice,
+  .confirmTag {
+    color: #9ca3af;
+  }
+
+  .instantLabel {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+  }
+}
+
+/* 收起态内容 */
+.collapsedContent {
+  display: flex;
+}
+
+.imageArea {
+  flex-shrink: 0;
+  width: 100px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* 一定要有，不然子元素会上滯 */
+}
+
+.thumbnail {
+  /* 重置浏览器默认样式 */
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  
+  /* 填满并且绝对尺寸 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.infoArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 房间名字行 */
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.roomName {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expandToggleBtn {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:active {
+    opacity: 0.7;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.basicInfo {
+  font-size: 14px;
+  color: #999;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.param {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  .icon {
+    font-size: 12px;
+  }
+}
+
+.separator {
+  color: #ddd;
+  margin: 0 2px;
+}
+
+.benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.benefitTag {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.breakfastNo {
+  color: #999;
+}
+
+.breakfastYes {
+  color: #0066ff;
+}
+
+.cancelTag {
+  color: #18a058;
+}
+
+/* 套餐可选tag - 收起态 */
+.packageCountTag {
+  display: inline-block;
+  color: #494949;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 底部行：标签 + 价格 + 按钮 */
+.footerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 160px;
+}
+
+.instantLabel {
+  padding: 4px 8px;
+  background-color: #fff3e0;
+  color: #fa7b1f;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.priceBlock {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fa7b1f;
+}
+
+.priceNote {
+  font-size: 11px;
+  color: #999;
+}
+
+.bookBtn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #fa7b1f;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:active {
+    background-color: #e66a0a;
+  }
+
+  &:disabled {
+    background-color: #d1d5db;
+    color: #f8fafc;
+    cursor: not-allowed;
+  }
+}
+
+/* 展开态内容 */
+.expandedContent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.expandedNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.expandedRoomName {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  padding-bottom: 55.56%;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.expandedImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageCount {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 6px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11px;
+  border-radius: 3px;
+}
+
+/* 详细参数 */
+.detailParams {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.paramRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.paramLabel {
+  color: #999;
+}
+
+.paramValue {
+  color: #333;
+  font-weight: 600;
+}
+
+/* 套餐列表 */
+.packageTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.packageList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.packageItem {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:active {
+    background-color: #f9f9f9;
+  }
+}
+
+.packageItemSoldOut {
+  background-color: #f8fafc;
+  border-color: #e5e7eb;
+}
+
+/* 套餐项左侧 */
+.packageLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hasPackageTag {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.packageBenefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pkgBenefitTag {
+  display: inline-block;
+  padding: 4px 0px;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.packageService {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.confirmTag {
+  color: #fa7b1f;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+/* 套餐项右侧 */
+.packageRight {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 80px;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.originalPrice {
+  font-size: 14px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.currentPrice {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fa7b1f;
+}
+
+.pkgHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pkgName {
+  font-size: 13px;
+  color: #666;
+}
+
+.pkgPrice {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fa7b1f;
+}
+
+.pkgDetails {
+  font-size: 12px;
+  color: #999;
+}
+
+.selectBtn {
+  padding: 8px 12px;
+  border: 1px solid #fa7b1f;
+  border-radius: 4px;
+  background-color: #fa7b1f;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-end;
+
+  &:active {
+    background-color: rgba(0, 102, 255, 0.1);
+  }
+
+  &:disabled {
+    background-color: #d1d5db;
+    border-color: #d1d5db;
+    color: #f8fafc;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .collapsedContent {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  /* 移除对 thumbnail 的硬限制，让它自适应 */
+
+  .expandedContent {
+    padding: 10px;
+    gap: 10px;
+  }
+}

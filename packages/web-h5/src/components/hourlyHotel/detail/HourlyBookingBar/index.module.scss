@@ -1,0 +1,89 @@
+/* 钟点房 - 底部固定预订栏样式 */
+
+.bookingBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 8px 16px;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+
+  @supports (padding: max(0px)) {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+
+.priceArea {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex: 1;
+}
+
+.currency {
+  font-size: 16px;
+  color: #ff7d00;
+  /* 改用醒目的橘色 */
+  font-weight: 700;
+}
+
+.price {
+  font-size: 22px;
+  /* 价格数字稍微放大一点，突出性价比 */
+  color: #ff7d00;
+  font-weight: 700;
+}
+
+.unit {
+  font-size: 13px;
+  color: #999;
+  margin-left: 4px;
+}
+
+.bookBtn {
+  height: 40px;
+  width: 130px;
+  border: none;
+  border-radius: 20px;
+  /* 按钮改得更圆润，增加亲和力，如果想保持民宿的方形可以改回 8px */
+  background: linear-gradient(90deg, #ff9a00, #ff7d00);
+  /* 渐变橘色更吸引人点击 */
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .bookingBar {
+    height: 52px;
+    padding: 8px 12px;
+  }
+
+  .price {
+    font-size: 20px;
+  }
+
+  .bookBtn {
+    width: 120px;
+    height: 40px;
+    font-size: 14px;
+  }
+}

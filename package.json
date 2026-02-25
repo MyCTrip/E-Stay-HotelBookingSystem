@@ -10,7 +10,7 @@
     "dev:web": "pnpm -F @estay/web-h5 dev",
     "build": "pnpm -r build",
     "build:mini": "pnpm -F @estay/mini-program build:weapp",
-    "build:web": "pnpm -F @estay/web-h5 build",
+    "build:web": "pnpm -F @estay/shared build && pnpm -F @estay/web-h5 build",
     "type-check": "pnpm -r type-check",
     "lint": "eslint packages --ext .ts,.tsx",
     "format": "prettier --write 'packages/**/*.{ts,tsx,json,scss,css}'"

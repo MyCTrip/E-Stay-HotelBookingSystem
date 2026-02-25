@@ -18,7 +18,10 @@ export {
   useHotelStore,
   resetHotelStore,
 } from './stores/hotelStore'
-export type { SearchParams } from './stores/hotelStore'
+export type { SearchParams, ExtendedSearchParams, HotelSearchParams, HotelStoreState } from './stores/hotelStore'
+
+export { useAppStore } from './stores/appStore'
+export type { AppStoreState } from './stores/appStore'
 
 // Homestay Store (与 Mock 数据集成)
 export { useHomestayStore } from './stores/homestayStore'
@@ -46,9 +49,10 @@ export {
 } from './middleware'
 export type { IMiddleware } from './middleware'
 
-// 组件数据中间件
-export * from './services'
+// 组件数据中间件（服务层，与 types 有重复，types 优先）
 export { DETAIL_CENTER_DATA_MOCK } from './mocks/detailCenterData'
+export { initializeDetailData } from './services/DetailDataInitializer'
+export type { InitializedDetailData } from './services/DetailDataInitializer'
 
 // 错误处理
 export {
@@ -76,8 +80,11 @@ export type {
 export { PersistenceManager, getPersistenceManager } from './persistence'
 export type { SearchHistory, FavoriteHotel, UserPreferences } from './persistence'
 
-// 类型定义
+// 类型定义（先导出，后面被覆盖）
 export * from './types'
+
+// 酒店领域模型和类型（视图模型类型，types 中无重复）
+export * from './domain'
 
 // 常量定义
 export { QUICK_FILTER_TAGS } from './constants/homestay'

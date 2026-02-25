@@ -1,0 +1,329 @@
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fafafa;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+
+    &:hover {
+      background: #999;
+    }
+  }
+}
+
+.searchBarSpacer {
+  height: 56px;
+  width: 100%;
+
+  @media (max-height: 400px) {
+    height: 52px;
+  }
+}
+
+// 轮播 Banner
+.banner {
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(135deg, #ff6b00 0%, #ffa500 100%);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.bannerContent {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+  text-align: center;
+  z-index: 1;
+}
+
+.bannerContainer {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+// 搜索筛选区 - 卡片式布局
+.compactSearchSection {
+  background-color: transparent;
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  box-sizing: border-box;
+  margin-top: -40px;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 50;
+}
+
+// 搜索卡片 - 毛玻璃样式
+.searchCard {
+  background-color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+// 卡片内的每一项
+.cardItem {
+  width: 95%;
+  padding: 4px -2px;
+  margin: auto;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+
+  &:last-child {
+    border-bottom: none;
+    padding: 0;
+  }
+}
+
+// 双列行容器 - 房间选择和价格筛选在同一行
+.dualRowContainer {
+  width: 95%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  .cardItem {
+    width: 100%;
+    margin: 0;
+    border-bottom: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 4px -2px;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
+}
+
+.searchGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rowContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.itemWrapper {
+  width: 100%;
+}
+
+.filtersRow {
+  width: calc(100% + 24px);
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.buttonRow {
+  padding: 8px 12px;
+  margin-left: -12px;
+  margin-right: -12px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+// 热门推荐区域
+.recommendSection {
+  background-color: #fafafa;
+}
+
+.recommendHeader {
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+}
+
+// 老的searchSection - 保留但隐藏用作兼容
+.searchSection {
+  display: none;
+}
+
+// 民宿卡片列表区
+.listSection {
+  padding: 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  position: relative;
+  background-color: #fafafa;
+}
+
+// 列表标题
+.listTitle {
+  display: none;
+}
+
+// 刷新提示
+.refreshTip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #0066FF;
+  border: 1px solid rgba(0, 102, 255, 0.1);
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(0, 102, 255, 0.2);
+    border-top-color: #0066FF;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.listTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+// 列表布局 - 改为单列纵向排列
+.cardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.cardWrapper {
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  }
+}
+
+// 空状态
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 14px;
+
+  p {
+    margin: 0;
+  }
+}
+
+// 加载状态
+.loadingState {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+
+  p {
+    margin: 0;
+  }
+}
+
+// 底部间距
+.bottomSpacer {
+  height: 100px;
+  visibility: hidden;
+}
+
+// ====== 新增：横向 Tab 栏样式 ======
+.tabContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px 8px;
+  background-color: #fafafa;
+  margin-top: 8px; // 给上面的卡片留一点空间
+  position: relative;
+  z-index: 40;
+}
+
+.tabItem {
+  font-size: 15px;
+  color: #666;
+  position: relative;
+  padding-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  // 选中状态
+  &.activeTab {
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+// 底部蓝色指示条 (类似携程的样式)
+.tabIndicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background-color: #0066FF; // 使用你项目中已有的蓝色
+  border-radius: 2px;
+}

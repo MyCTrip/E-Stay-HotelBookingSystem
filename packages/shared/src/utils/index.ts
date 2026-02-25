@@ -2,9 +2,8 @@
  * 工具函数集合
  */
 
-/**
- * 格式化价格
- */
+// 导出日期转换函数
+export * from './dateConverter'
 export function formatPrice(price: number, locale: string = 'en-US'): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',

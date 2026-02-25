@@ -1,160 +1,371 @@
-import { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styles from './index.module.css'
+import dayjs from 'dayjs'
+import LocationInput from '../../../components/hourlyHotel/home/LocationInput'
+import DateDurationSelector from '../../../components/hourlyHotel/home/DateDurationSelector'
+import SearchButton from '../../../components/hourlyHotel/home/SearchButton'
+import HourlyRoomCard from '../../../components/hourlyHotel/home/HourlyRoomCard'
+import HourlyRoomCardSkeleton from '../../../components/hourlyHotel/home/HourlyRoomCardSkeleton'
+import BannerCarousel from '../../../components/hourlyHotel/home/BannerCarousel'
 
-/**
- * 钟点房首页
- */
-export default function HomeHourlyHotelPage() {
+import type { HourlyRoomSearchParams, HourlyRoom } from '@estay/shared'
+import styles from './index.module.scss'
+
+// 模拟热门钟点房数据 (偏向机场、高铁站、商圈)
+const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
+  {
+    _id: 'h1',
+    merchantId: 'merchant_air1',
+    baseInfo: {
+      nameCn: '虹桥机场T2云端中转酒店',
+      nameEn: 'Cloud Transit Hotel',
+      address: '闵行区虹桥机场T2航站楼内',
+      city: '上海',
+      star: 4.8,
+      phone: '021-33334444',
+      description: '不出航站楼即可入住，提供叫醒服务，转机/早班机首选。',
+      roomTotal: 50,
+      facilities: [{ category: '基础', content: '24小时热水' } as any,
+      { category: '服务', content: '叫醒服务' } as any,
+      { category: '服务', content: '隔音极佳' } as any,
+      ],
+      policies: [{ policyType: '押金', content: '无需押金' } as any,
+      { policyType: '退订', content: '随时退' } as any,
+      ],
+    },
+    images: ['https://via.placeholder.com/160x280?text=机场钟点房'],
+    durationOptions: [3, 4, 6], // 支持的小时数
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    _id: 'h1',
+    merchantId: 'merchant_air1',
+    baseInfo: {
+      nameCn: '虹桥机场T2云端中转酒店',
+      nameEn: 'Cloud Transit Hotel',
+      address: '闵行区虹桥机场T2航站楼内',
+      city: '上海',
+      star: 4.8,
+      phone: '021-33334444',
+      description: '不出航站楼即可入住，提供叫醒服务，转机/早班机首选。',
+      roomTotal: 50,
+      facilities: [{ category: '基础', content: '24小时热水' } as any,
+      { category: '服务', content: '叫醒服务' } as any,
+      { category: '服务', content: '隔音极佳' } as any,
+      ],
+      policies: [{ policyType: '押金', content: '无需押金' } as any,
+      { policyType: '退订', content: '随时退' } as any,
+      ],
+    },
+    images: ['https://via.placeholder.com/160x280?text=机场钟点房'],
+    durationOptions: [3, 4, 6], // 支持的小时数
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    _id: 'h1',
+    merchantId: 'merchant_air1',
+    baseInfo: {
+      nameCn: '虹桥机场T2云端中转酒店',
+      nameEn: 'Cloud Transit Hotel',
+      address: '闵行区虹桥机场T2航站楼内',
+      city: '上海',
+      star: 4.8,
+      phone: '021-33334444',
+      description: '不出航站楼即可入住，提供叫醒服务，转机/早班机首选。',
+      roomTotal: 50,
+      facilities: [{ category: '基础', content: '24小时热水' } as any,
+      { category: '服务', content: '叫醒服务' } as any,
+      { category: '服务', content: '隔音极佳' } as any,
+      ],
+      policies: [{ policyType: '押金', content: '无需押金' } as any,
+      { policyType: '退订', content: '随时退' } as any,
+      ],
+    },
+    images: ['https://via.placeholder.com/160x280?text=机场钟点房'],
+    durationOptions: [3, 4, 6], // 支持的小时数
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    _id: 'h2',
+    merchantId: 'merchant_cbd1',
+    baseInfo: {
+      nameCn: '陆家嘴国金商务休憩室',
+      nameEn: 'IFC Lounge & Room',
+      address: '浦东新区世纪大道8号',
+      city: '上海',
+      star: 4.9,
+      phone: '021-55556666',
+      description: '高端商务休憩空间，提供免费咖啡和极速Wi-Fi，适合午休/备考。',
+      roomTotal: 15,
+      facilities: [{ category: '服务', content: '免费咖啡' } as any,
+      { category: '服务', content: '极速Wi-Fi' } as any,
+      { category: '基础', content: '办公桌' } as any,
+      ],
+      policies: [{ policyType: '退订', content: '随时退' } as any],
+    },
+    images: ['https://via.placeholder.com/160x280?text=商务午休'],
+    durationOptions: [3, 4, 6,],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    _id: 'h3',
+    merchantId: 'merchant_train1',
+    baseInfo: {
+      nameCn: '上海火车站电竞主题酒店',
+      nameEn: 'E-Sports Hub Hotel',
+      address: '静安区天目西路100号',
+      city: '上海',
+      star: 4.6,
+      phone: '021-77778888',
+      description: '全系RTX4090高配电脑，候车打发时间神器。',
+      roomTotal: 30,
+      facilities: [{ category: '服务', content: '高端外设' } as any,
+      { category: '服务', content: '独立卫浴' } as any,
+      { category: '基础', content: '零食吧' } as any,
+      ],
+      policies: [{ policyType: '退订', content: '随时退' } as any],
+    },
+    images: ['https://via.placeholder.com/160x280?text=电竞钟点房'],
+    durationOptions: [4, 5, 6],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+]
+
+const HourlyRoomPage: React.FC = () => {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    city: 'Beijing',
-    checkIn: new Date().toISOString().split('T')[0],
-    checkOut: new Date().toISOString().split('T')[0],
-    checkInTime: '14:00',
-    checkOutTime: '18:00',
-    guests: 2,
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // 钟点房核心搜索参数状态
+  const [searchParams, setSearchParams] = useState<HourlyRoomSearchParams>({
+    city: '上海',
+    date: dayjs().toDate(),
+    startTime: '14:00',
+    duration: 4,
+    guests: 1,
+    rooms: 1,
+    keyword: '',
+    selectedTags: [],
+    priceMin: 0,
+    priceMax: 500,
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
+  // UI状态
+  const [loading, setLoading] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [hourlyRooms, setHourlyRooms] = useState<HourlyRoom[]>([])
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 })
+
+  // 新增：Tab 栏状态
+  const [activeTab, setActiveTab] = useState('特色精选')
+  const tabs = ['特色精选', '限时特惠', '情侣约会', '影音电竞']
+
+  // 首次加载时显示热门推荐
+  useEffect(() => {
+    loadPopularHourlyRooms()
+  }, [])
+
+  // 加载热门钟点房
+  const loadPopularHourlyRooms = () => {
+    setLoading(true)
+    setTimeout(() => {
+      setHourlyRooms(MOCK_HOURLY_ROOMS)
+      setPagination({ page: 1, limit: 20, total: MOCK_HOURLY_ROOMS.length })
+      setLoading(false)
+    }, 500)
+  }
+
+  // 下拉刷新处理
+  const handlePullRefresh = () => {
+    if (refreshing) return
+    setRefreshing(true)
+    setTimeout(() => {
+      setHourlyRooms(MOCK_HOURLY_ROOMS)
+      setRefreshing(false)
+    }, 800)
+  }
+
+  // 监听移动端下拉动作 
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    let startY = 0
+    let currentY = 0
+    const pullThreshold = 60
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY
+      currentY = startY
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      currentY = e.touches[0].clientY
+      const diff = currentY - startY
+      if (container.scrollTop === 0 && diff > 0) {
+        // 视觉反馈拦截
+      }
+    }
+
+    const handleTouchEnd = () => {
+      const diff = currentY - startY
+      if (diff > pullThreshold && container.scrollTop === 0) {
+        handlePullRefresh()
+      }
+    }
+
+    container.addEventListener('touchstart', handleTouchStart)
+    container.addEventListener('touchmove', handleTouchMove)
+    container.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart)
+      container.removeEventListener('touchmove', handleTouchMove)
+      container.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [refreshing])
+
+  // 处理日期与时长变化 
+  const handleDateDurationChange = (date: Date, duration: number) => {
+    setSearchParams((prev) => ({
       ...prev,
-      [name]: name === 'guests' ? parseInt(value) : value,
+      date,
+      duration,
     }))
   }
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const params = new URLSearchParams(
-      Object.entries(formData).reduce(
-        (acc, [key, value]) => {
-          acc[key] = String(value)
-          return acc
-        },
-        {} as Record<string, string>
-      )
-    )
-    navigate(`/search/hourlyHotel?${params.toString()}`)
+  // 处理搜索
+  const handleSearch = async () => {
+    if (!searchParams.city) {
+      alert('请选择城市')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800))
+
+      const filtered = MOCK_HOURLY_ROOMS.filter(room => room.baseInfo.city === searchParams.city)
+
+      setHourlyRooms(filtered)
+      setPagination({ page: 1, limit: 20, total: filtered.length })
+
+      // 构建查询参数并跳转
+      const queryParams = new URLSearchParams({
+        city: searchParams.city,
+        date: searchParams.date ? dayjs(searchParams.date).format('YYYY-MM-DD') : '',
+        startTime: searchParams.startTime,
+        duration: String(searchParams.duration),
+        rooms: String(searchParams.rooms || 1),
+      })
+
+      navigate(`/search/hourlyHotel?${queryParams.toString()}`)
+    } catch (error) {
+      console.error('Failed to search:', error)
+      alert('搜索失败，请重试')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 切换 Tab 的处理逻辑（可后续扩展请求不同接口）
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    // 这里可以加上请求新数据的逻辑
+    // loadPopularHourlyRooms() 
   }
 
   return (
-    <div className={styles.container}>
-      {/* 首页横幅 */}
-      <section className={styles.banner}>
-        <div className={styles.bannerContent}>
-          <h1>发现您的钟点房</h1>
-          <p>在全国多家钟点房中搜索</p>
-        </div>
-      </section>
+    <div ref={containerRef} className={styles.container}>
+      <div className={styles.bannerContainer}>
+        <BannerCarousel
+          autoPlay={true}
+          interval={3500}
+          onBannerClick={(item) => navigate(item.link || '#')}
+        />
+      </div>
 
-      {/* 搜索表单 */}
-      <section className={styles.searchSection}>
-        <form onSubmit={handleSearch} className={styles.searchForm}>
-          <div className={styles.formGroup}>
-            <label htmlFor="city">目的地</label>
-            <select
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className={styles.input}
-            >
-              <option value="Beijing">北京</option>
-              <option value="Shanghai">上海</option>
-              <option value="Guangzhou">广州</option>
-              <option value="Shenzhen">深圳</option>
-              <option value="Chengdu">成都</option>
-              <option value="Xian">西安</option>
-            </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="checkIn">日期</label>
-            <input
-              id="checkIn"
-              type="date"
-              name="checkIn"
-              value={formData.checkIn}
-              onChange={handleChange}
-              className={styles.input}
-              required
+      <div className={styles.compactSearchSection}>
+        <div className={styles.searchCard}>
+          {/* 位置选择 */}
+          <div className={styles.cardItem}>
+            <LocationInput
+              city={searchParams.city}
+              onCityChange={(city) => setSearchParams(prev => ({ ...prev, city }))}
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="checkInTime">入住时间</label>
-            <input
-              id="checkInTime"
-              type="time"
-              name="checkInTime"
-              value={formData.checkInTime}
-              onChange={handleChange}
-              className={styles.input}
-              required
+          {/* 日期与时长选择 */}
+          <div className={styles.cardItem}>
+            <DateDurationSelector
+              date={searchParams.date}
+              duration={searchParams.duration}
+              onChange={handleDateDurationChange}
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="checkOutTime">退房时间</label>
-            <input
-              id="checkOutTime"
-              type="time"
-              name="checkOutTime"
-              value={formData.checkOutTime}
-              onChange={handleChange}
-              className={styles.input}
-              required
+          {/* 查找按钮（直接跟在日期下面） */}
+          <div className={styles.cardItem}>
+            <SearchButton
+              loading={loading}
+              onClick={handleSearch}
+              label="查询" // 参考携程改成了"查询"
             />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="guests">房客数</label>
-            <input
-              id="guests"
-              type="number"
-              name="guests"
-              min="1"
-              max="9"
-              value={formData.guests}
-              onChange={handleChange}
-              className={styles.input}
-              required
-            />
-          </div>
-
-          <button type="submit" className={styles.searchButton}>
-            搜索
-          </button>
-        </form>
-      </section>
-
-      {/* 特色推荐 */}
-      <section className={styles.features}>
-        <h2>为什么选择我们的钟点房？</h2>
-        <div className={styles.featureGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>💰</div>
-            <h3>灵活定价</h3>
-            <p>按小时计费，经济实惠</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>🛡️</div>
-            <h3>安全预订</h3>
-            <p>所有交易均受保护</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>🤝</div>
-            <h3>24/7 支持</h3>
-            <p>随时随地获得帮助</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>⭐</div>
-            <h3>真实评价</h3>
-            <p>真实客人的真实评价</p>
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* 替换原有的 RecommendTypes 为新的 Tab 栏 */}
+      <div className={styles.tabContainer}>
+        {tabs.map((tab) => (
+          <div
+            key={tab}
+            className={`${styles.tabItem} ${activeTab === tab ? styles.activeTab : ''}`}
+            onClick={() => handleTabChange(tab)}
+          >
+            {tab}
+            {activeTab === tab && <div className={styles.tabIndicator} />}
+          </div>
+        ))}
+      </div>
+
+      {/* 钟点房列表 */}
+      <div className={styles.listSection}>
+        {refreshing && (
+          <div className={styles.refreshTip}>
+            <span className={styles.spinner} />
+            正在刷新附近房源...
+          </div>
+        )}
+
+        <div className={styles.cardGrid}>
+          {loading ? (
+            <HourlyRoomCardSkeleton count={6} />
+          ) : hourlyRooms.length > 0 ? (
+            hourlyRooms.map((room) => (
+              <div key={room._id} className={styles.cardWrapper}>
+                <HourlyRoomCard
+                  data={room}
+                  onClick={() => navigate(`/hotel-detail/hourly/${room._id}`)}
+                  showStar
+                />
+              </div>
+            ))
+          ) : (
+            <div className={styles.emptyState}>
+              <p>当前时段暂无相关钟点房</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.bottomSpacer} />
     </div>
   )
 }
+
+export default HourlyRoomPage

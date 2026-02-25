@@ -1,145 +1,321 @@
-import { useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import styles from './index.module.css'
+import { QUICK_FILTER_TAGS, type HotelMarket, useAppStore, useHotelStore } from '@estay/shared'
+import BannerCarousel from '../../../components/hotels/home/BannerCarousel'
+import DateTimeRangeSelector from '../../../components/hotels/home/DateTimeRangeSelector'
+import HotelCard from '../../../components/hotels/home/HotelCard'
+import HotelCardSkeleton from '../../../components/hotels/home/HotelCardSkeleton'
+import KeywordSearchModal from '../../../components/hotels/home/KeywordSearchModal'
+import LocationInput from '../../../components/hotels/home/LocationInput'
+import PriceSelector from '../../../components/hotels/home/PriceSelector'
+import QuickFilters from '../../../components/hotels/home/QuickFilters'
+import RecommendTypes from '../../../components/hotels/home/RecommendTypes'
+import RoomTypeSelector from '../../../components/hotels/home/RoomTypeSelector'
+import SearchButton from '../../../components/hotels/home/SearchButton'
+import styles from '../homeStay/index.module.scss'
+import tabStyles from './index.module.scss'
 
-/**
- * 酒店首页
- */
+const DAY_IN_MS = 24 * 60 * 60 * 1000
+const DEFAULT_LIMIT = 10
+const DOMESTIC_DEFAULT_CITY = 'Beijing'
+const INTERNATIONAL_DEFAULT_CITY = 'Singapore'
+const HOT_KEYWORDS: string[] = [
+  '近地铁',
+  '汉庭酒店',
+  '含双早',
+  '可免费取消',
+  '商务出行',
+  '五星酒店',
+]
+
+const toDate = (value: string): Date => {
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) {
+    return new Date()
+  }
+  return parsed
+}
+
+const formatDate = (date: Date): string => date.toISOString().slice(0, 10)
+
+const ensureCheckoutDate = (checkIn: Date, checkOut: Date): Date =>
+  checkOut.getTime() > checkIn.getTime() ? checkOut : new Date(checkIn.getTime() + DAY_IN_MS)
+
 export default function HomeHotelPage() {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    city: 'Beijing',
-    checkIn: new Date().toISOString().split('T')[0],
-    checkOut: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-    guests: 2,
-  })
+  const { currentHotelMarket, setMarket } = useAppStore()
+  const { searchParams, hotelList, roomSPUList, loading, setSearchParams, fetchHotels } = useHotelStore()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === 'guests' ? parseInt(value) : value,
-    }))
+  const [city, setCity] = useState(searchParams.city)
+  const [keyword, setKeyword] = useState(searchParams.keyword ?? '')
+  const [checkIn, setCheckIn] = useState(toDate(searchParams.checkInDate))
+  const [checkOut, setCheckOut] = useState(toDate(searchParams.checkOutDate))
+  const [guests, setGuests] = useState(2)
+  const [beds, setBeds] = useState(0)
+  const [rooms, setRooms] = useState(1)
+  const [minPrice, setMinPrice] = useState(searchParams.minPrice ?? 0)
+  const [maxPrice, setMaxPrice] = useState(searchParams.maxPrice ?? 10000)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showKeywordModal, setShowKeywordModal] = useState(false)
+  const [keywordDraft, setKeywordDraft] = useState(searchParams.keyword ?? '')
+  const [keywordHistory, setKeywordHistory] = useState<string[]>([])
+
+  useEffect(() => {
+    setSearchParams({
+      market: currentHotelMarket,
+      page: 1,
+    })
+  }, [currentHotelMarket, setSearchParams])
+
+  useEffect(() => {
+    void fetchHotels()
+  }, [
+    fetchHotels,
+    searchParams.city,
+    searchParams.checkInDate,
+    searchParams.checkOutDate,
+    searchParams.market,
+    searchParams.page,
+    searchParams.limit,
+    searchParams.keyword,
+    searchParams.minPrice,
+    searchParams.maxPrice,
+    searchParams.stars,
+  ])
+
+  const handleMarketChange = (market: HotelMarket) => {
+    const defaultCity = market === 'domestic' ? DOMESTIC_DEFAULT_CITY : INTERNATIONAL_DEFAULT_CITY
+    setMarket(market)
+    setCity(defaultCity)
+    setSearchParams({
+      market,
+      city: defaultCity,
+      page: 1,
+    })
   }
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const params = new URLSearchParams(
-      Object.entries(formData).reduce(
-        (acc, [key, value]) => {
-          acc[key] = String(value)
-          return acc
-        },
-        {} as Record<string, string>
-      )
-    )
-    navigate(`/search/hotel?${params.toString()}`)
+  const handleSearch = () => {
+    const normalizedCity = city.trim()
+    if (!normalizedCity) {
+      return
+    }
+    const normalizedKeyword = keyword.trim()
+
+    const normalizedCheckOut = ensureCheckoutDate(checkIn, checkOut)
+
+    setSearchParams({
+      city: normalizedCity,
+      checkInDate: formatDate(checkIn),
+      checkOutDate: formatDate(normalizedCheckOut),
+      market: currentHotelMarket,
+      page: 1,
+      limit: DEFAULT_LIMIT,
+      keyword: normalizedKeyword,
+      minPrice,
+      maxPrice,
+    })
+
+    const urlParams = new URLSearchParams({
+      city: normalizedCity,
+      checkInDate: formatDate(checkIn),
+      checkOutDate: formatDate(normalizedCheckOut),
+      market: currentHotelMarket,
+      page: '1',
+      limit: String(DEFAULT_LIMIT),
+      keyword: normalizedKeyword,
+      minPrice: String(minPrice),
+      maxPrice: String(maxPrice),
+    })
+
+    navigate(`/search/hotel?${urlParams.toString()}`)
   }
+
+  const handleKeywordSubmit = (nextKeyword: string) => {
+    const normalizedKeyword = nextKeyword.trim()
+    if (!normalizedKeyword) {
+      return
+    }
+
+    setKeyword(normalizedKeyword)
+    setKeywordDraft(normalizedKeyword)
+    setKeywordHistory((previous) => {
+      const deduped = [normalizedKeyword, ...previous.filter((item) => item !== normalizedKeyword)]
+      return deduped.slice(0, 8)
+    })
+    setShowKeywordModal(false)
+  }
+
+  const handleDateChange = (nextCheckIn: Date, nextCheckOut: Date) => {
+    setCheckIn(nextCheckIn)
+    setCheckOut(ensureCheckoutDate(nextCheckIn, nextCheckOut))
+  }
+
+  const handleRoomTypeChange = (nextGuests: number, nextBeds: number, nextRooms: number) => {
+    setGuests(nextGuests)
+    setBeds(nextBeds)
+    setRooms(nextRooms)
+  }
+
+  const handleTagSelect = (id: string, selected: boolean) => {
+    setSelectedTags((prev) => {
+      if (selected) {
+        return prev.includes(id) ? prev : [...prev, id]
+      }
+      return prev.filter((tagId) => tagId !== id)
+    })
+  }
+
+  const cards = useMemo(
+    () =>
+      hotelList.map((hotel) => ({
+        hotel,
+        startingPrice: roomSPUList[hotel.id]?.[0]?.startingPrice ?? 0,
+      })),
+    [hotelList, roomSPUList]
+  )
 
   return (
     <div className={styles.container}>
-      {/* 首页横幅 */}
-      <section className={styles.banner}>
-        <div className={styles.bannerContent}>
-          <h1>发现您的下一个酒店</h1>
-          <p>在全球数百万家酒店中搜索</p>
-        </div>
-      </section>
+      <BannerCarousel
+        autoPlay={true}
+        interval={3500}
+        onBannerClick={(item) => {
+          if (item.link) {
+            navigate(item.link)
+          }
+        }}
+      />
 
-      {/* 搜索表单 */}
-      <section className={styles.searchSection}>
-        <form onSubmit={handleSearch} className={styles.searchForm}>
-          <div className={styles.formGroup}>
-            <label htmlFor="city">目的地</label>
-            <select
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className={styles.input}
+      <div className={styles.compactSearchSection}>
+        <div className={styles.searchCard}>
+          <div className={tabStyles.marketTabs}>
+            <button
+              type="button"
+              className={`${tabStyles.marketTab} ${
+                currentHotelMarket === 'domestic' ? tabStyles.active : ''
+              }`}
+              onClick={() => handleMarketChange('domestic')}
             >
-              <option value="Beijing">北京</option>
-              <option value="Shanghai">上海</option>
-              <option value="Guangzhou">广州</option>
-              <option value="Shenzhen">深圳</option>
-              <option value="Chengdu">成都</option>
-              <option value="Xian">西安</option>
-            </select>
+              国内
+            </button>
+            <button
+              type="button"
+              className={`${tabStyles.marketTab} ${
+                currentHotelMarket === 'international' ? tabStyles.active : ''
+              }`}
+              onClick={() => handleMarketChange('international')}
+            >
+              国际/中国港澳台
+            </button>
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="checkIn">入住日期</label>
-            <input
-              id="checkIn"
-              type="date"
-              name="checkIn"
-              value={formData.checkIn}
-              onChange={handleChange}
-              className={styles.input}
-              required
+          <div className={styles.cardItem}>
+            <LocationInput
+              city={city}
+              onCityChange={setCity}
+              keyword={keyword}
+              onKeywordChange={setKeyword}
+              market={currentHotelMarket}
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="checkOut">退房日期</label>
-            <input
-              id="checkOut"
-              type="date"
-              name="checkOut"
-              value={formData.checkOut}
-              onChange={handleChange}
-              className={styles.input}
-              required
+          <div className={styles.cardItem}>
+            <button
+              type="button"
+              className={tabStyles.keywordTrigger}
+              onClick={() => {
+                setKeywordDraft(keyword)
+                setShowKeywordModal(true)
+              }}
+            >
+              <span className={tabStyles.keywordLabel}>关键字</span>
+              <span className={keyword ? tabStyles.keywordValue : tabStyles.keywordPlaceholder}>
+                {keyword || '关键字/位置/品牌'}
+              </span>
+            </button>
+          </div>
+
+          <div className={styles.cardItem}>
+            <DateTimeRangeSelector checkIn={checkIn} checkOut={checkOut} onDateChange={handleDateChange} />
+          </div>
+
+          <div className={styles.dualRowContainer}>
+            <div className={styles.cardItem}>
+              <RoomTypeSelector rooms={rooms} beds={beds} guests={guests} onChange={handleRoomTypeChange} />
+            </div>
+
+            <div className={styles.cardItem}>
+              <PriceSelector
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                onPriceChange={(nextMin, nextMax) => {
+                  setMinPrice(nextMin)
+                  setMaxPrice(nextMax)
+                }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.cardItem}>
+            <QuickFilters
+              tags={QUICK_FILTER_TAGS}
+              selectedTags={selectedTags}
+              onTagSelect={handleTagSelect}
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="guests">房客数</label>
-            <input
-              id="guests"
-              type="number"
-              name="guests"
-              min="1"
-              max="9"
-              value={formData.guests}
-              onChange={handleChange}
-              className={styles.input}
-              required
-            />
-          </div>
-
-          <button type="submit" className={styles.searchButton}>
-            搜索
-          </button>
-        </form>
-      </section>
-
-      {/* 特色推荐 */}
-      <section className={styles.features}>
-        <h2>为什么选择我们的酒店？</h2>
-        <div className={styles.featureGrid}>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>💰</div>
-            <h3>最佳价格保证</h3>
-            <p>找不到更好的价格</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>🛡️</div>
-            <h3>安全预订</h3>
-            <p>所有交易均受保护</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>🤝</div>
-            <h3>24/7 支持</h3>
-            <p>随时随地获得帮助</p>
-          </div>
-          <div className={styles.featureCard}>
-            <div className={styles.icon}>⭐</div>
-            <h3>酒店评论</h3>
-            <p>真实客人的真实评价</p>
+          <div className={styles.cardItem}>
+            <SearchButton loading={loading} onClick={handleSearch} label="Start Search" />
           </div>
         </div>
-      </section>
+      </div>
+
+      <RecommendTypes />
+
+      <div className={styles.listSection}>
+        <div className={styles.cardGrid}>
+          {loading && cards.length === 0 ? (
+            <HotelCardSkeleton count={6} />
+          ) : cards.length > 0 ? (
+            cards.map(({ hotel, startingPrice }) => (
+              <div key={hotel.id} className={styles.cardWrapper}>
+                <HotelCard
+                  data={hotel}
+                  startingPrice={startingPrice}
+                  showStar
+                  onClick={(id) => navigate(`/hotel/${id}/hotel`)}
+                />
+              </div>
+            ))
+          ) : (
+            <div className={styles.emptyState}>
+              <p>No hotels found</p>
+            </div>
+          )}
+        </div>
+
+        {loading && (
+          <div className={styles.loadingState}>
+            <p>Loading...</p>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.bottomSpacer} />
+
+      <KeywordSearchModal
+        visible={showKeywordModal}
+        keyword={keywordDraft}
+        historyKeywords={keywordHistory}
+        hotKeywords={HOT_KEYWORDS}
+        onClose={() => {
+          setKeywordDraft(keyword)
+          setShowKeywordModal(false)
+        }}
+        onKeywordChange={setKeywordDraft}
+        onSubmit={handleKeywordSubmit}
+        onClearHistory={() => setKeywordHistory([])}
+      />
     </div>
   )
 }

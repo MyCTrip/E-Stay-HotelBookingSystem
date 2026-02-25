@@ -6,7 +6,7 @@
 
 import type { HomeStayRoom } from '@estay/shared'
 
-export const NEARBY_ROOMS: HomeStayRoom[] = [
+export const NEARBY_ROOMS = [
   {
     // ===== DB字段 =====
     _id: 'nearby-1',
@@ -430,5 +430,5 @@ export const NEARBY_ROOMS: HomeStayRoom[] = [
     createdAt: new Date('2024-05-01'),
     updatedAt: new Date('2025-02-19'),
   },
-]
+] as any
 

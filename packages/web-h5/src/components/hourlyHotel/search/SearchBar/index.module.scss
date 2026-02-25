@@ -1,0 +1,128 @@
+/* 搜索条件栏样式 */
+
+.searchBar {
+  position: sticky;
+  top: 56px;
+  width: 100%;
+  padding: 8px 0;
+  z-index: 1999;
+  background-color: white;
+  gap: 0;
+}
+.content {
+  background-color: #edf0f1;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  margin: auto;
+  width: 94%;
+  display: flex;
+  align-items: stretch;
+  padding: 4px;
+}
+
+/* 基础按钮样式 */
+.cityBtn,
+.dateBtn,
+.locationBtn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+/* 城市按钮 */
+.cityBtn {
+  flex-shrink: 0;
+  padding: 0 6px;
+}
+
+/* 入离时间按钮 */
+.dateBtn {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding-right: 6px;
+  border-right: 1px solid #ffffff;
+}
+
+/* 地址搜索栏 */
+.locationBtn {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+/* 按钮标签 */
+.buttonLabel {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 按钮值 */
+.buttonValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 搜索图标 */
+.searchIcon {
+  flex-shrink: 0;
+  color: #999;
+}
+
+/* 地址搜索输入框 */
+.locationInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+
+  &::placeholder {
+    color: #ccc;
+  }
+}
+
+/* 日期行样式 */
+.dateRowUp,
+.dateRowDown {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 日期标签 */
+.dateLabel {
+  font-size: 10px;
+  color: #999;
+  margin-right: 4px;
+}
+
+/* 日期值 */
+.dateValue {
+  font-size: 10px;
+  font-weight: 500;
+  color: #333;
+}
