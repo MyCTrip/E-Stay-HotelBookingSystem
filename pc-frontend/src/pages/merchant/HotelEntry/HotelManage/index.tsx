@@ -4,6 +4,7 @@ import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { hotelApi } from '@/services/hotel';
+import { facilitiesToFormValues, formValuesToFacilities } from '@/config/facilities';
 import type { Hotel, AuditStatus } from '@/types/hotel';
 import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -11,10 +12,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { BaseInfoCard } from '@/components/hotel/BaseInfoCard';
 import { PolicyCard } from '@/components/hotel/PolicyCard';
 import { MarketingCard } from '@/components/hotel/MarketingCard';
-// import { RoomListCard } from '@/components/rooms/RoomListCard';
-import { HotelDetailsView } from '@/components/hotel/HotelDetailsView'; // 酒店详情查看组件
-
-import { HOTEL_FACILITIES } from '@/config/hotelOptions';
+import { HotelDetailsView } from '@/components/hotel/HotelDetailsView';
 // 表单值类型定义（UI层）
 interface HotelFormValues {
   nameCn: string;
@@ -101,13 +99,8 @@ const HotelManage: React.FC = () => {
     if (isEditing && hotelData) {
     // --- A. 数据转换 (后端 -> UI) ---
       
-      // 1. Facilities 转换: [{category: '基础', content: 'WiFi, 停车'}] -> {'基础': ['WiFi', '停车']}
-      const facilitiesUI: any = {};
-      hotelData.baseInfo.facilities?.forEach((item: any) => {
-         if (item.content) {
-            facilitiesUI[item.category] = item.content.split(',').map((s: string) => s.trim());
-         }
-      });
+      // 1. Facilities 转换：将后端的 facilities 结构转换为表单的 checkbox 选中值
+      const facilitiesFormValues = facilitiesToFormValues(hotelData.baseInfo.facilities || []);
 
       // 2. Policies 转换
       const policiesUI: any = {};
@@ -139,20 +132,8 @@ const HotelManage: React.FC = () => {
         },
 
         // 5. 注入转换后的动态字段
-        facilities: facilitiesUI,
+        facilities: facilitiesFormValues,
         policies: policiesUI,
-        // 6. 回填房间数据
-        // rooms: hotelData.rooms?.map((r: any) => ({
-        //     name: r.baseInfo?.type || r.type,
-        //     price: r.baseInfo?.price || r.price,
-        //     stock: r.baseInfo?.stock || r.stock,
-        //     size: r.headInfo?.size ? parseFloat(r.headInfo.size) : 0,
-        //     facilities: [
-        //         r.headInfo?.wifi ? '无线网络' : '',
-        //         r.headInfo?.windowAvailable ? '有窗' : ''
-        //     ].filter(Boolean),
-        //     hasBreakfast: !!r.breakfastInfo?.hasBreakfast
-        // }))
       });
     } else if (isEditing && !hotelData) {
       // --- 新增模式：设置表单默认值 ---
@@ -164,10 +145,13 @@ const HotelManage: React.FC = () => {
               checkoutTime: dayjs('12:00', 'HH:mm'),
               breakfastType: '无'
           },
-          facilities: { '基础设施': ['免费WiFi', '24小时前台'] },
+          // 默认勾选一些基础设施
+          facilities: {
+            basic: ['wifi', 'elevator'],
+            service: ['front_desk']
+          },
           nearbyList: [],
           discountRules: [],
-          // rooms: [{ name: '标准间', price: 299, stock: 10, size: 25 }]
       });
     }
   }, [isEditing, hotelData, form]);
@@ -187,19 +171,8 @@ const HotelManage: React.FC = () => {
       }
 
       // 2. Facilities 转换 (UI -> DB)
-      // 文档要求：Array, required, non-empty, content 为 HTML
-      const facilitiesDB = Object.keys(values.facilities || {}).map(key => {
-          const contentText = (values.facilities as any)[key]?.join(', ') || '';
-          return {
-              category: key,
-              content: `<p>${contentText}</p>` // 包装成 HTML
-          };
-      }).filter(item => item.content !== '<p></p>'); // 过滤空项
-      
-      // 必填兜底
-      if (facilitiesDB.length === 0) {
-          facilitiesDB.push({ category: '基础服务', content: '<p>暂无详细信息</p>' });
-      }
+      // 使用 helper 函数将表单的 checkbox 选中值转换为完整的 facilities 结构
+      const facilitiesDB = formValuesToFacilities(values.facilities || {});
 
       // 3. Policies 转换 (UI -> DB)
       // 文档要求：Array, required, non-empty, content 为 HTML
@@ -212,7 +185,6 @@ const HotelManage: React.FC = () => {
             policyType: 'cancellation', 
             content: values.policies?.cancellation ? `<p>${values.policies.cancellation}</p>` : '<p>详询酒店前台</p>' 
           }
-          // 文档没提 flags，这里不传 flags
       ].filter(item => item.content);
 
       // 映射表：前端中文 -> 后端枚举
@@ -253,6 +225,8 @@ const HotelManage: React.FC = () => {
           address: values.address,
           city: values.city || '未填写',
           star: values.star ?? 3,
+          roomTotal: 1,
+          openTime: values.openTime ? dayjs(values.openTime).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
           // 文档要求 phone 是 string
           phone: '000-00000000', 
           description: values.description || '暂无描述',

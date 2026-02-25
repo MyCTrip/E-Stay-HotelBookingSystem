@@ -19,7 +19,7 @@ interface ProfileFormValues {
   contactPhone: string;
   contactEmail: string;
   businessLicenseNo: string;
-  licenseImages: UploadFile[];
+  businessLicensePhoto: UploadFile[];
 }
 
 const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data }) => {
@@ -28,31 +28,57 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
   useEffect(() => {
     if (visible && data) {
-      const licenseImgs = data.qualificationInfo?.licenseImage?.map((url, index) => ({
-        uid: String(index),
-        name: `license-${index}`,
+      const licenseImg = data.qualificationInfo?.businessLicensePhoto ? [{
+        uid: '0',
+        name: 'license',
         status: 'done' as const,
-        url: url
-      })) || [];
+        url: data.qualificationInfo.businessLicensePhoto
+      }] : [];
 
       form.setFieldsValue({
-        merchantName: data.baseInfo.merchantName,
-        contactName: data.baseInfo.contactName,
-        contactPhone: data.baseInfo.contactPhone,
-        contactEmail: data.baseInfo.contactEmail,
+        merchantName: data.baseInfo?.merchantName || '',
+        contactName: data.baseInfo?.contactName || '',
+        contactPhone: data.baseInfo?.contactPhone || '',
+        contactEmail: data.baseInfo?.contactEmail || '',
         businessLicenseNo: data.qualificationInfo?.businessLicenseNo || '',
-        licenseImages: licenseImgs as any,
+        businessLicensePhoto: licenseImg as any,
       });
+    } else {
+        form.resetFields();
     }
   }, [visible, data, form]);
 
   const handleSubmit = async (values: ProfileFormValues) => {
     setLoading(true);
     try {
-      const imageList = values.licenseImages?.map(
-        (f: any) => f.url || (f.response && f.response.url)
-      ).filter(Boolean) || [];
+      let photoUrl: string | undefined;
+      
+      // 处理营业执照图片上传
+      if (values.businessLicensePhoto && values.businessLicensePhoto.length > 0) {
+        const file = values.businessLicensePhoto[0];
+        
+        // 如果已经有 URL（已上传的文件），直接使用
+        if (file.url) {
+          photoUrl = file.url;
+          console.log('使用已上传的图片URL:', photoUrl);
+        } 
+        // 如果有原始文件对象，需要上传到服务器
+        else if (file.originFileObj) {
+          const formData = new FormData();
+          formData.append('file', file.originFileObj);
+          
+          try {
+            const uploadResponse = await merchantApi.uploadImage(formData);
+            photoUrl = uploadResponse.url;
+            console.log('新上传的图片URL:', photoUrl);
+          } catch (uploadError: any) {
+            console.error('上传失败详情:', uploadError);
+            throw new Error(uploadError?.response?.data?.message || '图片上传失败，请重试');
+          }
+        }
+      }
 
+      // 构造符合后端要求的 Payload
       const payload: Partial<MerchantProfile> = {
         baseInfo: {
           merchantName: values.merchantName,
@@ -60,10 +86,9 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
           contactPhone: values.contactPhone,
           contactEmail: values.contactEmail,
         },
-        // ✅ 修复 3: 补全类型定义要求的必填项
         qualificationInfo: {
           businessLicenseNo: values.businessLicenseNo,
-          licenseImage: imageList,
+          businessLicensePhoto: photoUrl,
           realNameStatus: 'unverified' 
         },
         auditInfo: {
@@ -77,13 +102,15 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
       onSuccess();
       onCancel();
     } catch (error: any) {
-      message.error(error?.response?.data?.message || '更新失败');
+      console.error(error);
+      message.error(error?.response?.data?.message || error.message || '更新失败');
     } finally {
       setLoading(false);
     }
   };
 
   const normFile = (e: any) => {
+    // console.log('Upload event:', e); // 调试用
     if (Array.isArray(e)) return e;
     return e?.fileList;
   };
@@ -100,7 +127,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
     >
       <Alert 
         message="审核提示" 
-        description="修改“商户名称”或“资质信息”后，您的账户将重新进入审核状态，审核期间部分功能可能受限。" 
+        description="修改“商户名称”或“资质信息”后，您的账户将重新进入审核状态。" 
         type="warning" 
         showIcon 
         style={{ marginBottom: 24 }}
@@ -108,7 +135,6 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
         
-        {/* ✅ 修复 1: 改用字符串字面量 */}
         <Divider orientation="left" style={{ borderColor: '#e8e8e8' }}>
           <ShopOutlined /> 基础信息
         </Divider>
@@ -155,13 +181,12 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
           </Col>
         </Row>
 
-        {/* ✅ 修复 2: 改用字符串字面量 */}
         <Divider orientation="left" style={{ borderColor: '#e8e8e8' }}>
           <IdcardOutlined /> 资质认证
         </Divider>
 
         <Form.Item 
-          label="统一社会信用代码 (营业执照号)" 
+          label="统一社会信用代码" 
           name="businessLicenseNo" 
           rules={[{ required: true, message: '必填项' }]}
         >
@@ -170,7 +195,7 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
 
         <Form.Item 
           label="营业执照电子版" 
-          name="licenseImages"
+          name="businessLicensePhoto"
           valuePropName="value"
           getValueFromEvent={normFile}
           rules={[{ required: true, message: '请上传营业执照' }]}

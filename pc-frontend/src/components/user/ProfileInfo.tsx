@@ -12,7 +12,7 @@ interface Props {
 
 const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) => {
   // 状态颜色映射
-  const statusMap = {
+  const statusMap: Record<string, { color: string; text: string }> = {
     verified: { color: 'success', text: '已认证' },
     pending: { color: 'processing', text: '审核中' },
     rejected: { color: 'error', text: '审核驳回' },
@@ -20,10 +20,11 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
   };
 
   const status = data?.auditInfo?.verifyStatus || 'unverified';
+  // 🔥 核心修复：如果状态未知，兜底回退到 unverified，防止页面崩溃
+  const currentStatus = statusMap[status] || statusMap['unverified'];
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-      {/* 顶部 Header 区 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>我的信息</h2>
         <Button type="primary" icon={<EditOutlined />} onClick={onEdit}>
@@ -31,20 +32,18 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
         </Button>
       </div>
 
-      {/* 核心卡片区 */}
-      <Card loading={loading} variant="borderless"style={{ borderRadius: 8 }}>
+      <Card loading={loading} variant="borderless" style={{ borderRadius: 8 }}>
         <Row gutter={24} align="middle" style={{ marginBottom: 40 }}>
-          {/* 左侧：商户名称 */}
           <Col span={10}>
              <div style={{ paddingLeft: 24 }}>
                 <h1 style={{ color: '#666', fontSize: 16, marginBottom: 8 }}>商户名称</h1>
                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>
+                  {/* 🔥 加固空值检查 */}
                   {data?.baseInfo?.merchantName || '未设置名称'}
                 </div>
              </div>
           </Col>
           
-          {/* 中间：头像 (带小编辑笔) */}
           <Col span={4} style={{ textAlign: 'center', position: 'relative' }}>
             <div style={{ position: 'relative', display: 'inline-block' }}>
                <Avatar 
@@ -52,7 +51,7 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
                  src={data?.avatar} 
                  icon={<UserOutlined />} 
                  style={{ backgroundColor: '#1890ff' }}
-                />
+               />
                <Button 
                  shape="circle" 
                  icon={<EditOutlined />} 
@@ -62,14 +61,11 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
                />
             </div>
           </Col>
-
-          {/* 右侧留白或放其他 */}
           <Col span={10} />
         </Row>
 
         <Divider />
 
-        {/* 详细信息 Grid */}
         <Descriptions bordered column={2} labelStyle={{ width: '150px', fontWeight: 500 }}>
           <Descriptions.Item label="联系人姓名">
              {data?.baseInfo?.contactName}
@@ -88,8 +84,8 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
           </Descriptions.Item>
 
           <Descriptions.Item label="当前状态">
-             <Tag color={statusMap[status].color} icon={<SafetyCertificateOutlined />}>
-               {statusMap[status].text}
+             <Tag color={currentStatus.color} icon={<SafetyCertificateOutlined />}>
+               {currentStatus.text}
              </Tag>
           </Descriptions.Item>
 
@@ -98,7 +94,7 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
           </Descriptions.Item>
 
           <Descriptions.Item label="注册时间">
-             2026-01-30 {/* 这里应该用 dayjs 格式化 createdAt */}
+             2026-01-30 
           </Descriptions.Item>
 
            <Descriptions.Item label="上次登录">
@@ -106,7 +102,6 @@ const ProfileInfo: React.FC<Props> = ({ loading, data, onEdit, onEditAvatar }) =
           </Descriptions.Item>
         </Descriptions>
         
-        {/* 底部地址栏 */}
         <Descriptions bordered column={1} style={{ marginTop: -1 }}>
            <Descriptions.Item label="经营地址" labelStyle={{ width: '150px', fontWeight: 500 }}>
              上海市浦东新区张江高科园区 88 号

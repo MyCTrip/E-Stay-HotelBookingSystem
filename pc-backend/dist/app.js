@@ -17,6 +17,7 @@ const admin_routes_1 = __importDefault(require("./modules/admin/admin.routes"));
 const audit_routes_1 = __importDefault(require("./modules/audit/audit.routes"));
 const room_routes_1 = __importDefault(require("./modules/room/room.routes"));
 const upload_routes_1 = __importDefault(require("./modules/upload/upload.routes"));
+const debug_routes_1 = __importDefault(require("./modules/debug/debug.routes"));
 const upload_1 = require("./config/upload");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -26,8 +27,6 @@ app.use(express_1.default.json());
 app.use((0, morgan_1.default)('dev'));
 // 全局API频率限制
 app.use('/api', (0, rateLimiter_middleware_1.rateLimit)());
-// 静态文件服务，访问 /uploads/xxx.jpg
-app.use(upload_1.UPLOAD_URL_PATH, express_1.default.static(upload_1.UPLOAD_DIR));
 // Register API routes
 app.use('/api/auth', auth_routes_1.default);
 app.use('/api/merchants', merchant_routes_1.default);
@@ -37,6 +36,10 @@ app.use('/api/admin', audit_routes_1.default);
 app.use('/api', room_routes_1.default);
 // 图片上传接口
 app.use('/api/upload', upload_routes_1.default);
+// 调试接口
+app.use('/api/debug', debug_routes_1.default);
+// 静态文件服务，访问 /api/uploads/xxx.jpg
+app.use('/api/uploads', express_1.default.static(upload_1.UPLOAD_DIR));
 app.use(error_middleware_1.errorHandler);
 exports.default = app;
 //# sourceMappingURL=app.js.map

@@ -156,8 +156,8 @@
     - 常见字段：`nameCn`(string), `address`(string), `city`(string), `star`(number), `phone`(string), `description`(string), `images`(string[])
     - **新增：`propertyType`** (string, optional) — 房型类型：`'hotel'` | `'hourlyHotel'` | `'homeStay'`, 默认 `'hotel'`
     - 新增：`location` (object, optional) — GeoJSON Point，用于地理位置查询 `{ type: 'Point', coordinates: [lng, lat] }`
-    - 新增：`facilities` (Array<Object>, required, non-empty)
-      - 每项：{ `category`: string (required), `content`: string (required, HTML) }
+    - 新增：`facilities` (Array<Object>, required, non-empty) — 设施分类结构
+      - 每项：{ `id`: string (required), `name`: string (required), `facilities`: Array<{`id`: string, `name`: string, `available`: boolean}> (required) }
     - 新增：`policies` (Array<Object>, required, non-empty)
       - 每项：{ `policyType`: string (required), `content`: string (required, HTML) }
     - 新增（可选）：`surroundings` (Array<Object>)
@@ -193,7 +193,16 @@
       "description":"说明",
       "images":[],
       "propertyType":"hotel",
-      "facilities":[{"category":"公共","content":"<p>WiFi</p>"}],
+      "facilities":[
+        {
+          "id":"service",
+          "name":"服务",
+          "facilities":[
+            {"id":"wifi","name":"WiFi","available":true},
+            {"id":"parking","name":"停车场","available":true}
+          ]
+        }
+      ],
       "policies":[{"policyType":"petAllowed","content":"<p>No pets</p>"}],
       "surroundings":[{"surType":"metro","surName":"地铁1号线","distance":500}],
       "discounts":[{"title":"首单立减","type":"instant","content":"首单减10元"}]
@@ -349,6 +358,7 @@
 - Path：`:hotelId` (required)
 - 请求体：
   - `baseInfo` (required): `type`, `price`, `images`, `status`, `maxOccupancy`, **`facilities`(non-empty)**, **`policies`(non-empty)**, **`bedRemark`(non-empty)**
+    - **`facilities`** (Array<Object>, required, non-empty) — 继承酒店的设施分类结构，结构同酒店 facilities
     - **新增：`category`** (string, auto-derived) — 自动根据所属酒店的 `propertyType` 派生：`'standard'` | `'hourly'` | `'homestay'`（无需手动指定）
   - `headInfo` (required): `size`, `floor`, `wifi`, `windowAvailable`, `smokingAllowed`
   - `bedInfo` (required array): 每项 `{ bedType, bedNumber, bedSize }`

@@ -1,20 +1,15 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IFacilityItem {
+  id: string;
   name: string;
-  description?: string;
-  icon?: string;
-  available?: boolean;
+  available: boolean;
 }
 
 export interface IFacility {
-  category: string;
-  content: string; // HTML rich text
-  items?: IFacilityItem[];
-  summary?: string;
-  icon?: string;
-  order?: number;
-  visible?: boolean;
+  id: string;
+  name: string;
+  facilities: IFacilityItem[];
 }
 
 export interface IPolicy {
@@ -125,20 +120,15 @@ export interface IHotel extends Document {
 }
 
 const FacilityItemSchema = new Schema<IFacilityItem>({
+  id: { type: String, required: true },
   name: { type: String, required: true },
-  description: String,
-  icon: String,
-  available: { type: Boolean, default: true },
+  available: { type: Boolean, required: true },
 });
 
 const FacilitySchema = new Schema<IFacility>({
-  category: { type: String, required: true },
-  content: { type: String, required: true },
-  items: { type: [FacilityItemSchema], default: [] },
-  summary: String,
-  icon: String,
-  order: { type: Number, default: 0 },
-  visible: { type: Boolean, default: true },
+  id: { type: String, required: true },
+  name: { type: String, required: true },
+  facilities: { type: [FacilityItemSchema], required: true },
 });
 
 const PolicySchema = new Schema<IPolicy>({

@@ -323,7 +323,6 @@ export const adminApproveRoom = async (req: Request, res: Response) => {
           'auditInfo.auditedBy': user.id,
           'auditInfo.auditedAt': new Date(),
           'auditInfo.rejectReason': undefined,
-          'baseInfo.status': 'approved',
         },
       },
       { new: true }
@@ -355,7 +354,6 @@ export const adminRejectRoom = async (req: Request, res: Response) => {
           'auditInfo.auditedBy': user.id,
           'auditInfo.auditedAt': new Date(),
           'auditInfo.rejectReason': reason,
-          'baseInfo.status': 'rejected',
         },
       },
       { new: true }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Form, TimePicker, Input, Select, Checkbox, Row, Col, Divider } from 'antd';
 import { ClockCircleOutlined, AppstoreOutlined, FileTextOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { HOTEL_FACILITIES } from '@/config/hotelOptions'; // 记得创建这个文件
+import { FACILITY_CATEGORIES } from '@/config/facilities';
 
 const { TextArea } = Input;
 
@@ -69,17 +69,19 @@ export const PolicyCard: React.FC = () => {
 
       <p style={{ color: '#999', fontSize: 12, marginBottom: 16 }}>勾选酒店提供的设施，这些信息将展示在移动端详情页。</p>
 
-      {HOTEL_FACILITIES.map((group) => (
-        <Form.Item key={group.category} label={group.category} name={['facilities', group.category]}>
-          <Checkbox.Group>
-             <Row>
-                {group.options.map(opt => (
-                    <Col span={8} key={opt} style={{ marginBottom: 8 }}>
-                        <Checkbox value={opt}>{opt}</Checkbox>
-                    </Col>
+      {FACILITY_CATEGORIES.map((category) => (
+        <Form.Item key={category.id} label={category.name}>
+          <Form.Item noStyle name={['facilities', category.id]}>
+            <Checkbox.Group>
+              <Row gutter={[32, 32]}>
+                {category.facilities.map((facility) => (
+                  <Col span={6} key={facility.id}>
+                    <Checkbox value={facility.id} style={{ whiteSpace: 'nowrap' }}>{facility.name}</Checkbox>
+                  </Col>
                 ))}
-             </Row>
-          </Checkbox.Group>
+              </Row>
+            </Checkbox.Group>
+          </Form.Item>
         </Form.Item>
       ))}
       

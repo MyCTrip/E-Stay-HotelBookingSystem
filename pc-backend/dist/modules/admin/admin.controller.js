@@ -448,6 +448,7 @@ const listMerchants = async (req, res) => {
         filter['baseInfo.merchantName'] = new RegExp(search, 'i');
     const total = await merchant_model_1.Merchant.find(filter).countDocuments();
     const data = await merchant_model_1.Merchant.find(filter)
+        .select('userId baseInfo qualificationInfo auditInfo createdAt updatedAt')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit);
