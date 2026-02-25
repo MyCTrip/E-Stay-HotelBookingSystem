@@ -374,6 +374,74 @@ export const getHotHotels = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+/**
+ * 获取酒店详情
+ */
+export const getDetail = async (req: Request, res: Response) => {
+  try {
+    // 通过 ID 去数据库查酒店
+    const hotel = await Hotel.findById(req.params.id);
+
+    if (!hotel) {
+      return res.status(404).json({ message: '未找到该酒店' });
+    }
+
+    // 按标准格式返回
+    res.status(200).json({
+      code: 200,
+      data: hotel,
+      message: 'success'
+    });
+  } catch (error) {
+    res.status(500).json({ message: '服务器错误' });
+  }
+};
+
+/**
+ * 获取酒店的房型列表（兼容 PC 端分页 与 移动端公开访问）
+ */
+export const getHotelRooms = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status, page = 1, limit = 10 } = req.query as any;
+
+    // 1. 构造基础查询
+    const filter: any = { hotelId: id };
+
+    // 2. 状态过滤：如果是移动端游客(传了 approved) 或 PC端特定筛选
+    if (status) {
+      // 假设房间的状态存在 auditInfo.status 里
+      filter['auditInfo.status'] = status; 
+    }
+
+    // 3. 解析分页参数（核心修复点，专门为 PC 端服务）
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(parseInt(limit, 10) || 10, 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    // 4. 去数据库查总数和真实的分页数据
+    const total = await Room.countDocuments(filter);
+    const rooms = await Room.find(filter)
+      .sort({ createdAt: -1 }) // 按创建时间倒序
+      .skip(skip)
+      .limit(limitNum);
+
+    // 5. 按照 API 文档恢复最标准的数据格式返回
+    res.status(200).json({
+      code: 200,
+      data: rooms, // 核心修复：把数组直接给 data！解救 PC 端的 Table 组件
+      meta: {      //  PC 端依赖的真实分页信息
+        total,
+        page: pageNum,
+        limit: limitNum
+      },
+      message: 'success'
+    });
+  } catch (error: any) {
+    console.error('获取房型失败:', error);
+    res.status(500).json({ message: '服务器错误' });
+  }
+};
 
 /**
  * 获取城市列表

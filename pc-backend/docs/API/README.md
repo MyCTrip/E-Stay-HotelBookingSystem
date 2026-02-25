@@ -336,6 +336,93 @@
 - Query：`status`, `search`, `limit`, `page`
 - 成功响应：200 `{ data: Room[], meta: {...} }`
 
+# GET /api/hotels/:id
+
+功能：获取酒店详情（公开接口，返回已审核通过的酒店完整信息）
+
+权限：公开
+（若为 owner 或 admin 访问，可返回包含 pendingChanges 在内的完整数据；普通用户仅能访问已审核通过酒店）
+
+Path 参数：
+
+* `:id` (string, required) — 酒店 ID
+
+行为说明：
+
+* 若酒店 `auditInfo.status !== 'approved'`
+
+  * 普通用户访问 → 返回 404（避免暴露未审核数据）
+  * owner / admin 访问 → 返回完整数据（包含 pendingChanges）
+* 若酒店存在 `pendingChanges`
+
+  * owner / admin 可看到 `pendingChanges`
+  * 普通用户仅看到已生效数据
+
+缓存说明：
+
+* 该接口使用 Redis 缓存（keyPrefix: `hotel:`）
+* 缓存时间为 5 分钟（300 秒）
+* 当酒店审核通过或更新时，相关缓存会自动清除
+
+成功响应：200
+
+```json
+{
+  "_id": "<hotelId>",
+  "baseInfo": {
+    "nameCn": "酒店名称",
+    "address": "地址",
+    "city": "城市",
+    "star": 4,
+    "phone": "联系电话",
+    "description": "描述",
+    "images": [],
+    "propertyType": "hotel",
+    "facilities": [
+      { "category": "公共", "content": "<p>WiFi</p>" }
+    ],
+    "policies": [
+      { "policyType": "petAllowed", "content": "<p>No pets</p>" }
+    ],
+    "surroundings": [
+      { "surType": "metro", "surName": "地铁1号线", "distance": 500 }
+    ],
+    "discounts": [
+      { "title": "首单立减", "type": "instant", "content": "首单减10元" }
+    ]
+  },
+  "typeConfig": {
+    "hourly": {},
+    "homestay": {}
+  },
+  "checkinInfo": {
+    "checkinTime": "14:00",
+    "checkoutTime": "12:00"
+  },
+  "auditInfo": {
+    "status": "approved",
+    "rejectReason": null,
+    "submittedAt": "2026-01-01T10:00:00.000Z",
+    "approvedAt": "2026-01-02T10:00:00.000Z"
+  },
+  "createdAt": "2026-01-01T09:00:00.000Z",
+  "updatedAt": "2026-01-02T10:00:00.000Z"
+}
+```
+
+常见错误：
+
+* 400：非法 ID
+* 401：需要登录（若访问私有数据）
+* 403：无权限访问该酒店
+* 404：酒店不存在或未审核通过
+
+示例（curl）：
+
+```bash
+curl http://localhost:3000/api/hotels/65f3a1b2c4d5e6f7g8h9i0j1
+```
+
 ---
 
 ## Room（房型） 🛏️
