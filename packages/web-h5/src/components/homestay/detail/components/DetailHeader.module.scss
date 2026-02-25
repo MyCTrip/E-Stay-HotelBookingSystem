@@ -1,0 +1,61 @@
+/* 详情页顶部操作栏 */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(240, 240, 240, 0);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  @supports (padding: max(0px)) {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  min-height: 44px;
+  min-width: 44px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 20px;
+  transition: transform 0.2s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.collected {
+    span {
+      color: #FF6B6B !important;
+    }
+  }
+}
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    height: 44px;
+  }
+
+  .iconBtn {
+    font-size: 18px;
+  }
+}

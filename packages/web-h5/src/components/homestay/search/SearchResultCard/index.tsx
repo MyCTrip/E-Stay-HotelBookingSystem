@@ -27,7 +27,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
   const [favorited, setFavorited] = useState(isFavorited)
 
   const primaryImage = data.images?.[0] || null
-  const roomPrice = data.rooms?.[0]?.baseInfo?.price || 358
+  const roomPrice = data.rooms?.[0]?.price?.currentPrice || data.rooms?.[0]?.price?.originPrice || 358
   const tags = ['含双早', '免费取消', '热门']
 
   const handleCardClick = () => {
@@ -47,7 +47,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         {primaryImage && !imageError ? (
           <img
             src={primaryImage}
-            alt={data.baseInfo.nameCn}
+            alt={data.baseInfo.name}
             className={styles.image}
             loading="lazy"
             onError={() => setImageError(true)}
@@ -87,7 +87,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
       {/* 右侧信息区 - PC端右侧，移动端下方 */}
       <div className={styles.infoSection}>
         {/* 名称 */}
-        <h3 className={styles.name}>{data.baseInfo.nameCn}</h3>
+        <h3 className={styles.name}>{data.baseInfo.name}</h3>
 
         {/* 核心标签 */}
         <div className={styles.tags}>

@@ -9,29 +9,16 @@ import styles from './index.module.scss'
 
 interface HostInfoProps {
   data?: any
+  hostInfo?: any  // 中间件数据
 }
 
 /**
  * HostInfo 内容组件
  */
-const HostInfoContent: React.FC<HostInfoProps> = ({ data }) => {
-  const hostData = {
-    name: '逸可民宿',
-    avatar: 'https://picsum.photos/80/80?random=host',
-    badge: '超赞房东',
-    responseRate: 92,
-    responseTime: '平均2分钟回复',
-    totalReviews: 90,
-    overallRating: 4.9,
-    tags: ['自然人房东', '实名验证', '14套房屋'],
-    introduction: '喜欢挑战、探索未知、人生无限！',
-    work: '室内设计师',
-    canOffer: '本地人提供全方位景点和美食攻略',
-    vlog: '走过20几个国家',
-    skills: '旅游规划大师',
-    hottestTime: '住 02-16',
-    closestTime: '离 02-17',
-    hotPrice: '¥990 ¥1800',
+const HostInfoContent: React.FC<HostInfoProps> = ({ hostInfo }) => {
+  // 安全处理 hostInfo 为 undefined 的情况
+  if (!hostInfo) {
+    return <div className={styles.hostInfo} />
   }
 
   return (
@@ -41,12 +28,12 @@ const HostInfoContent: React.FC<HostInfoProps> = ({ data }) => {
         {/* 头部信息 */}
         <div className={styles.hostHeader}>
           <div className={styles.avatarSection}>
-            <img src={hostData.avatar} alt={hostData.name} className={styles.avatar} />
+            <img src={hostInfo.avatar} alt={hostInfo.name} className={styles.avatar} />
             <div className={styles.badgeSection}>
-              <h2 className={styles.name}>{hostData.name}</h2>
+              <h2 className={styles.name}>{hostInfo.name}</h2>
               {/* 房东标签 */}
               <div className={styles.tagsRow}>
-                {hostData.tags.map((tag, idx) => (
+                {hostInfo.tags?.map((tag, idx) => (
                   <span key={idx} className={styles.tag}>
                     {tag}
                   </span>
@@ -64,19 +51,19 @@ const HostInfoContent: React.FC<HostInfoProps> = ({ data }) => {
           <div className={styles.stat}>
             <div className={styles.label}>整体评分</div>
             <div className={styles.value}>
-              <span className={styles.rating}>{hostData.overallRating}</span>
-              <span className={styles.totalReviews}>共{hostData.totalReviews}条点评</span>
+              <span className={styles.rating}>{hostInfo.overallRating}</span>
+              <span className={styles.totalReviews}>共{hostInfo.totalReviews}条点评</span>
             </div>
           </div>
 
           <div className={styles.stat}>
             <div className={styles.label}>回复率</div>
-            <div className={styles.value}>{hostData.responseRate}%</div>
+            <div className={styles.value}>{hostInfo.responseRate}%</div>
           </div>
 
           <div className={styles.stat}>
             <div className={styles.label}>订单确认率</div>
-            <div className={styles.value}>100%</div>
+            <div className={styles.value}>{hostInfo.orderConfirmationRate}%</div>
           </div>
         </div>
       </div>
@@ -84,7 +71,7 @@ const HostInfoContent: React.FC<HostInfoProps> = ({ data }) => {
   )
 }
 
-const HostInfo: React.FC<HostInfoProps> = ({ data }) => {
+const HostInfo: React.FC<HostInfoProps> = ({ data, hostInfo }) => {
   return (
     <PropertyCardContainer
       headerConfig={{
@@ -100,7 +87,7 @@ const HostInfo: React.FC<HostInfoProps> = ({ data }) => {
         }
       }}
     >
-      <HostInfoContent data={data} />
+      <HostInfoContent data={data} hostInfo={hostInfo} />
     </PropertyCardContainer>
   )
 }

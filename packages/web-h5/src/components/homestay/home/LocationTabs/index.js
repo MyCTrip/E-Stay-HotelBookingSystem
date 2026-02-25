@@ -10,7 +10,7 @@ const TABS = [
     { id: 'overseas', label: '海外' },
     { id: 'weekly', label: '周租·旅居' },
 ];
-const LocationTabs = ({ activeTab = 'domestic', onChange }) => {
+const LocationTabs = ({ activeTab = 'domestic', onChange, }) => {
     const [active, setActive] = useState(activeTab);
     const handleTabClick = (tab) => {
         setActive(tab);

@@ -16,7 +16,11 @@ interface Discount {
 
 interface Room {
   id: string
-  price: number
+  priceList: Array<{
+    packageId: number
+    originPrice: number
+    currentPrice: number
+  }>
   discounts?: Discount[]   // 折扣项数组
 }
 
@@ -96,8 +100,8 @@ const RoomDrawerPrice: React.FC<RoomDrawerPriceProps> = ({
   // 计算晚数
   const nights = calculateNights(finalCheckIn, finalCheckOut)
 
-  // 基础房费
-  const basePrice = room.price || 0
+  // 基础房费 - 从 priceList 的第一个套餐提取 currentPrice
+  const basePrice = room.priceList?.[0]?.currentPrice || 0
 
   // 折扣信息
   const discounts = room.discounts || []

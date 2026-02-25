@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.css'
+import { createPortal } from 'react-dom'
+// 引入房型特有的子组件
 import RoomDrawerBanner from '../../../components/hourlyHotel/detail/RoomDetailDrawer/RoomDrawerBanner'
 import RoomDrawerBasicInfo from '../../../components/hourlyHotel/detail/RoomDetailDrawer/RoomDrawerBasicInfo'
-import RoomDrawerFacilities from '../../../components/hourlyHotel/detail/RoomDetailDrawer/RoomDrawerFacilities'
-import RoomDrawerPolicy from '../../../components/hourlyHotel/detail/RoomDetailDrawer/RoomDrawerPolicy'
-
-// 引入真实的共享类型（请根据你的实际路径调整，这里假设可以使用 monorepo 的包名）
+// 🌟 复用已有的酒店详情组件
+import FacilitiesSection from '../../../components/hourlyHotel/detail/FacilitiesSection'
+import PolicySection from '../../../components/hourlyHotel/detail/PolicySection'
 import { HourlyRoomDetail } from '@estay/shared'
 
 interface HourlyRoomDetailDrawerProps {
   room: HourlyRoomDetail | null
-  // 钟点房特有的上下文参数，通常由外层的详情页获取并传入
-  selectedDuration?: number
-  availableTime?: string
-
   isOpen: boolean
   onClose: () => void
+  selectedDuration?: number
+  availableTime?: string
   onBook?: (roomId: string) => void
 }
 
 const HourlyRoomDetailDrawer: React.FC<HourlyRoomDetailDrawerProps> = ({
   room,
-  selectedDuration = 3, // 默认 fallback
-  availableTime = '08:00-20:00', // 默认 fallback
   isOpen,
   onClose,
+  selectedDuration = 3,
+  availableTime = '08:00-20:00',
   onBook,
 }) => {
   const [isAnimatingIn, setIsAnimatingIn] = useState(false)
@@ -39,61 +38,63 @@ const HourlyRoomDetailDrawer: React.FC<HourlyRoomDetailDrawerProps> = ({
 
   if (!room) return null
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.currentTarget === e.target) {
-      handleClose()
-    }
-  }
-
   const handleClose = () => {
     setIsAnimatingIn(false)
+    // 等待 300ms 动画结束后再彻底卸载组件/重置状态
     setTimeout(onClose, 300)
   }
 
-  const handleBook = () => {
-    onBook?.(room._id)
-    handleClose()
-  }
-
-  return (
+  // 🌟 使用 createPortal 将弹窗直接挂载到 <body>
+  return createPortal(
     <>
-      <div className={`${styles.backdrop} ${isOpen && isAnimatingIn ? styles.active : ''}`} onClick={handleBackdropClick} />
-      <div className={`${styles.drawer} ${isOpen && isAnimatingIn ? styles.open : ''}`} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeBtn} onClick={handleClose}>✕</button>
+      <div
+        className={`${styles.backdrop} ${isOpen && isAnimatingIn ? styles.active : ''}`}
+        onClick={handleClose}
+      />
+      <div className={`${styles.drawer} ${isOpen && isAnimatingIn ? styles.open : ''}`}>
+        {/* 图片上的关闭按钮 */}
+        <button className={styles.topCloseBtn} onClick={handleClose}>✕</button>
 
         <div className={styles.drawerContent}>
-          {/* 注意：Banner 和 Facilities 也要同步把 props 改为 HourlyRoomDetail */}
+          {/* 1. 房型图片轮播 */}
           <RoomDrawerBanner room={room} />
 
-          {/* 将时长和时段作为额外 props 传入 */}
-          <RoomDrawerBasicInfo
-            room={room}
-            duration={selectedDuration}
-            availableTime={availableTime}
-          />
+          <div className={styles.mainWrapper}>
+            {/* 2. 房型基础信息网格 (携程风格：面积、楼层、窗户等) */}
+            <RoomDrawerBasicInfo
+              room={room}
+              duration={selectedDuration}
+              availableTime={availableTime}
+            />
 
-          <RoomDrawerFacilities room={room} />
+            {/* 3. 复用设施组件：展示该房型的设施 */}
+            <div className={styles.reusedSection}>
+              <FacilitiesSection data={room} />
+            </div>
 
-          <RoomDrawerPolicy
-            room={room}
-            customPolicy={{
-              checkInTime: `请在 ${availableTime} 期间办理入住`,
-              duration: `本房型限入住 ${selectedDuration} 小时`,
-              overtime: '超时将按小时收取额外费用'
-            }}
-          />
-          <div className={styles.drawerSpacer} />
+            {/* 4. 复用政策组件：展示订房必读等 */}
+            <div className={styles.reusedSection}>
+              <PolicySection data={room} />
+            </div>
+
+            <div className={styles.drawerSpacer} />
+          </div>
         </div>
 
+        {/* 5. 底部价格预订条 */}
         <div className={styles.drawerFooter}>
-          <button className={styles.bookButton} onClick={handleBook}>
-            <span style={{ fontSize: '20px', marginRight: '4px' }}>¥{room.baseInfo.price}</span>
-            <span style={{ fontSize: '14px', fontWeight: 'normal', opacity: 0.9 }}>/ {selectedDuration}小时</span>
-            <span style={{ marginLeft: '12px' }}>立即预订</span>
+          <div className={styles.priceArea}>
+            <span className={styles.currency}>¥</span>
+            <span className={styles.priceText}>{room.baseInfo?.price}</span>
+            <span className={styles.durationUnit}>/ {selectedDuration}小时</span>
+          </div>
+          <button className={styles.bookButton} onClick={() => onBook?.(room._id)}>
+            立即预订
           </button>
         </div>
       </div>
-    </>
+    </>,
+    document.body // 👈 这里是 createPortal 的第二个参数
   )
 }
 

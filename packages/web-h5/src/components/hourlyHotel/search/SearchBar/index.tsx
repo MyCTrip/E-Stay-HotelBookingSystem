@@ -118,6 +118,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onClose={() => setShowCitySearch(false)}
       >
         <CitySearch
+          visible={showCitySearch}
           currentCity={city}
           onSelect={handleCitySelect}
           onClose={() => setShowCitySearch(false)}
@@ -133,6 +134,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onClose={() => setShowDateRange(false)}
       >
         <DateRangeCalendar
+          visible={showDateRange}
           checkIn={checkIn}
           checkOut={checkOut}
           onSelect={handleDateSelect}
@@ -149,6 +151,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onClose={() => setShowLocationSearch(false)}
       >
         <LocationSearch
+          visible={showLocationSearch}
           onSelect={handleLocationSelect}
           onClose={() => setShowLocationSearch(false)}
         />

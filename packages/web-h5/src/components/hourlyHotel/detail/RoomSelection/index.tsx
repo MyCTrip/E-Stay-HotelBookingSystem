@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react' 
 import RoomCard from '../RoomCard'
-import RoomDetailDrawer from '../../../../pages/RoomDetail/homeStay'
+import RoomDetailDrawer from '../RoomDetailDrawer'
 import styles from './index.module.scss'
 
 interface Room {

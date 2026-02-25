@@ -33,13 +33,16 @@ export default function RoomDetailPage() {
     return <div className={styles.error}>房间不存在或加载失败</div>
   }
 
+  // 为联合类型添加类型转换，以支持 Room 和 HotelRoomSKUModel
+  const roomData = room as any
+
   return (
     <div className={styles.container}>
       {/* 图片 */}
       <section className={styles.gallery}>
         <img
-          src={room.baseInfo?.images?.[0] || 'https://via.placeholder.com/800x400'}
-          alt={room.baseInfo?.type}
+          src={roomData.banner?.images?.[0]?.url || 'https://via.placeholder.com/800x400'}
+          alt={roomData.basicInfo?.name}
           className={styles.mainImage}
         />
       </section>
@@ -48,19 +51,19 @@ export default function RoomDetailPage() {
       <section className={styles.info}>
         <div className={styles.header}>
           <div>
-            <h1>{room.baseInfo?.type}</h1>
-            <p className={styles.price}>¥{room.baseInfo?.price}/晚</p>
+            <h1>{roomData.basicInfo?.name}</h1>
+            <p className={styles.price}>¥{roomData.price?.currentPrice || roomData.price?.originPrice}/晚</p>
           </div>
         </div>
 
         {/* 客容量 */}
         <div className={styles.section}>
           <h2>客容量</h2>
-          <p>最多可容纳 {room.baseInfo?.maxOccupancy} 位客人</p>
+          <p>最多可容纳 {roomData.basicInfo?.guests} 位客人</p>
         </div>
 
         {/* 房间信息 */}
-        {room.headInfo && (
+        {roomData.headInfo && (
           <div className={styles.section}>
             <h2>房间设施</h2>
             <div className={styles.features}>
@@ -68,35 +71,35 @@ export default function RoomDetailPage() {
                 <span>
                   <AreaIcon width={14} height={14} color="#333333" /> 房间大小
                 </span>
-                <strong>{room.headInfo.size}</strong>
+                <strong>{roomData.headInfo.size}</strong>
               </div>
-              {room.headInfo.floor && (
+              {roomData.headInfo.floor && (
                 <div className={styles.feature}>
                   <span>📍 所在楼层</span>
-                  <strong>{room.headInfo.floor}</strong>
+                  <strong>{roomData.headInfo.floor}</strong>
                 </div>
               )}
               <div className={styles.feature}>
-                <span>{room.headInfo.wifi ? '📡' : '❌'} WiFi</span>
-                <strong>{room.headInfo.wifi ? '有' : '无'}</strong>
+                <span>{roomData.headInfo.wifi ? '📡' : '❌'} WiFi</span>
+                <strong>{roomData.headInfo.wifi ? '有' : '无'}</strong>
               </div>
               <div className={styles.feature}>
-                <span>{room.headInfo.windowAvailable ? '🪟' : '❌'} 窗户</span>
-                <strong>{room.headInfo.windowAvailable ? '有' : '无'}</strong>
+                <span>{roomData.headInfo.windowAvailable ? '🪟' : '❌'} 窗户</span>
+                <strong>{roomData.headInfo.windowAvailable ? '有' : '无'}</strong>
               </div>
               <div className={styles.feature}>
                 <span>🚭 吸烟</span>
-                <strong>{room.headInfo.smokingAllowed ? '允许' : '不允许'}</strong>
+                <strong>{roomData.headInfo.smokingAllowed ? '允许' : '不允许'}</strong>
               </div>
             </div>
           </div>
         )}
 
         {/* 床位信息 */}
-        {room.bedInfo && room.bedInfo.length > 0 && (
+        {roomData.bedInfo && roomData.bedInfo.length > 0 && (
           <div className={styles.section}>
             <h2>床位信息</h2>
-            {room.bedInfo.map((bed: any, idx: number) => (
+            {roomData.bedInfo.map((bed: any, idx: number) => (
               <div key={idx} className={styles.bedItem}>
                 <strong>{bed.bedType}</strong>
                 <p>
@@ -108,10 +111,10 @@ export default function RoomDetailPage() {
         )}
 
         {/* 早餐信息 */}
-        {room.breakfastInfo && (
+        {roomData.breakfastInfo && (
           <div className={styles.section}>
             <h2>早餐</h2>
-            <p>{room.breakfastInfo.breakfastType}</p>
+            <p>{roomData.breakfastInfo.breakfastType}</p>
           </div>
         )}
 

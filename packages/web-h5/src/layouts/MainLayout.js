@@ -16,12 +16,10 @@ export default function MainLayout({ children }) {
     ];
     useEffect(() => {
         // 根据当前路径设置 activeCategory
-        if (location.pathname.startsWith('/hourlyHotel') ||
-            location.pathname.includes('/hourlyHotel')) {
+        if (location.pathname.startsWith('/hourlyHotel') || location.pathname.includes('/hourlyHotel')) {
             setActiveCategory('hourly');
         }
-        else if (location.pathname.startsWith('/homeStay') ||
-            location.pathname.includes('/homeStay')) {
+        else if (location.pathname.startsWith('/homeStay') || location.pathname.includes('/homeStay')) {
             setActiveCategory('homestay');
         }
         else {
@@ -44,6 +42,6 @@ export default function MainLayout({ children }) {
                             navigate('/hourlyHotel');
                         if (cat.id === 'homestay')
                             navigate('/homeStay');
-                    }, title: cat.label, children: [_jsx("span", { className: styles.mobileNavIcon, children: cat.icon }), _jsx("span", { className: styles.mobileNavLabel, children: cat.label })] }, cat.id))) })] }));
+                    }, title: cat.label, children: [_jsx("span", { className: styles.mobileNavIcon, children: cat.icon }), _jsx("span", { className: styles.mobileNavLabel, children: cat.label })] }, cat.id))) }), _jsx("footer", { className: styles.footer, children: _jsx("p", { children: "\u00A9 2024 E-Stay Hotel Booking System. All rights reserved." }) })] }));
 }
 //# sourceMappingURL=MainLayout.js.map

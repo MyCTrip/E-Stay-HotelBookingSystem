@@ -28,10 +28,10 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
   const [favorited, setFavorited] = useState(isFavorited)
 
   const primaryImage = data.images?.[0] || null
-  const roomPrice = data.rooms?.[0]?.baseInfo?.price || 358 // 模拟价格
-  const originalPrice = Math.ceil(roomPrice * 1.5) // 模拟原价
+  const roomPrice = data.rooms?.[0]?.price?.currentPrice || data.rooms?.[0]?.price?.originPrice || 358
+  const originalPrice = Math.ceil(roomPrice * 1.5)
   const discount = Math.round(((originalPrice - roomPrice) / originalPrice) * 100)
-  const reviewCount = Math.floor(Math.random() * 5000) + 500 // 模拟评论数
+  const reviewCount = data.baseInfo.reviewCount || 500
 
   const handleCardClick = () => {
     onClick?.(data._id)
@@ -54,7 +54,7 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
         {primaryImage && !imageError ? (
           <img
             src={primaryImage}
-            alt={data.baseInfo.nameCn}
+            alt={data.baseInfo.name}
             className={styles.image}
             loading="lazy"
             onError={handleImageError}
@@ -94,7 +94,7 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
         </div>
 
         {/* 标题 */}
-        <h3 className={styles.title}>{data.baseInfo.nameCn}</h3>
+        <h3 className={styles.title}>{data.baseInfo.name}</h3>
         <div style={{display:"flex"}}>
         {/* 价格区域 */}
         <div className={styles.priceRow}>
@@ -108,7 +108,7 @@ const HomeStayCard: React.FC<HomeStayCardProps> = ({
         {/* 评价区域 */}
         <div className={styles.ratingRow}>
           <StarIcon width={14} height={14} color='#eec50f'></StarIcon>
-          {showStar && data.baseInfo.star > 0 && (
+          {showStar && (data.baseInfo.star ?? 0) > 0 && (
             <span className={styles.rating}>
               {data.baseInfo.star}</span>
           )}

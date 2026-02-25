@@ -90,6 +90,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ onDateChange }) => {
         closeModes={['clickOutside', 'backButton']}
       >
         <DateRangeCalendar
+          visible={drawerVisible}
           checkIn={checkIn}
           checkOut={checkOut}
           onSelect={handleDateChange}

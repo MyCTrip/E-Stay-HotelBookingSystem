@@ -6,7 +6,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import dayjs from 'dayjs'
-import type { HomeStay, HomeStaySearchParams, Room, PaginationMeta } from '../types/homestay'
+import type { Hotel, Room, HomeStaySearchParams, PaginationMeta } from '../types'
+import type { HomeStay } from '../types/homestay'
 import {
   POPULAR_HOMESTAYS,
   SEARCH_RESULT_HOMESTAYS,
@@ -17,16 +18,30 @@ import {
 
 // ============ 类型定义 ============
 
-/** 详情页上下文状态 */
+/** 本地副本类型 - 用于暂存修改不直接更新Store */
+export interface DetailLocalCopy {
+  homeStay: HomeStay
+  selectedRoomId?: string
+  checkInDate?: string
+  checkOutDate?: string
+  otherModifications?: Record<string, any>
+}
+
+/** 详情页上下文状态 - 仅UI交互状态 */
 export interface DetailContextState {
   selectedRoomName: string
+  selectedRoomId?: string
   expandNearbyProperties: boolean
   currentTab: string
   activeDrawer?: 'room' | 'facilities' | null
-  checkInDate: string
-  checkOutDate: string
-  deadlineTime: number
   scrollPosition?: number
+  checkInDate?: string
+  checkOutDate?: string
+  deadlineTime?: number
+  // 本地副本相关
+  isEditing?: boolean
+  localCopy?: DetailLocalCopy
+  modifiedFields?: Set<string>
 }
 
 /** 搜索 UI 状态 */
@@ -70,6 +85,12 @@ export interface HomestayStoreState {
   fetchHomestayDetail(id: string): Promise<void>
   setCurrentHomestay(homestay: HomeStay | null): void
   updateDetailContext(context: Partial<DetailContextState>): void
+  // 本地副本相关
+  startEditingDetail(): void
+  setDetailLocalCopy(data: Partial<DetailLocalCopy>): void
+  commitDetailLocalCopy(): void
+  revertDetailLocalCopy(): void
+  resetDetailLocalCopy(): void
 
   // ===== Actions: 推荐 =====
   loadHotHomestays(): Promise<void>
@@ -99,9 +120,9 @@ export const useHomestayStore = create<HomestayStoreState>()(
         selectedRoomName: '',
         expandNearbyProperties: false,
         currentTab: 'overview',
-        checkInDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
-        checkOutDate: dayjs().add(2, 'day').format('YYYY-MM-DD'),
-        deadlineTime: 24,
+        checkInDate: dayjs().format('YYYY-MM-DD'),
+        checkOutDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
+        deadlineTime: 30,
       },
       detailLoading: false,
       detailError: null,
@@ -132,7 +153,7 @@ export const useHomestayStore = create<HomestayStoreState>()(
           await new Promise((resolve) => setTimeout(resolve, 500))
 
           // Mock 数据处理：根据参数筛选
-          let results = [...SEARCH_RESULT_HOMESTAYS]
+          let results = [...(SEARCH_RESULT_HOMESTAYS as any[])]
 
           // TODO: 暂时不按城市筛选，显示所有民宿卡片
           // 匹配搜索条件的功能后续实现
@@ -140,8 +161,8 @@ export const useHomestayStore = create<HomestayStoreState>()(
 
           // 按价格筛选
           if (params.priceMin || params.priceMax) {
-            results = results.filter((h) => {
-              const minPrice = h.rooms?.[0]?.baseInfo?.price || 0
+            results = results.filter((h: any) => {
+              const minPrice = h.rooms?.[0]?.baseInfo?.price || h.price || 0
               if (params.priceMin && minPrice < params.priceMin) return false
               if (params.priceMax && minPrice > params.priceMax) return false
               return true
@@ -150,8 +171,8 @@ export const useHomestayStore = create<HomestayStoreState>()(
 
           // 按关键词筛选
           if (params.keyword) {
-            results = results.filter((h) =>
-              h.baseInfo.nameCn.toLowerCase().includes(params.keyword || '')
+            results = results.filter((h: any) =>
+              (h.baseInfo?.name || h.baseInfo?.nameCn || '').toLowerCase().includes(params.keyword || '')
             )
           }
 
@@ -164,7 +185,7 @@ export const useHomestayStore = create<HomestayStoreState>()(
           const paginatedResults = results.slice(start, end)
 
           set({
-            homestays: paginatedResults,
+            homestays: paginatedResults as HomeStay[],
             pagination: {
               page,
               limit,
@@ -213,7 +234,7 @@ export const useHomestayStore = create<HomestayStoreState>()(
           await new Promise((resolve) => setTimeout(resolve, 300))
 
           // Mock 数据：如果 ID 匹配则返回详情数据，否则构造
-          let homestay: HomeStay = HOMESTAY_DETAIL_MOCK
+          let homestay: HomeStay = (HOMESTAY_DETAIL_MOCK || SEARCH_RESULT_HOMESTAYS[0]) as HomeStay
 
           if (id !== 'homestay-001') {
             // 对于其他 ID，从搜索结果中查找
@@ -245,6 +266,106 @@ export const useHomestayStore = create<HomestayStoreState>()(
         set((store) => ({
           detailContext: { ...store.detailContext, ...context },
         }))
+      },
+
+      /** 开始编辑详情 - 创建本地副本 */
+      startEditingDetail: () => {
+        set((store) => {
+          const { currentHomestay, detailContext } = store
+          if (!currentHomestay) return {}
+
+          return {
+            detailContext: {
+              ...detailContext,
+              isEditing: true,
+              localCopy: {
+                homeStay: JSON.parse(JSON.stringify(currentHomestay)), // 深拷贝
+                selectedRoomId: detailContext.selectedRoomName,
+                checkInDate: detailContext.checkInDate,
+                checkOutDate: detailContext.checkOutDate,
+              },
+              modifiedFields: new Set<string>(),
+            },
+          }
+        })
+      },
+
+      /** 更新本地副本中的数据 */
+      setDetailLocalCopy: (data: Partial<DetailLocalCopy>) => {
+        set((store) => {
+          const { detailContext } = store
+          if (!detailContext.localCopy) return {}
+
+          // 记录修改的字段
+          const modifiedFields = new Set(detailContext.modifiedFields || [])
+          Object.keys(data).forEach((key) => {
+            if (key !== 'homeStay') {
+              modifiedFields.add(key)
+            }
+          })
+
+          return {
+            detailContext: {
+              ...detailContext,
+              localCopy: {
+                ...detailContext.localCopy,
+                ...data,
+              },
+              modifiedFields,
+            },
+          }
+        })
+      },
+
+      /** 提交本地副本 - 将修改保存到currentHomestay和detailContext */
+      commitDetailLocalCopy: () => {
+        set((store) => {
+          const { detailContext } = store
+          if (!detailContext.localCopy) return {}
+
+          return {
+            currentHomestay: detailContext.localCopy.homeStay,
+            detailContext: {
+              ...detailContext,
+              isEditing: false,
+              selectedRoomName: detailContext.localCopy.selectedRoomId || detailContext.selectedRoomName,
+              checkInDate: detailContext.localCopy.checkInDate || detailContext.checkInDate,
+              checkOutDate: detailContext.localCopy.checkOutDate || detailContext.checkOutDate,
+              localCopy: undefined,
+              modifiedFields: undefined,
+            },
+          }
+        })
+      },
+
+      /** 撤销本地副本 - 恢复到编辑前的状态 */
+      revertDetailLocalCopy: () => {
+        set((store) => {
+          const { detailContext } = store
+          return {
+            detailContext: {
+              ...detailContext,
+              isEditing: false,
+              localCopy: undefined,
+              modifiedFields: undefined,
+            },
+          }
+        })
+      },
+
+      /** 重置本地副本 */
+      resetDetailLocalCopy: () => {
+        set((store) => {
+          const { detailContext } = store
+          return {
+            detailContext: {
+              ...detailContext,
+              isEditing: false,
+              localCopy: undefined,
+              modifiedFields: undefined,
+            },
+          }
+        })
       },
 
       // ===== 推荐 Actions =====
@@ -282,7 +403,7 @@ export const useHomestayStore = create<HomestayStoreState>()(
           // 模拟 API 延迟
           await new Promise((resolve) => setTimeout(resolve, 300))
           // Mock 数据：直接返回周边房源
-          set({ nearbyRooms: NEARBY_ROOMS })
+          set({ nearbyRooms: (NEARBY_ROOMS as unknown as Room[]) })
         } catch (error: any) {
           set({ searchError: error.message || '加载周边房源失败' })
         }
@@ -298,9 +419,6 @@ export const useHomestayStore = create<HomestayStoreState>()(
             selectedRoomName: '',
             expandNearbyProperties: false,
             currentTab: 'overview',
-            checkInDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
-            checkOutDate: dayjs().add(2, 'day').format('YYYY-MM-DD'),
-            deadlineTime: 24,
           },
         })
       },

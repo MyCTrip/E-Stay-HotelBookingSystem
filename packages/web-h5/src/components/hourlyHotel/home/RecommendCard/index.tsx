@@ -26,7 +26,10 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
     if (!homestay.rooms || homestay.rooms.length === 0) {
       return 299 // 默认价格
     }
-    return Math.min(...homestay.rooms.map(room => room.baseInfo?.price || 299))
+    return Math.min(...homestay.rooms.map(room => {
+      // 尝试从不同的可能字段获取价格
+      return (room as any).basicInfo?.price || (room as any).priceInfo?.price || (room as any).price || 299
+    }))
   }, [homestay.rooms])
 
   const handleClick = () => {
@@ -43,7 +46,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
       <div className={styles.imageWrapper}>
         <img
           src={homestay.images?.[0] || 'https://via.placeholder.com/160x280'}
-          alt={homestay.baseInfo?.nameCn}
+          alt={homestay.baseInfo?.name}
           className={styles.image}
         />
       </div>
@@ -51,7 +54,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
       {/* 内容区 */}
       <div className={styles.content}>
         {/* 标题 */}
-        <h3 className={styles.title}>{homestay.baseInfo?.nameCn}</h3>
+        <h3 className={styles.title}>{homestay.baseInfo?.name}</h3>
 
         {/* 地址 */}
         <div className={styles.location}>
@@ -62,15 +65,16 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
         </div>
 
         {/* 标签 */}
-        {homestay.baseInfo?.facilities && homestay.baseInfo.facilities.length > 0 && (
+        {(homestay.baseInfo as any)?.facilities && (homestay.baseInfo as any).facilities.length > 0 && (
           <div className={styles.tags}>
-            {homestay.baseInfo.facilities.slice(0, 2).map((facility, index) => {
+            {(homestay.baseInfo as any).facilities.slice(0, 2).map((facility: any, index: number) => {
               let facilityName = '设施'
               if (typeof facility === 'string') {
                 facilityName = facility
               } else {
                 const f = facility as unknown as Record<string, unknown>
-                facilityName = (f.category as string) || (f.summary as string) || '设施'
+                // 尝试多个可能的属性名
+                facilityName = (f.name as string) || (f.summary as string) || (f.category as string) || '设施'
               }
               return (
                 <span key={index} className={styles.tag}>
@@ -95,7 +99,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
       <button
         className={styles.clickZone}
         onClick={handleClick}
-        aria-label={`查看 ${homestay.baseInfo?.nameCn} 详情`}
+        aria-label={`查看 ${homestay.baseInfo?.name} 详情`}
       />
     </div>
   )

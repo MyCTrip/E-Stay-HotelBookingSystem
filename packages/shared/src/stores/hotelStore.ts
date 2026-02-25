@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { IApiService } from '../api'
 import { Hotel, Room, HotelQuery, PropertyType } from '../types'
+import type { HotelSearchParams, HotelStoreState } from './types'
 
 /**
- * 搜索参数
+ * 旧版搜索参数（保留兼容性，不推荐使用）
  */
 export interface SearchParams {
   city: string
@@ -23,187 +24,267 @@ export interface ExtendedSearchParams extends SearchParams {
 }
 
 /**
- * 酒店 Store 状态
+ * 导出 Hotel 专用类型（推荐使用）
  */
-interface HotelStoreState {
-  // ===== 查询条件 =====
-  searchParams: ExtendedSearchParams
-
-  // ===== 列表数据 =====
-  hotels: Hotel[]
-  hotelsPagination: {
-    page: number
-    limit: number
-    total: number
-    hasMore: boolean
-  }
-
-  // ===== 详情数据 =====
-  currentHotel: Hotel | null
-  currentHotelRooms: Room[]
-
-  // ===== 当前房型 =====
-  currentRoom: Room | null
-
-  // ===== 热门酒店 =====
-  hotHotels: Hotel[]
-
-  // ===== UI 状态 =====
-  loading: boolean
-  error: string | null
-
-  // ===== Actions =====
-  setSearchParams: (params: Partial<ExtendedSearchParams>) => void
-  fetchHotels: (query: HotelQuery) => Promise<void>
-  fetchMoreHotels: () => Promise<void>
-  fetchHotelDetail: (id: string) => Promise<void>
-  fetchRoomDetail: (id: string) => Promise<void>
-  fetchHotHotels: () => Promise<void>
-  clearError: () => void
-  resetHotels: () => void
-}
+export type { HotelSearchParams, HotelStoreState }
 
 /**
  * 创建酒店 Store（工厂函数）
  */
 export function createHotelStore(api: IApiService) {
   const store = create<HotelStoreState>((set: any, get: any) => ({
-    // 初始状态
+    // ===== 初始状态 =====
     searchParams: {
       city: 'Beijing',
       keyword: '',
-      filters: {},
-      propertyType: undefined,
-    },
-    hotels: [],
-    hotelsPagination: {
+      checkInDate: new Date().toISOString().slice(0, 10),
+      checkOutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      market: 'domestic',
       page: 1,
       limit: 10,
-      total: 0,
-      hasMore: true,
     },
-    currentHotel: null,
-    currentHotelRooms: [],
+    hotelList: [],
+    hotels: [],
+    total: 0,
+    hasMore: true,
+    currentHotelDetail: null,
+    roomSPUList: {},
+    currentSelectedRoomId: null,
     currentRoom: null,
-    hotHotels: [],
+    isRoomModalVisible: false,
     loading: false,
     error: null,
+    inFlightKey: null,
 
-    // ===== Actions =====
-    setSearchParams: (params: Partial<ExtendedSearchParams>) =>
+    // ===== Actions: 搜索和过滤 =====
+    setSearchParams: (params: Partial<HotelSearchParams>) =>
       set((state: HotelStoreState) => ({
-        searchParams: { ...state.searchParams, ...(params as any) },
+        searchParams: { ...state.searchParams, ...params },
       })),
 
-    fetchHotels: async (query: any) => {
-      set({ loading: true, error: null })
+    // ===== Actions: 获取数据 =====
+    fetchHotels: async (ctx?: { append?: boolean; userLocation?: any; city?: string; checkInDate?: string; checkOutDate?: string }) => {
+      const state = get()
+      
+      // 如果提供了具体的搜索参数，先更新store的searchParams
+      if (ctx?.city || ctx?.checkInDate || ctx?.checkOutDate) {
+        set((currentState: HotelStoreState) => ({
+          searchParams: {
+            ...currentState.searchParams,
+            ...(ctx.city && { city: ctx.city }),
+            ...(ctx.checkInDate && { checkInDate: ctx.checkInDate }),
+            ...(ctx.checkOutDate && { checkOutDate: ctx.checkOutDate }),
+          },
+        }))
+      }
+      
+      const updatedState = get()
+      const requestKey = buildInFlightKey(updatedState.searchParams)
+
+      if (state.loading && state.inFlightKey === requestKey) {
+        return
+      }
+
+      set({ loading: true, error: null, inFlightKey: requestKey })
       try {
-        // 如果调用方未传 propertyType，则优先从 store.searchParams 中注入
-        const state = get()
-        const mergedQuery = { ...(query || {}) }
-        if (!mergedQuery.propertyType && state.searchParams?.propertyType) {
-          mergedQuery.propertyType = state.searchParams.propertyType
-        }
-        const res = await api.getHotels(mergedQuery as HotelQuery)
-        set({
-          hotels: res.data,
-          hotelsPagination: {
-            page: res.meta.page,
-            limit: res.meta.limit,
+        // 使用更新后的searchParams进行请求
+        const mergedQuery = { ...updatedState.searchParams }
+        const res = await api.getHotels(mergedQuery as any as HotelQuery)
+        
+        set((currentState: HotelStoreState) => {
+          const mergedHotels = ctx?.append
+            ? dedupeHotels([...currentState.hotelList, ...res.data])
+            : res.data
+
+          return {
+            hotelList: mergedHotels,
+            hotels: mergedHotels,
             total: res.meta.total,
             hasMore: res.meta.page * res.meta.limit < res.meta.total,
-          },
+            loading: false,
+            inFlightKey: null,
+          }
         })
       } catch (err: any) {
-        set({ error: err.message })
-      } finally {
-        set({ loading: false })
-      }
-    },
-
-    fetchMoreHotels: async () => {
-      const state = get()
-      if (!state.hotelsPagination.hasMore) return
-
-      set({ loading: true })
-      try {
-        const nextPage = state.hotelsPagination.page + 1
-        const merged = {
-          ...(state.searchParams as any),
-          page: nextPage,
-          limit: state.hotelsPagination.limit,
-        }
-        const res = await api.getHotels(merged as HotelQuery)
         set({
-          hotels: [...state.hotels, ...res.data],
-          hotelsPagination: {
-            page: nextPage,
-            limit: res.meta.limit,
-            total: res.meta.total,
-            hasMore: nextPage * res.meta.limit < res.meta.total,
-          },
+          error: err.message,
+          loading: false,
+          inFlightKey: null,
         })
-      } catch (err: any) {
-        set({ error: err.message })
-      } finally {
-        set({ loading: false })
       }
     },
 
-    fetchHotelDetail: async (id: string) => {
+    fetchHotelDetail: async (hotelId: string, ctx?: { userLocation?: any }) => {
       set({ loading: true, error: null })
       try {
-        const hotel = await api.getHotelDetail(id)
-        set({ currentHotel: hotel })
-
-        // 同时获取房型列表
-        const rooms = await api.getRoomsByHotel(id)
-        set({ currentHotelRooms: rooms.data || [] })
+        const hotel = await api.getHotelDetail(hotelId)
+        set({ currentHotelDetail: hotel, loading: false })
       } catch (err: any) {
-        set({ error: err.message })
-      } finally {
-        set({ loading: false })
+        set({
+          error: err.message,
+          currentHotelDetail: null,
+          loading: false,
+        })
       }
     },
 
-    fetchRoomDetail: async (id: string) => {
-      set({ loading: true, error: null })
+    fetchHotelRooms: async (hotelId: string) => {
+      const cachedRooms = get().roomSPUList[hotelId]
+      if (cachedRooms) {
+        return cachedRooms
+      }
+
       try {
-        const room = await api.getRoomDetail(id)
+        const rooms = await api.getRoomsByHotel(hotelId)
+        const spuList: any[] = rooms.data || []
+
+        set((state: HotelStoreState) => ({
+          roomSPUList: {
+            ...state.roomSPUList,
+            [hotelId]: spuList,
+          },
+        }))
+
+        return spuList
+      } catch (err: any) {
+        set({
+          error: err.message,
+        })
+        return []
+      }
+    },
+
+    fetchMoreHotels: async (ctx?: { userLocation?: any }) => {
+      const state = get()
+      if (state.loading || !state.hasMore) {
+        return
+      }
+
+      set((currentState: HotelStoreState) => ({
+        searchParams: {
+          ...currentState.searchParams,
+          page: currentState.searchParams.page + 1,
+        },
+      }))
+
+      await get().fetchHotels({ append: true, userLocation: ctx?.userLocation })
+    },
+
+    fetchRoomSPUListByHotel: async (hotelId: string) => {
+      return get().fetchHotelRooms(hotelId)
+    },
+
+    fetchRoomDetail: async (roomId: string) => {
+      const roomSPUList = get().roomSPUList
+      const cachedSku = findSkuFromCache(roomSPUList, roomId)
+      
+      if (cachedSku) {
+        set({ currentRoom: cachedSku })
+        return
+      }
+
+      try {
+        const room = await api.getRoomDetail(roomId)
         set({ currentRoom: room })
       } catch (err: any) {
-        set({ error: err.message })
-      } finally {
-        set({ loading: false })
+        set({
+          error: err.message,
+          currentRoom: null,
+        })
       }
     },
 
-    fetchHotHotels: async () => {
-      try {
-        const hotels = await api.getHotHotels(10)
-        set({ hotHotels: hotels })
-      } catch (err: any) {
-        console.error('Failed to fetch hot hotels:', err.message)
-      }
-    },
+    // ===== Actions: 房间模态框 =====
+    setRoomModalVisible: (visible: boolean) =>
+      set((state: HotelStoreState) => ({
+        isRoomModalVisible: visible,
+        currentSelectedRoomId: visible ? state.currentSelectedRoomId : null,
+      })),
 
+    openRoomModal: (roomId: string) =>
+      set({
+        isRoomModalVisible: true,
+        currentSelectedRoomId: roomId,
+      }),
+
+    closeRoomModal: () =>
+      set({
+        isRoomModalVisible: false,
+        currentSelectedRoomId: null,
+      }),
+
+    setCurrentSelectedRoomId: (roomId: string | null) =>
+      set({ currentSelectedRoomId: roomId }),
+
+    // ===== Actions: 其他 =====
     clearError: () => set({ error: null }),
 
     resetHotels: () =>
       set({
-        hotels: [],
-        hotelsPagination: {
+        searchParams: {
+          city: 'Beijing',
+          keyword: '',
+          checkInDate: new Date().toISOString().slice(0, 10),
+          checkOutDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+          market: 'domestic',
           page: 1,
           limit: 10,
-          total: 0,
-          hasMore: true,
         },
+        hotelList: [],
+        hotels: [],
+        total: 0,
+        hasMore: true,
+        currentHotelDetail: null,
+        roomSPUList: {},
+        currentSelectedRoomId: null,
+        currentRoom: null,
       }),
   }))
   return store
 }
 
-// 全局 store hook（惰性初始化，支持 reset）
+// ===== 辅助函数 =====
+
+const buildInFlightKey = (params: HotelSearchParams): string =>
+  [
+    'city', params.city,
+    'keyword', params.keyword ?? '',
+    'checkInDate', params.checkInDate,
+    'checkOutDate', params.checkOutDate,
+    'market', params.market,
+    'page', String(params.page),
+    'limit', String(params.limit),
+    'stars', Array.isArray(params.stars) ? params.stars.sort((a, b) => a - b).join(',') : '',
+    'minPrice', String(params.minPrice ?? ''),
+    'maxPrice', String(params.maxPrice ?? ''),
+  ].join('|')
+
+const dedupeHotels = (hotels: Hotel[]): Hotel[] => {
+  const map = new Map<string, Hotel>()
+  hotels.forEach((hotel) => {
+    map.set(hotel._id, hotel)
+  })
+  return Array.from(map.values())
+}
+
+const findSkuFromCache = (
+  roomSPUList: Record<string, any[]>,
+  roomId: string
+): any | null => {
+  const allSpus = Object.values(roomSPUList).flat()
+
+  for (const spu of allSpus) {
+    const found = spu.skus?.find((sku: any) => sku.roomId === roomId)
+    if (found) {
+      return found
+    }
+  }
+
+  return null
+}
+
+// ===== 全局 Store Hook =====
+
 let storeHook: ReturnType<typeof createHotelStore> | null = null
 let apiInstance: IApiService | null = null
 

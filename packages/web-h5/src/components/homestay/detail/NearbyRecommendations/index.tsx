@@ -9,82 +9,35 @@ import styles from './index.module.scss'
 import { PositionIcon, TipIcon } from '../../icons'
 
 interface NearbyRecommendationsProps {
-  location?: string
+  surroundings?: any[]  // 中间件数据
+  baseInfo?: any  // 中间件基础信息
 }
 
 /**
  * NearbyRecommendations 内容组件
  */
 const NearbyRecommendationsContent: React.FC<NearbyRecommendationsProps> = ({
-  location = '上海市黄浦区中福城三期北楼',
+  surroundings: middlewareSurroundings,
+  baseInfo: middlewareBaseInfo,
 }) => {
   const [activeTab, setActiveTab] = useState<'transport' | 'attraction' | 'food' | 'shopping'>('transport')
   const [showCopyToast, setShowCopyToast] = useState(false)
 
-  const locationData = {
-    fullAddress: '上海市黄浦区中福城三期北楼-正门',
-    detailAddress: '上海黄浦区中福城三期北楼-正门(广西北路汉口路...',
-    community: '中福城',
-    belongsTo: '人民广场地区',
-    buildAge: '2002-2005年',
-    buildType: '住宅',
+  const locationData  = {
+    fullAddress: middlewareBaseInfo?.fullAddress,
+    detailAddress: middlewareBaseInfo?.fullAddress ? (middlewareBaseInfo.fullAddress.substring(0, 30) + '...') : '',
+    community: middlewareBaseInfo?.community,
+    belongsTo: middlewareBaseInfo?.community?.belongTo,
+    buildAge: middlewareBaseInfo?.community?.buildAge,
+    buildType: middlewareBaseInfo?.community?.buildType,
   }
 
-  const transportations = [
-    {
-      name: '人民广场地铁站',
-      distance: { value: 235, unit: 'm' },
-    },
-    {
-      name: '南京东路地铁站',
-      distance: { value: 697, unit: 'm' },
-    },
-    {
-      name: '上海火车站',
-      distance: { value: 2.7, unit: 'km' },
-    },
-    {
-      name: '上海虹桥国际机场',
-      distance: { value: 14, unit: 'km' },
-    },
-  ]
-
-  const attractions = [
-    {
-      name: '东方明珠',
-      distance: { value: 1.5, unit: 'km' },
-    },
-    {
-      name: '外滩',
-      distance: { value: 2.2, unit: 'km' },
-    },
-  ]
-
-  const restaurants = [
-    {
-      name: '上海波特曼丽思卡尔顿',
-      distance: { value: 2.6, unit: 'km' },
-    },
-    {
-      name: '上海浦福土广场',
-      distance: { value: 190, unit: 'm' },
-    },
-  ]
-
-  const shopping = [
-    {
-      name: '南京路步行街',
-      distance: { value: 1.2, unit: 'km' },
-    },
-    {
-      name: '豫园商城',
-      distance: { value: 890, unit: 'm' },
-    },
-  ]
-
-  const formatDistance = (dist: { value: number; unit: string }) => {
-    return `${dist.value}${dist.unit}`
-  }
+  // 安全处理 surroundings 数组
+  const surroundingsArray = Array.isArray(middlewareSurroundings) ? middlewareSurroundings : []
+  const transportations = surroundingsArray.find((item: any) => item.type === 'transportations')?.content || []
+  const attractions = surroundingsArray.find((item: any) => item.type === 'attractions')?.content || []
+  const restaurants = surroundingsArray.find((item: any) => item.type === 'restaurants')?.content || []
+  const shopping = surroundingsArray.find((item: any) => item.type === 'shopping')?.content || []
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(locationData.fullAddress).then(() => {
@@ -133,19 +86,19 @@ const NearbyRecommendationsContent: React.FC<NearbyRecommendationsProps> = ({
           <div className={styles.detailsGrid}>
             <div className={styles.detailItem}>
               <span className={styles.label}>小区名称:</span>
-              <span className={styles.value}>{locationData.community}</span>
+              <span className={styles.value}>{locationData.community?.name || '-'}</span>
             </div>
             <div className={styles.detailItem}>
               <span className={styles.label}>所属商圈:</span>
-              <span className={styles.value}>{locationData.belongsTo}</span>
+              <span className={styles.value}>{locationData.belongsTo || '-'}</span>
             </div>
             <div className={styles.detailItem}>
               <span className={styles.label}>建筑年代:</span>
-              <span className={styles.value}>{locationData.buildAge}</span>
+              <span className={styles.value}>{locationData.buildAge || '-'}</span>
             </div>
             <div className={styles.detailItem}>
               <span className={styles.label}>小区类型:</span>
-              <span className={styles.value}>{locationData.buildType}</span>
+              <span className={styles.value}>{locationData.buildType || '-'}</span>
             </div>
           </div>
         </div>
@@ -181,12 +134,17 @@ const NearbyRecommendationsContent: React.FC<NearbyRecommendationsProps> = ({
         </div>
 
         <div className={styles.tabContent}>
-          {getTabData().map((item, idx) => (
-            <div key={idx} className={styles.contentItem}>
-              <span className={styles.itemName}>{item.name}</span>
-              <span className={styles.itemDistance}>直线距离 {formatDistance(item.distance)}</span>
-            </div>
-          ))}
+          {getTabData().map((item, idx) => {
+            // 安全检查：确保 item 和必要字段存在
+            if (!item || !item.name) return null
+            const distance = item.distance || { value: '?', unit: '' }
+            return (
+              <div key={idx} className={styles.contentItem}>
+                <span className={styles.itemName}>{item.name}</span>
+                <span className={styles.itemDistance}>直线距离 {distance.value}{distance.unit}</span>
+              </div>
+            )
+          })}
         </div>
       </div>
 
@@ -207,7 +165,8 @@ const NearbyRecommendationsContent: React.FC<NearbyRecommendationsProps> = ({
 }
 
 const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
-  location = '上海市黄浦区中福城三期北楼',
+  surroundings,
+  baseInfo,
 }) => {
   const handleViewMap = () => {
     // 处理地图/周边点击
@@ -229,7 +188,7 @@ const NearbyRecommendations: React.FC<NearbyRecommendationsProps> = ({
         },
       }}
     >
-      <NearbyRecommendationsContent location={location} />
+      <NearbyRecommendationsContent surroundings={surroundings} baseInfo={baseInfo} />
     </PropertyCardContainer>
   )
 }

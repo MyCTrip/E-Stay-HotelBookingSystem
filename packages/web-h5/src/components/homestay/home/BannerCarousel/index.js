@@ -1,16 +1,16 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Swiper } from '@nutui/nutui-react';
 import styles from './index.module.css';
 /**
  * 民宿首页轮播组件
  * 遵循规范：
- * - 宽度100%，高度480px
+ * - 宽度100%，高度200-240px
  * - 圆角10-12pt
  * - 自动轮播3.5秒，支持手动滑动
  * - 底部indicator显示当前位置
- * - 淡出淡入切换效果
- * - 纯色填充覆盖整个区域
+ * - 图片覆盖层渐变效果
  */
 export default function BannerCarousel({ items, autoPlay = true, interval = 3500, onBannerClick, }) {
     const navigate = useNavigate();
@@ -18,53 +18,42 @@ export default function BannerCarousel({ items, autoPlay = true, interval = 3500
     const defaultItems = [
         {
             id: '1',
+            image: 'https://via.placeholder.com/480x240/FF6B6B/ffffff?text=周末度假',
             title: '周末度假专场',
             subtitle: '优质民宿低至5折',
             link: '/search/homestay?discount=weekend',
-            color: '#FF6B6B',
         },
         {
             id: '2',
+            image: 'https://via.placeholder.com/480x240/26A69A/ffffff?text=家庭民宿',
             title: '温暖家庭民宿',
             subtitle: '适合全家欢乐时光',
             link: '/search/homestay?type=family',
-            color: '#26A69A',
         },
         {
             id: '3',
+            image: 'https://via.placeholder.com/480x240/F59E0B/ffffff?text=海滨民宿',
             title: '诗意海滨民宿',
             subtitle: '尽享海岸风光',
             link: '/search/homestay?type=beach',
-            color: '#F59E0B',
         },
     ];
     const bannerItems = items || defaultItems;
-    // 自动轮播
-    useEffect(() => {
-        if (!autoPlay || bannerItems.length === 0)
-            return;
-        const timer = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % bannerItems.length);
-        }, interval);
-        return () => clearInterval(timer);
-    }, [autoPlay, interval, bannerItems.length]);
-    const handleBannerClick = useCallback(() => {
-        const item = bannerItems[currentIndex];
+    const handleBannerClick = useCallback((item) => {
         if (onBannerClick) {
             onBannerClick(item);
         }
         else if (item.link) {
             navigate(item.link);
         }
-    }, [currentIndex, bannerItems, onBannerClick, navigate]);
-    const goToSlide = (index) => {
-        setCurrentIndex(index % bannerItems.length);
-    };
-    return (_jsxs("div", { className: styles.container, onClick: handleBannerClick, children: [_jsx("div", { className: styles.bannerWrapper, children: bannerItems.map((item, index) => (_jsxs("div", { className: `${styles.bannerSlide} ${index === currentIndex ? styles.active : ''}`, style: {
-                        backgroundColor: item.color || '#FF6B6B',
-                    }, children: [_jsxs("div", { className: styles.content, children: [_jsx("h3", { className: styles.title, children: item.title }), item.subtitle && _jsx("p", { className: styles.subtitle, children: item.subtitle })] }), _jsxs("div", { className: styles.counter, children: [currentIndex + 1, "/", bannerItems.length] })] }, item.id))) }), _jsx("div", { className: styles.indicators, children: bannerItems.map((_, index) => (_jsx("div", { className: `${styles.dot} ${index === currentIndex ? styles.active : ''}`, onClick: (e) => {
-                        e.stopPropagation();
-                        goToSlide(index);
-                    } }, index))) })] }));
+    }, [navigate, onBannerClick]);
+    const handleChange = useCallback((index) => {
+        setCurrentIndex(index);
+    }, []);
+    return (_jsx("div", { className: styles.container, children: _jsx(Swiper, { autoPlay: autoPlay, duration: interval, defaultValue: 0, onChange: handleChange, className: styles.swiper, loop: true, children: bannerItems.map((item) => (_jsx(Swiper.Item, { children: _jsxs("div", { className: styles.bannerItem, style: { backgroundImage: `url(${item.image})` }, onClick: () => handleBannerClick(item), role: "button", tabIndex: 0, onKeyDown: (e) => {
+                        if (e.key === 'Enter') {
+                            handleBannerClick(item);
+                        }
+                    }, children: [_jsx("div", { className: styles.overlay }), _jsxs("div", { className: styles.content, children: [_jsx("h3", { className: styles.title, children: item.title }), item.subtitle && (_jsx("p", { className: styles.subtitle, children: item.subtitle }))] }), _jsxs("div", { className: styles.counter, children: [currentIndex + 1, "/", bannerItems.length] })] }) }, item.id))) }) }));
 }
 //# sourceMappingURL=index.js.map

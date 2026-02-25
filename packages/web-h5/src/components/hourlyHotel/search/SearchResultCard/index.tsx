@@ -23,7 +23,10 @@ const HourlySearchResultCard: React.FC<HourlySearchResultCardProps> = ({
   // 钟点房通常取第一个房型的价格作为起步价
   const roomPrice = data.rooms?.[0]?.baseInfo?.price || 0
   // 提取前两个设施作为标签，加上"秒确认"
-  const tags = ['秒确认', ...(data.baseInfo.facilities?.slice(0, 2).map(f => f.name) || [])]
+  const tags = ['秒确认', ...(data.baseInfo.facilities?.slice(0, 2).map(f => {
+    // 尝试多个可能的属性名
+    return (f as any).name || (f as any).summary || (f as any).category || '设施'
+  }) || [])]
 
   // 动态组装钟点房信息文案
   const durationText = data.durationOptions?.length ? data.durationOptions.join('/') : '3/4'

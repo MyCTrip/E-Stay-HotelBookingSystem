@@ -1,113 +1,97 @@
-/**
- * 钟点房房型选择区 - 核心转化模块
- */
-import React, { useState } from 'react'
-import RoomCard from '../RoomCard'
-// 🌟 删除了 HourlyTimePicker 和 dayjs 的引入
-import styles from './index.module.scss'
-
-import { HourlyRoomDetail } from '@estay/shared'
-
-interface Room {
-  id: string
-  name: string
-  area: string
-  beds: string
-  guests: string
-  image: string
-  price: number
-  priceNote: string
-  benefits: string[]
-  packageCount: number
-}
+import React from 'react';
+import styles from './index.module.scss';
+import { HourlyRoomDetail } from '@estay/shared';
 
 interface HourlyRoomSelectionProps {
-  data: any
-  onOpenDetail?: (room: HourlyRoomDetail) => void
-  // 💡 预留：如果你想让房型卡片上的文字跟着上面选的时间变化，可以把 duration 传进来
-  // selectedDuration?: number 
+  data: any;
+  onOpenDetail: (room: HourlyRoomDetail) => void;
+  onBookClick?: (room: HourlyRoomDetail) => void; // 如果父组件有直接预订的方法
 }
 
-const mockHourlyRooms: Room[] = [
-  {
-    id: 'h1',
-    name: '高级大床房',
-    area: '25㎡',
-    beds: '1张1.8m大床',
-    guests: '2人',
-    image: 'https://picsum.photos/100/100?random=hourly1',
-    price: 90,
-    priceNote: '3小时',
-    benefits: ['有窗', '免费WiFi', '秒确认'],
-    packageCount: 1,
-  },
-  {
-    id: 'h2',
-    name: '精选双床房',
-    area: '30㎡',
-    beds: '2张1.2m单人床',
-    guests: '2人',
-    image: 'https://picsum.photos/100/100?random=hourly2',
-    price: 120,
-    priceNote: '4小时',
-    benefits: ['有窗', '免费WiFi'],
-    packageCount: 1,
-  },
-]
-
-const HourlyRoomSelection: React.FC<HourlyRoomSelectionProps> = ({ data, onOpenDetail }) => {
-  const [expandedRoomId, setExpandedRoomId] = useState<string | null>(null)
-
-  // 🌟 删除了 selectedDate, selectedTime, selectedDuration 和 handleTimeChange
-
-  const handleToggleExpand = (roomId: string) => {
-    setExpandedRoomId(expandedRoomId === roomId ? null : roomId)
-  }
-
-  const handleViewDetails = (room: Room) => {
-    if (onOpenDetail) {
-      const detailData: HourlyRoomDetail = {
-        _id: room.id,
-        hotelId: data?._id || 'temp_hotel_id',
-        baseInfo: {
-          type: room.name,
-          price: room.price,
-          images: [room.image],
-          maxOccupancy: parseInt(room.guests) || 2,
-          facilities: room.benefits.map(b => ({ name: b })) as any,
-          windowAvailable: room.benefits.includes('有窗'),
-        },
-        durationOptions: [parseInt(room.priceNote) || 3],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      onOpenDetail(detailData)
-    }
-  }
+const HourlyRoomSelection: React.FC<HourlyRoomSelectionProps> = ({ data, onOpenDetail, onBookClick }) => {
+  // 假设从 data 中获取房型列表
+  const rooms = data.rooms || [
+    {
+      id: '1',
+      name: '高级大床房 (智能投屏+深睡记忆床垫)',
+      timeWindow: '10:00-22:00',
+      duration: 4,
+      bedType: '1张1.8m大床',
+      area: '26-30m²',
+      capacity: '2人入住',
+      floor: '4-6层',
+      breakfast: '无早餐',
+      cancelPolicy: '入住当天18:00前可免费取消',
+      price: 148,
+      originalPrice: 168,
+      image: 'https://picsum.photos/400/300?random=1',
+      imageCount: 6
+    },
+    // ... 其他房型
+  ];
 
   return (
-    <div className={styles.roomSelection}>
+    <div className={styles.roomListWrapper}>
+      {/* 顶部日期和时间段提示保留 */}
 
-      {/* 🌟 删除了这里的 <HourlyTimePicker />，只保留头部的标题 */}
-
-      <div className={styles.header}>
-        <h2 className={styles.title}>选择房型</h2>
-        <p className={styles.subtitle}>共 {mockHourlyRooms.length} 个房型符合条件</p>
-      </div>
-
-      <div className={styles.roomList}>
-        {mockHourlyRooms.map((room) => (
-          <RoomCard
+      <div className={styles.list}>
+        {rooms.map((room: any) => (
+          <div
             key={room.id}
-            room={room}
-            isExpanded={expandedRoomId === room.id}
-            onToggleExpand={() => handleToggleExpand(room.id)}
-            onViewDetails={() => handleViewDetails(room)}
-          />
+            className={styles.roomCard}
+            onClick={() => onOpenDetail(room)} // 🌟 点击整个卡片触发弹窗
+          >
+            {/* 左侧图片 */}
+            <div className={styles.imageWrapper}>
+              <img src={room.image} alt={room.name} />
+              <div className={styles.imageCount}>{room.imageCount} 图</div>
+            </div>
+
+            {/* 右侧信息 */}
+            <div className={styles.roomInfo}>
+              <h3 className={styles.roomName}>{room.name}</h3>
+
+              <div className={styles.timeTag}>
+                可住时段: {room.timeWindow} 连住{room.duration}小时 &gt;
+              </div>
+
+              <div className={styles.specs}>
+                {room.bedType} {room.area} {room.capacity} {room.floor}
+              </div>
+
+              <div className={styles.tags}>
+                <span className={styles.tagGrey}>{room.breakfast}</span>
+                <span className={styles.tagBlue}>{room.cancelPolicy}</span>
+              </div>
+
+              {/* 价格与预订按钮 */}
+              <div className={styles.priceRow}>
+                <div className={styles.priceInfo}>
+                  {room.originalPrice && <span className={styles.originalPrice}>¥{room.originalPrice}</span>}
+                  <span className={styles.currentPrice}><span className={styles.currency}>¥</span>{room.price}</span>
+                </div>
+
+                <button
+                  className={styles.bookBtn}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 🌟 阻止冒泡，防止触发外层的 onOpenDetail
+                    if (onBookClick) {
+                      onBookClick(room);
+                    } else {
+                      // 备用逻辑：如果只想复用弹窗，这里也可以调用 onOpenDetail(room)
+                      console.log('直接预订: ', room.name);
+                    }
+                  }}
+                >
+                  预订
+                </button>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default HourlyRoomSelection
+export default HourlyRoomSelection;

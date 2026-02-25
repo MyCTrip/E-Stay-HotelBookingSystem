@@ -11,11 +11,13 @@ interface RoomDrawerFacilitiesProps {
   room?: any
   expandedInitially?: boolean
   onClose?: () => void
+  facilities?: any[]  // 中间件数据
 }
 
 const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps> = ({
   expandedInitially = false,
   onClose,
+  facilities: middlewareFacilities,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expandedInitially)
 
@@ -24,10 +26,13 @@ const RoomDrawerFacilities: React.FC<RoomDrawerFacilitiesProps> = ({
     setIsExpanded(expandedInitially)
   }, [expandedInitially])
 
+  // 使用中间件数据，如果没有则使用常量
+  const facilitiesToDisplay = middlewareFacilities && middlewareFacilities.length > 0 ? middlewareFacilities : FACILITY_CATEGORIES
+
   // 展开时显示所有分类，收起时只显示基础、卫浴、厨房
   const visibleCategories = isExpanded
-    ? FACILITY_CATEGORIES
-    : FACILITY_CATEGORIES.filter((c) => ['basic', 'bathroom', 'kitchen'].includes(c.id))
+    ? facilitiesToDisplay
+    : (Array.isArray(facilitiesToDisplay) ? facilitiesToDisplay : FACILITY_CATEGORIES).filter((c) => ['basic', 'bathroom', 'kitchen'].includes(c.id))
 
   return (
     <div className={styles.facilitiesContainer}>

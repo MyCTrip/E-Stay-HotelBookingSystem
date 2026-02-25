@@ -12,6 +12,11 @@ interface Room {
 
 interface RoomDrawerPolicyProps {
   room: Room
+  customPolicy?: {
+    checkInTime?: string
+    duration?: string
+    overtime?: string
+  }
 }
 
 const RoomDrawerPolicy: React.FC<RoomDrawerPolicyProps> = ({ room }) => {

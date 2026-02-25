@@ -13,35 +13,30 @@ interface Room {
 
 interface RoomPackageDetailProps {
   room: Room
+  selectedPackageId?: number
 }
 
-const RoomPackageDetail: React.FC<RoomPackageDetailProps> = ({ room }) => {
-  const packageData = {
-    title: '上海迪士尼乐园专车接送服务 1份',
-    checkInService: '酒店接待及入住协助，专业行李员服务',
-    enjoyService: '免费WiFi、行政酒廊使用权、每日早餐券',
-    details: [
-      {
-        label: '使用人数',
-        value: '每份选用4名成人，2名儿童，身高1.3米(含)以上，或者年年龄6周岁(含)以上儿童计入成人数',
-      },
-      {
-        label: '预约规则',
-        value: '需提前1天预约',
-      },
-      {
-        label: '联系电话',
-        value: '+86-13482031211',
-      },
-      {
-        label: '接待时间',
-        value: '06:00-09:00,20:30-23:00',
-      },
-      {
-        label: '规则说明',
-        value: '请提前联系本酒店预约的时间',
-      },
-    ],
+const RoomPackageDetail: React.FC<RoomPackageDetailProps> = ({ room, selectedPackageId }) => {
+  // 从 room.packageDetails 中获取选中的套餐详情
+  // 如果没有 selectedPackageId，则获取第一个有 showPackageDetail=true 的套餐
+  const packageDetails = (room as any)?.packageDetails
+  
+  let packageData = packageDetails?.[selectedPackageId || 1]
+  
+  // 如果没有找到，尝试获取第一个存在的套餐详情
+  if (!packageData && packageDetails) {
+    const firstKey = Object.keys(packageDetails)[0]
+    packageData = packageDetails[Number(firstKey)]
+  }
+
+  // 如果还是没有数据，使用默认数据
+  if (!packageData) {
+    packageData = {
+      title: '暂无套餐详情',
+      checkInService: '',
+      enjoyService: '',
+      details: [],
+    }
   }
 
   return (
@@ -50,27 +45,33 @@ const RoomPackageDetail: React.FC<RoomPackageDetailProps> = ({ room }) => {
       <div className={styles.packageTitle}>{packageData.title}</div>
 
       {/* 入住服务信息 */}
-      <div className={styles.serviceCard}>
-        <div className={styles.serviceHeader}>
-          <span className={styles.tag}>住</span>
-          <span className={styles.serviceLabel}>入住服务信息</span>
+      {packageData.checkInService && (
+        <div className={styles.serviceCard}>
+          <div className={styles.serviceHeader}>
+            <span className={styles.tag}>住</span>
+            <span className={styles.serviceLabel}>入住服务信息</span>
+          </div>
+          <div className={styles.serviceContent}>{packageData.checkInService}</div>
         </div>
-      </div>
+      )}
 
       {/* 享受服务信息 */}
-      <div className={styles.serviceCard}>
-        <div className={styles.serviceHeader}>
-          <span className={styles.tag}>享</span>
-          <span className={styles.serviceLabel}>享受服务信息</span>
+      {packageData.enjoyService && (
+        <div className={styles.serviceCard}>
+          <div className={styles.serviceHeader}>
+            <span className={styles.tag}>享</span>
+            <span className={styles.serviceLabel}>享受服务信息</span>
+          </div>
+          <div className={styles.serviceContent}>{packageData.enjoyService}</div>
         </div>
-      </div>
+      )}
 
       {/* 信息表格 */}
       <div className={styles.infoTable}>
-        {packageData.details.map((item, index) => (
+        {packageData.details && packageData.details.map((item: any, index: number) => (
           <div key={index} className={styles.tableRow}>
             <div className={styles.tableCell}>
-              <span className={styles.cellLabel}>{item.label}</span>
+              <span className={styles.cellLabel}>{item.lable || item.label}</span>
             </div>
             <div className={styles.tableCell}>
               <span className={styles.cellValue}>{item.value}</span>

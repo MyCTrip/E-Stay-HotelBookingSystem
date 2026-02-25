@@ -93,6 +93,7 @@ const BookingBar: React.FC<BookingBarProps> = ({ data, onBook, onContactHost, on
         showHeader={false}
       >
         <DateRangeCalendar
+          visible={showCalendar}
           onSelect={handleDateChange}
           onClose={() => setShowCalendar(false)}
         />

@@ -1,29 +1,31 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /**
  * 搜索栏组件 - Web H5版本
- * 复刻携程民宿搜索栏样式
  */
 import React from 'react';
 import styles from './index.module.scss';
-const SearchBar = ({ location = '上海', checkIn = '2月17', onFieldClick, scrollTop = 0, isTransparent = false, }) => {
-    // 根据滚动位置调整背景透明度
-    const opacity = isTransparent ? 0 : Math.min(scrollTop / 80, 1);
-    const hasBlur = opacity > 0.3;
+const SearchBar = ({ location = '上海', onSearch, onClick, fixed = true, scrollTop = 0, }) => {
+    // 计算透明度：滚动超过100px时变为不透明
+    const opacity = Math.min(scrollTop / 100, 1);
+    const backgroundColor = `rgba(255, 255, 255, ${0.5 + opacity * 0.5})`;
+    const handleClick = () => {
+        onClick?.();
+    };
+    const handleSearchClick = (e) => {
+        e.stopPropagation();
+        onSearch?.();
+    };
     const containerStyle = {
-        position: 'fixed',
+        position: fixed ? 'fixed' : 'static',
         top: 0,
         left: 0,
         right: 0,
         zIndex: 100,
-        backgroundColor: `rgba(255, 255, 255, ${0.8 + opacity * 0.2})`,
-        backdropFilter: hasBlur ? 'blur(10px)' : 'none',
-        borderBottom: opacity > 0.5 ? '1px solid #f0f0f0' : 'none',
-        transition: 'all 0.3s ease',
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)',
+        backgroundColor,
+        backdropFilter: 'blur(8px)',
+        transition: 'background-color 0.3s ease',
     };
-    return (_jsx("div", { style: containerStyle, className: styles.container, children: _jsxs("div", { className: styles.inner, children: [_jsxs("div", { className: styles.citySection, onClick: () => onFieldClick?.('location'), children: [_jsx("div", { className: styles.cityLabel, children: "\u76EE\u7684\u5730" }), _jsx("div", { className: styles.cityValue, children: location })] }), _jsxs("div", { className: styles.dateSection, onClick: () => onFieldClick?.('date'), children: [_jsx("div", { className: styles.dateLabel, children: "\u5165\u4F4F" }), _jsx("div", { className: styles.dateValue, children: checkIn })] }), _jsx("button", { className: styles.searchBtn, onClick: () => onFieldClick?.('location'), children: _jsxs("svg", { width: "18", height: "18", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", children: [_jsx("circle", { cx: "11", cy: "11", r: "8" }), _jsx("path", { d: "m21 21-4.35-4.35" })] }) })] }) }));
+    return (_jsx("div", { style: containerStyle, className: styles.container, children: _jsx("div", { className: styles.wrapper, children: _jsxs("div", { className: styles.searchBox, onClick: handleClick, children: [_jsxs("div", { className: styles.locationInfo, children: ["\uD83D\uDCCD", _jsx("span", { className: styles.location, children: location })] }), _jsx("div", { className: styles.placeholder, children: _jsx("span", { children: "\u4F4D\u7F6E/\u6C11\u5BBF/\u7F16\u53F7" }) }), _jsx("div", { className: styles.searchIcon, onClick: handleSearchClick, children: "\uD83D\uDD0D" })] }) }) }));
 };
 export default React.memo(SearchBar);
 //# sourceMappingURL=index.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"hostInfoMiddleware.d.ts","sourceRoot":"","sources":["hostInfoMiddleware.ts"],"names":[],"mappings":"AACA;;;;GAIG;AAEH,OAAO,KAAK,EAAE,gBAAgB,EAAE,YAAY,EAAE,MAAM,yBAAyB,CAAA;AAE7E,MAAM,WAAW,cAAe,SAAQ,YAAY;CAAG;AAEvD,eAAO,MAAM,6BAA6B,GACxC,MAAM,gBAAgB,KACrB,cAYF,CAAA;AAED,eAAO,MAAM,6BAA6B,GACxC,QAAQ,OAAO,CAAC,cAAc,CAAC,KAC9B,OAAO,CAAC,gBAAgB,CAI1B,CAAA"}

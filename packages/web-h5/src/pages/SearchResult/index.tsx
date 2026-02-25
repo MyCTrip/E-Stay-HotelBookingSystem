@@ -20,7 +20,7 @@ export default function SearchResultPage() {
     queryKey: ['hotels', { city, checkIn, checkOut, propertyType }],
     queryFn: async () => {
       try {
-        await hotelStore.fetchHotels({ city, checkIn, checkOut })
+        await hotelStore.fetchHotels({ city, checkInDate: checkIn, checkOutDate: checkOut })
         return hotelStore.hotels
       } catch (err) {
         console.error('Failed to fetch hotels:', err)

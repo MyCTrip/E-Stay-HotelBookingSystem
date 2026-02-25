@@ -9,20 +9,48 @@ import SlideDrawer from '../../../homestay/shared/SlideDrawer'
 import DateRangeCalendar from '../../home/DateRangeCalendar'
 
 interface BookingBarProps {
-  data?: { host?: { avatar?: string; name?: string } }
+  data?: any
+  checkIn?: string  // 初始入住日期，格式 MM-DD
+  checkOut?: string  // 初始离住日期，格式 MM-DD
   onBook?: () => void
   onContactHost?: () => void
   onDateChange?: (checkIn: string, checkOut: string) => void
+  onSave?: () => void
+  onCancel?: () => void
+  isEditing?: boolean
 }
 
-const BookingBar: React.FC<BookingBarProps> = ({ data, onBook, onContactHost, onDateChange }) => {
-  // 获取房东信息
-  const hostAvatar = data?.host?.avatar || 'https://picsum.photos/40/40?random=host'
-  const hostName = data?.host?.name || '房东'
+const BookingBar: React.FC<BookingBarProps> = ({ 
+  data, 
+  checkIn,
+  checkOut,
+  onBook, 
+  onContactHost, 
+  onDateChange,
+  onSave,
+  onCancel,
+  isEditing = false 
+}) => {
+  // 获取房东信息和价格 - 不使用默认值，直接使用 data 属性
+  const hostAvatar = data?.host?.avatar
+  const hostName = data?.host?.name
+  const price = data?.price
 
-  // 日期状态
-  const [checkInDate, setCheckInDate] = useState('02-22')
-  const [checkOutDate, setCheckOutDate] = useState('02-23')
+  // 日期格式化辅助函数 - 将 YYYY-MM-DD 或其他格式转换为 MM-DD
+  const formatToMMDD = (dateStr?: string): string => {
+    if (!dateStr) return ''
+    // 如果是 YYYY-MM-DD 格式，提取 MM-DD
+    if (dateStr.includes('-') && dateStr.length === 10) {
+      const parts = dateStr.split('-')
+      return `${parts[1]}-${parts[2]}`
+    }
+    // 如果已经是 MM-DD 格式或其他格式，直接返回
+    return dateStr
+  }
+
+  // 日期状态 - 使用 Props 提供的初始值，并格式化为 MM-DD
+  const [checkInDate, setCheckInDate] = useState(formatToMMDD(checkIn))
+  const [checkOutDate, setCheckOutDate] = useState(formatToMMDD(checkOut))
   const [showCalendar, setShowCalendar] = useState(false)
   const dateAreaRef = useRef<HTMLDivElement>(null)
 
@@ -43,18 +71,28 @@ const BookingBar: React.FC<BookingBarProps> = ({ data, onBook, onContactHost, on
     setShowCalendar(true)
   }
 
+  const handleSave = () => {
+    onSave?.()
+  }
+
+  const handleCancel = () => {
+    onCancel?.()
+  }
+
   return (
     <>
       <div className={styles.bookingBar}>
-        {/* 左侧：房东头像按钮 */}
-        <button
-          className={styles.hostButton}
-          onClick={handleContactHost}
-          title={`联系房东 - ${hostName}`}
-        >
-          <img src={hostAvatar} alt={hostName} className={styles.hostAvatar} />
-          <span className={styles.tooltip}>聊天</span>
-        </button>
+        {/* 左侧：房东头像按钮（编辑模式隐藏） */}
+        {!isEditing && hostAvatar && hostName && (
+          <button
+            className={styles.hostButton}
+            onClick={handleContactHost}
+            title={`联系房东 - ${hostName}`}
+          >
+            <img src={hostAvatar} alt={hostName} className={styles.hostAvatar} />
+            <span className={styles.tooltip}>聊天</span>
+          </button>
+        )}
 
         {/* 中间：时间选择区 */}
         <div className={styles.dateArea} ref={dateAreaRef} onClick={handleOpenCalendar}>
@@ -73,11 +111,18 @@ const BookingBar: React.FC<BookingBarProps> = ({ data, onBook, onContactHost, on
             <div className={styles.dateInput}>{checkOutDate}</div>
           </div>
         </div>
-
-        {/* 右侧：预订按钮 */}
-        <button className={styles.bookBtn} onClick={onBook}>
-          立即预订
-        </button>
+          <div className={styles.priceAndBooking}>
+            {typeof price === 'number' && price > 0 && (
+              <div className={styles.priceInfo}>
+                <span className={styles.priceLabel}>¥</span>
+                <span className={styles.priceValue}>{price}</span>
+                <span className={styles.priceUnit}>/晚</span>
+              </div>
+            )}
+            <button className={styles.bookBtn} onClick={onBook} title="立即预订">
+              立即预订
+            </button>
+          </div>
       </div>
 
       {/* 日期选择Drawer */}

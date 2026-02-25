@@ -2,6 +2,9 @@
  * Stores 统一导出
  */
 
+export { useAppStore } from './appStore'
+export type { AppStoreState } from './appStore'
+
 export { useHomestayStore } from './homestayStore'
 export type {
   HomestayStoreState,
@@ -9,5 +12,5 @@ export type {
   SearchUIState,
 } from './homestayStore'
 
-export { useHotelStore } from './hotelStore'
-export type { SearchParams } from './hotelStore'
+export { useHotelStore, initHotelStore, resetHotelStore } from './hotelStore'
+export type { SearchParams, ExtendedSearchParams, HotelSearchParams, HotelStoreState } from './hotelStore'

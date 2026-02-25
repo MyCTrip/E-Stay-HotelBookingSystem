@@ -1,10 +1,21 @@
 /**
- * 搜索结果页 - 顶部返回栏
- * 只显示左侧返回按钮和中间的城市民宿 title
+ * 搜索结果页 - 顶部返回栏 + 搜索条件修改栏
  */
 import React from 'react';
-interface SearchResultHeaderProps {
+interface SearchFilters {
     city?: string;
+    checkInDate?: string;
+    checkOutDate?: string;
+    roomCount?: number;
+    guestCount?: number;
+    priceMin?: number;
+    priceMax?: number;
+    stars?: number[];
+    facilities?: string[];
+}
+interface SearchResultHeaderProps {
+    filters: SearchFilters;
+    onModifyClick?: () => void;
 }
 declare const SearchResultHeader: React.FC<SearchResultHeaderProps>;
 export default SearchResultHeader;

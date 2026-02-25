@@ -20,7 +20,8 @@ interface Room {
 interface RoomDetailDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    room?: Room;
+    room?: Room | null;
+    onBook?: (roomId: string) => void;
 }
 declare const RoomDetailDrawer: React.FC<RoomDetailDrawerProps>;
 export default RoomDetailDrawer;

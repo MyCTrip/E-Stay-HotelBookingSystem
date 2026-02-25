@@ -21,15 +21,37 @@ interface Room {
   beds: string
   guests: string
   image: string
-  price: number
+  priceList: Array<{
+    packageId: number
+    originPrice: number
+    currentPrice: number
+  }>
   priceNote: string
   benefits: string[]
   packageCount: number
   hasPackageDetail?: boolean
+  showBreakfastTag?: boolean
+  breakfastCount?: number
+  showCancelTag?: boolean
+  cancelMunite?: number
+  confirmTime?: string
+  // 套餐列表
+  packages?: Array<{
+    packageId: number
+    name: string
+    showPackageDetail?: boolean
+    showBreakfastTag?: boolean
+    breakfastCount?: number
+    showCancelTag?: boolean
+    cancelMunite?: number
+    showComfirmTag?: boolean
+    confirmTime?: number
+  }>
 }
 
 interface RoomDetailDrawerProps {
   room: Room | null
+  selectedPackageId?: number
   isOpen: boolean
   onClose: () => void
   onBook?: (roomId: string) => void
@@ -40,10 +62,15 @@ interface RoomDetailDrawerProps {
   actualRoomName?: string
   checkIn?: string    // ISO格式日期
   checkOut?: string   // ISO格式日期
+  // 中间件数据
+  facilitiesData?: any[]
+  policiesData?: any[]
+  feeInfoData?: any
 }
 
 const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
   room,
+  selectedPackageId,
   isOpen,
   onClose,
   onBook,
@@ -54,6 +81,9 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
   actualRoomName = '',
   checkIn,
   checkOut,
+  facilitiesData,
+  policiesData,
+  feeInfoData,
 }) => {
   const [isAnimatingIn, setIsAnimatingIn] = useState(false)
   const [activeTab, setActiveTab] = useState<'room' | 'package'>('room')
@@ -183,6 +213,7 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
                   <RoomDrawerFacilities
                     room={room}
                     expandedInitially={facilitiesExpanded}
+                    facilities={facilitiesData}
                   />
                 </PropertyCardContainer>
               </div>
@@ -204,7 +235,7 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
                     }
                   }}
                 >
-                  <RoomDrawerPolicy room={room} />
+                  <RoomDrawerPolicy room={room} policies={policiesData} />
                 </PropertyCardContainer>
               </div>
 
@@ -218,6 +249,7 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
                   joinPrice={100}
                   otherDescription="房东要求请保持房间整洁，不可在房间内吸烟，宠物需提前沟通。"
                   showOther={true}
+                  feeInfo={feeInfoData}
                 />
               </div>
 
@@ -240,7 +272,7 @@ const RoomDetailDrawer: React.FC<RoomDetailDrawerProps> = ({
           )}
 
           {/* 套餐详情 Tab - 仅在有套餐详情时显示 */}
-          {room?.hasPackageDetail && activeTab === 'package' && <RoomPackageDetail room={room} />}
+          {room?.hasPackageDetail && activeTab === 'package' && <RoomPackageDetail room={room} selectedPackageId={selectedPackageId} />}
         </div>
       </div>
     </>
