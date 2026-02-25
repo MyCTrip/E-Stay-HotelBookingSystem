@@ -17,6 +17,8 @@ interface SearchBarProps {
   initialCheckIn?: Date
   initialCheckOut?: Date
   initialLocation?: string
+  checkInDate?: string 
+  checkOutDate?: string
   market?: HotelMarket
   onCityChange?: (city: string) => void
   onDateChange?: (checkIn: Date, checkOut: Date) => void
@@ -28,14 +30,38 @@ const SearchBar: React.FC<SearchBarProps> = ({
   initialCheckIn,
   initialCheckOut,
   initialLocation = '',
+  checkInDate,
+  checkOutDate,
   market = 'domestic',
   onCityChange,
   onDateChange,
   onLocationChange,
 }) => {
   const [city, setCity] = useState(initialCity)
-  const [checkIn, setCheckIn] = useState<Date | undefined>(initialCheckIn)
-  const [checkOut, setCheckOut] = useState<Date | undefined>(initialCheckOut)
+
+  const [checkIn, setCheckIn] = useState<Date>(() => {
+    if (checkInDate) {
+      const parsed = new Date(checkInDate)
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed
+      }
+    }
+    return initialCheckIn ?? new Date()
+  })
+
+  const [checkOut, setCheckOut] = useState<Date>(() => {
+    if (checkOutDate) {
+      const parsed = new Date(checkOutDate)
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed
+      }
+    }
+    return (
+      initialCheckOut ??
+      new Date(Date.now() + 24 * 60 * 60 * 1000)
+    )
+  })
+
   const [location, setLocation] = useState(initialLocation)
 
   // 弹窗状态
@@ -103,7 +129,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             <input
               type="text"
               className={styles.locationInput}
-              placeholder={`${city}的景点，地标，房源`}
+              placeholder={`${city}的景点，地标，商圈`}
               value={location}
               readOnly
               onClick={() => setShowLocationSearch(true)}

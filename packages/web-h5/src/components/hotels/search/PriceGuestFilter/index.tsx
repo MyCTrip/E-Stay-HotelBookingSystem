@@ -36,14 +36,14 @@ const DEFAULT_FILTERS: HotelFilterSelections = {
   brands: [],
 }
 
-const STAR_OPTIONS = ['3 Star', '4 Star', '5 Star']
-const BED_TYPE_OPTIONS = ['King Bed', 'Twin Bed', 'Family Bed']
+const STAR_OPTIONS = ['3星级', '4星级', '5星级']
+const BED_TYPE_OPTIONS = ['高级大床房', '高级双床房', '家庭房']
 const BREAKFAST_OPTIONS: Array<{ label: string; value: BreakfastIncluded }> = [
-  { label: 'Any', value: 'any' },
-  { label: 'Breakfast Included', value: 'included' },
-  { label: 'No Breakfast', value: 'not_included' },
+  { label: '不限', value: 'any' },
+  { label: '含早餐', value: 'included' },
+  { label: '不含早餐', value: 'not_included' },
 ]
-const BRAND_OPTIONS = ['International Chain', 'Domestic Chain', 'Boutique Brand']
+const BRAND_OPTIONS = ['国际连锁', '国内连锁', '精品品牌']
 
 const priceRanges: PriceRange[] = [
   { label: '¥0-200', min: 0, max: 200 },
@@ -72,7 +72,7 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
   const MAX_RANGE = 10000
 
   const displayPrice = useMemo(
-    () => `Price Range ¥${tempMinPrice}-${tempMaxPrice === MAX_RANGE ? 'No Limit' : tempMaxPrice}`,
+    () => `价格范围 ¥${tempMinPrice}-${tempMaxPrice === MAX_RANGE ? '不限' : tempMaxPrice}`,
     [tempMaxPrice, tempMinPrice]
   )
 
@@ -111,7 +111,7 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
     <div className={styles.priceGuestFilter}>
       <div className={styles.content}>
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Price</h3>
+          <h3 className={styles.sectionTitle}>价格</h3>
 
           <div className={styles.priceRangeInfo}>
             <span className={styles.rangeLabel}>{displayPrice}</span>
@@ -163,10 +163,10 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
         </div>
 
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Hotel Filters</h3>
+          <h3 className={styles.sectionTitle}>酒店筛选</h3>
 
           <div className={styles.subsection}>
-            <div className={styles.subsectionLabel}>Star</div>
+            <div className={styles.subsectionLabel}>星级</div>
             <div className={styles.guestOptions}>
               {STAR_OPTIONS.map((star) => (
                 <button
@@ -184,7 +184,7 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
           </div>
 
           <div className={styles.subsection}>
-            <div className={styles.subsectionLabel}>BedType</div>
+            <div className={styles.subsectionLabel}>床型</div>
             <div className={styles.guestOptions}>
               {BED_TYPE_OPTIONS.map((bedType) => (
                 <button
@@ -205,7 +205,7 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
           </div>
 
           <div className={styles.subsection}>
-            <div className={styles.subsectionLabel}>BreakfastIncluded</div>
+            <div className={styles.subsectionLabel}>早餐</div>
             <div className={styles.guestOptions}>
               {BREAKFAST_OPTIONS.map((option) => (
                 <button
@@ -223,7 +223,7 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
           </div>
 
           <div className={styles.subsection}>
-            <div className={styles.subsectionLabel}>Brand</div>
+            <div className={styles.subsectionLabel}>品牌</div>
             <div className={styles.guestOptions}>
               {BRAND_OPTIONS.map((brand) => (
                 <button
@@ -244,10 +244,10 @@ const PriceGuestFilter: React.FC<PriceGuestFilterProps> = ({
 
       <div className={styles.footer}>
         <button className={styles.resetBtn} onClick={handleReset}>
-          Reset
+          重置
         </button>
         <button className={styles.confirmBtn} onClick={onConfirm}>
-          Confirm
+          确认
         </button>
       </div>
     </div>

@@ -15,8 +15,8 @@ interface SearchResultHeaderProps {
 }
 
 const SearchResultHeader: React.FC<SearchResultHeaderProps> = ({
-  city = 'City',
-  marketLabel = 'Hotel',
+  city = '城市',
+  marketLabel = '酒店',
   resultCount = 0,
   loading = false,
   hasMore = false,
@@ -28,7 +28,7 @@ const SearchResultHeader: React.FC<SearchResultHeaderProps> = ({
   return (
     <div className={styles.headerWrapper}>
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate(-1)} title="Back">
+        <button className={styles.backBtn} onClick={() => navigate(-1)} title="返回">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor">
             <path
               strokeLinecap="round"

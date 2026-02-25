@@ -115,49 +115,57 @@ export default function HotelDetailHotelPage() {
     return <div style={{ padding: 16 }}>暂无酒店详情</div>
   }
 
-  const baseInfo = currentHotelDetail.baseInfo as HotelBaseInfo
+const baseInfo = currentHotelDetail.baseInfo || {} as HotelBaseInfo
+  
+  // 1. 修复名称和基础信息
   const hotelBaseInfo = {
-    nameCn: baseInfo.nameCn ?? baseInfo.name,
-    nameEn: baseInfo.nameEn,
-    star: baseInfo.star,
-    address: baseInfo.address,
-    description: baseInfo.description,
+    nameCn: baseInfo.nameCn || '未知酒店', // 彻底抛弃了旧的 .name
+    nameEn: baseInfo.nameEn || '',
+    star: baseInfo.star || 0,
+    address: baseInfo.address || '',
+    description: baseInfo.description || '',
   }
 
-  const facilities = currentHotelDetail.facilities as FacilityModel[]
+  // 2. 真实数据中，设施和政策在 baseInfo 里面，加上空数组兜底
+  const facilities = (baseInfo.facilities || []) as FacilityModel[]
 
+  const rawPolicies = baseInfo.policies || []
+  const cancelPolicyStr = rawPolicies.find((p: any) => p.policyType === 'cancellation')?.content || '详见酒店政策'
   const policies: PolicyModel[] = [
     {
       policyType: 'cancellation',
-      content: currentHotelDetail.policies.cancellationPolicy,
-      summary: currentHotelDetail.policies.cancellationPolicy,
+      content: cancelPolicyStr,
+      summary: cancelPolicyStr,
     },
   ]
 
+  // 3. 对齐后端的 checkinInfo 结构
   const checkinInfo: CheckinInfoModel = {
-    checkinTime: currentHotelDetail.policies.checkInTime,
-    checkoutTime: currentHotelDetail.policies.checkOutTime ?? '12:00',
+    checkinTime: currentHotelDetail.checkinInfo?.checkinTime || '14:00',
+    checkoutTime: currentHotelDetail.checkinInfo?.checkoutTime || '12:00',
   }
 
+  // 4. 增加周边设施的空数组兜底
   const nearbyBaseInfo = {
-    address: currentHotelDetail.baseInfo.address,
-    surroundings: currentHotelDetail.surroundings.map(
-      (item): SurroundingModel => ({
+    address: baseInfo.address || '',
+    surroundings: ((currentHotelDetail as any).surroundings || []).map(
+      (item: any): SurroundingModel => ({
         surName: item.surName,
-        surType:
-          item.surType === 'metro' || item.surType === 'attraction' || item.surType === 'business'
-            ? item.surType
-            : 'business',
+        surType: ['metro', 'attraction', 'business'].includes(item.surType) ? item.surType : 'business',
         distance: item.distanceMeters ?? 0,
       })
     ),
   }
 
+  // 5. 给 UI 独有的字段提供安全默认值
+  const safeRating = (currentHotelDetail as any).rating || { count: 0, score: 0 }
+  const safeDistanceText = (currentHotelDetail as any).distanceText || ''
+
   const pageContent = (
     <div className={styles.pageContainer}>
       <ImageCarousel baseInfo={{ images: currentHotelDetail.baseInfo.images }} />
 
-      <HotelInfo baseInfo={hotelBaseInfo} reviewCount={currentHotelDetail.rating.count} />
+      <HotelInfo baseInfo={hotelBaseInfo} reviewCount={safeRating.count} />
 
       <div ref={sectionRefs.overview} className={styles.sectionGap}>
         <div style={{ height: '12px' }} />
@@ -171,7 +179,7 @@ export default function HotelDetailHotelPage() {
       </div>
 
       <div ref={sectionRefs.reviews} className={styles.sectionGap}>
-        <ReviewSection rating={currentHotelDetail.rating} />
+        <ReviewSection rating={safeRating} />
       </div>
 
       <div ref={sectionRefs.facilities} className={styles.sectionGap}>
@@ -195,7 +203,7 @@ export default function HotelDetailHotelPage() {
       </div>
 
       <div ref={sectionRefs.nearby} className={styles.sectionGap}>
-        <NearbyRecommendations baseInfo={nearbyBaseInfo} distanceText={currentHotelDetail.distanceText} />
+        <NearbyRecommendations baseInfo={nearbyBaseInfo} distanceText={safeDistanceText} />
       </div>
 
       <div style={{ height: '20px' }} />
@@ -211,7 +219,7 @@ export default function HotelDetailHotelPage() {
       onShare={handleShare}
       onCollectionChange={handleCollectionChange}
       tabs={<DetailTabs />}
-      footer={<BookingBar hotelId={currentHotelDetail.id} onBook={handleBook} onDateChange={handleDateChange} />}
+      footer={<BookingBar hotelId={currentHotelDetail._id!} onBook={handleBook} onDateChange={handleDateChange} />}
     >
       {pageContent}
     </DetailLayout>

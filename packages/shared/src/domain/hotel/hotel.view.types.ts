@@ -1,4 +1,4 @@
-import type { FacilityModel } from './hotel.types'
+import type { FacilityModel, HotelBaseInfoModel as DBBaseInfo } from './hotel.types'
 
 export type HotelMarket = 'domestic' | 'international'
 
@@ -7,23 +7,25 @@ export interface GeoPoint {
   lat: number
 }
 
-export interface HotelBaseInfoModel {
-  name: string
-  star: number
-  address: string
-  description: string
-  images: string[]
+//  1. 专门用于列表页展示的轻量级视图卡片模型
+export interface HotelListViewModel {
+  id: string
+  market: HotelMarket
+  // 直接复用底层的 BaseInfo，或者用 Pick 挑出列表页需要的字段
+  baseInfo: Pick<DBBaseInfo, 'nameCn' | 'nameEn' | 'star' | 'address' | 'description' | 'images'>
+  rating: HotelRatingModel
+  distanceText?: string
 }
 
-export type HotelFacilityModel = Pick<FacilityModel, 'category' | 'content' | 'summary'>
+export type HotelFacilityViewModel = Pick<FacilityModel, 'category' | 'content' | 'summary'>
 
-export interface HotelPolicyModel {
+export interface HotelPolicyViewModel {
   checkInTime: string
   checkOutTime?: string
   cancellationPolicy: string
 }
 
-export interface HotelSurroundingModel {
+export interface HotelSurroundingViewModel {
   surName: string
   surType: string
   distanceMeters?: number
@@ -36,17 +38,7 @@ export interface HotelRatingModel {
   label?: string
 }
 
-export interface HotelDomainModel {
-  id: string
-  market: HotelMarket
-  baseInfo: HotelBaseInfoModel
-  facilities: HotelFacilityModel[]
-  policies: HotelPolicyModel
-  surroundings: HotelSurroundingModel[]
-  rating: HotelRatingModel
-  distanceText?: string
-}
-
+// ✅ 2. 以下 SPU / SKU 相关的业务聚合模型保持不变，它们是前端选房特有的模型
 export interface HotelRoomHeadInfoModel {
   size?: string
   floor?: string

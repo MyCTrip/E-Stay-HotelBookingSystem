@@ -17,8 +17,8 @@ import tabStyles from './index.module.scss'
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000
 const DEFAULT_LIMIT = 10
-const DOMESTIC_DEFAULT_CITY = 'Beijing'
-const INTERNATIONAL_DEFAULT_CITY = 'Singapore'
+const DOMESTIC_DEFAULT_CITY = '北京'
+const INTERNATIONAL_DEFAULT_CITY = '新加坡'
 const HOT_KEYWORDS: string[] = [
   '近地铁',
   '汉庭酒店',
@@ -167,10 +167,15 @@ export default function HomeHotelPage() {
 
   const cards = useMemo(
     () =>
-      hotelList.map((hotel) => ({
-        hotel,
-        startingPrice: roomSPUList[hotel.id]?.[0]?.startingPrice ?? 0,
-      })),
+      (hotelList || []).map((hotel) => {
+        const realId = hotel._id || (hotel as any).id
+        return {
+          hotel,
+          startingPrice: realId
+            ? roomSPUList[realId]?.[0]?.startingPrice ?? 0
+            : 0,
+        }
+      }),
     [hotelList, roomSPUList]
   )
 
@@ -205,7 +210,7 @@ export default function HomeHotelPage() {
               }`}
               onClick={() => handleMarketChange('international')}
             >
-              国际/中国港澳台
+              国际
             </button>
           </div>
 
@@ -265,7 +270,7 @@ export default function HomeHotelPage() {
           </div>
 
           <div className={styles.cardItem}>
-            <SearchButton loading={loading} onClick={handleSearch} label="Start Search" />
+            <SearchButton loading={loading} onClick={handleSearch} label="开始搜索" />
           </div>
         </div>
       </div>
@@ -277,26 +282,37 @@ export default function HomeHotelPage() {
           {loading && cards.length === 0 ? (
             <HotelCardSkeleton count={6} />
           ) : cards.length > 0 ? (
-            cards.map(({ hotel, startingPrice }) => (
-              <div key={hotel.id} className={styles.cardWrapper}>
-                <HotelCard
-                  data={hotel}
-                  startingPrice={startingPrice}
-                  showStar
-                  onClick={(id) => navigate(`/hotel/${id}/hotel`)}
-                />
-              </div>
-            ))
+            cards.map(({ hotel, startingPrice }) => {
+              const realId = hotel._id || (hotel as any).id;
+
+              if (!realId) {
+                console.warn('酒店数据缺失 ID', hotel);
+                return null;
+              }
+
+              return (
+                <div key={realId} className={styles.cardWrapper}>
+                  <HotelCard
+                    data={hotel}
+                    startingPrice={startingPrice}
+                    showStar
+                    onClick={() => {
+                      navigate(`/hotel/${realId}/hotel`);
+                    }}
+                  />
+                </div>
+              );
+            })
           ) : (
             <div className={styles.emptyState}>
-              <p>No hotels found</p>
+              <p>暂无匹配酒店</p>
             </div>
           )}
         </div>
 
         {loading && (
           <div className={styles.loadingState}>
-            <p>Loading...</p>
+            <p>加载中...</p>
           </div>
         )}
       </div>

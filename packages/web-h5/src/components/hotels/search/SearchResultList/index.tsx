@@ -44,26 +44,25 @@ interface SearchResultListProps {
 }
 
 const STAR_LABEL_TO_VALUE: Record<string, number> = {
-  '3 Star': 3,
-  '4 Star': 4,
-  '5 Star': 5,
+  '3星级': 3,
+  '4星级': 4,
+  '5星级': 5,
 }
 
-const BED_TYPES = ['King Bed', 'Twin Bed', 'Family Bed']
-const BRANDS = ['International Chain', 'Domestic Chain', 'Boutique Brand']
-const DEFAULT_FILTERS: SearchFilters = {
-  city: '',
-  checkInDate: '',
-  checkOutDate: '',
-  roomCount: 1,
-  guestCount: 2,
-}
+const BED_TYPES = ['大床', '双床', '家庭房']
+const BRANDS = ['国际连锁', '国内连锁', '精品品牌']
 
 const SearchResultList: React.FC<SearchResultListProps> = ({
   data = [],
   loading = false,
   hasMore = false,
-  filters = DEFAULT_FILTERS,
+  filters = {
+    city: '',
+    checkInDate: '',
+    checkOutDate: '',
+    roomCount: 1,
+    guestCount: 2,
+  },
   onFiltersChange,
   onModifySearch,
   onLoadMore,
@@ -85,35 +84,35 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
     if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
       tags.push({
         key: 'price',
-        label: `¥${filters.priceMin ?? 0}-${filters.priceMax ?? 'NoLimit'}`,
+        label: `¥${filters.priceMin ?? 0}-${filters.priceMax ?? '不限'}`,
       })
     }
 
     if (filters.stars && filters.stars.length > 0) {
       tags.push({
         key: 'stars',
-        label: `Star ${filters.stars.join('/')}`,
+        label: `星级 ${filters.stars.join('/')}`,
       })
     }
 
     if (filters.bedTypes && filters.bedTypes.length > 0) {
       tags.push({
         key: 'bedTypes',
-        label: `BedType ${filters.bedTypes.length}`,
+        label: `床型 ${filters.bedTypes.length}`,
       })
     }
 
     if (filters.breakfastIncluded && filters.breakfastIncluded !== 'any') {
       tags.push({
         key: 'breakfastIncluded',
-        label: filters.breakfastIncluded === 'included' ? 'Breakfast Included' : 'No Breakfast',
+        label: filters.breakfastIncluded === 'included' ? '含早餐' : '不含早餐',
       })
     }
 
     if (filters.brands && filters.brands.length > 0) {
       tags.push({
         key: 'brands',
-        label: `Brand ${filters.brands.length}`,
+        label: `品牌 ${filters.brands.length}`,
       })
     }
 
@@ -245,7 +244,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         nextFilters.breakfastIncluded = 'any'
         if (nextFilters.facilities) {
           nextFilters.facilities = nextFilters.facilities.filter(
-            (item) => item !== 'Breakfast Included' && item !== 'No Breakfast'
+            (item) => item !== '含早餐' && item !== '不含早餐'
           )
         }
         break
@@ -287,7 +286,7 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
       ...filters,
       guestCount: guests,
       roomCount: rooms,
-      bedTypes: beds > 0 ? ['Twin Bed'] : filters.bedTypes,
+      bedTypes: beds > 0 ? ['双床'] : filters.bedTypes,
     })
   }
 
@@ -300,9 +299,9 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
     const brands = facilities.filter((item) => BRANDS.includes(item))
 
     let breakfastIncluded: SearchFilters['breakfastIncluded'] = 'any'
-    if (facilities.includes('Breakfast Included')) {
+    if (facilities.includes('含早餐')) {
       breakfastIncluded = 'included'
-    } else if (facilities.includes('No Breakfast')) {
+    } else if (facilities.includes('不含早餐')) {
       breakfastIncluded = 'not_included'
     }
 
@@ -323,8 +322,8 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
     <SlideDrawerProvider>
       <div className={styles.container} ref={containerRef} onScroll={handleScroll}>
         <SearchResultHeader
-          city={filters?.city || 'City'}
-          marketLabel="Hotel"
+          city={filters?.city || '城市'}
+          marketLabel="酒店"
           resultCount={data.length}
           loading={loading}
           hasMore={hasMore}
@@ -333,6 +332,8 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
         <SearchBar
           initialCity={filters?.city}
           initialLocation=""
+          checkInDate={filters?.checkInDate} 
+          checkOutDate={filters?.checkOutDate}
           onCityChange={(city) => {
             onFiltersChange?.({ ...filters, city })
           }}
@@ -380,19 +381,31 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
                 {viewMode === 'list'
                   ? data.map((item) => (
                       <SearchResultCard
-                        key={item.id}
+                        key={item._id || (item as any).id}
                         data={item}
-                        onClick={(id) => {
-                          navigate(`/hotel/${id}/hotel`)
+                        startingPrice={(item as any).startingPrice}
+                        onClick={() => {
+                          const realId = item._id || (item as any).id;
+                          if (!realId) {
+                            alert('酒店数据缺失 ID，请检查后端返回字段是 id 还是 _id');
+                            return;
+                          }
+                          navigate(`/hotel/${realId}/hotel`);
                         }}
                       />
                     ))
                   : data.map((item) => (
                       <HotelCard
-                        key={item.id}
+                        key={item._id || (item as any).id}
                         data={item}
-                        onClick={(id) => {
-                          navigate(`/hotel/${id}/hotel`)
+                        startingPrice={(item as any).startingPrice}
+                        onClick={() => {
+                          const realId = item._id || (item as any).id;
+                          if (!realId) {
+                            alert('酒店数据缺失 ID，请检查后端返回字段是 id 还是 _id');
+                            return;
+                          }
+                          navigate(`/hotel/${realId}/hotel`);
                         }}
                       />
                     ))}
@@ -400,10 +413,10 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
             ) : (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>🏨</div>
-                <div className={styles.emptyTitle}>No matching hotels found</div>
-                <div className={styles.emptyDesc}>Try adjusting filters or checking nearby areas</div>
+                <div className={styles.emptyTitle}>未找到匹配酒店</div>
+                <div className={styles.emptyDesc}>请尝试调整筛选条件或查看附近区域</div>
                 <button className={styles.resetBtn} onClick={handleResetAll}>
-                  Reset Filters
+                  重置筛选
                 </button>
               </div>
             )}
@@ -411,13 +424,13 @@ const SearchResultList: React.FC<SearchResultListProps> = ({
 
           {(isLoadingMore || (loading && data.length > 0)) && (
             <div className={styles.loadingMore}>
-              <p>Loading...</p>
+              <p>加载中...</p>
             </div>
           )}
 
           {!loading && data.length > 0 && !hasMore && (
             <div className={styles.loadingMore}>
-              <p>All {data.length} hotels are loaded</p>
+              <p>已加载全部 {data.length} 家酒店</p>
             </div>
           )}
         </div>

@@ -38,34 +38,45 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
   const [favorited, setFavorited] = useState(isFavorited)
 
   const baseInfo = data.baseInfo as SearchCardBaseInfo
-  const hotelName = baseInfo.nameCn ?? baseInfo.nameEn ?? baseInfo.name ?? ''
+  // ✅ 1. 拆除旧 name 炸弹
+  const hotelName = baseInfo.nameCn || baseInfo.nameEn || (baseInfo as any).name || '未知酒店'
   const primaryImage = baseInfo.images?.[0] || null
-  const ratingScore = baseInfo.rating?.score ?? data.rating.score
+  // ✅ 2. 安全获取 rating
+  const ratingScore = baseInfo.rating?.score ?? (data as any).rating?.score ?? 0
   const roomPrice = Math.max(0, startingPrice)
+  
   const hotelTags = useMemo(() => {
     if (tags && tags.length > 0) {
       return tags
     }
 
-    const hasMetro = data.surroundings.some((item) => item.surType.toLowerCase().includes('metro'))
-    const hasCancellation = Boolean(data.policies.cancellationPolicy)
+    // ✅ 3. 安全获取 surroundings 和 policies
+    const safeSurroundings = (data as any).surroundings || []
+    const hasMetro = safeSurroundings.some((item: any) => (item.surType || '').toLowerCase().includes('metro'))
+    
+    // 兼容可能在 root 层或 baseInfo 层的 policies
+    const rootPolicies = (data as any).policies || {}
+    const baseInfoPolicies = (baseInfo as any).policies || []
+    const hasCancellation = Boolean(rootPolicies.cancellationPolicy) || baseInfoPolicies.some((p: any) => p.policyType === 'cancellation')
 
     return [
       hasMetro ? '近地铁' : '交通便利',
       '含双早',
       hasCancellation ? '含取消政策' : '可灵活取消',
     ]
-  }, [data.policies.cancellationPolicy, data.surroundings, tags])
+  }, [(data as any).policies?.cancellationPolicy, (data as any).surroundings, tags, (baseInfo as any).policies])
 
   const handleCardClick = () => {
-    onClick?.(data.id)
+    // ✅ 4. 彻底改用 _id
+    onClick?.(data._id!)
   }
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     const nextFavorited = !favorited
     setFavorited(nextFavorited)
-    onFavorite?.(data.id, nextFavorited)
+    // ✅ 5. 彻底改用 _id
+    onFavorite?.(data._id!, nextFavorited)
   }
 
   return (
@@ -103,7 +114,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
 
         {/* 评分和位置标签 */}
         <div className={styles.ratingBadge}>
-          <span className={styles.ratingBadgeText}>⭐ {ratingScore.toFixed(1)}</span>
+          <span className={styles.ratingBadgeText}>⭐ {Number(ratingScore).toFixed(1)}</span>
           <svg
             viewBox="0 0 1024 1024"
             version="1.1"
@@ -116,7 +127,8 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
           </svg>
           <span className={styles.location}>
             {baseInfo.address}
-            {data.distanceText ? ` · 距您 ${data.distanceText}` : ''}
+            {/* ✅ 6. 安全读取距离 */}
+            {(data as any).distanceText ? ` · 距您 ${(data as any).distanceText}` : ''}
           </span>
         </div>
 
@@ -137,7 +149,8 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         </div>
 
         <div className={styles.roomInfo}>
-          {data.market === 'domestic' ? '国内酒店' : '国际酒店'} · {baseInfo.address}
+          {/* ✅ 7. 安全读取 market */}
+          {(data as any).market === 'domestic' ? '国内酒店' : '国际酒店'} · {baseInfo.address}
         </div>
 
         <div className={styles.priceSection}>

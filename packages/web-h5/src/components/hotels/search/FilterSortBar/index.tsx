@@ -34,9 +34,9 @@ interface FilterSortBarProps {
   hasActiveFilters?: boolean
 }
 
-const STAR_OPTIONS = ['3 Star', '4 Star', '5 Star']
-const BED_TYPE_OPTIONS = ['King Bed', 'Twin Bed', 'Family Bed']
-const BRAND_OPTIONS = ['International Chain', 'Domestic Chain', 'Boutique Brand']
+const STAR_OPTIONS = ['3星级', '4星级', '5星级']
+const BED_TYPE_OPTIONS = ['高级大床房', '高级双床房', '家庭房']
+const BRAND_OPTIONS = ['国际连锁', '国内连锁', '精品品牌']
 
 const mapFacilitiesToHotelFilters = (facilities: string[]): HotelFilterSelections => {
   const stars = facilities.filter((item) => STAR_OPTIONS.includes(item))
@@ -44,9 +44,9 @@ const mapFacilitiesToHotelFilters = (facilities: string[]): HotelFilterSelection
   const brands = facilities.filter((item) => BRAND_OPTIONS.includes(item))
 
   let breakfastIncluded: BreakfastIncluded = 'any'
-  if (facilities.includes('Breakfast Included')) {
+  if (facilities.includes('含早餐')) {
     breakfastIncluded = 'included'
-  } else if (facilities.includes('No Breakfast')) {
+  } else if (facilities.includes('不含早餐')) {
     breakfastIncluded = 'not_included'
   }
 
@@ -62,9 +62,9 @@ const flattenHotelFilters = (filters: HotelFilterSelections): string[] => {
   const next = [...filters.stars, ...filters.bedTypes, ...filters.brands]
 
   if (filters.breakfastIncluded === 'included') {
-    next.push('Breakfast Included')
+    next.push('含早餐')
   } else if (filters.breakfastIncluded === 'not_included') {
-    next.push('No Breakfast')
+    next.push('不含早餐')
   }
 
   return next
@@ -165,13 +165,13 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
 
   const getSortLabel = () => {
     const sortLabels: Record<SortType, string> = {
-      smart: 'Recommended',
-      ratingDesc: 'Top Rated',
-      distanceAsc: 'Distance',
-      priceAsc: 'Low Price',
-      priceDesc: 'High Price',
+      smart: '推荐',
+      ratingDesc: '好评优先',
+      distanceAsc: '距离优先',
+      priceAsc: '低价优先',
+      priceDesc: '高价优先',
     }
-    return sortLabels[sortBy] || 'Sort'
+    return sortLabels[sortBy] || '排序'
   }
 
   const syncHotelFilters = (next: HotelFilterSelections) => {
@@ -208,7 +208,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           className={`${styles.filterItem} ${locationOpen ? styles.active : ''}`}
           onClick={() => setLocationOpen(true)}
         >
-          <span className={styles.label}>Location</span>
+          <span className={styles.label}>位置</span>
           <svg
             viewBox="0 0 24 24"
             width="16"
@@ -226,7 +226,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           className={`${styles.filterItem} ${priceGuestOpen ? styles.active : ''}`}
           onClick={() => setPriceGuestOpen(true)}
         >
-          <span className={styles.label}>Price/Filter</span>
+          <span className={styles.label}>价格/筛选</span>
           <svg
             viewBox="0 0 24 24"
             width="16"
@@ -244,7 +244,7 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           className={`${styles.filterItem} ${facilityOpen ? styles.active : ''} ${hasActiveFilters ? styles.hasFilters : ''}`}
           onClick={() => setFacilityOpen(true)}
         >
-          <span className={styles.label}>Star/Brand</span>
+          <span className={styles.label}>星级/品牌</span>
           {hasActiveFilters && <span className={styles.badge}></span>}
           <svg
             viewBox="0 0 24 24"
@@ -262,14 +262,14 @@ const FilterSortBar: React.FC<FilterSortBarProps> = ({
           <button
             className={`${styles.viewBtn} ${viewMode === 'list' ? styles.active : ''}`}
             onClick={() => onViewModeChange('list')}
-            title="List view"
+            title="列表视图"
           >
             ≡
           </button>
           <button
             className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.active : ''}`}
             onClick={() => onViewModeChange('grid')}
-            title="Grid view"
+            title="网格视图"
           >
             ⊞
           </button>

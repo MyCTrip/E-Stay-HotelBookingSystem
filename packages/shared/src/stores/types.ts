@@ -3,10 +3,18 @@
  * 注意：所有日期参数使用 string 类型（YYYY-MM-DD 格式）
  */
 
-import type { HotelDomainModel, HotelRoomSPUModel, GeoPoint, HotelMarket } from '../domain'
+// 从底层数据库模型引入（包含 nameCn 和 _id 的真实结构）
+import type { HotelDomainModel } from '../domain/hotel/hotel.types'
+
+// 从前端视图模型引入（SPU/SKU、地图点位等视图特有类型）
+import type { 
+  HotelRoomSPUModel, 
+  GeoPoint, 
+  HotelMarket, 
+  HotelRoomSKUModel 
+} from '../domain/hotel/hotel.view.types'
+
 import type { Room } from '../types'
-// 进口 hotel room SKU 类型（钉在原始名称中避免冲突）
-import type { HotelRoomSKUModel } from '../domain/hotel/hotel.view.types'
 
 /**
  * 酒店搜索参数（日期使用 string 格式）

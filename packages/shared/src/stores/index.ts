@@ -13,4 +13,4 @@ export type {
 } from './homestayStore'
 
 export { useHotelStore, initHotelStore, resetHotelStore } from './hotelStore'
-export type { SearchParams, ExtendedSearchParams, HotelSearchParams, HotelStoreState } from './hotelStore'
+export type { SearchParams, HotelStoreState } from './hotelStore'

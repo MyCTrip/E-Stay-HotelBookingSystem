@@ -39,6 +39,14 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
         element: <HomeHotel />,
       },
       {
+        path: 'hotel/home',
+        element: <HomeHotel />,
+      },
+      {
+        path: 'hotel/search',
+        element: <SearchResultHotel />,
+      },
+      {
         path: 'home/hourlyHotel',
         element: <HomeHourly />,
       },
@@ -61,6 +69,10 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       },
       {
         path: 'hotel/:id/hotel',
+        element: <HotelDetailHotel />,
+      },
+      {
+        path: 'hotel/detail/:id',
         element: <HotelDetailHotel />,
       },
       {

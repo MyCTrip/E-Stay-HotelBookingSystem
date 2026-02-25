@@ -11,19 +11,20 @@ export {
 } from './adapters/storage'
 export type { IStorage } from './adapters/storage'
 
-// Store 管理
+// ======== 🌟 核心修改 1：对齐你最新的 Hotel Store ========
 export {
   createHotelStore,
   initHotelStore,
   useHotelStore,
   resetHotelStore,
 } from './stores/hotelStore'
-export type { SearchParams, ExtendedSearchParams, HotelSearchParams, HotelStoreState } from './stores/hotelStore'
+// 清理掉了队友旧的 ExtendedSearchParams，保留最新的
+export type { SearchParams, HotelStoreState } from './stores/hotelStore'
 
 export { useAppStore } from './stores/appStore'
 export type { AppStoreState } from './stores/appStore'
 
-// Homestay Store (与 Mock 数据集成)
+// Homestay Store (保留队友的民宿逻辑)
 export { useHomestayStore } from './stores/homestayStore'
 export type {
   HomestayStoreState,
@@ -31,7 +32,7 @@ export type {
   SearchUIState,
 } from './stores/homestayStore'
 
-// Mock 数据（选择性导出以避免冲突）
+// Mock 数据 (保留队友的代码)
 export { SEARCH_RESULT_HOMESTAYS, getRecommendedHomestays, POPULAR_HOMESTAYS, HOMESTAY_DETAIL_MOCK } from './mocks'
 export { NEARBY_ROOMS } from './mocks'
 
@@ -49,7 +50,7 @@ export {
 } from './middleware'
 export type { IMiddleware } from './middleware'
 
-// 组件数据中间件（服务层，与 types 有重复，types 优先）
+// 组件数据中间件
 export { DETAIL_CENTER_DATA_MOCK } from './mocks/detailCenterData'
 export { initializeDetailData } from './services/DetailDataInitializer'
 export type { InitializedDetailData } from './services/DetailDataInitializer'
@@ -80,11 +81,13 @@ export type {
 export { PersistenceManager, getPersistenceManager } from './persistence'
 export type { SearchHistory, FavoriteHotel, UserPreferences } from './persistence'
 
-// 类型定义（先导出，后面被覆盖）
+// 类型定义
 export * from './types'
 
-// 酒店领域模型和类型（视图模型类型，types 中无重复）
-export * from './domain'
+// ======== 🌟 核心修改 2：对齐你最新的领域模型和服务层 ========
+export * from './domain/hotel'     // 明确指向最新的酒店领域模型
+export type { HotelDomainModel } from './domain/hotel/hotel.types'
+export * from './services/hotel'   // 补充缺失的服务层！这样 UI 才能调用接口
 
 // 常量定义
 export { QUICK_FILTER_TAGS } from './constants/homestay'
