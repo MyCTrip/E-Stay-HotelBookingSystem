@@ -132,16 +132,18 @@ const RoomSelection: React.FC<RoomSelectionProps> = ({ hotelId, data, rooms, dis
     }
   }, [fetchRoomSPUListByHotel, resolvedHotelId, roomSPUList, rooms])
 
+  // 🌟 核心逻辑：获取并对房型列表进行整体排序
   const spus = useMemo<HotelRoomSPUModel[]>(() => {
+    let result: HotelRoomSPUModel[] = []
+
     if (rooms && rooms.length > 0) {
-      return normalizedRoomData.spus
+      result = normalizedRoomData.spus
+    } else if (resolvedHotelId) {
+      result = roomSPUList[resolvedHotelId] || []
     }
 
-    if (!resolvedHotelId) {
-      return []
-    }
-
-    return roomSPUList[resolvedHotelId] || []
+    // 对房型（SPU）按起价进行从低到高排列
+    return [...result].sort((a, b) => (a.startingPrice ?? 0) - (b.startingPrice ?? 0))
   }, [normalizedRoomData.spus, resolvedHotelId, roomSPUList, rooms])
 
   const itemsToShow = displayCount !== undefined ? spus.slice(0, displayCount) : spus
