@@ -99,6 +99,18 @@ export interface HotelDomainModel {
   deletedAt: Date | null
   createdAt: Date
   updatedAt: Date
+  /**
+   * 带价搜索时计算出的起始房价（单位：元/晚）
+   * 该字段并非数据库原始字段，而是由前端服务层在获取酒店列表时
+   * 根据对应 hotelId 的房型数据计算得出，保证在后端未返回 price 字段
+   * 的情况下仍可正确展示价格。
+   */
+  startingPrice?: number
+  /**
+   * 可选的房型 SPU 列表，仅在某些场景（例如首页推荐卡片）需要时
+   * 由服务层附加，供组件进一步计算或显示。
+   */
+  rooms?: import('./hotel.view.types').HotelRoomSPUModel[]
 }
 
 export interface RoomBaseInfoModel {

@@ -286,6 +286,17 @@ const HomeStayPage: React.FC = () => {
     priceMax: 10000,
   }
 
+  
+  const displayList: HomeStay[] = React.useMemo(() => {
+    if (hotHomestays.length >= 3) return hotHomestays
+    const result: HomeStay[] = []
+    while (result.length < 3) {
+      result.push(...hotHomestays)
+      if (hotHomestays.length === 0) break
+    }
+    return result.slice(0, 3)
+  }, [hotHomestays])
+
   return (
     <div ref={containerRef} className={styles.container}>
       {/* 轮播 Banner */}
@@ -377,11 +388,13 @@ const HomeStayPage: React.FC = () => {
           {searchLoading ? (
             <HomeStayCardSkeleton count={6} />
           ) : hotHomestays.length > 0 ? (
-            hotHomestays.map((homestay) => (
-              <div key={homestay._id} className={styles.cardWrapper}>
+            displayList.map((homestay, idx) => (
+              <div key={homestay._id || `dup-${idx}`} className={styles.cardWrapper}>
                 <HomeStayCard
                   data={homestay}
-                  onClick={() => navigate(`/hotel-detail/homestay/${homestay._id}`)}
+                  onClick={() => {
+                    if (homestay._id) navigate(`/hotel-detail/homestay/${homestay._id}`)
+                  }}
                   showStar
                 />
               </div>

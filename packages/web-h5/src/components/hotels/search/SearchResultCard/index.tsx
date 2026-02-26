@@ -43,7 +43,25 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
 
   // 3. 安全读取评分 (兼容不同层级的 rating 和 star)
   const ratingScore = baseInfo.rating?.score ?? safeData.rating?.score ?? baseInfo.star ?? 0
-  const roomPrice = Math.max(0, startingPrice)
+  // 优先使用传入的 startingPrice；若为 0 则尝试从 data.startingPrice 或 data.rooms 中计算
+  let roomPrice = Math.max(0, startingPrice)
+  if (roomPrice === 0) {
+    const fromData = Number(safeData.startingPrice) || 0
+    if (fromData > 0) {
+      roomPrice = fromData
+    } else if (Array.isArray(safeData.rooms) && safeData.rooms.length > 0) {
+      const prices = safeData.rooms
+        .flatMap((spu: any) => (
+          Array.isArray(spu.skus)
+            ? spu.skus.map((sku: any) => Number(sku.priceInfo?.nightlyPrice) || 0)
+            : []
+        ))
+        .filter((p: number) => p > 0)
+      if (prices.length) {
+        roomPrice = Math.min(...prices)
+      }
+    }
+  }
 
   // 4. 安全计算标签
   const hotelTags = useMemo(() => {

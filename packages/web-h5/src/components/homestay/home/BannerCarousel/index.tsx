@@ -61,6 +61,12 @@ export default function BannerCarousel({
   ]
 
   const bannerItems = items || defaultItems
+  // public 下的轮播背景图片路径（直接从 public 目录引用）
+  const imagePaths = [
+    '/homestayBanner/0220412000a0i4bq7A9BE_R_600_400_R5.webp',
+    '/homestayBanner/1mc1a12000f4ev4oc2E4D_W_1280_853_R5_Q70.jpg',
+    '/homestayBanner/1mc1e12000c7ct7vs3333_W_1280_853_R5_Q70.jpg',
+  ]
 
   // 自动轮播
   useEffect(() => {
@@ -94,7 +100,10 @@ export default function BannerCarousel({
             key={item.id}
             className={`${styles.bannerSlide} ${index === currentIndex ? styles.active : ''}`}
             style={{
-              backgroundColor: item.color || '#FF6B6B',
+              backgroundImage: `url(${imagePaths[index % imagePaths.length]})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
             }}
           >
             <div className={styles.content}>

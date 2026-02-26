@@ -273,20 +273,31 @@ export const HOMESTAY_DETAIL_MOCK: HomeStayHotel = {
   updatedAt: new Date('2025-02-23'),
 } as HomeStayHotel
 
+// duplicate copy with slight modifications so we have two distinct mocks
+export const HOMESTAY_DETAIL_MOCK_2: HomeStayHotel = {
+  ...HOMESTAY_DETAIL_MOCK,
+  _id: 'homestay-002',
+  baseInfo: {
+    ...HOMESTAY_DETAIL_MOCK.baseInfo,
+    name: '逸可民宿 二号',
+    nameEn: 'Yike Homestay 2',
+  },
+} as HomeStayHotel
+
 /**
  * 搜索结果 Mock 数据
  */
-export const SEARCH_RESULT_HOMESTAYS = [HOMESTAY_DETAIL_MOCK]
+export const SEARCH_RESULT_HOMESTAYS = [HOMESTAY_DETAIL_MOCK, HOMESTAY_DETAIL_MOCK_2]
 
 /**
  * 热门民宿 Mock 数据
  */
-export const POPULAR_HOMESTAYS = [HOMESTAY_DETAIL_MOCK]
+export const POPULAR_HOMESTAYS = [HOMESTAY_DETAIL_MOCK, HOMESTAY_DETAIL_MOCK_2]
 
 /**
  * 推荐民宿函数
  */
 export function getRecommendedHomestays(city?: string, priceMin?: number, priceMax?: number) {
-  return [HOMESTAY_DETAIL_MOCK]
+  return [HOMESTAY_DETAIL_MOCK, HOMESTAY_DETAIL_MOCK_2]
 }
 

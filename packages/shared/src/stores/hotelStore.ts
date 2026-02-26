@@ -182,6 +182,14 @@ export function createHotelStore(api: IApiService) {
         })
         
         set((currentState) => {
+          // 如果 serviceResult.list 中的 hotel 已经包含 rooms，那么缓存它们
+          const updatedRoomSPUList = { ...currentState.roomSPUList }
+          serviceResult.list.forEach((hotel) => {
+            if (hotel._id && Array.isArray((hotel as any).rooms)) {
+              updatedRoomSPUList[hotel._id] = (hotel as any).rooms as any
+            }
+          })
+
           const mergedHotels = ctx?.append
             ? dedupeHotels([...currentState.hotelList, ...serviceResult.list])
             : serviceResult.list
@@ -193,6 +201,7 @@ export function createHotelStore(api: IApiService) {
             hasMore: serviceResult.page * serviceResult.limit < serviceResult.total,
             loading: false,
             inFlightKey: null,
+            roomSPUList: updatedRoomSPUList,
           }
         })
       } catch (error) {
