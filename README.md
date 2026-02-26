@@ -4,7 +4,7 @@
 
 ## 演示视频
 <video width="800" controls>
-  <source src="https://www.bilibili.com/video/BV1XcA6zRE6C/?spm_id_from=333.1387.upload.video_card.click" type="video/mp4">
+  <source src="https://github.com/user-attachments/assets/773f416f-4140-4d96-a959-32befcaba517.mp4" type="video/mp4">
   你的浏览器不支持视频播放，请点击链接查看：<a href="你的视频直链">视频链接</a>
 </video>
 
