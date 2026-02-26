@@ -32,9 +32,10 @@ const mockHourlyData: any = {
     tags: ['秒确认']
   },
   images: [
-    'https://picsum.photos/1080/900?random=11',
-    'https://picsum.photos/1080/900?random=12',
-    'https://picsum.photos/1080/900?random=13',
+    'https://img-md.veimg.cn/meadinindex/img5/2021/11/F87B3809081B4AE0BA6DFC64AE06C24E.jpg',
+    'https://th.bing.com/th/id/OIP.Akykor3nSsgINL-1Hi5vDAHaEJ?w=305&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3',
+    'https://www.hotelfh.cn/uploads/upfile/2020512121792386.jpg',
+    'https://tse1.explicit.bing.net/th/id/OIP.6xzB3YoHZGJd8E5UR4uXCwHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'
   ],
   price: 90,
   duration: 3,
@@ -69,8 +70,8 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
     rooms: useRef<HTMLDivElement>(null),
     reviews: useRef<HTMLDivElement>(null),
     facilities: useRef<HTMLDivElement>(null),
-    policies: useRef<HTMLDivElement>(null),
     nearby: useRef<HTMLDivElement>(null),
+    policies: useRef<HTMLDivElement>(null),
   }
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -87,8 +88,8 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
       rooms: sectionRefs.rooms.current?.offsetTop || 0,
       reviews: sectionRefs.reviews.current?.offsetTop || 1000,
       facilities: sectionRefs.facilities.current?.offsetTop || 2000,
-      policies: sectionRefs.policies.current?.offsetTop || 3000,
       nearby: sectionRefs.nearby.current?.offsetTop || 4000,
+      policies: sectionRefs.policies.current?.offsetTop || 3000,
     }
     const offset = 50
     for (const [tab, position] of Object.entries(tabPositions)) {

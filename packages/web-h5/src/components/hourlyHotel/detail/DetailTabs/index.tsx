@@ -13,14 +13,12 @@ interface Tab {
 }
 
 const tabs: Tab[] = [
-  { key: 'overview', label: '概览' },
+  // { key: 'overview', label: '概览' },
   { key: 'rooms', label: '房源' },
   { key: 'reviews', label: '点评' },
   { key: 'facilities', label: '设施' },
-  { key: 'policies', label: '须知' },
-  // { key: 'knowledge', label: '周边' },
   { key: 'nearby', label: '周边' },
-  // { key: 'host', label: '房东' },
+  { key: 'policies', label: '政策' },
 ]
 
 interface DetailTabsProps {

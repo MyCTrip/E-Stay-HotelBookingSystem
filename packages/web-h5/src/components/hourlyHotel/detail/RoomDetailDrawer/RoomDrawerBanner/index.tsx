@@ -18,7 +18,7 @@ const RoomDrawerBanner: React.FC<RoomDrawerBannerProps> = ({ room }) => {
   const trackRef = useRef<HTMLDivElement>(null)
 
   // 🌟 修改：从 baseInfo 中安全获取图片数组
-  const images = room.baseInfo?.images || ['https://picsum.photos/400/300?random=default']
+  const images = room.baseInfo?.images || ['https://th.bing.com/th/id/OIP.Akykor3nSsgINL-1Hi5vDAHaEJ?w=305&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3']
 
   const calculateOffset = (index: number) => -index * 100
 

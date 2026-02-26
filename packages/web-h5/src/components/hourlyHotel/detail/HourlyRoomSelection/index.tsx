@@ -24,7 +24,7 @@ const HourlyRoomSelection: React.FC<HourlyRoomSelectionProps> = ({ data, onOpenD
       cancelPolicy: '入住当天18:00前可免费取消',
       price: 148,
       originalPrice: 168,
-      image: 'https://picsum.photos/400/300?random=1',
+      image: 'https://th.bing.com/th/id/OIP.Akykor3nSsgINL-1Hi5vDAHaEJ?w=305&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3',
       imageCount: 6
     },
     // ... 其他房型
