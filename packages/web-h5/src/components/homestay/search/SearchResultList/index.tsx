@@ -38,6 +38,9 @@ interface SearchResultListProps {
   filters?: SearchFilters
   onFiltersChange?: (filters: SearchFilters) => void
   onModifySearch?: () => void
+  loadingMore?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
 }
 
 const SearchResultList: React.FC<SearchResultListProps> = ({

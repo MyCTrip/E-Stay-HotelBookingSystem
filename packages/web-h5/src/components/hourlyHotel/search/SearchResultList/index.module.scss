@@ -1,6 +1,8 @@
+/* 1. 最外层容器：填满屏幕，禁止整个页面滚动 */
 .container {
-  height: 100%;
-  overflow-y: auto;
+  height: 100vh;
+  overflow: hidden;
+  /* 关键：禁止外层滚动 */
   background-color: #f7f8fa;
   display: flex;
   flex-direction: column;
@@ -8,11 +10,14 @@
 
 /* 🌟 重构的顶部 Header 区域 */
 .headerArea {
+  display: flex;
+  flex-direction: column;
+  /* 关键：改成垂直排列，让 navBar 在上，capsule 在下 */
+  padding-bottom: 10px;
   background: #fff;
-  position: sticky;
-  top: 0;
   z-index: 9999;
-  padding-bottom: 14px; // 胶囊底部的留白
+  flex-shrink: 0;
+  /* 关键：固定不被压缩 */
 }
 
 /* 独立一行的顶部导航栏 */
@@ -57,7 +62,6 @@
   border-radius: 8px;
   padding: 8px 12px;
   margin: 0 16px;
-  /* 移到内部留白 */
 }
 
 .capsuleLeft {
@@ -106,12 +110,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer; // 修改为指针
+  cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   transition: background-color 0.2s;
 
-  /* 为了支持过长的地标文字，做溢出省略号处理 */
   .searchPlaceholder {
     white-space: nowrap;
     overflow: hidden;
@@ -124,10 +127,36 @@
   }
 }
 
-/* 列表区 */
+/* 🌟 筛选栏包装器 */
+.filterBarWrapper {
+  background-color: #fff;
+  z-index: 9998;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
+  flex-shrink: 0;
+  /* 关键：固定不被压缩 */
+}
+
+/* 🌟 真正的滚动区域 */
+.content {
+  flex: 1;
+  /* 自动撑满剩余空间 */
+  overflow-y: auto;
+  /* 关键：局部滚动条在这里 */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 20px;
+}
+
 .listWrapper {
   padding: 16px;
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
 }
 
 .loadingText,
@@ -137,24 +166,10 @@
   color: #999;
 }
 
-/* 列表区默认样式 (单列 list) */
-.listWrapper {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  /* 卡片之间的上下间距 */
-
-  /* 👇 补充双列 (grid) 模式的样式 */
-  &.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    /* 分成均等的两列 */
-    gap: 12px;
-    /* 双列模式下的间距稍微调小一点 */
-
-    /* 注意：在双列模式下，卡片会被挤压到原来的一半宽。
-       如果你的 HourlySearchResultCard 内部没有做自适应，可能会变形。
-       可以在这里针对内部元素做一些微调，例如让图片变小点等 */
-  }
+.loadingMoreText {
+  text-align: center;
+  padding: 16px 0;
+  color: #999;
+  font-size: 12px;
+  grid-column: 1 / -1;
 }

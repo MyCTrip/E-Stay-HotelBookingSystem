@@ -1,101 +1,147 @@
-/* 钟点房房型选择区 */
-
-.roomSelection {
-  padding: 24px 16px;
-  background-color: #f5f5f5;
+.roomListWrapper {
+  background: #fff;
+  margin-top: 8px;
 }
 
-/* 钟点房特有：时间筛选器卡片 */
-.timeSelectorCard {
+.roomCard {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #ffffff;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 12px;
   cursor: pointer;
+  transition: background-color 0.2s;
 
-  .timeBlock {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-
-    .label {
-      font-size: 12px;
-      color: #999999;
-    }
-
-    .value {
-      font-size: 15px;
-      font-weight: 600;
-      color: #333333;
-    }
-  }
-
-  .divider {
-    width: 1px;
-    height: 24px;
-    background-color: #eeeeee;
-  }
-
-  .arrowIcon {
-    font-family: monospace;
-    font-size: 16px;
-    color: #cccccc;
-    margin-left: 8px;
+  &:active {
+    background-color: #f9f9f9;
   }
 }
 
-/* 原有样式保留 */
-.header {
-  margin-bottom: 16px;
+.imageWrapper {
+  position: relative;
+  width: 90px;
+  height: 120px;
+  /* 携程的图偏竖长型 */
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .imageCount {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
 }
 
-.title {
-  margin: 0 0 4px 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-}
-
-.subtitle {
-  margin: 0;
-  font-size: 13px;
-  color: #999;
-}
-
-.roomList {
+.roomInfo {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  min-width: 0;
+  /* 防止文本溢出撑开 flex 容器 */
 }
 
-@media (max-width: 768px) {
-  .roomSelection {
-    padding: 16px 12px;
+.roomName {
+  font-size: 16px;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 6px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeTag {
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.specs {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: auto;
+  /* 把价格推到底部 */
+
+  span {
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 2px;
   }
 
-  .timeSelectorCard {
-    padding: 10px 12px;
-    margin-bottom: 16px;
+  .tagGrey {
+    color: #666;
+    border: 1px solid #ccc;
+  }
 
-    .timeBlock .value {
+  .tagBlue {
+    color: #0086f6;
+  }
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+
+  .originalPrice {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+  }
+
+  .currentPrice {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0086f6;
+    /* 携程蓝 */
+
+    .currency {
       font-size: 14px;
+      margin-right: 2px;
     }
   }
+}
 
-  .header {
-    margin-bottom: 12px;
-  }
+.bookBtn {
+  background-color: #0086f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
 
-  .title {
-    font-size: 16px;
-    margin-bottom: 4px;
-  }
-
-  .roomList {
-    gap: 10px;
+  &:active {
+    background-color: #006ed6;
   }
 }

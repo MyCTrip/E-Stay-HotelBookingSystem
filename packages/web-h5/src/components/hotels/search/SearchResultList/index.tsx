@@ -41,6 +41,7 @@ interface SearchResultListProps {
   onFiltersChange?: (filters: SearchFilters) => void
   onModifySearch?: () => void
   onLoadMore?: () => Promise<void>
+  loadingMore?: boolean;
 }
 
 const STAR_LABEL_TO_VALUE: Record<string, number> = {
