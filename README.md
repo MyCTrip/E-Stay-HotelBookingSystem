@@ -2,8 +2,8 @@
 
 本仓库为 E-Stay（易宿）酒店预订平台的 Monorepo，包含 PC 管理后台（前端/后端）与移动端框架（Web H5 与小程序）。本 README 将整合各子项目的简介、技术栈与快速启动指引。
 
-## 视频演示
 
+## 视频演示
 > 点击图片可播放完整演示视频
 [![功能演示视频](./mobile/assets/demo_preview.png)](./mobile/assets/152ca8a80c8d445e38056ac7b127f679.mp4)
 
