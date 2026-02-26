@@ -1,20 +1,84 @@
+/* =========================================
+   1. 页面主容器 (接管原生滚动，浅灰底色)
+========================================= */
+.container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5; /* 🌟 核心：整体变成浅灰背景 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 999;
+
+  @supports (padding: max(0px)) {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* =========================================
+   2. 内容滚动区
+========================================= */
+.content {
+  position: relative;
+}
+
+/* 为了兼容你之前的 .pageContainer (如果内部组件还需要) */
 .pageContainer {
   position: relative;
-  padding-bottom: calc(40px + env(safe-area-inset-bottom));
 }
 
+/* =========================================
+   3. 吸顶的 Tabs (Scroll Spy 导航)
+========================================= */
+.stickyTabsWrapper {
+  position: sticky;
+  top: 44px; /* 根据你的 Header 实际高度调整，通常是 44px */
+  z-index: 99;
+  background-color: #fff;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 微微的阴影增加立体感 */
+}
+
+/* =========================================
+   4. 统一区块样式 (升级为圆角白底卡片)
+========================================= */
 .sectionGap {
-  margin-top: 2px;
+  background: #ffffff;
+  margin: 12px; /* 左右留白，让它变成独立的卡片 */
+  padding: 16px;
+  border-radius: 12px; /* 圆角卡片 */
+  /* 去掉之前生硬的 margin-top: 2px，改用大间距的卡片流 */
 }
 
+/* =========================================
+   5. 房型专区 (保留上浮层叠效果)
+========================================= */
 .roomsSection {
   position: relative;
-  z-index: 2;
-  margin-top: -64px;
-  padding-top: 52px;
+  background: #ffffff;
+  /* 🌟 核心修复：把 margin-top 改成正数，取消负边距的“强行上拉” */
+  margin: 12px; 
+  padding: 16px;
+  border-radius: 12px;
+  /* 如果之前的代码残留了 padding-top: 52px; 请务必删掉！ */
 }
 
+/* =========================================
+   6. 附近房源专区
+========================================= */
 .nearbyPropertiesSection {
-  margin-top: 4px;
-  border-top: 1px solid #f0f0f0;
+  background: #ffffff;
+  margin: 12px;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+/* =========================================
+   7. 底部留白垫片 (防止被底部预订栏遮挡1)
+========================================= */
+.spacer {
+  height: calc(80px + env(safe-area-inset-bottom));
 }

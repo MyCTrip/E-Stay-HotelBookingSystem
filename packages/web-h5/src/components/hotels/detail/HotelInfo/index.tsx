@@ -3,66 +3,93 @@ import type { HotelEntityBaseInfoModel } from '@estay/shared'
 import styles from './index.module.scss'
 
 interface HotelInfoProps {
-  baseInfo: Pick<HotelEntityBaseInfoModel, 'nameCn' | 'nameEn' | 'star' | 'address' | 'description'>
+  baseInfo: Pick<
+    HotelEntityBaseInfoModel,
+    'nameCn' | 'nameEn' | 'star' | 'address' | 'description'
+  >
   reviewCount?: number | null
 }
 
 const MAX_STAR_COUNT = 5
 
 const sanitizeScore = (star: number): number => {
-  if (!Number.isFinite(star)) {
-    return 0
-  }
-
+  if (!Number.isFinite(star)) return 0
   return Math.max(0, Math.min(MAX_STAR_COUNT, star))
 }
 
-const HotelInfo: React.FC<HotelInfoProps> = ({ baseInfo, reviewCount = null }) => {
+const HotelInfo: React.FC<HotelInfoProps> = ({
+  baseInfo,
+  reviewCount = null,
+}) => {
   const score = sanitizeScore(baseInfo.star)
-  const fullStarCount = Math.floor(score)
-  const emptyStarCount = MAX_STAR_COUNT - fullStarCount
-  const showReviewCount = typeof reviewCount === 'number' && reviewCount > 0
+  const showReviewCount =
+    typeof reviewCount === 'number' && reviewCount > 0
+
+  // 派生展示数据（不改接口）
+  const features = [
+    { icon: '🅿️', text: '免费停车' },
+    { icon: '🧺', text: '洗衣房' },
+    { icon: '📶', text: '免费WiFi' },
+    { icon: '💧', text: '24小时热水' },
+  ]
 
   return (
-    <section className={styles.infoCard}>
-      <div className={styles.headerRow}>
-        <div className={styles.titleBlock}>
-          <h1 className={styles.nameCn}>{baseInfo.nameCn}</h1>
-          {baseInfo.nameEn ? <p className={styles.nameEn}>{baseInfo.nameEn}</p> : null}
+    <div className={styles.overviewContainer}>
+      {/* 1️⃣ 标题 + 标签 */}
+      <div className={styles.headerTitle}>
+        <h2>{baseInfo.nameCn}</h2>
+        <div className={styles.tags}>
+          <span className={styles.tagGold}>优享会</span>
+          <span className={styles.tagGrey}>高品质推荐</span>
+        </div>
+      </div>
 
-          <div className={styles.starRow}>
-            <span className={styles.starIcons}>
-              {'\u2605'.repeat(fullStarCount)}
-              <span className={styles.starEmpty}>{'\u2606'.repeat(emptyStarCount)}</span>
+      {/* 2️⃣ 横向滚动设施 */}
+      <div className={styles.featureScroll}>
+        {features.map((item, index) => (
+          <div key={index} className={styles.featureItem}>
+            <div className={styles.iconBox}>{item.icon}</div>
+            <span>{item.text}</span>
+          </div>
+        ))}
+
+        <div className={styles.policyEntry}>
+          设施政策 &gt;
+        </div>
+      </div>
+
+      {/* 3️⃣ 评分卡 + 地图卡 */}
+      <div className={styles.cardsRow}>
+        {/* 评分卡 */}
+        <div className={styles.reviewCard}>
+          <div className={styles.scoreRow}>
+            <span className={styles.score}>
+              {score.toFixed(1)}
             </span>
-            <span className={styles.starText}>{`${score.toFixed(1)}\u661f\u7ea7`}</span>
+            <span className={styles.desc}>超棒</span>
+            {showReviewCount && (
+              <span className={styles.count}>
+                {reviewCount}条 &gt;
+              </span>
+            )}
+          </div>
+          <p className={styles.quote}>
+            {baseInfo.description || '高品质舒适体验'}
+          </p>
+        </div>
+
+        {/* 地图卡 */}
+        <div className={styles.mapCard}>
+          <div className={styles.locationText}>
+            <strong>{baseInfo.address}</strong>
+            <p>查看地图与导航</p>
+          </div>
+          <div className={styles.mapIcon}>
+            <span>📍 地图</span>
           </div>
         </div>
-
-        <div className={styles.ratingCard}>
-          <div className={styles.ratingScore}>{score.toFixed(1)}</div>
-          <div className={styles.ratingLabel}>{'\u8d85\u68d2'}</div>
-          {showReviewCount ? (
-            <div className={styles.reviewCount}>{`${reviewCount}\u6761\u70b9\u8bc4`}</div>
-          ) : null}
-        </div>
       </div>
-
-      <div className={styles.addressRow}>
-        <div className={styles.addressMain}>
-          <span className={styles.locationIcon} aria-hidden>
-            <svg viewBox="0 0 1024 1024" width="14" height="14" fill="currentColor">
-              <path d="M512 64c-176.72 0-320 143.28-320 320 0 71.04 25.6 145.92 76.8 224.64C337.28 714.24 512 896 512 896s174.72-181.76 243.2-287.36C806.4 529.92 832 455.04 832 384c0-176.72-143.28-320-320-320z m0 448a128 128 0 1 1 0-256 128 128 0 0 1 0 256z" />
-            </svg>
-          </span>
-          <span className={styles.addressText}>{baseInfo.address}</span>
-        </div>
-
-        <button type="button" className={styles.mapBtn}>
-          {'\u5730\u56fe/\u5bfc\u822a >'}
-        </button>
-      </div>
-    </section>
+    </div>
   )
 }
 

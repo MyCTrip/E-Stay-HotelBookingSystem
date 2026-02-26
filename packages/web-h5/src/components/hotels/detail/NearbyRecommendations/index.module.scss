@@ -1,228 +1,188 @@
-/* 位置周边区域样式 */
+/* index.module.scss */
 
 .section {
   padding: 16px;
   background-color: #fff;
-  margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  width: calc(100% - 28px);
-  margin-left: 14px;
+  margin: 0 12px 12px 12px;
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 
   .title {
     margin: 0;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: #333;
   }
 
-  .mapLink {
+  .moreInfo {
     font-size: 13px;
-    color: #1677ff;
-    text-decoration: none;
-
-    &:active {
-      color: #0d47a1;
-    }
+    color: #0088ff;
+    cursor: pointer;
   }
 }
 
-/* 地址块 */
+/* 地址区块 */
 .addressBlock {
-  margin-bottom: 16px;
-  padding-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #f0f0f0;
 
   .addressItem {
-    margin-bottom: 8px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 
     .label {
       font-size: 12px;
       color: #999;
     }
 
-    .address {
-      font-size: 14px;
-      color: #333;
-      line-height: 1.4;
-    }
-  }
-
-  .detailAddress {
-    font-size: 12px;
-    color: #999;
-    margin: 8px 0 12px 0;
-    line-height: 1.4;
-  }
-
-  .detailsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-
-    .detailItem {
+    .addressWithCopy {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
 
-      .label {
-        font-size: 11px;
-        color: #999;
-      }
-
-      .value {
-        font-size: 13px;
-        color: #666;
-      }
-    }
-  }
-
-  .mapContainer {
-    margin-top: 12px;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f5f5f5;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .mapPlaceholder {
-      color: #999;
-      font-size: 14px;
-    }
-  }
-}
-
-/* 分类段落 */
-.transportSection,
-.attractionsSection,
-.foodSection {
-  margin-bottom: 16px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.sectionTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 12px 0;
-}
-
-.itemList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  .listItem {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 6px;
-
-    .icon {
-      font-size: 24px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
-    .itemInfo {
-      flex: 1;
-      min-width: 0;
-
-      .itemName {
-        margin: 0 0 4px 0;
+      .address {
         font-size: 14px;
-        font-weight: 500;
         color: #333;
-      }
-
-      .meta {
-        font-size: 12px;
-        color: #999;
+        line-height: 1.4;
+        flex: 1;
         display: flex;
         align-items: center;
         gap: 6px;
-        flex-wrap: wrap;
+      }
 
-        .distance {
-          color: #666;
-        }
+      .copyBtn {
+        padding: 4px 12px;
+        font-size: 12px;
+        color: #999;
+        background: #f5f5f5;
+        border: none;
+        border-radius: 4px;
+        white-space: nowrap;
+        cursor: pointer;
 
-        .separator {
-          color: #ddd;
+        &:active {
+          background: #e8e8e8;
         }
+      }
+    }
+  }
 
-        .rating {
-          color: #ff8800;
-        }
+  /* 地址详情卡片 */
+  .detailCard {
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+
+    .cardTitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 12px 0;
+    }
+
+    .detailsGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      .detailItem {
+        display: flex;
+        gap: 4px;
+
+        .label { font-size: 13px; color: #999; }
+        .value { font-size: 13px; color: #666; }
       }
     }
   }
 }
 
-@media (max-width: 680px) {
-  .section {
-    padding: 12px;
-  }
+/* Tab 切换 Section */
+.tabSection {
+  margin-bottom: 16px;
 
-  .header {
-    .title {
-      font-size: 16px;
-    }
+  .tabButtons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
 
-    .mapLink {
-      font-size: 12px;
-    }
-  }
+    .tabBtn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 13px;
+      color: #999;
+      background: transparent;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      transition: all 0.2s;
 
-  .addressBlock {
-    .detailsGrid {
-      grid-template-columns: 1fr;
-    }
-
-    .mapContainer {
-      height: 160px;
-    }
-  }
-
-  .sectionTitle {
-    font-size: 13px;
-  }
-
-  .itemList {
-    .listItem {
-      padding: 8px;
-
-      .icon {
-        font-size: 20px;
-      }
-
-      .itemInfo {
-        .itemName {
-          font-size: 13px;
-        }
-
-        .meta {
-          font-size: 11px;
-        }
+      &.active {
+        color: #fff;
+        background: #0088ff;
+        border-color: #0088ff;
       }
     }
   }
+
+  .tabContent {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .contentItem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+
+      .itemName {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .itemDistance {
+        font-size: 12px;
+        color: #999;
+      }
+    }
+  }
+}
+
+/* 底部提示 */
+.tipSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0;
+  font-size: 11px;
+  color: #ccc;
+}
+
+/* 复制成功 Toast */
+.copyToast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  pointer-events: none;
 }
