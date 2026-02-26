@@ -162,8 +162,42 @@ export const updateRoom = async (req: Request, res: Response) => {
       return res.json(room);
     }
 
-    // Merchant update: save as pendingChanges and set status to pending
+    // ===============================
+    // Merchant update logic
+    // ===============================
+
+    // 如果是草稿或已驳回，直接覆盖（不走审核）
+    if (
+      room.auditInfo?.status === 'draft' ||
+      room.auditInfo?.status === 'rejected'
+    ) {
+      if (updates.baseInfo) {
+        const sanitizedBase = sanitizeObject(updates.baseInfo);
+        room.baseInfo = { ...room.baseInfo, ...sanitizedBase };
+      }
+      if (updates.headInfo) {
+        const sanitizedHead = sanitizeObject(updates.headInfo);
+        room.headInfo = { ...room.headInfo, ...sanitizedHead };
+      }
+      if (updates.bedInfo) {
+        const sanitizedBed = sanitizeObject(updates.bedInfo);
+        room.bedInfo = sanitizedBed;
+      }
+      if (updates.breakfastInfo) {
+        const sanitizedBreakfast = sanitizeObject(updates.breakfastInfo);
+        room.breakfastInfo = { ...room.breakfastInfo, ...sanitizedBreakfast };
+      }
+
+      await room.save();
+      return res.json(room);
+    }
+
+    // =====================================
+    // 已上线 / 审核中 → 走 pendingChanges
+    // =====================================
+
     const allowed: any = {};
+
     if (updates.baseInfo) {
       const sanitizedBase = sanitizeObject(updates.baseInfo);
       allowed.baseInfo = sanitizedBase;
@@ -180,11 +214,13 @@ export const updateRoom = async (req: Request, res: Response) => {
       const sanitizedBreakfast = sanitizeObject(updates.breakfastInfo);
       allowed.breakfastInfo = sanitizedBreakfast;
     }
+
     if (Object.keys(allowed).length === 0)
       return res.status(400).json({ message: 'No updatable fields provided' });
 
     room.pendingChanges = { ...(room.pendingChanges || {}), ...allowed };
     room.auditInfo = { ...room.auditInfo, status: 'pending' } as any;
+
     await room.save();
 
     const log = await AuditLog.create({
@@ -194,9 +230,12 @@ export const updateRoom = async (req: Request, res: Response) => {
       operatorId: user.id,
     });
 
-    await notificationService.notifyAdmins(`Room update requested: ${room._id}`, { auditId: log._id, type: 'update_request' });
+    await notificationService.notifyAdmins(
+      `Room update requested: ${room._id}`,
+      { auditId: log._id, type: 'update_request' }
+    );
 
-    res.json(room);
+    return res.json(room);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
   }

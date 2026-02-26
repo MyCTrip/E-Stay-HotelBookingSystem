@@ -36,14 +36,14 @@ export const hotelApi = {
 // 获取当前酒店的所有房间
   getRooms: (hotelId: string) => request.get<PageResult<HotelRoom>>(`/hotels/${hotelId}/rooms`),
   
-  // 添加房间
+// 添加房间 (这个没问题，因为新建房间时它还没有 ID，必须挂在酒店下面)
   addRoom: (hotelId: string, data: Partial<HotelRoom>) => request.post(`/hotels/${hotelId}/rooms`, data),
   
-  // 更新房间
-  updateRoom: (hotelId: string, roomId: string, data: Partial<HotelRoom>) => request.put(`/hotels/${hotelId}/rooms/${roomId}`, data),
+  //更新房间 (扁平化路径)
+  updateRoom: (hotelId: string, roomId: string, data: Partial<HotelRoom>) => request.put(`/rooms/${roomId}`, data),
   
-  // 删除房间
-  deleteRoom: (hotelId: string, roomId: string) => request.delete(`/hotels/${hotelId}/rooms/${roomId}`),
+  //删除房间 (扁平化路径)
+  deleteRoom: (hotelId: string, roomId: string) => request.delete(`/rooms/${roomId}`),
 
   // 提交房间审核
  submitRoom: (roomId: string) => request.post(`/rooms/${roomId}/submit`),

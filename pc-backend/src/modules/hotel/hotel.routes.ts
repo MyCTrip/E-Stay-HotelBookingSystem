@@ -12,6 +12,8 @@ import {
   requestDeleteHotel,
   getHotHotels,
   getCities,
+  getDetail,
+  getHotelRooms,
 } from './hotel.controller';
 import { createHotelSchema, updateHotelSchema } from './hotel.schema';
 import { requireMerchantVerified } from '../../middlewares/merchant.middleware';
@@ -56,5 +58,12 @@ router.get('/hot', cache({ expiration: 3600, keyPrefix: 'hotel:' }), getHotHotel
 
 // 获取城市列表
 router.get('/cities', cache({ expiration: 86400, keyPrefix: 'hotel:' }), getCities);
+
+// 获取酒店下房型列表的 public 接口
+// 关键：包含具体单词 (/rooms) 的路由，必须放在纯参数 (/:id) 的前面！否则会被吞掉！
+router.get('/:id/rooms', getHotelRooms);
+
+// 补上获取详情的 public 接口
+router.get('/:id', getDetail);
 
 export default router;

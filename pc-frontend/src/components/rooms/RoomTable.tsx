@@ -45,7 +45,7 @@ export const RoomTable: React.FC<Props> = ({ loading, dataSource, onView, onEdit
       key: 'stock',
       render: (_: any, record: HotelRoom) => (
          // 如果有库存展示库存，没有则展示最大入住人数
-        <span>{record.baseInfo.maxOccupancy} 人</span>
+        <span>{record.baseInfo.maxOccupancy} 间</span>
       )
     },
     {
