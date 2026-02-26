@@ -106,10 +106,8 @@ const EditProfileModal: React.FC<Props> = ({ visible, onCancel, onSuccess, data 
           businessLicenseNo: values.businessLicenseNo,
           businessLicensePhoto: photoUrl, // 给后端的确实是字符串，符合队友的改动
           realNameStatus: 'unverified' 
-        },
-        auditInfo: {
-          verifyStatus: 'unverified' 
         }
+        // 注意：不发送 auditInfo，这由后端自动管理
       };
 
       await merchantApi.updateProfile(payload);

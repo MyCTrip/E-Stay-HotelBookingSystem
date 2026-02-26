@@ -32,26 +32,38 @@ export const hotelService = {
 		if (hotel.merchantId.toString() !== merchantId) throw new ServiceError('Forbidden', 403);
 
 		hotel.pendingChanges = { ...(hotel.pendingChanges || {}), ...diffs };
-		hotel.auditInfo = hotel.auditInfo || ({} as any);
-		// @ts-ignore
-		hotel.auditInfo.status = 'pending';
-		// @ts-ignore
-		hotel.auditInfo.auditedBy = null;
-		// @ts-ignore
-		hotel.auditInfo.auditedAt = null;
-		hotel.markModified('auditInfo');
 		hotel.markModified('pendingChanges');
+
+		// 🔑 关键改动：
+		// - 如果酒店状态是 draft（草稿），编辑后保持 draft，不需要重新审核
+		// - 如果酒店状态是 approved（已上线），编辑后才设置为 pending，需要管理员审核
+		const currentStatus = hotel.auditInfo?.status || 'draft';
+		if (currentStatus === 'approved') {
+			// 已上线的酒店被编辑 -> 设置为待审核状态
+			hotel.auditInfo = hotel.auditInfo || ({} as any);
+			// @ts-ignore
+			hotel.auditInfo.status = 'pending';
+			// @ts-ignore
+			hotel.auditInfo.auditedBy = null;
+			// @ts-ignore
+			hotel.auditInfo.auditedAt = null;
+			hotel.markModified('auditInfo');
+		}
+		// 否则保持当前状态（draft 或其他状态）
 
 		await hotel.save();
 
-		const log = await AuditLog.create({
-			targetType: 'hotel',
-			targetId: hotel._id,
-			action: 'update_request',
-			operatorId: merchantId,
-		});
+		// 仅当从 approved 改为 pending 时才通知管理员
+		if (currentStatus === 'approved') {
+			const log = await AuditLog.create({
+				targetType: 'hotel',
+				targetId: hotel._id,
+				action: 'update_request',
+				operatorId: merchantId,
+			});
 
-		await notificationService.notifyAdmins(`Hotel update requested: ${hotel._id}`, { auditId: log._id, type: 'update_request' });
+			await notificationService.notifyAdmins(`Hotel update requested: ${hotel._id}`, { auditId: log._id, type: 'update_request' });
+		}
 
 		return hotel;
 	},

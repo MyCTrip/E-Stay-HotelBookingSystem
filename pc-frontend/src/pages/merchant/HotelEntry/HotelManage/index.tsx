@@ -5,16 +5,31 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { hotelApi } from '@/services/hotel';
 import { facilitiesToFormValues, formValuesToFacilities } from '@/config/facilities';
-import type { Hotel, AuditStatus } from '@/types/hotel';
+import type { Hotel } from '@/types/hotel';
 import type { UploadFile } from 'antd/es/upload/interface';
+
+// 固定的钟点房时间段配置：每天8:00-22:00
+const FIXED_TIME_SLOTS = [
+  { dayOfWeek: 0, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+  { dayOfWeek: 1, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+  { dayOfWeek: 2, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+  { dayOfWeek: 3, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+  { dayOfWeek: 4, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+  { dayOfWeek: 5, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+  { dayOfWeek: 6, startTime: '08:00', endTime: '22:00', minStayHours: 2, maxBookingsPerSlot: 10, content: '' },
+];
 
 // 引入的公共组件
 import { BaseInfoCard } from '@/components/hotel/BaseInfoCard';
 import { PolicyCard } from '@/components/hotel/PolicyCard';
 import { MarketingCard } from '@/components/hotel/MarketingCard';
+import { HourlyConfigCard } from '@/components/hotel/HourlyConfigCard';
+import { HomeStayConfigCard } from '@/components/hotel/HomeStayConfigCard';
 import { HotelDetailsView } from '@/components/hotel/HotelDetailsView';
+
 // 表单值类型定义（UI层）
 interface HotelFormValues {
+  propertyType?: 'hotel' | 'hourlyHotel' | 'homeStay';
   nameCn: string;
   nameEn?: string;
   address: string;
@@ -23,7 +38,7 @@ interface HotelFormValues {
   openTime?: any;
   description?: string;
   images?: UploadFile[];
-// 入住信息
+  // 入住信息
   checkinInfo?: {
     checkinTime?: any; // UI层是 Dayjs 对象
     checkoutTime?: any;
@@ -31,7 +46,7 @@ interface HotelFormValues {
     breakfastPrice?: number;
   };
   // 动态字段 (UI层结构)
-  facilities?: Record<string, string[]>; 
+  facilities?: Record<string, string[]>;
   policies?: {
     pet?: string;
     cancellation?: string;
@@ -39,7 +54,11 @@ interface HotelFormValues {
   };
   nearbyList?: any[];
   discountRules?: any[];
-  // rooms?: any[];
+  // 类型特定配置
+  typeConfig?: {
+    hourly?: any;
+    homestay?: any;
+  };
 }
 
 const HotelManage: React.FC = () => {
@@ -51,6 +70,7 @@ const HotelManage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false); // 提交按钮加载状态
   const [hotelData, setHotelData] = useState<Hotel | null>(null); // 当前酒店数据
   const [isEditing, setIsEditing] = useState(false);   // 页面模式：true=编辑/新增表单，false=详情查看
+  const [propertyType, setPropertyType] = useState<'hotel' | 'hourlyHotel' | 'homeStay'>('hotel'); // 房型类型
 
   // === 1. 初始化：获取当前商家的酒店信息 ===
   const fetchMyHotel = async () => {
@@ -121,7 +141,29 @@ const HotelManage: React.FC = () => {
          uid: String(i), name: `img-${i}`, status: 'done', url 
       })) || [];
 
+      // 4. propertyType 转换
+      const propertyTypeValue = mergedBaseInfo.propertyType || 'hotel';
+      setPropertyType(propertyTypeValue);
+
+      // 5. typeConfig 转换（处理时间格式）
+      let typeConfigValue: any = {};
+      const mergedTypeConfig = hotelData.pendingChanges?.typeConfig || hotelData.typeConfig;
+      
+      if (propertyTypeValue === 'hourlyHotel' && mergedTypeConfig?.hourly) {
+        typeConfigValue.hourly = {
+          ...mergedTypeConfig.hourly,
+          baseConfig: {
+            ...mergedTypeConfig.hourly.baseConfig,
+            // 使用固定的时间段：8:00-22:00
+            timeSlots: FIXED_TIME_SLOTS
+          }
+        };
+      } else if (propertyTypeValue === 'homeStay' && mergedTypeConfig?.homestay) {
+        typeConfigValue.homestay = mergedTypeConfig.homestay;
+      }
+
       form.setFieldsValue({
+        propertyType: propertyTypeValue,
         nameCn: mergedBaseInfo.nameCn,
         nameEn: mergedBaseInfo.nameEn,
         city: mergedBaseInfo.city,
@@ -130,21 +172,25 @@ const HotelManage: React.FC = () => {
         openTime: mergedBaseInfo.openTime ? dayjs(mergedBaseInfo.openTime) : undefined,
         description: mergedBaseInfo.description,
         images: images as any,
-// 4. CheckinInfo (字符串 -> Dayjs)
+        // CheckinInfo (字符串 -> Dayjs)
         checkinInfo: {
             ...(hotelData.pendingChanges?.checkinInfo || hotelData.checkinInfo),
             checkinTime: (hotelData.pendingChanges?.checkinInfo?.checkinTime || hotelData.checkinInfo?.checkinTime) ? dayjs(hotelData.pendingChanges?.checkinInfo?.checkinTime || hotelData.checkinInfo?.checkinTime, 'HH:mm') : undefined,
             checkoutTime: (hotelData.pendingChanges?.checkinInfo?.checkoutTime || hotelData.checkinInfo?.checkoutTime) ? dayjs(hotelData.pendingChanges?.checkinInfo?.checkoutTime || hotelData.checkinInfo?.checkoutTime, 'HH:mm') : undefined,
         },
-
-        // 5. 注入转换后的动态字段
+        // 注入转换后的动态字段
         facilities: facilitiesFormValues,
         policies: policiesUI,
+        // 注入 typeConfig
+        typeConfig: typeConfigValue,
       });
+
     } else if (isEditing && !hotelData) {
       // --- 新增模式：设置表单默认值 ---
+      setPropertyType('hotel'); // 新增时默认为 hotel
       form.resetFields();
       form.setFieldsValue({
+          propertyType: 'hotel',
           star: 3,
           checkinInfo: { 
               checkinTime: dayjs('14:00', 'HH:mm'), 
@@ -158,6 +204,18 @@ const HotelManage: React.FC = () => {
           },
           nearbyList: [],
           discountRules: [],
+          // 钟点房默认配置（虽然默认是hotel，但如果用户切换到hourlyHotel会使用这个）
+          typeConfig: {
+            hourly: {
+              baseConfig: {
+                pricePerHour: 50,
+                minimumHours: 2,
+                maxBookingsPerDay: 4,
+                cleaningTime: 45,
+                timeSlots: FIXED_TIME_SLOTS
+              }
+            }
+          }
       });
     }
   }, [isEditing, hotelData, form]);
@@ -166,6 +224,9 @@ const HotelManage: React.FC = () => {
   const onFinish = async (values: HotelFormValues) => {
     setSubmitting(true);
     try {
+      // 确保 propertyType 有值
+      const finalPropertyType = values.propertyType || 'hotel';
+      
       // 1. 图片处理：需要上传新文件 + 获取已存储文件的 URL
       let imageList: string[] = [];
       
@@ -260,9 +321,12 @@ const HotelManage: React.FC = () => {
           roomTotal: 1,
           openTime: values.openTime ? dayjs(values.openTime).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
           // 文档要求 phone 是 string
-          phone: '000-00000000', 
+          phone: '000-00000000',
           description: values.description || '暂无描述',
           images: imageList,
+          
+          // 添加 propertyType 到 baseInfo
+          propertyType: finalPropertyType,
           
           // 严格符合文档结构
           facilities: facilitiesDB,
@@ -278,9 +342,44 @@ const HotelManage: React.FC = () => {
             checkinTime: values.checkinInfo?.checkinTime ? (values.checkinInfo.checkinTime as any).format('HH:mm') : '14:00',
             checkoutTime: values.checkinInfo?.checkoutTime ? (values.checkinInfo.checkoutTime as any).format('HH:mm') : '12:00',
             // 文档没明确提 breakfastType/Price，但在示例中可能有，建议保留或根据 checkinInfo 定义调整
-            
         }
       };
+
+      // 5. 处理 typeConfig（类型特定配置）
+      if (finalPropertyType === 'hourlyHotel') {
+        // 钟点房类型：确保必需字段存在
+        const allFormValues = form.getFieldsValue();
+        const hourlyConfig = allFormValues.typeConfig?.hourly;
+        
+        if (!hourlyConfig || !hourlyConfig.baseConfig) {
+          message.error('钟点房配置信息不完整，请联系我们');
+          setSubmitting(false);
+          return;
+        }
+        
+        // 验证必填字段
+        if (!hourlyConfig.baseConfig.pricePerHour) {
+          message.error('请输入每小时价格');
+          setSubmitting(false);
+          return;
+        }
+        
+        // 确保所有必需字段都有合理的值
+        payload.typeConfig = {
+          hourly: {
+            ...hourlyConfig,
+            baseConfig: {
+              pricePerHour: hourlyConfig.baseConfig.pricePerHour,
+              minimumHours: hourlyConfig.baseConfig.minimumHours || 2,
+              maxBookingsPerDay: hourlyConfig.baseConfig.maxBookingsPerDay || 4,
+              cleaningTime: hourlyConfig.baseConfig.cleaningTime || 45,
+              timeSlots: FIXED_TIME_SLOTS
+            }
+          }
+        };
+      } else if (finalPropertyType === 'homeStay' && values.typeConfig?.homestay) {
+        payload.typeConfig = { homestay: values.typeConfig.homestay };
+      }
 
       console.log('提交的 Payload:', JSON.stringify(payload, null, 2)); // 方便你自己调试看
 
@@ -314,7 +413,7 @@ const HotelManage: React.FC = () => {
 
   // 查看模式：渲染只读的酒店详情组件
   if (!isEditing && hotelData) {
-    return <HotelDetailsView data={hotelData} onEdit={() => setIsEditing(true)} />;
+    return <HotelDetailsView data={hotelData} onEdit={() => setIsEditing(true)} onSubmitSuccess={fetchMyHotel} />;
   }
 
   // 编辑/新增模式：渲染表单页面
@@ -337,9 +436,33 @@ const HotelManage: React.FC = () => {
         )}
       </div>
 
-      <Form form={form} layout="vertical" onFinish={onFinish} scrollToFirstError>
+      <Form form={form} layout="vertical" onFinish={onFinish} scrollToFirstError onValuesChange={(changedValues) => {
+        if (changedValues.propertyType) {
+          setPropertyType(changedValues.propertyType);
+          // 当切换到钟点房时，自动初始化 typeConfig（仅在新增模式下）
+          if (changedValues.propertyType === 'hourlyHotel' && !hotelData) {
+            const currentTypeConfig = form.getFieldValue('typeConfig') || {};
+            if (!currentTypeConfig.hourly) {
+              form.setFieldValue(['typeConfig', 'hourly'], {
+                baseConfig: {
+                  pricePerHour: 50,
+                  minimumHours: 2,
+                  maxBookingsPerDay: 4,
+                  cleaningTime: 45,
+                  timeSlots: FIXED_TIME_SLOTS
+                }
+              });
+            }
+          }
+        }
+      }}>
         {/* 按模块拆分的表单组件 */}
-        <BaseInfoCard />
+        <BaseInfoCard disablePropertyType={isEditing && !!hotelData} />
+        
+        {/* 根据房型类型动态渲染配置卡片 */}
+        {propertyType === 'hourlyHotel' && <HourlyConfigCard />}
+        {propertyType === 'homeStay' && <HomeStayConfigCard />}
+        
         <PolicyCard />
         <MarketingCard />
         {/* <RoomListCard /> */}

@@ -93,6 +93,9 @@ export interface HotelBaseInfo {
   images: string[];
   phone: string;
   roomTotal: number;
+  
+  // 房型类型
+  propertyType?: 'hotel' | 'hourlyHotel' | 'homeStay';
 
   // 🔥 必填且非空
   facilities: HotelFacility[];
@@ -118,6 +121,10 @@ export interface Hotel {
   merchantId: string;
   baseInfo: HotelBaseInfo;
   checkinInfo?: HotelCheckinInfo;
+  typeConfig?: {
+    hourly?: any;
+    homestay?: any;
+  };
   auditInfo?: {
     status: AuditStatus;
     rejectReason?: string;
@@ -125,6 +132,7 @@ export interface Hotel {
   pendingChanges?: {
     baseInfo?: Partial<HotelBaseInfo>;
     checkinInfo?: Partial<HotelCheckinInfo>;
+    typeConfig?: any;
   };
   rooms?: HotelRoom[];
   createdAt: string;

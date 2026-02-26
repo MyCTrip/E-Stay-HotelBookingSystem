@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Typography, Table, Tag, Space, Button, Modal,
-    Input, message, Popconfirm, Card, Select, Image, Descriptions, Divider
+    Input, message, Popconfirm, Card, Select, Image, Descriptions, Divider, Empty
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -12,6 +12,13 @@ import request from '@/services/request';
 
 const { Title, Text } = Typography;
 const { Search, TextArea } = Input;
+
+// 酒店类型映射
+const propertyTypeMap: Record<string, string> = {
+  'hotel': '标准酒店',
+  'hourlyHotel': '钟点房',
+  'homeStay': '民宿'
+};
 
 // 1. ✅ 修复：让 TypeScript 接口完美匹配后端的嵌套 JSON 数据结构
 interface IHotel {
@@ -31,12 +38,42 @@ interface IHotel {
         openTime?: string;
         images: string[];
         description?: string;
+        propertyType?: 'hotel' | 'hourlyHotel' | 'homeStay';
         facilities?: Array<{ id: string; name: string; facilities: Array<{ id: string; name: string; available: boolean }> }>;
         policies?: { policyType: string; content: string }[];
     };
     checkinInfo?: {
         checkinTime?: string;
         checkoutTime?: string;
+    };
+    typeConfig?: {
+        hourly?: {
+            baseConfig?: {
+                pricePerHour?: number;
+                minimumHours?: number;
+                cleaningTime?: number;
+                maxBookingsPerDay?: number;
+                timeSlots?: Array<{
+                    dayOfWeek: number;
+                    startTime: string;
+                    endTime: string;
+                    minStayHours: number;
+                    content: string;
+                    maxBookingsPerSlot?: number;
+                }>;
+            };
+        };
+        homestay?: {
+            hostName?: string;
+            hostPhone?: string;
+            responseTimeHours?: number;
+            instantBooking?: boolean;
+            minStay?: number;
+            maxStay?: number;
+            cancellationPolicy?: string;
+            securityDeposit?: number;
+            amenityTags?: string[];
+        };
     };
     auditInfo: {
         status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
@@ -45,6 +82,7 @@ interface IHotel {
     pendingChanges?: {
         baseInfo?: any;
         checkinInfo?: any;
+        typeConfig?: any;
     };
     createdAt: string;
 }
@@ -115,7 +153,7 @@ const AuditHotel: React.FC = () => {
         {
             title: '酒店名称',
             dataIndex: ['baseInfo', 'nameCn'],
-            width: '20%',
+            width: '18%',
             render: (text, record) => (
                 <Space direction="vertical" size={0}>
                     <Text strong>{text || '未知酒店名称'}</Text>
@@ -124,14 +162,31 @@ const AuditHotel: React.FC = () => {
             )
         },
         {
+            title: '酒店类型',
+            dataIndex: ['baseInfo', 'propertyType'],
+            key: 'propertyType',
+            width: '12%',
+            render: (type: string) => {
+                const typeDisplay = propertyTypeMap[type] || '标准酒店';
+                const colorMap: Record<string, string> = {
+                    'hotel': 'blue',
+                    'hourlyHotel': 'gold',
+                    'homeStay': 'green'
+                };
+                return <Tag color={colorMap[type] || 'blue'}>{typeDisplay}</Tag>;
+            }
+        },
+        {
             title: '提交商户',
             dataIndex: ['merchantId', 'baseInfo', 'merchantName'],
             key: 'merchantName',
+            width: '15%',
             render: (text) => <Text>{text || '未知商户'}</Text>
         },
         {
             title: '当前状态',
             dataIndex: ['auditInfo', 'status'],
+            width: '12%',
             render: (status: IHotel['auditInfo']['status'], record) => {
                 const map = { pending: 'blue', approved: 'green', rejected: 'red', offline: 'default', draft: 'orange' };
                 const texts = { pending: '待审核', approved: '已通过', rejected: '已驳回', offline: '已下线', draft: '草稿' };
@@ -150,6 +205,7 @@ const AuditHotel: React.FC = () => {
         {
             title: '详情',
             key: 'detail',
+            width: '10%',
             render: (_, record) => (
                 <Button type="link" icon={<EyeOutlined />} onClick={() => { setSelectedHotel(record); setDetailVisible(true); }}>
                     查看详情
@@ -159,6 +215,7 @@ const AuditHotel: React.FC = () => {
         {
             title: '管理操作',
             key: 'action',
+            width: '20%',
             render: (_, record) => {
                 const status = record.auditInfo?.status;
                 return (
@@ -218,6 +275,7 @@ const AuditHotel: React.FC = () => {
                     rowKey="_id"
                     loading={loading}
                     pagination={{ ...pagination, onChange: (p, s) => fetchData(p, s) }}
+                    scroll={{ x: 1200 }}
                 />
             </Card>
 
@@ -227,7 +285,7 @@ const AuditHotel: React.FC = () => {
                 open={detailVisible}
                 onCancel={() => setDetailVisible(false)}
                 footer={[<Button key="close" onClick={() => setDetailVisible(false)}>关闭</Button>]}
-                width={900}
+                width={1000}
             >
                 {selectedHotel && (() => {
                     // 🔑 合并数据：优先用 pendingChanges，回退到 baseInfo
@@ -239,14 +297,22 @@ const AuditHotel: React.FC = () => {
                         ...selectedHotel.checkinInfo,
                         ...(selectedHotel.pendingChanges?.checkinInfo || {})
                     };
+                    const displayedTypeConfig = selectedHotel.pendingChanges?.typeConfig || selectedHotel.typeConfig;
+                    const propertyType = displayedBaseInfo.propertyType || 'hotel';
                     
                     return (
                     <div style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto', paddingBottom: 48 }}>
                         <Descriptions title="基本属性" bordered column={2}>
                             <Descriptions.Item label="酒店名称">{displayedBaseInfo?.nameCn}</Descriptions.Item>
                             <Descriptions.Item label="所在城市">{displayedBaseInfo?.city || '-'}</Descriptions.Item>
+                            <Descriptions.Item label="酒店类型">
+                                <Tag color={propertyType === 'hourlyHotel' ? 'gold' : propertyType === 'homeStay' ? 'green' : 'blue'}>
+                                    {propertyTypeMap[propertyType] || propertyType}
+                                </Tag>
+                            </Descriptions.Item>
                             <Descriptions.Item label="所属商户">{selectedHotel.merchantId?.baseInfo?.merchantName}</Descriptions.Item>
                             <Descriptions.Item label="星级">{displayedBaseInfo?.star ? `${displayedBaseInfo.star} 星` : '-'}</Descriptions.Item>
+                            <Descriptions.Item label="英文名称">{displayedBaseInfo?.nameEn || '-'}</Descriptions.Item>
                             <Descriptions.Item label="详细地址" span={2}>{displayedBaseInfo?.address || '-'}</Descriptions.Item>
                             <Descriptions.Item label="提交时间">{new Date(selectedHotel.createdAt).toLocaleString()}</Descriptions.Item>
 
@@ -275,10 +341,123 @@ const AuditHotel: React.FC = () => {
                             })}
                         </Descriptions>
 
+                        {/* 🆕 钟点房配置 */}
+                        {propertyType === 'hourlyHotel' && displayedTypeConfig?.hourly && (
+                            <>
+                                <Divider orientation="left">⏰ 钟点房配置</Divider>
+                                <Descriptions bordered column={2} size="small">
+                                    <Descriptions.Item label="时价（元/小时）">
+                                        ¥{displayedTypeConfig.hourly.baseConfig?.pricePerHour || '-'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="最少租住时长">
+                                        {displayedTypeConfig.hourly.baseConfig?.minimumHours || '-'} 小时
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="清洁时间">
+                                        {displayedTypeConfig.hourly.baseConfig?.cleaningTime || '-'} 分钟
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="每日最大预订数">
+                                        {displayedTypeConfig.hourly.baseConfig?.maxBookingsPerDay || '-'} 次
+                                    </Descriptions.Item>
+                                </Descriptions>
+
+                                {/* 时间段配置 */}
+                                <Divider>时间段配置</Divider>
+                                {displayedTypeConfig.hourly.baseConfig?.timeSlots && displayedTypeConfig.hourly.baseConfig.timeSlots.length > 0 ? (
+                                    <Table
+                                        columns={[
+                                            {
+                                                title: '星期',
+                                                dataIndex: 'dayOfWeek',
+                                                key: 'dayOfWeek',
+                                                width: '10%',
+                                                render: (val: number) => ['日', '一', '二', '三', '四', '五', '六'][val] || val
+                                            },
+                                            {
+                                                title: '营业时间',
+                                                key: 'time',
+                                                width: '20%',
+                                                render: (_: any, record: any) => `${record.startTime} - ${record.endTime}`
+                                            },
+                                            {
+                                                title: '最小租住',
+                                                dataIndex: 'minStayHours',
+                                                key: 'minStayHours',
+                                                width: '15%',
+                                                render: (val: number) => `${val} 小时`
+                                            },
+                                            {
+                                                title: '每段最多预订',
+                                                dataIndex: 'maxBookingsPerSlot',
+                                                key: 'maxBookingsPerSlot',
+                                                width: '15%'
+                                            },
+                                            {
+                                                title: '说明',
+                                                dataIndex: 'content',
+                                                key: 'content',
+                                                render: (val: string) => val || '-'
+                                            }
+                                        ]}
+                                        dataSource={displayedTypeConfig.hourly.baseConfig.timeSlots}
+                                        rowKey={(_, index) => index || 0}
+                                        pagination={false}
+                                        size="small"
+                                    />
+                                ) : (
+                                    <Empty description="暂无时间段配置" />
+                                )}
+                            </>
+                        )}
+
+                        {/* 🆕 民宿配置 */}
+                        {propertyType === 'homeStay' && displayedTypeConfig?.homestay && (
+                            <>
+                                <Divider orientation="left">🏠 民宿信息</Divider>
+                                <Descriptions bordered column={2} size="small">
+                                    <Descriptions.Item label="房东名称">
+                                        {displayedTypeConfig.homestay.hostName || '-'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="房东电话">
+                                        {displayedTypeConfig.homestay.hostPhone || '-'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="响应时间">
+                                        {displayedTypeConfig.homestay.responseTimeHours || '-'} 小时内回复
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="即时预订">
+                                        {displayedTypeConfig.homestay.instantBooking ? '✓ 开启' : '✗ 关闭'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="最少住宿">
+                                        {displayedTypeConfig.homestay.minStay || '-'} 晚起
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="最多住宿">
+                                        {displayedTypeConfig.homestay.maxStay || '无限制'} 晚
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="取消政策">
+                                        {displayedTypeConfig.homestay.cancellationPolicy || '-'}
+                                    </Descriptions.Item>
+                                    <Descriptions.Item label="安全押金">
+                                        ¥{displayedTypeConfig.homestay.securityDeposit || '0'}
+                                    </Descriptions.Item>
+                                </Descriptions>
+
+                                {/* 便利设施标签 */}
+                                {displayedTypeConfig.homestay.amenityTags && displayedTypeConfig.homestay.amenityTags.length > 0 && (
+                                    <>
+                                        <Divider>便利设施</Divider>
+                                        <Space wrap>
+                                            {displayedTypeConfig.homestay.amenityTags.map((tag: string) => (
+                                                <Tag key={tag} color="blue">{tag}</Tag>
+                                            ))}
+                                        </Space>
+                                    </>
+                                )}
+                            </>
+                        )}
+
                         {/* 👇 新增：设施服务 */}
                         {displayedBaseInfo?.facilities && displayedBaseInfo.facilities.length > 0 && (
                             <div style={{ marginTop: 16 }}>
-                                <Text strong style={{ display: 'block', marginBottom: 8 }}>设施服务：</Text>
+                                <Divider orientation="left">设施服务</Divider>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                                     {displayedBaseInfo.facilities.map((category, idx) => (
                                         <div key={idx} style={{ background: '#fafafa', padding: '12px', borderRadius: 4, border: '1px solid #f0f0f0' }}>

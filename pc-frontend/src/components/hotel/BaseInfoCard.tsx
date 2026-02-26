@@ -1,13 +1,26 @@
 import React from 'react';
-import { Card, Form, Row, Col, Input, DatePicker, Rate, Divider } from 'antd';
+import { Card, Form, Row, Col, Input, DatePicker, Rate, Radio, Divider } from 'antd';
 import { HomeOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import ImageUpload from '@/components/shared/ImageUpload';
 
 const { TextArea } = Input;
 
-export const BaseInfoCard: React.FC = () => {
+export const BaseInfoCard: React.FC<{ disablePropertyType?: boolean }> = ({ disablePropertyType = false }) => {
   return (
     <Card title={<><HomeOutlined /> 基础信息</>} variant="borderless" style={{ marginBottom: 24 }}>
+      {/* 房型类型选择 */}
+      <Row gutter={24} style={{ marginBottom: 24 }}>
+        <Col span={12}>
+          <Form.Item label="酒店类型" name="propertyType" rules={[{ required: true, message: '必选' }]} initialValue="hotel">
+            <Radio.Group disabled={disablePropertyType}>
+              <Radio value="hotel">标准酒店</Radio>
+              <Radio value="hourlyHotel">钟点房</Radio>
+              <Radio value="homeStay">民宿</Radio>
+            </Radio.Group>
+          </Form.Item>
+        </Col>
+      </Row>
+
       <Row gutter={24}>
         <Col span={12}>
           <Form.Item label="酒店中文名称" name="nameCn" rules={[{ required: true, message: '必填' }]}>
@@ -52,7 +65,7 @@ export const BaseInfoCard: React.FC = () => {
         name="images" 
         rules={[{ required: true, message: '请上传至少一张图片' }]}
       >
-        <ImageUpload maxCount={8} maxSize={5} />
+        <ImageUpload maxSize={5} />
       </Form.Item>
 
       <Form.Item label="酒店简介" name="description">
