@@ -1,0 +1,147 @@
+.roomListWrapper {
+  background: #fff;
+  margin-top: 8px;
+}
+
+.roomCard {
+  display: flex;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:active {
+    background-color: #f9f9f9;
+  }
+}
+
+.imageWrapper {
+  position: relative;
+  width: 90px;
+  height: 120px;
+  /* 携程的图偏竖长型 */
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .imageCount {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+}
+
+.roomInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* 防止文本溢出撑开 flex 容器 */
+}
+
+.roomName {
+  font-size: 16px;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 6px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeTag {
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.specs {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: auto;
+  /* 把价格推到底部 */
+
+  span {
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 2px;
+  }
+
+  .tagGrey {
+    color: #666;
+    border: 1px solid #ccc;
+  }
+
+  .tagBlue {
+    color: #0086f6;
+  }
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+
+  .originalPrice {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+  }
+
+  .currentPrice {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0086f6;
+    /* 携程蓝 */
+
+    .currency {
+      font-size: 14px;
+      margin-right: 2px;
+    }
+  }
+}
+
+.bookBtn {
+  background-color: #0086f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:active {
+    background-color: #006ed6;
+  }
+}

@@ -1,0 +1,325 @@
+.hotelSearchContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+/* ===== 筛选栏 ===== */
+.filterBar {
+  background: white;
+  border-bottom: 2rpx solid #eee;
+  padding: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20rpx;
+  z-index: 100;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.05);
+}
+
+.searchSummary {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
+  font-size: 14rpx;
+  color: #666;
+}
+
+.city {
+  font-weight: 600;
+  color: #222;
+  font-size: 15rpx;
+}
+
+.separator {
+  color: #ccc;
+}
+
+.dates,
+.nights {
+  color: #666;
+  font-size: 13rpx;
+}
+
+.modifyButton {
+  padding: 8rpx 16rpx !important;
+  background: white !important;
+  border: 1rpx solid #ff6b6b !important;
+  color: #ff6b6b !important;
+  border-radius: 4rpx;
+  font-size: 13rpx;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 50rpx;
+}
+
+.modifyButton:active {
+  background: #fff5f5 !important;
+}
+
+/* ===== 工具栏 ===== */
+.toolBar {
+  background: white;
+  padding: 15rpx 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2rpx solid #eee;
+  gap: 20rpx;
+}
+
+.resultCount {
+  flex: 1;
+  color: #666;
+  font-size: 14rpx;
+}
+
+.sortGroup {
+  display: flex;
+  gap: 8rpx;
+}
+
+.sortBtn {
+  padding: 8rpx 12rpx !important;
+  background: transparent !important;
+  border: 1rpx solid #ddd !important;
+  color: #666 !important;
+  border-radius: 4rpx;
+  font-size: 13rpx;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sortBtn:active {
+  opacity: 0.9;
+}
+
+.sortBtn.active {
+  background: #ff6b6b !important;
+  border-color: #ff6b6b !important;
+  color: white !important;
+}
+
+/* ===== 民宿列表 ===== */
+.hotelList {
+  flex: 1;
+  padding: 15rpx 20rpx;
+  overflow-y: auto;
+}
+
+.hotelCard {
+  background: white;
+  border-radius: 8rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  gap: 15rpx;
+  padding: 15rpx;
+  margin-bottom: 15rpx;
+}
+
+.hotelCard:active {
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  opacity: 0.95;
+}
+
+.hotelImage {
+  position: relative;
+  width: 200rpx;
+  height: 150rpx;
+  border-radius: 8rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+}
+
+.instantBadge {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  background: #ff6b6b;
+  color: white;
+  padding: 6rpx 10rpx;
+  border-radius: 4rpx;
+  font-size: 12rpx;
+  font-weight: 600;
+}
+
+.hotelInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.hotelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10rpx;
+}
+
+.hotelName {
+  font-size: 16rpx;
+  font-weight: 600;
+  color: #222;
+  flex: 1;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  white-space: nowrap;
+}
+
+.star {
+  color: #ff6b6b;
+  font-size: 13rpx;
+  font-weight: 600;
+}
+
+.reviews {
+  color: #999;
+  font-size: 12rpx;
+}
+
+.hostInfo {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx;
+  background: #f9f9f9;
+  border-radius: 6rpx;
+}
+
+.hostAvatar {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hostDetails {
+  flex: 1;
+}
+
+.hostName {
+  font-weight: 600;
+  color: #222;
+  font-size: 13rpx;
+  display: block;
+}
+
+.responseTime {
+  font-size: 11rpx;
+  color: #666;
+  display: block;
+  margin-top: 3rpx;
+}
+
+.hotelDescription {
+  font-size: 13rpx;
+  color: #666;
+  line-height: 1.4;
+}
+
+.amenityTagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6rpx;
+}
+
+.amenityBadge {
+  background: #f0f0f0;
+  color: #333;
+  padding: 4rpx 8rpx;
+  border-radius: 3rpx;
+  font-size: 11rpx;
+  white-space: nowrap;
+}
+
+.hotelFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 2rpx;
+}
+
+.currency {
+  font-size: 12rpx;
+  color: #ff6b6b;
+}
+
+.price {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #ff6b6b;
+}
+
+.unit {
+  font-size: 12rpx;
+  color: #666;
+}
+
+.totalPrice {
+  font-size: 12rpx;
+  color: #666;
+}
+
+/* ===== 空状态 ===== */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 40rpx;
+  text-align: center;
+  color: #666;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.emptyTitle {
+  font-size: 18rpx;
+  color: #222;
+  margin-bottom: 10rpx;
+  font-weight: 600;
+}
+
+.emptyDesc {
+  font-size: 14rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+}
+
+.emptyButton {
+  padding: 12rpx 30rpx !important;
+  background: #ff6b6b !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4rpx;
+  font-size: 14rpx;
+  font-weight: 500;
+}

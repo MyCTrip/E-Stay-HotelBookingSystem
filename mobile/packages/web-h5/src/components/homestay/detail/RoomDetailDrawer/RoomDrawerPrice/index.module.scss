@@ -1,0 +1,193 @@
+.priceSection {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  /* ===== 时间信息条样式 ===== */
+  .timeInfo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 0 0 4px;
+    margin-bottom: -8px;
+    font-weight: 500;
+    font-size: 12px;
+    color: #333333;
+    border-radius: 4px;
+
+    .separator {
+      color: #ccc;
+      margin: 0 4px;
+    }
+  }
+
+  /* ===== 卡片容器 ===== */
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #f4f6f9;
+    border-radius: 4px;
+  }
+
+  /* ===== 行布局 ===== */
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    word-break: break-word;
+
+    &:not(:last-child) {
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+  }
+
+  /* 左侧标签 */
+  .label {
+    flex-shrink: 0;
+    width: 60px;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* 标签+描述组合 */
+  .labelWithDesc {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+
+    .title {
+      font-size: 15px;
+      color: #333333;
+      font-weight: 500;
+      margin-bottom: 2px;
+      word-break: break-word;
+    }
+
+    .desc {
+      font-size: 13px;
+      color: #999999;
+      word-break: break-word;
+    }
+  }
+
+  /* 右侧值容器 */
+  .value {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    font-size: 14px;
+    color: #666666;
+    white-space: nowrap;
+
+    span {
+      white-space: nowrap;
+    }
+
+    &.finalPrice {
+      color: #333333;
+      font-weight: 600;
+    }
+  }
+
+  /* 值行（包含按钮的特殊行） */
+  .valueRow {
+    flex: 0 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+
+    .value {
+      flex-shrink: 0;
+      margin: 0;
+    }
+  }
+
+  /* ===== 价格样式 ===== */
+  .price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333333;
+    white-space: nowrap;
+  }
+
+  /* 折扣样式（红色） */
+  .discount {
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #ff6e16;
+    white-space: nowrap;
+  }
+
+  /* 最终价格样式 */
+  .finalPrice {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+  }
+
+  /* ===== 展开/收起按钮 ===== */
+  .toggleBtn {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+
+  /* ===== 日期详情展开/收起动画 ===== */
+  .datesDetail {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+
+    &.collapsed {
+      max-height: 0;
+      opacity: 0;
+    }
+
+    &.expanded {
+      max-height: 1000px;
+      opacity: 1;
+    }
+
+    .row {
+      font-size: 13px;
+      padding: 8px 0;
+
+      .label {
+        width: auto;
+        color: #999999;
+      }
+
+      .value {
+        justify-content: flex-end;
+        .price {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+

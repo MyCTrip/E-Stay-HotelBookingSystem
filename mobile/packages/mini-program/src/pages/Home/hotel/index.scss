@@ -1,0 +1,194 @@
+.container {
+  box-sizing: border-box;
+  padding: 0 20rpx;
+}
+
+.banner {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  padding: 80rpx 40rpx;
+  margin-bottom: 40rpx;
+  border-radius: 8rpx;
+  text-align: center;
+}
+
+.bannerContent {
+  .bannerTitle {
+    font-size: 50rpx;
+    margin: 0 0 20rpx 0;
+    display: block;
+  }
+
+  .bannerSubtitle {
+    font-size: 24rpx;
+    margin: 0;
+    opacity: 0.95;
+    display: block;
+  }
+}
+
+.searchSection {
+  background: white;
+  padding: 40rpx;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  margin-bottom: 60rpx;
+}
+
+.searchForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: 600;
+  margin-bottom: 10rpx;
+  color: #333;
+  font-size: 19rpx;
+  display: block;
+}
+
+.input {
+  padding: 15rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  font-family: inherit;
+  transition: border-color 0.3s;
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+  }
+}
+
+.placeholder {
+  color: #bbb;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+}
+
+.formSelect {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.formSelect:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+}
+
+.searchButton {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.searchButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+.searchButton:active {
+  transform: translateY(0);
+}
+
+.features {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 1rem;
+}
+
+.featuresTitle {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+  display: block;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.featureCard {
+  text-align: center;
+  padding: 1rem;
+}
+
+.featureIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.featureTitle {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+  display: block;
+}
+
+.featureSubtitle {
+  color: #666;
+  font-size: 0.95rem;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 2rem 1rem;
+  }
+
+  .bannerTitle {
+    font-size: 1.8rem;
+  }
+
+  .bannerSubtitle {
+    font-size: 1rem;
+  }
+
+  .searchForm {
+    grid-template-columns: 1fr;
+  }
+
+  .features {
+    padding: 2rem 1rem;
+  }
+
+  .featuresTitle {
+    font-size: 1.5rem;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}

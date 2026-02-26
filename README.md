@@ -19,9 +19,9 @@
 E-Stay-HotelBookingSystem/
 ├─ pc-frontend/    # 商家/管理员后台前端
 ├─ pc-backend/     # 后端服务
-└─ README.md       # 本文件（整合）
+└─ mobile/            # 移动端 monorepo（shared / web-h5 / mini-program）     
+└─ README.md
 
-mobile/            # 移动端 monorepo（shared / web-h5 / mini-program）
 ```
 
 **快速开始（Monorepo 根目录）**

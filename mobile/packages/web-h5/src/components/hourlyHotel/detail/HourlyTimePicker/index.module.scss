@@ -1,0 +1,51 @@
+/* 外部触发条，对应携程顶部的筛选器 */
+.filterBar {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  /* 底部分割线 */
+  /* 如果你的外层没有圆角，这里可以加： border-radius: 8px 8px 0 0; */
+}
+
+.leftSection {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  cursor: pointer;
+}
+
+.rightSection {
+  display: flex;
+  align-items: baseline;
+  cursor: pointer;
+}
+
+.mainText {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  margin-right: 6px;
+}
+
+.subText {
+  font-size: 12px;
+  color: #666;
+  margin-right: auto;
+  /* 将箭头推向右侧 */
+}
+
+.arrow {
+  font-size: 12px;
+  color: #999;
+  margin-left: 4px;
+  font-weight: normal;
+}
+
+.divider {
+  width: 1px;
+  height: 16px;
+  background-color: #e0e0e0;
+  margin: 0 16px;
+}

@@ -1,0 +1,4 @@
+export type { ObjectId, PropertyType as HotelPropertyType, RoomCategory, SurroundingType, DiscountType, RoomAvailabilityStatus, GeoJSONPointModel, FacilityItemModel, FacilityModel, PolicyModel, SurroundingModel, DiscountModel, CheckinInfoModel, HotelBaseInfoModel as HotelEntityBaseInfoModel, HotelDomainModel as HotelEntityModel, RoomBaseInfoModel as RoomEntityBaseInfoModel, RoomHeadInfoModel as RoomEntityHeadInfoModel, RoomBedInfoModel as RoomEntityBedInfoModel, RoomBreakfastInfoModel as RoomEntityBreakfastInfoModel, RoomDomainModel as RoomEntityModel, RoomAvailabilityDomainModel, } from './hotel.types';
+export * from './hotel.view.types';
+export * from './price';
+//# sourceMappingURL=index.d.ts.map

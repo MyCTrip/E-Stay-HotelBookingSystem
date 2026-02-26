@@ -1,0 +1,199 @@
+/* 瀑布流卡片容器 */
+.waterlineCard {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* 图片容器 */
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 160 / 160;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #f5f5f5;
+
+  .waterlineCard:hover & {
+    transform: scale(1.05);
+  }
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 12px;
+}
+
+/* 收藏按钮 */
+.favoriteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  padding: 0;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &.favorited {
+    color: #ff4457;
+  }
+}
+
+/* 热门标签 */
+.hotBadge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: linear-gradient(135deg, #ff6b00 0%, #ffa500 100%);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(255, 107, 0, 0.25);
+  letter-spacing: 0.3px;
+  z-index: 5;
+}
+
+/* 信息容器 */
+.infoContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 11px 11px;
+  background-color: #ffffff;
+}
+
+/* 位置信息 */
+.locationRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.locationIcon {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.locationText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 标题 */
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+/* 评分和评价 */
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  margin-top: 10px;
+  margin-left: 12px;
+}
+
+.rating {
+  color: #ffa500;
+  font-weight: 600;
+  font-size: 12px;
+  margin-left: -6px;
+}
+
+.reviewCount {
+  color: #999;
+  font-size: 11px;
+}
+
+/* 价格区域 */
+.priceRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.priceBlock {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.currentPrice {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff6b00;
+  line-height: 1;
+}
+
+.originalPrice {
+  font-size: 13px;
+  color: #999;
+  text-decoration: line-through;
+  line-height: 1;
+}

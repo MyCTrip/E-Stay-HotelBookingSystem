@@ -1,0 +1,83 @@
+.container {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 0 16px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+.tabsWrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  height: 48px;
+  gap: 32px;
+  border-bottom: 1px solid #f0f0f0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  
+  // 隐藏滚动条但保持可滚动
+  &::-webkit-scrollbar {
+    height: 0;
+  }
+  
+  // 内容不换行
+  flex-wrap: nowrap;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  flex-shrink: 0;
+  padding: 0 4px;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #999;
+  transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+
+  .tab.active & {
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+.underline {
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: linear-gradient(90deg, #ff6b00, #ffa500);
+  border-radius: 1.5px;
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 24px;
+    opacity: 1;
+  }
+}

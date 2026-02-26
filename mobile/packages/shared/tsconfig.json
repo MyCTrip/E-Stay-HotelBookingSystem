@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "composite": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "noEmit": false,
+    "skipLibCheck": true,
+    "noEmitOnError": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  }
+}

@@ -1,0 +1,87 @@
+/* 底部滑入容器样式 */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 70vh;
+  background-color: #ffffff;
+  border-radius: 12px 12px 0 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.drawer.active {
+  transform: translateY(0);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #333;
+  padding: 0;
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.placeholder {
+  width: 40px;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

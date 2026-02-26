@@ -1,0 +1,103 @@
+.facilitiesWrapper {
+  background: #ffffff;
+  margin: 0 0 8px 0;
+  padding: 16px;
+  /* 模块化白底黑字的经典区块边界 */
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  color: #111;
+  margin: 0 0 12px 0;
+}
+
+/* 顶部的高分评价金句 */
+.highlightReview {
+  display: flex;
+  align-items: center;
+  background-color: #f2f8ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+
+  .badge {
+    background-color: #0086f6;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px 0 4px 0;
+    /* 携程特有的异形圆角 */
+    margin-right: 8px;
+    font-weight: 500;
+  }
+
+  span:last-child {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+  }
+}
+
+/* 分类列表 */
+.facilityGroup {
+  margin-bottom: 20px;
+
+  .groupHeader {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+
+    span {
+      font-size: 16px;
+    }
+
+    h4 {
+      font-size: 15px;
+      font-weight: bold;
+      color: #111;
+      margin: 0;
+    }
+  }
+
+  .groupItems {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 两列等宽布局 */
+    gap: 12px 16px;
+    /* 行间距12px，列间距16px */
+
+    .item {
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+
+      .free {
+        color: #0086f6;
+        /* 免费字样使用蓝色 */
+        font-size: 11px;
+        margin-left: 6px;
+        background-color: #e5f3ff;
+        padding: 1px 4px;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+.viewAllBtn {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  padding: 10px 0;
+  margin-top: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:active {
+    background-color: #f9f9f9;
+  }
+}

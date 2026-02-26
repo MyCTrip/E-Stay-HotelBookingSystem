@@ -1,0 +1,207 @@
+/**
+ * 民宿详情页Layout样式
+ * 三层固定布局：Header(44px) + Tabs(44px固定吸顶) + Content(可滚) + Footer(56px)
+ */
+
+.detailLayout {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+  z-index: 0;
+
+  @supports (padding: max(0px)) {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ============ Header 包装 ============ */
+.headerWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+
+  @supports (padding: max(0px)) {
+    padding-top: max(0px, env(safe-area-inset-top));
+    top: 0;
+  }
+}
+
+/* ============ Header按钮 ============ */
+.headerBtn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  &.collected {
+    span {
+      color: #ff6b6b !important;
+    }
+  }
+}
+
+/* ============ Header操作组 ============ */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============ Tabs导航包装 ============ */
+.tabsWrapper {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 100;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  transition: position 0.3s ease;
+
+  /* Tabs吸顶状态 */
+  &.fixed {
+    position: fixed;
+    top: 44px;
+
+    @supports (padding: max(0px)) {
+      top: calc(44px + max(0px, env(safe-area-inset-top)));
+    }
+  }
+}
+
+/* ============ 可滚动内容区 ============ */
+.contentWrapper {
+  position: absolute;
+  margin-top: -88px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 50;
+
+  /* 横幅滚动条美化 */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+.contentInner {
+  position: relative;
+  min-height: 100%;
+  background-color: #f5f5f5;
+}
+
+/* ============ Footer 包装 ============ */
+.footerWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  z-index: 100;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+
+  @supports (padding: max(0px)) {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ============ 响应式设计 ============ */
+@media (max-width: 768px) {
+  .headerWrapper {
+    height: 44px;
+  }
+
+  .tabsWrapper {
+    top: 44px;
+    height: 44px;
+
+    &.fixed {
+      top: 44px;
+    }
+  }
+
+  .contentWrapper {
+    top: 88px;
+    bottom: 56px;
+  }
+
+  .footerWrapper {
+    height: 56px;
+  }
+}
+
+/* ============ 安全区域适配 ============ */
+@supports (padding: max(0px)) {
+  .detailLayout {
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+
+  .headerWrapper {
+    top: max(0px, env(safe-area-inset-top));
+  }
+
+  .contentWrapper {
+    bottom: calc(56px + max(0px, env(safe-area-inset-bottom)));
+  }
+}
+
+/* ============ 动画过渡 ============ */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.headerWrapper,
+.tabsWrapper,
+.footerWrapper {
+  animation: slideDown 0.3s ease-out;
+}

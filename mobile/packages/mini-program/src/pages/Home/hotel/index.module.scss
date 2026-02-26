@@ -1,0 +1,171 @@
+.container {
+  box-sizing: border-box;
+  padding: 0 20rpx;
+}
+
+.banner {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  padding: 80rpx 40rpx;
+  margin-bottom: 40rpx;
+  border-radius: 8rpx;
+  text-align: center;
+}
+
+.bannerContent {
+  .bannerTitle {
+    font-size: 50rpx;
+    margin: 0 0 20rpx 0;
+    display: block;
+  }
+
+  .bannerSubtitle {
+    font-size: 24rpx;
+    margin: 0;
+    opacity: 0.95;
+    display: block;
+  }
+}
+
+.searchSection {
+  background: white;
+  padding: 40rpx;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  margin-bottom: 60rpx;
+}
+
+.searchForm {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200rpx, 1fr));
+  gap: 20rpx;
+  align-items: flex-end;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: 600;
+  margin-bottom: 10rpx;
+  color: #333;
+  font-size: 19rpx;
+  display: block;
+}
+
+.input {
+  padding: 15rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  font-family: inherit;
+  transition: border-color 0.3s;
+
+  &:focus {
+    outline: none;
+    border-color: #4facfe;
+    box-shadow: 0 0 0 6rpx rgba(79, 172, 254, 0.1);
+  }
+}
+
+.placeholder {
+  color: #bbb;
+}
+
+.searchButton {
+  padding: 15rpx;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+  color: white;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  width: 100%;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.features {
+  background: white;
+  padding: 60rpx 40rpx;
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.featuresTitle {
+  text-align: center;
+  font-size: 40rpx;
+  margin-bottom: 40rpx;
+  color: #333;
+  display: block;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200rpx, 1fr));
+  gap: 40rpx;
+}
+
+.featureCard {
+  text-align: center;
+  padding: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon {
+  font-size: 60rpx;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.featureCardTitle {
+  font-size: 24rpx;
+  margin: 0 0 10rpx 0;
+  color: #333;
+  display: block;
+}
+
+.featureCardDesc {
+  margin: 0;
+  color: #666;
+  font-size: 19rpx;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 40rpx 20rpx;
+  }
+
+  .bannerContent {
+    .bannerTitle {
+      font-size: 36rpx;
+    }
+
+    .bannerSubtitle {
+      font-size: 20rpx;
+    }
+  }
+
+  .searchForm {
+    grid-template-columns: 1fr;
+  }
+
+  .featuresTitle {
+    font-size: 30rpx;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}

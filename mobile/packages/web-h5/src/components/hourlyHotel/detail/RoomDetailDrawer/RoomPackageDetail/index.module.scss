@@ -1,0 +1,128 @@
+.packageDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.packageTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+.serviceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.serviceHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #ff6e16;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.serviceLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.serviceContent {
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+  margin-left: 32px;
+}
+
+.infoTable {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 80px;
+}
+
+.tableRow {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 60px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.tableCell {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  &:first-child {
+    background: #f9f9f9;
+    border-right: 1px solid #e0e0e0;
+  }
+}
+
+.cellLabel {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cellValue {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.spacer {
+  height: 20px;
+}
+
+@media (max-width: 768px) {
+  .packageDetail {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .tableRow {
+    min-height: 50px;
+  }
+
+  .tableCell {
+    padding: 10px;
+  }
+
+  .cellLabel,
+  .cellValue {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,105 @@
+/* 吸顶导航Tab栏 */
+
+.tabsWrapper {
+  position: sticky;
+  top: 44px; /* 顶部操作栏高度 */
+  z-index: 99;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  position: relative;
+  padding: 0;
+  flex: 1;
+  height: 44px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; /* 保证热区 */
+  transition: color 0.2s ease;
+
+  &.active {
+    .label {
+      color: #0066ff;
+      font-weight: 600;
+    }
+  }
+
+  &:not(.active) {
+    .label {
+      color: #666;
+    }
+  }
+}
+
+.label {
+  font-size: 15px;
+}
+
+.underline {
+  position: absolute;
+  bottom: 8px;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background-color: #5b9fff;
+  border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+  .tabsWrapper {
+    top: 44px;
+  }
+
+  .tabs {
+    padding: 0;
+    height: 44px;
+  }
+
+  .tab {
+    flex: 1;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabsWrapper {
+    top: 44px;
+  }
+
+  .tabs {
+    padding: 0;
+    height: 44px;
+  }
+
+  .tab {
+    flex: 1;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+}
