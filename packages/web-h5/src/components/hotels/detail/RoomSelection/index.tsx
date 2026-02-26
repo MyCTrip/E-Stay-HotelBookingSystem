@@ -21,7 +21,11 @@ const isRoomEntityModel = (room: HotelRoomSPUModel | RoomEntityModel): room is R
 const resolveSkuStatus = (status?: string): HotelRoomSKUModel['status'] =>
   status === 'available' || status === 'approved' ? 'available' : 'sold_out'
 
-const findCancellationRule = (policies: PolicyModel[]): string => {
+const findCancellationRule = (policies?: PolicyModel[]): string => {
+  if (!policies || !Array.isArray(policies) || policies.length === 0) {
+    return ''
+  }
+
   const cancellationPolicy = policies.find((policy) =>
     policy.policyType.toLowerCase().includes('cancellation')
   )

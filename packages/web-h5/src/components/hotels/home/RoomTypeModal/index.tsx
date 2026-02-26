@@ -93,9 +93,9 @@ const RoomTypeModal: React.FC<RoomTypeModalProps> = ({
           <CounterRow label="床铺数" value={tempBeds} onChange={setTempBeds} />
         </div>
 
-        {/* 房间数 */}
+        {/* 居室数 */}
         <div className={styles.section}>
-          <CounterRow label="房间数" value={tempRooms} onChange={setTempRooms} />
+          <CounterRow label="居室数" value={tempRooms} onChange={setTempRooms} />
         </div>
       </div>
 

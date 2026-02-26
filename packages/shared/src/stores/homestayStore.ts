@@ -15,6 +15,15 @@ import {
   HOMESTAY_DETAIL_MOCK,
   NEARBY_ROOMS,
 } from '../mocks'
+import type { IApiService } from '../api'
+
+// 定义一个内部的 api 变量，用来接收外部传进来的请求实例
+let _api: IApiService | null = null;
+
+// 初始化方法
+export const initHomestayStoreApi = (api: IApiService) => {
+  _api = api;
+}
 
 // ============ 类型定义 ============
 
@@ -145,9 +154,45 @@ export const useHomestayStore = create<HomestayStoreState>()(
         set({ searchParams: params })
       },
 
-      /** 执行搜索 */
+      /** 执行搜索(真实后端优先，Mock 数据兜底) */
       fetchSearchResults: async (params: HomeStaySearchParams) => {
         set({ searchLoading: true, searchError: null })
+        // ==========================================
+        // 🌟 阶段 1：如果有注入 api，尝试请求真实后端
+        // ==========================================
+        if (_api) {
+          try {
+            // 直接调用我们在 api/index.ts 里改好的 search 方法
+            const res = await _api.homestays.search(params) as any;
+            
+            const realData = res.data || [];
+            const meta = res.meta || {};
+
+            // 【核心判断】：如果后端真的有民宿数据
+            if (realData.length > 0) {
+              console.log('✅ 成功拉取真实后端民宿数据！');
+              set({
+                homestays: realData as HomeStay[],
+                pagination: {
+                  page: meta.page || params.page || 1,
+                  limit: meta.limit || params.limit || 20,
+                  total: meta.total || realData.length,
+                },
+                searchParams: params,
+                searchLoading: false,
+              })
+              return; // 🌟 成功拿到真实数据，直接结束函数，不跑 Mock！
+            } else {
+              console.warn('⚠️ 真实后端请求成功，但数据库中暂无民宿数据。准备降级...');
+            }
+          } catch (error) {
+            console.warn('⚠️ 真实后端请求失败，准备降级加载 Mock...', error);
+          }
+        }
+
+        // ==========================================
+        // 🌟 阶段 2：容错兜底，加载本地 Mock 数据
+        // ==========================================
         try {
           // 模拟 API 延迟
           await new Promise((resolve) => setTimeout(resolve, 500))

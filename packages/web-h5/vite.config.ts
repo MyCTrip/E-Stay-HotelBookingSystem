@@ -4,10 +4,6 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 5174,
-    open: true,
-  },
   build: {
     outDir: 'dist',
     sourcemap: false,
@@ -15,7 +11,17 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@estay/shared': path.resolve(__dirname, '../shared/dist'),
+      '@estay/shared': path.resolve(__dirname, '../shared/src'),
     },
   },
+  server: {
+    port: 5174,
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000', 
+        changeOrigin: true,
+      }
+    }
+  }
 })

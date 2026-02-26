@@ -131,7 +131,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
           ) : null}
         </div>
 
-        <div className={styles.nearbyButton} onClick={handleNearby} title="我的位置">
+        <div className={styles.nearbyButton} onClick={handleNearby} title="My Location">
           <div ref={refreshIconRef} className={styles.iconRotator}>
             <svg
               viewBox="0 0 24 24"
@@ -149,7 +149,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
               <line x1="18" y1="12" x2="22" y2="12" strokeWidth={2} strokeLinecap="round" />
             </svg>
           </div>
-          <span className={styles.nearbyText}>{isLocating ? '定位中...' : '我的位置'}</span>
+          <span className={styles.nearbyText}>{isLocating ? 'Locating...' : 'My Location'}</span>
         </div>
       </div>
 
@@ -169,7 +169,7 @@ const LocationInput: React.FC<LocationInputProps> = ({
 
       <SlideDrawer
         visible={showLocationSearch}
-        title="关键字搜索"
+        title="关键词搜索"
         direction="bottom"
         onClose={() => setShowLocationSearch(false)}
       >

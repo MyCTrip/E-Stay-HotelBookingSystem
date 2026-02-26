@@ -20,7 +20,15 @@ export default function SearchResultPage() {
     queryKey: ['hotels', { city, checkIn, checkOut, propertyType }],
     queryFn: async () => {
       try {
-        await hotelStore.fetchHotels({ city, checkInDate: checkIn, checkOutDate: checkOut })
+        // 第一步：先把 URL 上提取到的搜索条件，同步存入 Store
+        hotelStore.setSearchParams({ 
+          city, 
+          checkInDate: checkIn, 
+          checkOutDate: checkOut 
+        });
+
+        // 第二步：触发网络请求。不需要再传参，它会自动去读取上面刚设置好的条件！
+        await hotelStore.fetchHotels();
         return hotelStore.hotels
       } catch (err) {
         console.error('Failed to fetch hotels:', err)
@@ -55,29 +63,34 @@ export default function SearchResultPage() {
         </div>
       ) : (
         <div className={styles.hotelList}>
-          {hotels.map((hotel: any) => (
-            <Link key={hotel._id} to={`/hotel/${hotel._id}`} className={styles.hotelCard}>
-              <div className={styles.image}>
-                <img
-                  src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/300x200'}
-                  alt={hotel.baseInfo?.nameCn}
-                />
-              </div>
-              <div className={styles.content}>
-                <h3>{hotel.baseInfo?.nameCn}</h3>
-                <div className={styles.rating}>
-                  <span className={styles.stars}>{'⭐'.repeat(hotel.baseInfo?.star || 3)}</span>
-                  <span className={styles.star}>{hotel.baseInfo?.star} 星</span>
+          {hotels.map((hotel: any) => {
+            // 破案探照灯：直接把组件拿到的单条酒店数据打印出来！
+            console.log("【当前渲染的酒店数据】:", hotel);
+
+            return (
+              <Link key={hotel.id || hotel._id} to={`/hotel/${hotel._id}`} className={styles.hotelCard}>
+                <div className={styles.image}>
+                  <img
+                    src={hotel.baseInfo?.images?.[0] || 'https://via.placeholder.com/300x200'}
+                    alt={hotel.baseInfo?.nameCn}
+                  />
                 </div>
-                <p className={styles.address}>{hotel.baseInfo?.address}</p>
-                <p className={styles.description}>{hotel.baseInfo?.description}</p>
-                <div className={styles.footer}>
-                  <span className={styles.price}>¥{hotel.baseInfo?.price || '0'}/晚</span>
-                  <span className={styles.cta}>查看详情 →</span>
+                <div className={styles.content}>
+                  <h3>{hotel.baseInfo?.nameCn}</h3>
+                  <div className={styles.rating}>
+                    <span className={styles.stars}>{'⭐'.repeat(hotel.baseInfo?.star || 3)}</span>
+                    <span className={styles.star}>{hotel.baseInfo?.star} 星</span>
+                  </div>
+                  <p className={styles.address}>{hotel.baseInfo?.address}</p>
+                  <p className={styles.description}>{hotel.baseInfo?.description}</p>
+                  <div className={styles.footer}>
+                    <span className={styles.price}>¥{hotel.baseInfo?.price || '0'}/晚</span>
+                    <span className={styles.cta}>查看详情 →</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       )}
     </div>

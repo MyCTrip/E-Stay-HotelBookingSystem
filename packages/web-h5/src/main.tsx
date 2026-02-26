@@ -9,6 +9,7 @@ import {
   initHotelStore,
   initializeConfig,
   initializeDefaultMiddlewares,
+  initHomestayStoreApi,
 } from '@estay/shared'
 import { SlideDrawerProvider } from './components/homestay/shared/SlideDrawer'
 import App from './App'
@@ -38,6 +39,7 @@ const api = useMockApi
 
 // 5. 初始化 stores
 initHotelStore(api)
+initHomestayStoreApi(api)
 
 // 6. 创建 React Query 实例
 const queryClient = new QueryClient({

@@ -41,8 +41,11 @@ export const hotelApi = {
   },
 
   getHotelRooms(api: IApiService, hotelId: string): Promise<unknown> {
-    return api.getRoomsByHotel(hotelId, { propertyType: 'hotel' as const })
-  },
+      return api.getRoomsByHotel(hotelId, { 
+        propertyType: 'hotel' as const, 
+        status: 'approved' 
+      })
+    },
 
   getRoomDetail(api: IApiService, roomId: string): Promise<unknown> {
     return api.getRoomDetail(roomId)

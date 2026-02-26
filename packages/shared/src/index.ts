@@ -25,7 +25,7 @@ export { useAppStore } from './stores/appStore'
 export type { AppStoreState } from './stores/appStore'
 
 // Homestay Store (保留队友的民宿逻辑)
-export { useHomestayStore } from './stores/homestayStore'
+export { useHomestayStore, initHomestayStoreApi } from './stores/homestayStore'
 export type {
   HomestayStoreState,
   DetailContextState,

@@ -1,7 +1,0 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import styles from './index.module.scss';
-const HomeStayCardSkeleton = ({ count = 6 }) => {
-    return (_jsx(_Fragment, { children: Array.from({ length: count }).map((_, index) => (_jsxs("div", { className: styles.skeletonCard, children: [_jsx("div", { className: styles.skeletonImage, children: _jsx("div", { className: styles.shimmer }) }), _jsxs("div", { className: styles.skeletonInfo, children: [_jsx("div", { className: styles.skeletonLine, style: { width: '60%', height: 12 }, children: _jsx("div", { className: styles.shimmer }) }), _jsx("div", { className: styles.skeletonLine, style: { width: '100%', height: 16, marginTop: 8 }, children: _jsx("div", { className: styles.shimmer }) }), _jsx("div", { className: styles.skeletonLine, style: { width: '80%', height: 16, marginTop: 4 }, children: _jsx("div", { className: styles.shimmer }) }), _jsx("div", { className: styles.skeletonLine, style: { width: '40%', height: 14, marginTop: 8 }, children: _jsx("div", { className: styles.shimmer }) }), _jsx("div", { className: styles.skeletonLine, style: { width: '50%', height: 12, marginTop: 6 }, children: _jsx("div", { className: styles.shimmer }) })] })] }, index))) }));
-};
-export default HomeStayCardSkeleton;
-//# sourceMappingURL=index.js.map

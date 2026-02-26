@@ -23,34 +23,34 @@ interface FilterCategory {
 
 const facilityCategories: FilterCategory[] = [
   {
-    category: 'Star',
+    category: '星级',
     facilities: [
-      { label: '3 Star', icon: '⭐' },
-      { label: '4 Star', icon: '⭐⭐' },
-      { label: '5 Star', icon: '⭐⭐⭐' },
+      { label: '3星级', icon: '⭐' },
+      { label: '4星级', icon: '⭐⭐' },
+      { label: '5星级', icon: '⭐⭐⭐' },
     ],
   },
   {
-    category: 'BedType',
+    category: '床型',
     facilities: [
-      { label: 'King Bed', icon: '🛏️' },
-      { label: 'Twin Bed', icon: '🛌' },
-      { label: 'Family Bed', icon: '👨‍👩‍👧' },
+      { label: '高级大床房', icon: '🛏️' },
+      { label: '高级双床房', icon: '🛌' },
+      { label: '家庭房', icon: '👨‍👩‍👧' },
     ],
   },
   {
-    category: 'BreakfastIncluded',
+    category: '早餐',
     facilities: [
-      { label: 'Breakfast Included', icon: '🍳' },
-      { label: 'No Breakfast', icon: '☕' },
+      { label: '含早餐', icon: '🍳' },
+      { label: '不含早餐', icon: '☕' },
     ],
   },
   {
-    category: 'Brand',
+    category: '品牌',
     facilities: [
-      { label: 'International Chain', icon: '🏨' },
-      { label: 'Domestic Chain', icon: '🏢' },
-      { label: 'Boutique Brand', icon: '✨' },
+      { label: '国际连锁', icon: '🏨' },
+      { label: '国内连锁', icon: '🏢' },
+      { label: '精品品牌', icon: '✨' },
     ],
   },
 ]
@@ -103,10 +103,10 @@ const FacilityFilter: React.FC<FacilityFilterProps> = ({
 
       <div className={styles.footer}>
         <button className={styles.resetBtn} onClick={handleReset}>
-          Reset
+          重置
         </button>
         <button className={styles.confirmBtn} onClick={onConfirm}>
-          Confirm
+          确认
         </button>
       </div>
     </div>

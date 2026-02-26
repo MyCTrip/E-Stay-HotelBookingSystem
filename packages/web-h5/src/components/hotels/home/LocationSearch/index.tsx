@@ -13,7 +13,7 @@ interface LocationSearchProps {
 const SEARCH_CATEGORIES = [
   { icon: '🏞️', label: '景点' },
   { icon: '🏛️', label: '地标' },
-  { icon: '🏠', label: '民宿' },
+  { icon: '🏠', label: '房源' },
   { icon: '🏨', label: '酒店' },
 ]
 
@@ -76,7 +76,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ onSelect, onClose }) =>
         <input
           type="text"
           className={styles.searchInput}
-          placeholder="搜索景点、地标、商圈"
+          placeholder="搜索泉州的景点、地标、房源"
           value={searchText}
           onChange={handleInputChange}
           autoFocus

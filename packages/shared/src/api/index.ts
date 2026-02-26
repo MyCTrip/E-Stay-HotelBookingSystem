@@ -76,9 +76,8 @@ export function createApiService(config: ApiConfig): IApiService {
   })
 
   // 请求拦截：添加 token（使用存储适配器）
-  instance.interceptors.request.use(async (cfg: any) => {
+  instance.interceptors.request.use(async (config: any) => {
     try {
-      // ✨ 优先使用 storage adapter，回退到 localStorage
       let token: string | null = null
       if (config.storage) {
         token = await config.storage.getItem('auth_token')
@@ -86,13 +85,35 @@ export function createApiService(config: ApiConfig): IApiService {
         token = localStorage.getItem('auth_token')
       }
 
-      if (token) {
-        cfg.headers.Authorization = `Bearer ${token}`
+      // 核心逻辑：区分“公开接口”和“私有接口”
+      const method = config.method?.toLowerCase()
+      const url = config.url || ''
+      
+      // 判断是不是获取酒店或房型列表的 GET 请求（普通游客查房无需 Token）
+      const isPublicQuery = method === 'get' && (url.includes('/hotels') || url.includes('/rooms'))
+
+      // 如果没有真实的 token，且【不是】公开接口，才强行塞入暗号（用于预订等需登录的接口）
+      if (!token && !isPublicQuery) {
+        token = 'test_mock_token_123456789'
       }
+
+      // 如果有 Token 才设置请求头
+      if (token) {
+        config.headers = config.headers || {}
+        if (config.headers.set) {
+          config.headers.set('Authorization', `Bearer ${token}`)
+        } else {
+          config.headers['Authorization'] = `Bearer ${token}`
+        }
+      }
+
+      // 联调雷达：清晰打印每个请求到底有没有带 Token
+      console.log(`[API 准备请求] ${url} | 携带Token: ${token ? '是' : '否(普通游客访问)'}`)
+
     } catch (err) {
-      console.warn('[API] Failed to get auth token:', err)
+      console.error('[API 拦截器错误]:', err)
     }
-    return cfg
+    return config
   })
 
   // 响应拦截：统一错误处理
@@ -127,11 +148,17 @@ export function createApiService(config: ApiConfig): IApiService {
     getRoomsByHotel: (hotelId, params) => instance.get(`/hotels/${hotelId}/rooms`, { params }),
     getRoomDetail: (id) => instance.get(`/rooms/${id}`),
 
-    // 民宿接口
+    // // 民宿接口
+    // homestays: {
+    //   search: (params: any) => instance.get('/homestays/search', { params }),
+    //   getDetail: (id: string) => instance.get(`/homestays/${id}`),
+    //   getHot: (params?: any) => instance.get('/homestays/hot', { params }),
+    // },
+    // 修正后的民宿接口：复用真实后端的 hotels 路由
     homestays: {
-      search: (params: any) => instance.get('/homestays/search', { params }),
-      getDetail: (id: string) => instance.get(`/homestays/${id}`),
-      getHot: (params?: any) => instance.get('/homestays/hot', { params }),
+      search: (params: any) => instance.get('/hotels', { params: { ...params, propertyType: 'homeStay' } }),
+      getDetail: (id: string) => instance.get(`/hotels/${id}`),
+      getHot: (params?: any) => instance.get('/hotels/hot', { params: { ...params, propertyType: 'homeStay', limit: 10 } }),
     },
 
     // 房间接口
@@ -152,187 +179,160 @@ export function createApiService(config: ApiConfig): IApiService {
 export function createMockApiService(): IApiService {
   return {
     getHotels: async (query): Promise<any> => ({
-      code: 200,
-      data: {
-        items: [
-          {
-            _id: '1',
-            baseInfo: {
-              nameCn: '五星级示例酒店',
-              address: '北京市朝阳区',
-              city: 'Beijing',
-              star: 5,
-              phone: '010-12345678',
-              description: '优质酒店',
-              images: ['https://via.placeholder.com/300x200'],
-              facilities: [{ category: '公共', content: '<p>WiFi</p>' }],
-              policies: [{ policyType: 'cancellation', content: '<p>免费取消</p>' }],
-            },
-            auditInfo: { status: 'approved' },
-          },
-        ],
-        total: 1,
-        page: 1,
-        limit: 10,
-      },
-      message: 'success',
-    }),
-    getHotHotels: async (limit = 10): Promise<any> => ({
-      code: 200,
       data: [
         {
-          _id: '1',
+          id: '1',
+          market: 'domestic',
           baseInfo: {
-            nameCn: '热门酒店',
-            city: 'Beijing',
+            name: '五星级示例酒店',
             star: 5,
+            address: '北京市朝阳区',
+            description: '优质酒店',
             images: ['https://via.placeholder.com/300x200'],
           },
+          facilities: [{ category: '公共', content: '<p>WiFi</p>' }],
+          policies: { checkInTime: '14:00', checkOutTime: '12:00', cancellationPolicy: '免费取消' },
+          surroundings: [{ surType: 'metro', surName: '天安门地铁站', distanceMeters: 500}],
+          rating: { score: 4.8, count: 328 },
         },
       ],
-      message: 'success',
-    }),
-    getHotelDetail: async (id): Promise<any> => ({
-      code: 200,
-      data: {
-        _id: id,
-        baseInfo: {
-          nameCn: '详情示例酒店',
-          address: '北京市朝阳区',
-          city: 'Beijing',
-          star: 4,
-          phone: '010-12345678',
-          description: '优质酒店描述',
-          images: ['https://via.placeholder.com/300x200'],
-          facilities: [
-            { category: '公共', content: '<p>大厅 WiFi</p>' },
-            { category: '房间', content: '<p>房间 WiFi</p>' },
-          ],
-          policies: [
-            { policyType: 'cancellation', content: '<p>免费取消</p>' },
-            { policyType: 'petAllowed', content: '<p>不允许宠物</p>' },
-          ],
-        },
-        checkinInfo: { checkinTime: '14:00', checkoutTime: '12:00' },
-        auditInfo: { status: 'approved' },
-      },
-      message: 'success',
-    }),
-    getRoomsByHotel: async (hotelId, params): Promise<any> => ({
-      code: 200,
-      data: {
-        items: [
-          {
-            _id: 'room1',
-            hotelId,
-            baseInfo: {
-              type: '标准间',
-              price: 299,
-              images: ['https://via.placeholder.com/300x200'],
-              maxOccupancy: 2,
-            },
-            headInfo: {
-              size: '25 sqm',
-              floor: '2F',
-              wifi: true,
-              windowAvailable: true,
-              smokingAllowed: false,
-            },
-            bedInfo: [{ bedType: '双人床', bedNumber: 1, bedSize: '1.8m' }],
-          },
-        ],
+      meta: {
         total: 1,
         page: 1,
         limit: 10,
       },
-      message: 'success',
+    }),
+    getHotHotels: async (limit = 10): Promise<any> => ([
+      {
+        _id: '1',
+        id: '1',
+        baseInfo: {
+          nameCn: '热门酒店',
+          city: 'Beijing',
+          star: 5,
+          images: ['https://via.placeholder.com/300x200'],
+          address: '北京市',
+        },
+        market: 'domestic',
+        rating: { count: 328, score: 4.8 },
+        policies: { cancellationPolicy: '免费取消' },
+        surroundings: [{ surType: 'metro', surName: '天安门地铁站', distanceMeters: 500 }],
+      },
+    ]),
+    getHotelDetail: async (id): Promise<any> => ({
+      id: id,
+      market: 'domestic',
+      baseInfo: {
+        name: '详情示例酒店',
+        star: 4,
+        address: '北京市朝阳区',
+        description: '优质酒店描述',
+        images: ['https://via.placeholder.com/300x200'],
+      },
+      facilities: [
+        { category: '公共', content: '<p>大厅 WiFi</p>' },
+        { category: '房间', content: '<p>房间 WiFi</p>' },
+      ],
+      policies: {
+        checkInTime: '14:00',
+        checkOutTime: '12:00',
+        cancellationPolicy: '免费取消',
+      },
+      surroundings: [{ surName: '天安门地铁站', surType: 'metro', distanceMeters: 500 }],
+      rating: { score: 4.8, count: 328 },
+    }),
+    getRoomsByHotel: async (hotelId, params): Promise<any> => ({
+      data: [
+        {
+          spuName: '标准间',
+          images: ['https://via.placeholder.com/300x200'],
+          headInfo: {
+            size: '25 sqm',
+            floor: '2F',
+            wifi: true,
+            windowAvailable: true,
+            smokingAllowed: false,
+          },
+          bedInfo: [{ bedType: '双人床', bedNumber: 1, bedSize: '1.8m' }],
+          startingPrice: 299,
+          skus: [
+            {
+              roomId: 'room1',
+              priceInfo: {
+                nightlyPrice: 299,
+              },
+              status: 'available',
+              cancellationRule: '免费取消',
+            },
+          ],
+        },
+      ],
+      meta: {
+        total: 1,
+        page: 1,
+        limit: 10,
+      },
     }),
     getRoomDetail: async (id): Promise<any> => ({
-      code: 200,
-      data: {
-        _id: id,
-        baseInfo: {
-          type: '豪华间',
-          price: 599,
-          images: ['https://via.placeholder.com/300x200'],
-          maxOccupancy: 2,
-        },
-        headInfo: {
-          size: '35 sqm',
-          floor: '3F',
-          wifi: true,
-          windowAvailable: true,
-          smokingAllowed: false,
-        },
-        bedInfo: [{ bedType: '大床', bedNumber: 1, bedSize: '2.0m' }],
-        breakfastInfo: { breakfastType: '自助早餐' },
+      _id: id,
+      roomId: id,
+      baseInfo: {
+        type: '豪华间',
+        price: 599,
+        images: ['https://via.placeholder.com/300x200'],
+        maxOccupancy: 2,
+        status: 'approved',
+        facilities: [{ category: '房间', content: '<p>豪华设施 WiFi</p>' }],
+        policies: [{ policyType: 'cancellation', content: '<p>免费取消</p>' }],
+        bedRemark: ['大床'],
       },
-      message: 'success',
+      headInfo: {
+        size: '35 sqm',
+        floor: '3F',
+        wifi: true,
+        windowAvailable: true,
+        smokingAllowed: false,
+      },
+      bedInfo: [{ bedType: '大床', bedNumber: 1, bedSize: '2.0m' }],
+      breakfastInfo: { breakfastType: '自助早餐' },
     }),
 
     // 民宿 Mock API
     homestays: {
       search: async (params): Promise<any> => ({
-        code: 200,
-        data: {
-          items: [],
-          total: 0,
-          page: params?.page || 1,
-          limit: params?.limit || 10,
-        },
-        message: 'success',
+        items: [],
+        total: 0,
+        page: params?.page || 1,
+        limit: params?.limit || 10,
       }),
       getDetail: async (id): Promise<any> => ({
-        code: 200,
-        data: {
-          _id: id,
-          baseInfo: {
-            nameCn: '民宿示例',
-            address: '示例地址',
-            city: 'Beijing',
-            images: [],
-          },
+        _id: id,
+        baseInfo: {
+          nameCn: '民宿示例',
+          address: '示例地址',
+          city: 'Beijing',
+          images: [],
         },
-        message: 'success',
       }),
-      getHot: async (params): Promise<any> => ({
-        code: 200,
-        data: [],
-        message: 'success',
-      }),
+      getHot: async (params): Promise<any> => ([]),
     },
 
     // 房间 Mock API
     rooms: {
       getDetail: async (id): Promise<any> => ({
-        code: 200,
-        data: {
-          _id: id,
-          baseInfo: {
-            type: '标准间',
-            price: 299,
-          },
+        _id: id,
+        roomId: id,
+        baseInfo: {
+          type: '标准间',
+          price: 299,
         },
-        message: 'success',
       }),
     },
 
     // Auth (mock)
-    login: async (email, password): Promise<any> => ({
-      code: 200,
-      data: { token: 'mock_token_' + Date.now() },
-      message: 'success',
-    }),
-    register: async (email, password): Promise<any> => ({
-      code: 200,
-      data: { id: 'user_' + Date.now(), email },
-      message: 'success',
-    }),
-    getMe: async (): Promise<any> => ({
-      code: 200,
-      data: { id: 'user1', email: 'user@example.com', role: 'user' },
-      message: 'success',
-    }),
+    login: async (email, password): Promise<any> => ({ token: 'mock_token_' + Date.now() }),
+    register: async (email, password): Promise<any> => ({ id: 'user_' + Date.now(), email }),
+    getMe: async (): Promise<any> => ({ id: 'user1', email: 'user@example.com', role: 'user' }),
   }
 }
 

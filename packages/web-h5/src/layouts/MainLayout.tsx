@@ -16,7 +16,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [activeCategory, setActiveCategory] = useState('domestic')
 
   const categories = [
-    { id: 'domestic', label: '国内', icon: '🇨🇳' },
+    { id: 'domestic', label: '酒店', icon: '🏨' },
     { id: 'hourly', label: '钟点房', icon: '⏰' },
     { id: 'homestay', label: '民宿', icon: '🏡' },
   ]

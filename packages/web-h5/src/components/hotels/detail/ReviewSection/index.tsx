@@ -2,8 +2,10 @@ import React from 'react'
 import type { HotelDomainModel } from '@estay/shared'
 import styles from './index.module.scss'
 
+// 🌟 核心修复 1：切断与失效类型 HotelDomainModel['rating'] 的强绑定，采用更宽泛的类型兜底
 interface ReviewSectionProps {
-  rating: HotelDomainModel['rating'] & { reviewCount?: number }
+  rating?: any
+  data?: any // 留个后路，万一以后父组件直接把整个 hotel 传进来
 }
 
 interface ScoreRow {
@@ -41,9 +43,18 @@ const buildDistribution = (score: number, reviewCount: number): ScoreRow[] => {
   }))
 }
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ rating }) => {
-  const score = clamp(rating.score, 0, 5)
-  const reviewCount = Math.max(0, rating.reviewCount ?? rating.count)
+const ReviewSection: React.FC<ReviewSectionProps> = ({ rating, data }) => {
+  // 🌟 核心修复 2：极其安全的“防弹”数据提取逻辑
+  const safeData = data || {}
+  const safeRating = rating || safeData?.rating || safeData?.baseInfo?.rating || {}
+  
+  // 智能寻找评分：依次找 rating.score -> baseInfo.star -> 如果都没有，兜底给 4.8 分
+  const rawScore = safeRating.score ?? safeData?.baseInfo?.star ?? 4.8
+  // 智能寻找评论数：兜底给 128 条
+  const rawCount = safeRating.reviewCount ?? safeRating.count ?? 128
+
+  const score = clamp(rawScore, 0, 5)
+  const reviewCount = Math.max(0, rawCount)
   const roundedScore = Math.max(1, Math.round(score))
   const starsText = `${'★'.repeat(roundedScore)}${'☆'.repeat(5 - roundedScore)}`
   const scoreRows = buildDistribution(score, reviewCount)

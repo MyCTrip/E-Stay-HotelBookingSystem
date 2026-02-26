@@ -15,15 +15,6 @@ interface SearchResultCardProps {
   isFavorited?: boolean
 }
 
-type SearchCardBaseInfo = HotelDomainModel['baseInfo'] & {
-  nameCn?: string
-  nameEn?: string
-  rating?: {
-    score?: number
-    count?: number
-  }
-}
-
 const CURRENCY_SYMBOL = '\u00A5'
 
 const SearchResultCard: React.FC<SearchResultCardProps> = ({
@@ -37,48 +28,64 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
   const [imageError, setImageError] = useState(false)
   const [favorited, setFavorited] = useState(isFavorited)
 
-  const baseInfo = data.baseInfo as SearchCardBaseInfo
-  // ✅ 1. 拆除旧 name 炸弹
-  const hotelName = baseInfo.nameCn || baseInfo.nameEn || (baseInfo as any).name || '未知酒店'
+  // ==========================================
+  // 🛡️ 数据容错提取区（融合了旧版的高可用逻辑）
+  // ==========================================
+  const safeData = data as any
+  const baseInfo = safeData.baseInfo || {}
+
+  // 1. 兼容真假数据的 ID
+  const hotelId = safeData.id || safeData._id
+
+  // 2. 安全读取名称
+  const hotelName = baseInfo.nameCn || baseInfo.nameEn || baseInfo.name || '未知酒店'
   const primaryImage = baseInfo.images?.[0] || null
-  // ✅ 2. 安全获取 rating
-  const ratingScore = baseInfo.rating?.score ?? (data as any).rating?.score ?? 0
+
+  // 3. 安全读取评分 (兼容不同层级的 rating 和 star)
+  const ratingScore = baseInfo.rating?.score ?? safeData.rating?.score ?? baseInfo.star ?? 0
   const roomPrice = Math.max(0, startingPrice)
-  
+
+  // 4. 安全计算标签
   const hotelTags = useMemo(() => {
     if (tags && tags.length > 0) {
       return tags
     }
 
-    // ✅ 3. 安全获取 surroundings 和 policies
-    const safeSurroundings = (data as any).surroundings || []
-    const hasMetro = safeSurroundings.some((item: any) => (item.surType || '').toLowerCase().includes('metro'))
-    
-    // 兼容可能在 root 层或 baseInfo 层的 policies
-    const rootPolicies = (data as any).policies || {}
-    const baseInfoPolicies = (baseInfo as any).policies || []
-    const hasCancellation = Boolean(rootPolicies.cancellationPolicy) || baseInfoPolicies.some((p: any) => p.policyType === 'cancellation')
+    const safeSurroundings = safeData.surroundings || baseInfo.surroundings || []
+    const rootPolicies = safeData.policies || {}
+    const baseInfoPolicies = baseInfo.policies || []
+
+    const hasMetro = Array.isArray(safeSurroundings) && safeSurroundings.some((item: any) => (item.surType || '').toLowerCase().includes('metro'))
+    const hasCancellation = Boolean(rootPolicies.cancellationPolicy) || 
+      (Array.isArray(baseInfoPolicies) && baseInfoPolicies.some((p: any) => p.policyType === 'cancellation'))
 
     return [
       hasMetro ? '近地铁' : '交通便利',
       '含双早',
       hasCancellation ? '含取消政策' : '可灵活取消',
     ]
-  }, [(data as any).policies?.cancellationPolicy, (data as any).surroundings, tags, (baseInfo as any).policies])
+  }, [safeData.policies, safeData.surroundings, tags, baseInfo.policies])
 
+
+  // ==========================================
+  // 🖱️ 交互事件区
+  // ==========================================
   const handleCardClick = () => {
-    // ✅ 4. 彻底改用 _id
-    onClick?.(data._id!)
+    if (hotelId) onClick?.(hotelId)
   }
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
+    if (!hotelId) return
     const nextFavorited = !favorited
     setFavorited(nextFavorited)
-    // ✅ 5. 彻底改用 _id
-    onFavorite?.(data._id!, nextFavorited)
+    onFavorite?.(hotelId, nextFavorited)
   }
 
+
+  // ==========================================
+  // 🎨 UI 渲染区（保持新版 100% 不变）
+  // ==========================================
   return (
     <div className={styles.card} onClick={handleCardClick}>
       {/* 主图区域 */}
@@ -127,8 +134,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
           </svg>
           <span className={styles.location}>
             {baseInfo.address}
-            {/* ✅ 6. 安全读取距离 */}
-            {(data as any).distanceText ? ` · 距您 ${(data as any).distanceText}` : ''}
+            {safeData.distanceText ? ` · 距您 ${safeData.distanceText}` : ''}
           </span>
         </div>
 
@@ -149,8 +155,7 @@ const SearchResultCard: React.FC<SearchResultCardProps> = ({
         </div>
 
         <div className={styles.roomInfo}>
-          {/* ✅ 7. 安全读取 market */}
-          {(data as any).market === 'domestic' ? '国内酒店' : '国际酒店'} · {baseInfo.address}
+          {safeData.market === 'domestic' ? '国内酒店' : '国际酒店'} · {baseInfo.address}
         </div>
 
         <div className={styles.priceSection}>

@@ -39,7 +39,8 @@ const BookingBar: React.FC<BookingBarProps> = ({ hotelId, onBook, onDateChange }
   const { searchParams, setSearchParams, roomSPUList, currentSelectedRoomId, currentHotelDetail } =
     useHotelStore()
 
-  const resolvedHotelId = hotelId || currentHotelDetail?.id || ''
+  const safeDetail = currentHotelDetail as any
+  const resolvedHotelId = hotelId || safeDetail?.id || safeDetail?._id || ''
 
   const selectedSku = useMemo(() => {
     if (!resolvedHotelId) {
@@ -66,8 +67,9 @@ const BookingBar: React.FC<BookingBarProps> = ({ hotelId, onBook, onDateChange }
 
   const hotelLogo = currentHotelDetail?.baseInfo.images[0] || ''
   const hotelName =
-    (currentHotelDetail?.baseInfo as { nameCn?: string; name?: string } | undefined)?.nameCn ??
-    currentHotelDetail?.baseInfo.name ??
+    safeDetail?.baseInfo?.nameCn ||
+    safeDetail?.baseInfo?.nameEn ||
+    safeDetail?.baseInfo?.name ||
     '\u9152\u5e97'
 
   const handleDateChange = (checkIn: Date, checkOut: Date) => {

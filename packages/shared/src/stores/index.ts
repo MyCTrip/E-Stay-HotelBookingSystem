@@ -5,7 +5,7 @@
 export { useAppStore } from './appStore'
 export type { AppStoreState } from './appStore'
 
-export { useHomestayStore } from './homestayStore'
+export { useHomestayStore, initHomestayStoreApi } from './homestayStore'
 export type {
   HomestayStoreState,
   DetailContextState,

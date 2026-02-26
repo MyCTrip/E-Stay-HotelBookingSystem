@@ -60,11 +60,15 @@ const HotStaysSection: React.FC<HotStaysSectionProps> = ({
             grabCursor
             className={styles.swiper}
           >
-            {data.map((hotel) => (
-              <SwiperSlide key={hotel.id} className={styles.slide}>
-                <HotelCard data={hotel} onClick={onCardClick} />
-              </SwiperSlide>
-            ))}
+            {data.map((hotel) => {
+              const safeId = (hotel as any).id || (hotel as any)._id;
+              
+              return (
+                <SwiperSlide key={safeId} className={styles.slide}>
+                  <HotelCard data={hotel} onClick={onCardClick} />
+                </SwiperSlide>
+              )
+            })}
           </Swiper>
         </div>
       )}

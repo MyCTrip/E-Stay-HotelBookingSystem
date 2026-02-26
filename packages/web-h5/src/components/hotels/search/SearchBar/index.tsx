@@ -3,7 +3,7 @@
  * 包含：城市选择、入离时间选择、地址搜索栏
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import dayjs from 'dayjs'
 import type { HotelMarket } from '@estay/shared'
 import SlideDrawer from '../../shared/SlideDrawer'
@@ -16,9 +16,10 @@ interface SearchBarProps {
   initialCity?: string
   initialCheckIn?: Date
   initialCheckOut?: Date
-  initialLocation?: string
-  checkInDate?: string 
+  // 🌟 核心修复 1：强行补回被队友删掉的字符串格式接口
+  checkInDate?: string
   checkOutDate?: string
+  initialLocation?: string
   market?: HotelMarket
   onCityChange?: (city: string) => void
   onDateChange?: (checkIn: Date, checkOut: Date) => void
@@ -29,40 +30,37 @@ const SearchBar: React.FC<SearchBarProps> = ({
   initialCity = '上海',
   initialCheckIn,
   initialCheckOut,
-  initialLocation = '',
   checkInDate,
   checkOutDate,
+  initialLocation = '',
   market = 'domestic',
   onCityChange,
   onDateChange,
   onLocationChange,
 }) => {
+  // 智能解析初始时间
+  const parsedCheckIn = checkInDate ? dayjs(checkInDate).toDate() : initialCheckIn
+  const parsedCheckOut = checkOutDate ? dayjs(checkOutDate).toDate() : initialCheckOut
+
   const [city, setCity] = useState(initialCity)
-
-  const [checkIn, setCheckIn] = useState<Date>(() => {
-    if (checkInDate) {
-      const parsed = new Date(checkInDate)
-      if (!Number.isNaN(parsed.getTime())) {
-        return parsed
-      }
-    }
-    return initialCheckIn ?? new Date()
-  })
-
-  const [checkOut, setCheckOut] = useState<Date>(() => {
-    if (checkOutDate) {
-      const parsed = new Date(checkOutDate)
-      if (!Number.isNaN(parsed.getTime())) {
-        return parsed
-      }
-    }
-    return (
-      initialCheckOut ??
-      new Date(Date.now() + 24 * 60 * 60 * 1000)
-    )
-  })
-
+  const [checkIn, setCheckIn] = useState<Date | undefined>(parsedCheckIn)
+  const [checkOut, setCheckOut] = useState<Date | undefined>(parsedCheckOut)
   const [location, setLocation] = useState(initialLocation)
+
+  // 🌟 核心修复 2：加上监听管线！外部参数一旦变化，内部强制刷新，完美回显！
+  useEffect(() => {
+    if (initialCity) setCity(initialCity)
+  }, [initialCity])
+
+  useEffect(() => {
+    if (checkInDate) setCheckIn(dayjs(checkInDate).toDate())
+    else if (initialCheckIn) setCheckIn(initialCheckIn)
+  }, [checkInDate, initialCheckIn])
+
+  useEffect(() => {
+    if (checkOutDate) setCheckOut(dayjs(checkOutDate).toDate())
+    else if (initialCheckOut) setCheckOut(initialCheckOut)
+  }, [checkOutDate, initialCheckOut])
 
   // 弹窗状态
   const [showCitySearch, setShowCitySearch] = useState(false)
@@ -129,7 +127,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             <input
               type="text"
               className={styles.locationInput}
-              placeholder={`${city}的景点，地标，商圈`}
+              placeholder={`${city}的景点，地标，房源`}
               value={location}
               readOnly
               onClick={() => setShowLocationSearch(true)}
