@@ -122,6 +122,10 @@ export interface Hotel {
     status: AuditStatus;
     rejectReason?: string;
   };
+  pendingChanges?: {
+    baseInfo?: Partial<HotelBaseInfo>;
+    checkinInfo?: Partial<HotelCheckinInfo>;
+  };
   rooms?: HotelRoom[];
   createdAt: string;
   updatedAt: string;

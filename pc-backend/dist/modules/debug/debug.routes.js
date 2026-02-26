@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const merchant_model_1 = require("../merchant/merchant.model");
+const room_model_1 = require("../room/room.model");
 const debugRouter = (0, express_1.Router)();
 // 调试接口：查看所有商户数据
 debugRouter.get('/merchants-debug', async (req, res) => {
@@ -101,6 +102,87 @@ debugRouter.get('/uploads-debug', async (req, res) => {
         });
     }
     catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+// 调试接口：查询指定房间的数据
+debugRouter.get('/room-test/:roomId', async (req, res) => {
+    try {
+        const { roomId } = req.params;
+        // 查询房间数据
+        const room = await room_model_1.Room.findById(roomId);
+        if (!room) {
+            return res.status(404).json({ message: '房间不存在' });
+        }
+        console.log('📋 查询房间数据:');
+        console.log('房间ID:', room._id);
+        console.log('auditInfo (操作前):', {
+            status: room.auditInfo?.status,
+            auditedBy: room.auditInfo?.auditedBy,
+            auditedAt: room.auditInfo?.auditedAt,
+            rejectReason: room.auditInfo?.rejectReason
+        });
+        res.json({
+            message: '房间数据查询成功',
+            room: {
+                _id: room._id,
+                baseInfo: {
+                    type: room.baseInfo?.type,
+                    price: room.baseInfo?.price
+                },
+                auditInfo: room.auditInfo
+            }
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+// 调试接口：模拟 approve 操作
+debugRouter.post('/room-approve-test/:roomId', async (req, res) => {
+    try {
+        const { roomId } = req.params;
+        // 查询房间
+        const room = await room_model_1.Room.findById(roomId);
+        if (!room) {
+            return res.status(404).json({ message: '房间不存在' });
+        }
+        console.log('=== 模拟审核操作（使用 findByIdAndUpdate）===');
+        console.log('操作前 auditInfo:', room.auditInfo);
+        // 执行 approve 操作（使用 findByIdAndUpdate 的原子操作）
+        const updatedRoom = await room_model_1.Room.findByIdAndUpdate(roomId, {
+            $set: {
+                'auditInfo.status': 'approved',
+                'auditInfo.auditedBy': undefined,
+                'auditInfo.auditedAt': new Date(),
+                'auditInfo.rejectReason': undefined,
+            },
+        }, { new: true });
+        console.log('操作后返回的 auditInfo:', updatedRoom?.auditInfo);
+        // 再次从数据库查询确认
+        const confirmedRoom = await room_model_1.Room.findById(roomId);
+        console.log('从数据库重新查询:', confirmedRoom?.auditInfo);
+        res.json({
+            message: '审核操作完成',
+            before: {
+                status: 'pending'
+            },
+            after: {
+                status: updatedRoom?.auditInfo?.status,
+                auditedAt: updatedRoom?.auditInfo?.auditedAt
+            },
+            confirmed: {
+                status: confirmedRoom?.auditInfo?.status,
+                auditedAt: confirmedRoom?.auditInfo?.auditedAt
+            },
+            room: {
+                _id: updatedRoom?._id,
+                auditInfo: updatedRoom?.auditInfo
+            }
+        });
+    }
+    catch (error) {
+        console.error('❌ 操作失败:', error);
         res.status(500).json({ message: error.message });
     }
 });

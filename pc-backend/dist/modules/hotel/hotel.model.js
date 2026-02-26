@@ -3,19 +3,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Hotel = void 0;
 const mongoose_1 = require("mongoose");
 const FacilityItemSchema = new mongoose_1.Schema({
+    id: { type: String, required: true },
     name: { type: String, required: true },
-    description: String,
-    icon: String,
-    available: { type: Boolean, default: true },
+    available: { type: Boolean, required: true },
 });
 const FacilitySchema = new mongoose_1.Schema({
-    category: { type: String, required: true },
-    content: { type: String, required: true },
-    items: { type: [FacilityItemSchema], default: [] },
-    summary: String,
-    icon: String,
-    order: { type: Number, default: 0 },
-    visible: { type: Boolean, default: true },
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    facilities: {
+        type: [FacilityItemSchema],
+        required: true,
+        validate: { validator: (v) => Array.isArray(v) && v.length > 0, message: 'facilities must be a non-empty array' },
+    },
 });
 const PolicySchema = new mongoose_1.Schema({
     policyType: { type: String, required: true },

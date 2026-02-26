@@ -120,24 +120,29 @@ exports.adminApproveDeleteHotel = adminApproveDeleteHotel;
 const offlineHotel = async (req, res) => {
     const { id } = req.params;
     const user = req.user;
+    const { reason } = req.body;
     try {
-        const hotel = await hotel_model_1.Hotel.findById(id);
-        if (!hotel)
+        // 直接使用 findByIdAndUpdate 强制写库，绕过脏值检测
+        const updatedHotel = await hotel_model_1.Hotel.findByIdAndUpdate(id, {
+            $set: {
+                'auditInfo.status': 'offline',
+                'auditInfo.auditedBy': user.id,
+                'auditInfo.auditedAt': new Date(),
+                'auditInfo.offlineReason': reason,
+            }
+        }, { new: true } // 返回最新鲜的数据
+        );
+        if (!updatedHotel)
             return res.status(404).json({ message: 'Not found' });
-        hotel.auditInfo = {
-            ...hotel.auditInfo,
-            status: 'offline',
-            auditedBy: user.id,
-            auditedAt: new Date(),
-        };
-        await hotel.save();
+        // 记录审核日志
         await audit_model_1.AuditLog.create({
             targetType: 'hotel',
-            targetId: hotel._id,
+            targetId: updatedHotel._id,
             action: 'offline',
             operatorId: user.id,
+            reason,
         });
-        res.json(hotel);
+        res.json(updatedHotel);
     }
     catch (err) {
         res.status(400).json({ message: err.message });
@@ -147,27 +152,28 @@ exports.offlineHotel = offlineHotel;
 const offlineRoom = async (req, res) => {
     const { id } = req.params;
     const user = req.user;
-    const { reason } = req.body;
+    const { reason } = req.body; // 注意前端如果有下线原因可以传过来
     try {
-        const room = await room_model_1.Room.findById(id);
-        if (!room)
+        // 使用 findByIdAndUpdate 强制直接写库，绕过脏值检测
+        const updatedRoom = await room_model_1.Room.findByIdAndUpdate(id, {
+            $set: {
+                'auditInfo.status': 'offline',
+                'auditInfo.auditedBy': user.id,
+                'auditInfo.auditedAt': new Date(),
+                'auditInfo.offlineReason': reason,
+            }
+        }, { new: true });
+        if (!updatedRoom)
             return res.status(404).json({ message: 'Not found' });
-        room.baseInfo.status = 'offline';
-        room.auditInfo = {
-            ...room.auditInfo,
-            status: 'offline',
-            auditedBy: user.id,
-            auditedAt: new Date(),
-        };
-        await room.save();
+        // 记录日志
         await audit_model_1.AuditLog.create({
             targetType: 'room',
-            targetId: room._id,
+            targetId: updatedRoom._id,
             action: 'offline',
             operatorId: user.id,
             reason,
         });
-        res.json(room);
+        res.json(updatedRoom);
     }
     catch (err) {
         res.status(400).json({ message: err.message });
@@ -225,59 +231,71 @@ const adminApproveRoom = async (req, res) => {
     const { reason } = req.body;
     const user = req.user;
     try {
-        const room = await room_model_1.Room.findById(id);
+        const room = await room_model_1.Room.findByIdAndUpdate(id, {
+            $set: {
+                'auditInfo.status': 'approved',
+                'auditInfo.auditedBy': user.id,
+                'auditInfo.auditedAt': new Date(),
+                'auditInfo.rejectReason': undefined,
+                pendingChanges: null,
+            },
+        }, { new: true });
         if (!room)
             return res.status(404).json({ message: 'Not found' });
-        // Apply pending changes if any
+        // 1. 构建 MongoDB 底层的更新指令对象
+        const updateData = {
+            'auditInfo.status': 'approved',
+            'auditInfo.auditedBy': user.id,
+            'auditInfo.auditedAt': new Date(),
+            pendingChanges: null // 清空待修改项
+        };
+        // 2. 将商户所有的修改项，拆解成精确的点语法 (dot notation)，强行覆盖
         if (room.pendingChanges) {
             if (room.pendingChanges.baseInfo) {
-                Object.keys(room.pendingChanges.baseInfo).forEach((k) => {
-                    // @ts-ignore
-                    room.baseInfo[k] = room.pendingChanges.baseInfo[k];
+                Object.keys(room.pendingChanges.baseInfo).forEach(k => {
+                    updateData[`baseInfo.${k}`] = room.pendingChanges.baseInfo[k];
                 });
             }
             if (room.pendingChanges.headInfo) {
-                Object.keys(room.pendingChanges.headInfo).forEach((k) => {
-                    // @ts-ignore
-                    room.headInfo[k] = room.pendingChanges.headInfo[k];
+                Object.keys(room.pendingChanges.headInfo).forEach(k => {
+                    updateData[`headInfo.${k}`] = room.pendingChanges.headInfo[k];
                 });
             }
-            if (room.pendingChanges.bedInfo)
-                room.bedInfo = room.pendingChanges.bedInfo;
+            if (room.pendingChanges.bedInfo) {
+                updateData.bedInfo = room.pendingChanges.bedInfo;
+            }
             if (room.pendingChanges.breakfastInfo) {
-                Object.keys(room.pendingChanges.breakfastInfo).forEach((k) => {
-                    // @ts-ignore
-                    room.breakfastInfo[k] = room.pendingChanges.breakfastInfo[k];
+                Object.keys(room.pendingChanges.breakfastInfo).forEach(k => {
+                    updateData[`breakfastInfo.${k}`] = room.pendingChanges.breakfastInfo[k];
                 });
             }
-            room.pendingChanges = null;
         }
-        room.baseInfo.status = 'approved';
-        room.auditInfo = {
-            ...room.auditInfo,
-            status: 'approved',
-            auditedBy: user.id,
-            auditedAt: new Date(),
-            rejectReason: undefined,
-        };
-        await room.save();
+        // 3. 杀手锏：绕过 save()，直接使用 findByIdAndUpdate 强制写库
+        const updatedRoom = await room_model_1.Room.findByIdAndUpdate(id, {
+            $set: updateData,
+            $unset: { 'auditInfo.rejectReason': 1 } // 抹除之前的驳回原因
+        }, { new: true } // 返回最新鲜的数据
+        );
+        if (!updatedRoom)
+            return res.status(404).json({ message: 'Update failed' });
+        // 4. 写日志
         await audit_model_1.AuditLog.create({
             targetType: 'room',
-            targetId: room._id,
+            targetId: updatedRoom._id,
             action: 'approve',
             operatorId: user.id,
             reason,
         });
-        // notify merchant about room approval
-        const hotel = await hotel_model_1.Hotel.findById(room.hotelId);
+        // 5. 发送通知
+        const hotel = await hotel_model_1.Hotel.findById(updatedRoom.hotelId);
         if (hotel) {
             const merchant = await merchant_model_1.Merchant.findById(hotel.merchantId);
             if (merchant && merchant.userId) {
-                const resourceName = room.baseInfo.type || '房间';
-                await notification_service_1.notificationService.notifyMerchantAuditApproved(merchant.userId.toString(), 'room', room._id.toString(), resourceName, user.id);
+                const resourceName = updatedRoom.baseInfo?.type || '房间';
+                await notification_service_1.notificationService.notifyMerchantAuditApproved(merchant.userId.toString(), 'room', updatedRoom._id.toString(), resourceName, user.id);
             }
         }
-        res.json(room);
+        res.json(updatedRoom);
     }
     catch (err) {
         res.status(400).json({ message: err.message });
@@ -289,20 +307,19 @@ const adminApproveDeleteRoom = async (req, res) => {
     const { reason } = req.body;
     const user = req.user;
     try {
-        const room = await room_model_1.Room.findById(id);
+        const room = await room_model_1.Room.findByIdAndUpdate(id, {
+            $set: {
+                pendingDeletion: false,
+                deletedAt: new Date(),
+                'auditInfo.status': 'offline',
+                'auditInfo.auditedBy': user.id,
+                'auditInfo.auditedAt': new Date(),
+            },
+        }, { new: true });
         if (!room)
             return res.status(404).json({ message: 'Not found' });
         if (!room.pendingDeletion)
             return res.status(400).json({ message: 'No pending delete request' });
-        room.pendingDeletion = false;
-        room.deletedAt = new Date();
-        room.auditInfo = {
-            ...room.auditInfo,
-            status: 'offline',
-            auditedBy: user.id,
-            auditedAt: new Date(),
-        };
-        await room.save();
         await audit_model_1.AuditLog.create({
             targetType: 'room',
             targetId: room._id,
@@ -331,7 +348,6 @@ const adminRejectRoom = async (req, res) => {
                 'auditInfo.auditedBy': user.id,
                 'auditInfo.auditedAt': new Date(),
                 'auditInfo.rejectReason': reason,
-                'baseInfo.status': 'rejected',
             },
         }, { new: true });
         if (!updated)

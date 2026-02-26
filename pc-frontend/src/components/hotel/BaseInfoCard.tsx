@@ -6,12 +6,6 @@ import ImageUpload from '@/components/shared/ImageUpload';
 const { TextArea } = Input;
 
 export const BaseInfoCard: React.FC = () => {
-  // 处理 Upload 组件的值转换
-  const normFile = (e: any) => {
-    if (Array.isArray(e)) return e;
-    return e?.fileList;
-  };
-
   return (
     <Card title={<><HomeOutlined /> 基础信息</>} variant="borderless" style={{ marginBottom: 24 }}>
       <Row gutter={24}>
@@ -56,8 +50,7 @@ export const BaseInfoCard: React.FC = () => {
       <Form.Item 
         label="酒店封面/相册" 
         name="images" 
-        valuePropName="value" // 注意：ImageUpload 使用 value 接收数据
-        getValueFromEvent={normFile}
+        rules={[{ required: true, message: '请上传至少一张图片' }]}
       >
         <ImageUpload maxCount={8} maxSize={5} />
       </Form.Item>

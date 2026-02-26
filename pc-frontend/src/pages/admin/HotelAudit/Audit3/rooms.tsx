@@ -29,7 +29,7 @@ interface IRoom {
         price: number;
         images: string[];
         maxOccupancy: number;
-        facilities: Array<{ category: string; content: string }>;
+        facilities: Array<{ id: string; name: string; facilities: Array<{ id: string; name: string; available: boolean }> }>;
         policies: Array<{ policyType: string; content: string }>;
         bedRemark: string[];
     };
@@ -361,13 +361,23 @@ const AuditRooms: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* 4. 设施服务 (渲染 HTML) */}
+                            {/* 4. 设施服务 */}
                             <div style={{ marginTop: 24 }}>
                                 <Title level={5} style={{ fontSize: 15 }}><CoffeeOutlined /> 设施服务</Title>
-                                {selectedRoom.baseInfo.facilities?.map((f, i) => (
+                                {selectedRoom.baseInfo.facilities?.map((category, i) => (
                                     <div key={i} style={{ marginBottom: 12 }}>
-                                        <Tag color="cyan">{f.category}</Tag>
-                                        <span style={{ color: '#666', fontSize: 13 }} dangerouslySetInnerHTML={{ __html: f.content }} />
+                                        <Tag color="cyan">{category.name}</Tag>
+                                        <div style={{ marginTop: 4 }}>
+                                            {category.facilities.map((facility) => (
+                                                <Tag
+                                                    key={facility.id}
+                                                    color={facility.available ? 'green' : 'default'}
+                                                    style={{ marginRight: 4, marginBottom: 4 }}
+                                                >
+                                                    {facility.name}
+                                                </Tag>
+                                            ))}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

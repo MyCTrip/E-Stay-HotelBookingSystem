@@ -30,12 +30,10 @@ interface IHotel {
         star?: number;
         openTime?: string;
         images: string[];
-        // 👇 新增：商户端提交的详细字段
         description?: string;
-        facilities?: { category: string; content: string }[];
+        facilities?: Array<{ id: string; name: string; facilities: Array<{ id: string; name: string; available: boolean }> }>;
         policies?: { policyType: string; content: string }[];
     };
-    // 👇 新增：入住规则（通常与 baseInfo 平级，取决于后端具体实现，参考 index.tsx 提交结构）
     checkinInfo?: {
         checkinTime?: string;
         checkoutTime?: string;
@@ -43,6 +41,10 @@ interface IHotel {
     auditInfo: {
         status: 'draft' | 'pending' | 'approved' | 'rejected' | 'offline';
         rejectReason?: string;
+    };
+    pendingChanges?: {
+        baseInfo?: any;
+        checkinInfo?: any;
     };
     createdAt: string;
 }
@@ -227,30 +229,41 @@ const AuditHotel: React.FC = () => {
                 footer={[<Button key="close" onClick={() => setDetailVisible(false)}>关闭</Button>]}
                 width={900}
             >
-                {selectedHotel && (
-                    <div style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+                {selectedHotel && (() => {
+                    // 🔑 合并数据：优先用 pendingChanges，回退到 baseInfo
+                    const displayedBaseInfo = {
+                        ...selectedHotel.baseInfo,
+                        ...(selectedHotel.pendingChanges?.baseInfo || {})
+                    };
+                    const displayedCheckinInfo = {
+                        ...selectedHotel.checkinInfo,
+                        ...(selectedHotel.pendingChanges?.checkinInfo || {})
+                    };
+                    
+                    return (
+                    <div style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto', paddingBottom: 48 }}>
                         <Descriptions title="基本属性" bordered column={2}>
-                            <Descriptions.Item label="酒店名称">{selectedHotel.baseInfo?.nameCn}</Descriptions.Item>
-                            <Descriptions.Item label="所在城市">{selectedHotel.baseInfo?.city || '-'}</Descriptions.Item>
+                            <Descriptions.Item label="酒店名称">{displayedBaseInfo?.nameCn}</Descriptions.Item>
+                            <Descriptions.Item label="所在城市">{displayedBaseInfo?.city || '-'}</Descriptions.Item>
                             <Descriptions.Item label="所属商户">{selectedHotel.merchantId?.baseInfo?.merchantName}</Descriptions.Item>
-                            <Descriptions.Item label="星级">{selectedHotel.baseInfo?.star ? `${selectedHotel.baseInfo.star} 星` : '-'}</Descriptions.Item>
-                            <Descriptions.Item label="详细地址" span={2}>{selectedHotel.baseInfo?.address || '-'}</Descriptions.Item>
+                            <Descriptions.Item label="星级">{displayedBaseInfo?.star ? `${displayedBaseInfo.star} 星` : '-'}</Descriptions.Item>
+                            <Descriptions.Item label="详细地址" span={2}>{displayedBaseInfo?.address || '-'}</Descriptions.Item>
                             <Descriptions.Item label="提交时间">{new Date(selectedHotel.createdAt).toLocaleString()}</Descriptions.Item>
 
                             {/* 👇 新增：酒店简介 */}
                             <Descriptions.Item label="酒店简介" span={2}>
-                                {selectedHotel.baseInfo?.description || '暂无简介'}
+                                {displayedBaseInfo?.description || '暂无简介'}
                             </Descriptions.Item>
                         </Descriptions>
 
                         {/* 👇 新增：服务与政策区域 */}
                         <Divider orientation="left">服务与政策</Divider>
                         <Descriptions bordered column={2} size="small">
-                            <Descriptions.Item label="最早入住时间">{selectedHotel.checkinInfo?.checkinTime || '14:00'}</Descriptions.Item>
-                            <Descriptions.Item label="最晚退房时间">{selectedHotel.checkinInfo?.checkoutTime || '12:00'}</Descriptions.Item>
+                            <Descriptions.Item label="最早入住时间">{displayedCheckinInfo?.checkinTime || '14:00'}</Descriptions.Item>
+                            <Descriptions.Item label="最晚退房时间">{displayedCheckinInfo?.checkoutTime || '12:00'}</Descriptions.Item>
 
                             {/* 遍历政策 (Pet, Cancellation) */}
-                            {selectedHotel.baseInfo?.policies?.map((policy, idx) => {
+                            {displayedBaseInfo?.policies?.map((policy, idx) => {
                                 let label = '其他政策';
                                 if (policy.policyType === 'petAllowed') label = '宠物政策';
                                 if (policy.policyType === 'cancellation') label = '取消政策';
@@ -263,14 +276,24 @@ const AuditHotel: React.FC = () => {
                         </Descriptions>
 
                         {/* 👇 新增：设施服务 */}
-                        {selectedHotel.baseInfo?.facilities && selectedHotel.baseInfo.facilities.length > 0 && (
+                        {displayedBaseInfo?.facilities && displayedBaseInfo.facilities.length > 0 && (
                             <div style={{ marginTop: 16 }}>
                                 <Text strong style={{ display: 'block', marginBottom: 8 }}>设施服务：</Text>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                    {selectedHotel.baseInfo.facilities.map((fac, idx) => (
-                                        <div key={idx} style={{ background: '#fafafa', padding: '8px 12px', borderRadius: 4, border: '1px solid #f0f0f0' }}>
-                                            <Tag color="blue">{fac.category}</Tag>
-                                            <Text type="secondary">{stripHtml(fac.content)}</Text>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    {displayedBaseInfo.facilities.map((category, idx) => (
+                                        <div key={idx} style={{ background: '#fafafa', padding: '12px', borderRadius: 4, border: '1px solid #f0f0f0' }}>
+                                            <Tag color="blue" style={{ marginBottom: 8 }}>{category.name}</Tag>
+                                            <div style={{ marginTop: 4 }}>
+                                                {category.facilities.map((facility) => (
+                                                    <Tag
+                                                        key={facility.id}
+                                                        color={facility.available ? 'green' : 'default'}
+                                                        style={{ marginRight: 4, marginBottom: 4 }}
+                                                    >
+                                                        {facility.name}
+                                                    </Tag>
+                                                ))}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -279,13 +302,15 @@ const AuditHotel: React.FC = () => {
 
                         <Divider>酒店实景照片</Divider>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                            {selectedHotel.baseInfo?.images && selectedHotel.baseInfo.images.map((img, index) => (
+                            {displayedBaseInfo?.images && displayedBaseInfo.images.map((img, index) => (
                                 <Image key={index} src={img} width={200} height={130} style={{ objectFit: 'cover', borderRadius: 4, border: '1px solid #f0f0f0' }} />
                             ))}
-                            {(!selectedHotel.baseInfo?.images || selectedHotel.baseInfo.images.length === 0) && <Text type="secondary">暂无图片</Text>}
+                            {(!displayedBaseInfo?.images || displayedBaseInfo.images.length === 0) && <Text type="secondary">暂无图片</Text>}
                         </div>
                     </div>
-                )}
+                    );
+                })()
+                }
             </Modal>
 
             {/* 操作理由 Modal */}

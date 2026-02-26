@@ -216,19 +216,14 @@ pnpm start
 - `phone` — String, **必填**
 - `description` — String, **必填**
 - `images` — String[], **必填**
-- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，用于按分类展示酒店设施。*Facility* 对象结构：
-  - `category` — String **必填**（例如："公共设施"）
-  - `content` — String **必填**，HTML 富文本（分类的整体描述）
-  - `summary` — String 可选（短摘要，供列表/搜索使用）
-  - `icon` — String 可选（图标标识或路径）
-  - `order` — Number 可选，默认 0（用于排序）
-  - `visible` — Boolean 可选，默认 true（是否展示）
-  - `items` — Array 可选，用于列出分类下的细分设施。每项结构：
-    - `name` — String **必填**（设施名称，如"免费WiFi"）
-    - `description` — String 可选（设施说明，支持HTML）
-    - `icon` — String 可选（设施图标）
-    - `available` — Boolean 可选，默认 true（设施是否可用）
-  - 说明：`content` 支持 HTML 富文本，系统在存储和显示前应做 XSS 防护处理。
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，用于分类展示酒店设施。*Facility* 对象结构：
+  - `id` — String **必填**（分类ID，如 'service'、'basic'、'bathroom' 等）
+  - `name` — String **必填**（分类名称，如 "服务"、"基础" 等）
+  - `facilities` — Array **必填且非空**，该分类下的所有设施列表。每项结构：
+    - `id` — String **必填**（设施ID，如 'wifi'、'parking' 等）
+    - `name` — String **必填**（设施名称，如 "无线网络" 等）
+    - `available` — Boolean **必填**（设施是否可用）
+  - 说明：该结构采用分层设计，支持按分类展示设施及其可用性标记。
 - `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，记录酒店整体政策。*Policy* 对象结构：
   - `policyType` — String **必填**（如 `petAllowed` / `cancellation`）
   - `content` — String **必填**，HTML 富文本（策略详情）
@@ -278,7 +273,10 @@ pnpm start
 - `images` — String[], **必填**（房间图片URL列表）
 - `status` — String, **必填**, enum: `['draft','pending','approved','rejected','offline']`, 默认 `'draft'`
 - `maxOccupancy` — Number, **必填**（最多容纳人数，最小值 1）
-- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同：包含 `category`、`content`（HTML富文本）、可选 `items` 数组（细项含 `name`/`description`/`icon`/`available`），以及 `summary`/`icon`/`order`/`visible` 等辅助字段。
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同：
+  - `id` — String **必填**（分类ID）
+  - `name` — String **必填**（分类名称）
+  - `facilities` — Array **必填且非空**，该分类下的所有设施列表（每项含 `id`、`name`、`available` 布尔值）
 - `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策（支持 HTML），结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking` | `breakfast` 等房间级别策略。
 - `bedRemark` — Array of String — **必填且非空**，记录成人加床、床型特殊说明等轻量备注信息（例如：`["成人加床：免费，需提前申请"]`）
 
@@ -316,7 +314,7 @@ pnpm start
 - `price` — Number, **必填**, 最小值 0（每晚价格）
 - `images` — String[], **必填**（房间图片URL列表）
 - `maxOccupancy` — Number (整数), **必填**, 最小值 1（最多容纳人数）
-- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同（含 category、content、items 等字段），常用于展示房间内的浴缸、空调等设施。
+- `facilities` — Array (required, non-empty) of *Facility* objects — **必填且非空**，房间级别设施展示。结构与 Hotel 中的 *Facility* 相同（含分层的 id、name、facilities 结构），常用于展示房间内的设施及其可用性。
 - `policies` — Array (required, non-empty) of *Policy* objects — **必填且非空**，房间专属政策。结构与 Hotel 的 *Policy* 相同，常用于 `noSmoking`、`extraBed`、`breakfast` 等房间级别政策。
 - `bedRemark` — Array of String — **必填且非空**，房间床铺的轻量备注信息（非结构化文本）。示例：`["成人加床：免费，需提前申请", "儿童可免费入住"]`
 

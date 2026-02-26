@@ -3,19 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateHotelSchema = exports.createHotelSchema = void 0;
 const zod_1 = require("zod");
 const facilityItemSchema = zod_1.z.object({
+    id: zod_1.z.string().min(1),
     name: zod_1.z.string().min(1),
-    description: zod_1.z.string().optional(),
-    icon: zod_1.z.string().optional(),
-    available: zod_1.z.boolean().optional().default(true),
+    available: zod_1.z.boolean(),
 });
 const facilitySchema = zod_1.z.object({
-    category: zod_1.z.string().min(1),
-    content: zod_1.z.string().min(1), // supports HTML rich text
-    items: zod_1.z.array(facilityItemSchema).optional(),
-    summary: zod_1.z.string().optional(),
-    icon: zod_1.z.string().optional(),
-    order: zod_1.z.number().optional(),
-    visible: zod_1.z.boolean().optional(),
+    id: zod_1.z.string().min(1),
+    name: zod_1.z.string().min(1),
+    facilities: zod_1.z.array(facilityItemSchema).nonempty(),
 });
 const policySchema = zod_1.z.object({
     policyType: zod_1.z.string().min(1),

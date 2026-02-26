@@ -7,20 +7,15 @@ const bedSchema = z.object({
 });
 
 const facilityItemSchema = z.object({
+  id: z.string().min(1),
   name: z.string().min(1),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  available: z.boolean().optional().default(true),
+  available: z.boolean(),
 });
 
 const facilitySchema = z.object({
-  category: z.string().min(1),
-  content: z.string().min(1),
-  items: z.array(facilityItemSchema).optional(),
-  summary: z.string().optional(),
-  icon: z.string().optional(),
-  order: z.number().optional(),
-  visible: z.boolean().optional(),
+  id: z.string().min(1),
+  name: z.string().min(1),
+  facilities: z.array(facilityItemSchema).nonempty(),
 });
 
 const policySchema = z.object({

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Space, message, Spin, Alert, Tag } from 'antd'; 
+import { Form, Button, Space, message, Spin } from 'antd';
 import { SaveOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { hotelApi } from '@/services/hotel';
+import { facilitiesToFormValues, formValuesToFacilities } from '@/config/facilities';
 import type { Hotel, AuditStatus } from '@/types/hotel';
 import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -11,10 +12,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { BaseInfoCard } from '@/components/hotel/BaseInfoCard';
 import { PolicyCard } from '@/components/hotel/PolicyCard';
 import { MarketingCard } from '@/components/hotel/MarketingCard';
-// import { RoomListCard } from '@/components/rooms/RoomListCard';
-import { HotelDetailsView } from '@/components/hotel/HotelDetailsView'; // 酒店详情查看组件
-
-
+import { HotelDetailsView } from '@/components/hotel/HotelDetailsView';
 // 表单值类型定义（UI层）
 interface HotelFormValues {
   nameCn: string;
@@ -73,7 +71,7 @@ const HotelManage: React.FC = () => {
         setIsEditing(true);
       }
   } catch (err: any) {
-      // 403 处理：商户资料缺失 -> 跳转去完善资料
+      // ✅ 403 处理：商户资料缺失 -> 跳转去完善资料
       if (err?.response?.status === 403) {
         message.warning('请先完善商户资料');
         navigate('/merchant/profile'); // 确保你的路由里有这个路径
@@ -101,48 +99,47 @@ const HotelManage: React.FC = () => {
     if (isEditing && hotelData) {
     // --- A. 数据转换 (后端 -> UI) ---
       
-      // 1. Facilities 转换: [{category: '基础', content: 'WiFi, 停车'}] -> {'基础': ['WiFi', '停车']}
-      const facilitiesUI: any = {};
-      hotelData.baseInfo.facilities?.forEach((item: any) => {
-         if (item.content) {
-            facilitiesUI[item.category] = item.content.split(',').map((s: string) => s.trim());
-         }
-      });
+      // 🔑 合并数据：优先用 pendingChanges，回退到 baseInfo
+      const mergedBaseInfo = {
+        ...hotelData.baseInfo,
+        ...(hotelData.pendingChanges?.baseInfo || {})
+      };
+      
+      // 1. Facilities 转换：将后端的 facilities 结构转换为表单的 checkbox 选中值
+      const facilitiesFormValues = facilitiesToFormValues(mergedBaseInfo.facilities || []);
 
       // 2. Policies 转换
       const policiesUI: any = {};
-      hotelData.baseInfo.policies?.forEach((item: any) => {
+      mergedBaseInfo.policies?.forEach((item: any) => {
          if (item.policyType === 'petAllowed') policiesUI.pet = item.content;
          if (item.policyType === 'cancellation') policiesUI.cancellation = item.content;
          if (item.policyType === 'other') policiesUI.other = item.content;
       });
 
       // 3. 图片转换
-      const images = hotelData.baseInfo.images?.map((url, i) => ({
+      const images = mergedBaseInfo.images?.map((url, i) => ({
          uid: String(i), name: `img-${i}`, status: 'done', url 
       })) || [];
 
       form.setFieldsValue({
-        nameCn: hotelData.baseInfo.nameCn,
-        nameEn: hotelData.baseInfo.nameEn,
-        city: hotelData.baseInfo.city,
-        address: hotelData.baseInfo.address,
-        star: hotelData.baseInfo.star,
-        openTime: hotelData.baseInfo.openTime ? dayjs(hotelData.baseInfo.openTime) : undefined,
-        description: hotelData.baseInfo.description,
+        nameCn: mergedBaseInfo.nameCn,
+        nameEn: mergedBaseInfo.nameEn,
+        city: mergedBaseInfo.city,
+        address: mergedBaseInfo.address,
+        star: mergedBaseInfo.star,
+        openTime: mergedBaseInfo.openTime ? dayjs(mergedBaseInfo.openTime) : undefined,
+        description: mergedBaseInfo.description,
         images: images as any,
 // 4. CheckinInfo (字符串 -> Dayjs)
         checkinInfo: {
-            ...hotelData.checkinInfo,
-            checkinTime: hotelData.checkinInfo?.checkinTime ? dayjs(hotelData.checkinInfo.checkinTime, 'HH:mm') : undefined,
-            checkoutTime: hotelData.checkinInfo?.checkoutTime ? dayjs(hotelData.checkinInfo.checkoutTime, 'HH:mm') : undefined,
+            ...(hotelData.pendingChanges?.checkinInfo || hotelData.checkinInfo),
+            checkinTime: (hotelData.pendingChanges?.checkinInfo?.checkinTime || hotelData.checkinInfo?.checkinTime) ? dayjs(hotelData.pendingChanges?.checkinInfo?.checkinTime || hotelData.checkinInfo?.checkinTime, 'HH:mm') : undefined,
+            checkoutTime: (hotelData.pendingChanges?.checkinInfo?.checkoutTime || hotelData.checkinInfo?.checkoutTime) ? dayjs(hotelData.pendingChanges?.checkinInfo?.checkoutTime || hotelData.checkinInfo?.checkoutTime, 'HH:mm') : undefined,
         },
 
         // 5. 注入转换后的动态字段
-        facilities: facilitiesUI,
+        facilities: facilitiesFormValues,
         policies: policiesUI,
-        // 6. 回填房间数据
-        // rooms: hotelData.rooms?.map((r: any) => ({ ... }))
       });
     } else if (isEditing && !hotelData) {
       // --- 新增模式：设置表单默认值 ---
@@ -154,10 +151,13 @@ const HotelManage: React.FC = () => {
               checkoutTime: dayjs('12:00', 'HH:mm'),
               breakfastType: '无'
           },
-          facilities: { '基础设施': ['免费WiFi', '24小时前台'] },
+          // 默认勾选一些基础设施
+          facilities: {
+            basic: ['wifi', 'elevator'],
+            service: ['front_desk']
+          },
           nearbyList: [],
           discountRules: [],
-          // rooms: [{ name: '标准间', price: 299, stock: 10, size: 25 }]
       });
     }
   }, [isEditing, hotelData, form]);
@@ -166,31 +166,48 @@ const HotelManage: React.FC = () => {
   const onFinish = async (values: HotelFormValues) => {
     setSubmitting(true);
     try {
-      // 1. 图片处理：文档要求 images (string[])
-      let imageList = values.images?.map(
-        (f: any) => f.url || (f.response && f.response.url)
-      ).filter(Boolean) || [];
+      // 1. 图片处理：需要上传新文件 + 获取已存储文件的 URL
+      let imageList: string[] = [];
+      
+      if (values.images && values.images.length > 0) {
+        // 并行处理所有文件：已上传的直接用 URL，新上传的要先上传到服务器
+        const uploadPromises = values.images.map(async (file: any) => {
+          // 如果已经有 URL（之前上传过或编辑时回显的），直接返回
+          if (file.url) {
+            return file.url;
+          }
+          // 如果有原始文件对象，需要上传到服务器
+          if (file.originFileObj) {
+            const formData = new FormData();
+            formData.append('file', file.originFileObj);
+            try {
+              const uploadResponse = await hotelApi.uploadImage(formData);
+              return (uploadResponse as any).url || (uploadResponse as any).data?.url;
+            } catch (uploadError: any) {
+              console.error('图片上传失败:', uploadError);
+              throw new Error('图片上传失败，请重试');
+            }
+          }
+          return null;
+        });
+        
+        const uploadedUrls = await Promise.all(uploadPromises);
+        imageList = uploadedUrls.filter(Boolean);
+      }
 
-      // 防御：文档隐含要求 images 可能非空，给一张默认图更安全
+      // 防御：确保至少有一张图片
       if (imageList.length === 0) {
-          imageList = ['https://via.placeholder.com/800x600?text=No+Image']; 
+          message.error('请上传至少一张酒店图片');
+          setSubmitting(false);
+          return;
       }
 
       // 2. Facilities 转换 (UI -> DB)
-      const facilitiesDB = Object.keys(values.facilities || {}).map(key => {
-          const contentText = (values.facilities as any)[key]?.join(', ') || '';
-          return {
-              category: key,
-              content: `<p>${contentText}</p>` // 包装成 HTML
-          };
-      }).filter(item => item.content !== '<p></p>'); 
-      
-      // 必填兜底
-      if (facilitiesDB.length === 0) {
-          facilitiesDB.push({ category: '基础服务', content: '<p>暂无详细信息</p>' });
-      }
+      // 使用 helper 函数将表单的 checkbox 选中值转换为完整的 facilities 结构
+      const facilitiesDB = formValuesToFacilities(values.facilities || {});
 
       // 3. Policies 转换 (UI -> DB)
+      // 文档要求：Array, required, non-empty, content 为 HTML
       const policiesDB = [
           { 
             policyType: 'petAllowed', 
@@ -214,9 +231,9 @@ const HotelManage: React.FC = () => {
       };
 
       const surroundingsDB = (values.nearbyList || []).map((item: any) => ({
-          surType: surTypeMap[item.type] || 'business', 
-          surName: item.name || '未知地点',            
-          distance: Number(item.distance) || 100       
+          surType: surTypeMap[item.type] || 'business', // 转换字段名 type -> surType，并转枚举
+          surName: item.name || '未知地点',            // 转换字段名 name -> surName
+          distance: Number(item.distance) || 100       // 确保是数字
       }));
 
       const discountTypeMap: Record<string, string> = {
@@ -227,11 +244,12 @@ const HotelManage: React.FC = () => {
       };
       const discountsDB = (values.discountRules || []).map((item: any) => ({
           title: item.title || '优惠',
-          type: discountTypeMap[item.type] || 'instant', 
-          content: item.value || ''                      
+          type: discountTypeMap[item.type] || 'instant', // 转枚举
+          content: item.value || ''                      // 转换字段名 value -> content
       }));
 
       // 4. 构造严格符合文档的 Payload
+      // 文档结构：{ baseInfo: {...}, checkinInfo: {...} }
       const payload: any = {
         baseInfo: {
           nameCn: values.nameCn,
@@ -241,24 +259,37 @@ const HotelManage: React.FC = () => {
           star: values.star ?? 3,
           roomTotal: 1,
           openTime: values.openTime ? dayjs(values.openTime).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
+          // 文档要求 phone 是 string
           phone: '000-00000000', 
           description: values.description || '暂无描述',
           images: imageList,
+          
+          // 严格符合文档结构
           facilities: facilitiesDB,
           policies: policiesDB,
+          
+          // 文档提到的可选数组，显式传空数组
           surroundings: surroundingsDB,
           discounts: discountsDB
         },
+        
+        // checkinInfo 是 optional，但如果有内容则必须包含 checkinTime/checkoutTime
         checkinInfo: {
             checkinTime: values.checkinInfo?.checkinTime ? (values.checkinInfo.checkinTime as any).format('HH:mm') : '14:00',
             checkoutTime: values.checkinInfo?.checkoutTime ? (values.checkinInfo.checkoutTime as any).format('HH:mm') : '12:00',
+            // 文档没明确提 breakfastType/Price，但在示例中可能有，建议保留或根据 checkinInfo 定义调整
+            
         }
       };
 
+      console.log('提交的 Payload:', JSON.stringify(payload, null, 2)); // 方便你自己调试看
+
       if (hotelData?._id) {
+        // PUT /api/hotels/:id
         await hotelApi.update(hotelData._id, payload);
         message.success('更新申请已提交');
       } else {
+        // POST /api/hotels
         await hotelApi.create(payload);
         message.success('酒店创建成功');
       }
@@ -268,6 +299,7 @@ const HotelManage: React.FC = () => {
 
     } catch (err: any) {
       console.error(err);
+      // 显示后端返回的详细校验错误
       const errorMsg = err?.response?.data?.message;
       const fieldErrors = err?.response?.data?.errors ? JSON.stringify(err?.response?.data?.errors) : '';
       message.error(`${errorMsg || '提交失败'} ${fieldErrors}`);
@@ -276,77 +308,24 @@ const HotelManage: React.FC = () => {
     }
   };
 
-  // === 状态提示渲染逻辑 ===
-  const renderRejectAlert = () => {
-    const status = hotelData?.auditInfo?.status;
-    const rejectReason = (hotelData?.auditInfo as any)?.rejectReason; // 🔥 使用 as any 规避 TS 报错
-
-    if (status !== 'rejected' && status !== 'offline') return null;
-
-    const isOffline = status === 'offline';
-
-    return (
-      <Alert
-        message={isOffline ? "酒店已强制下线" : "审核未通过"}
-        description={
-          <div>
-            <p style={{ margin: 0 }}>
-              {isOffline 
-                ? '您的酒店已被管理员下线，暂不对外展示，请根据原因进行整改。' 
-                : '您的酒店信息未通过管理员审核，请根据驳回原因修改后重新提交。'}
-            </p>
-            <p style={{ margin: '8px 0 0 0' }}>
-              <strong>{isOffline ? '下线原因：' : '驳回原因：'}</strong>
-              <span style={{ color: '#ff4d4f' }}>{rejectReason || '管理员未提供具体原因'}</span>
-            </p>
-          </div>
-        }
-        type={isOffline ? "warning" : "error"}
-        showIcon
-        style={{ marginBottom: 24 }}
-      />
-    );
-  };
-
   // === 页面渲染逻辑 ===
+  // 全局加载中：展示大加载动画
   if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" tip="正在加载酒店信息..." /></div>;
 
   // 查看模式：渲染只读的酒店详情组件
   if (!isEditing && hotelData) {
-    return (
-      <>
-        {/* 🔥 在查看模式顶部显示驳回警告 */}
-        <div style={{ maxWidth: 1000, margin: '24px auto 0' }}>
-          {renderRejectAlert()}
-        </div>
-        <HotelDetailsView data={hotelData} onEdit={() => setIsEditing(true)} />
-      </>
-    );
+    return <HotelDetailsView data={hotelData} onEdit={() => setIsEditing(true)} />;
   }
 
   // 编辑/新增模式：渲染表单页面
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto', paddingBottom: 80, paddingTop: 24 }}>
-      
-      {/* 🔥 在编辑模式顶部也显示驳回警告，提醒商户 */}
-      {renderRejectAlert()}
-
+    <div style={{ maxWidth: 1000, margin: '0 auto', paddingBottom: 80 }}>
       <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          {/* 🔥 将标题改为 flex 布局，并在旁边展示当前状态 Tag */}
-          <h2 style={{ fontSize: 24, fontWeight: 600, display: 'flex', alignItems: 'center', margin: 0 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 600 }}>
             {hotelData ? '编辑酒店信息' : '发布新酒店'}
-            {hotelData && (
-              <span style={{ marginLeft: 12 }}>
-                {hotelData.auditInfo?.status === 'approved' && <Tag color="success">已上线</Tag>}
-                {hotelData.auditInfo?.status === 'pending' && <Tag color="processing">审核中</Tag>}
-                {hotelData.auditInfo?.status === 'draft' && <Tag color="default">草稿</Tag>}
-                {hotelData.auditInfo?.status === 'rejected' && <Tag color="error">已驳回</Tag>}
-                {hotelData.auditInfo?.status === 'offline' && <Tag color="warning">已下线</Tag>}
-              </span>
-            )}
           </h2>
-          <p style={{ color: '#888', marginTop: 8 }}>
+          <p style={{ color: '#888' }}>
             {hotelData ? '修改以下信息并保存，修改后可能需要重新审核' : '请完善酒店信息，完成后即可开启营业'}
           </p>
         </div>

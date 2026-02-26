@@ -7,37 +7,30 @@ exports.merchantService = {
         return merchant_model_1.Merchant.findOne({ userId });
     },
     upsertByUserId: async (userId, payload) => {
-        const existing = await merchant_model_1.Merchant.findOne({ userId });
-        if (existing) {
-            // 更新 baseInfo
-            if (payload.baseInfo) {
-                existing.baseInfo = { ...existing.baseInfo, ...payload.baseInfo };
-            }
-            // 更新 qualificationInfo - 逐个字段更新，避免丢失其他字段
-            if (payload.qualificationInfo) {
-                // 逐个字段更新，避免丢失其他字段
-                if (payload.qualificationInfo.businessLicenseNo !== undefined) {
-                    existing.qualificationInfo.businessLicenseNo = payload.qualificationInfo.businessLicenseNo;
-                }
-                if (payload.qualificationInfo.businessLicensePhoto !== undefined) {
-                    existing.qualificationInfo.businessLicensePhoto = payload.qualificationInfo.businessLicensePhoto;
-                }
-                if (payload.qualificationInfo.idCardNo !== undefined) {
-                    existing.qualificationInfo.idCardNo = payload.qualificationInfo.idCardNo;
-                }
-                if (payload.qualificationInfo.realNameStatus !== undefined) {
-                    existing.qualificationInfo.realNameStatus = payload.qualificationInfo.realNameStatus;
-                }
-            }
-            await existing.save();
-            return existing;
+        // 1. 构建 MongoDB 底层的更新指令对象
+        const updateData = {
+            // 核心业务逻辑：只要有更新，强制把状态打回草稿
+            'auditInfo.verifyStatus': 'unverified'
+        };
+        // 2. 将前端传来的嵌套对象，拆解成 MongoDB 认识的点语法 (dot notation)
+        // 这样可以直接精准修改某个字段，绝对不会被 Mongoose 丢弃
+        if (payload.baseInfo) {
+            Object.keys(payload.baseInfo).forEach(key => {
+                updateData[`baseInfo.${key}`] = payload.baseInfo[key];
+            });
         }
-        const created = await merchant_model_1.Merchant.create({
-            userId,
-            baseInfo: payload.baseInfo,
-            qualificationInfo: payload.qualificationInfo || {},
-        });
-        return created;
+        if (payload.qualificationInfo) {
+            Object.keys(payload.qualificationInfo).forEach(key => {
+                updateData[`qualificationInfo.${key}`] = payload.qualificationInfo[key];
+            });
+        }
+        // { new: true } 保证返回修改后的最新数据
+        // { upsert: true } 保证如果这个用户是第一次填资料，就自动帮他新建一条
+        const updatedProfile = await merchant_model_1.Merchant.findOneAndUpdate({ userId }, {
+            $set: updateData,
+            $unset: { 'auditInfo.rejectReason': 1 } // 顺手抹除以前可能留下的驳回原因
+        }, { new: true, upsert: true });
+        return updatedProfile;
     },
     submitByUserId: async (userId) => {
         const profile = await merchant_model_1.Merchant.findOneAndUpdate({ userId }, { $set: { 'auditInfo.verifyStatus': 'pending' } }, { new: true });

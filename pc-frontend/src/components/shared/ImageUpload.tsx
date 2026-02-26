@@ -10,7 +10,7 @@ interface ImageUploadProps {
   onChange?: (fileList: UploadFile[]) => void;
 
   // 2. 业务配置 (由父组件决定)
-  maxCount?: number;   // 最大张数 (头像=1, 相册=8)
+  maxCount?: number;   // 最大张数 (头像=1, 相册=8, 不传则无限制)
   maxSize?: number;    // 最大体积 (MB)
   accept?: string;     // 允许的文件类型
 }
@@ -18,8 +18,8 @@ interface ImageUploadProps {
 const ImageUpload: React.FC<ImageUploadProps> = ({
   value,
   onChange,
-  maxCount = 8,        // 默认 8 张
-  maxSize = 2,         // 默认 2MB
+  maxCount,          // 不设默认值，undefined 表示无限制
+  maxSize = 2,       // 默认 2MB
   accept = '.jpg,.jpeg,.png',
 }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -29,7 +29,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   // 监听外部 value 变化 (比如表单回显，或者父组件重置了数据)
   useEffect(() => {
     // 只有当传入的 value 和内部不一致时才更新，防止死循环
-    if (value) {
+    if (value && Array.isArray(value)) {
       setFileList(value);
     }
   }, [value]);
@@ -102,9 +102,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         onPreview={handlePreview}
         onChange={handleChange}
         beforeUpload={beforeUpload}
-        maxCount={maxCount}
+        {...(maxCount !== undefined && { maxCount })}
+        multiple
       >
-        {fileList.length >= maxCount ? null : uploadButton}
+        {maxCount === undefined || fileList.length < maxCount ? uploadButton : null}
       </Upload>
       
       <Modal open={previewOpen} footer={null} onCancel={() => setPreviewOpen(false)}>

@@ -7,6 +7,8 @@ import { notificationService } from '../notification/notification.service';
 import { hotelService, ServiceError } from './hotel.service';
 import { sanitizeObject } from '../../utils/htmlSanitizer';
 import { hotDataService } from '../../services/hotData.service';
+import { createHotelSchema } from './hotel.schema';
+import { z } from 'zod';
 
 // 辅助函数：根据 propertyType 初始化 typeConfig
 const initializeTypeConfig = (propertyType: string = 'hotel', provided?: any) => {
@@ -71,10 +73,16 @@ export const createHotel = async (req: Request, res: Response) => {
   };
 
   try {
+    // 🔍 DEBUG: 打印接收到的数据
+    console.log('📥 createHotel received baseInfo:', JSON.stringify(normalizedBase, null, 2));
+
     // 净化HTML富文本内容，防止XSS攻击
     const sanitizedBase = sanitizeObject(normalizedBase);
     const sanitizedCheckin = sanitizeObject(checkinInfo || {});
     
+    // 🔍 DEBUG: 打印 sanitized 后的数据
+    console.log('🧹 After sanitization, images:', sanitizedBase.images);
+
     // 查找商户档案，以获取正确的 merchantId
     const merchantProfile = await Merchant.findOne({ userId: user.id });
     if (!merchantProfile) {
@@ -98,7 +106,7 @@ export const createHotel = async (req: Request, res: Response) => {
         message: '民宿必须提供房东信息'
       });
     }
-    
+
     // 初始化 typeConfig
     const initializedTypeConfig = initializeTypeConfig(propertyType, typeConfig);
     
@@ -108,12 +116,16 @@ export const createHotel = async (req: Request, res: Response) => {
       checkinInfo: sanitizedCheckin,
       typeConfig: initializedTypeConfig,
     });
+
+    // 🔍 DEBUG: 打印保存后的数据
+    console.log('✅ Hotel created with images:', hotel.baseInfo.images);
     
     // 清除相关缓存
     await hotDataService.clearHotelCache();
     
     res.status(201).json(hotel);
   } catch (err: any) {
+    console.error('❌ createHotel error:', err);
     res.status(400).json({ message: err.message });
   }
 };
@@ -354,6 +366,14 @@ export const listMyHotels = async (req: Request, res: Response) => {
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
+
+    // 🔍 DEBUG: 为每个酒店打印 images 数据
+    data.forEach((hotel, idx) => {
+      console.log(`[${idx}] Hotel: ${hotel.baseInfo.nameCn}`);
+      console.log(`  baseInfo.images:`, hotel.baseInfo.images);
+      console.log(`  pendingChanges:`, hotel.pendingChanges);
+    });
+
     res.json({ data, meta: { total, page, limit } });
   } catch (err: any) {
     res.status(400).json({ message: err.message });

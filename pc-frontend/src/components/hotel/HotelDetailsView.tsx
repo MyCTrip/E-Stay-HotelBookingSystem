@@ -12,6 +12,12 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
   // 酒店使用 status
   const status = data.auditInfo?.status;
 
+  // 🔑 合并数据：优先用 pendingChanges，回退到 baseInfo
+  const displayedBaseInfo = {
+    ...data.baseInfo,
+    ...(data.pendingChanges?.baseInfo || {})
+  };
+
   const renderStatusTag = () => {
     switch (status) {
       case 'approved':
@@ -69,15 +75,15 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
           {/* 标题 + 状态 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <h2 style={{ fontSize: 24, fontWeight: 600, margin: 0 }}>
-              {data.baseInfo.nameCn}
+              {displayedBaseInfo.nameCn}
             </h2>
             {renderStatusTag()}
           </div>
 
           <Space style={{ marginTop: 8 }}>
-            <Tag color="blue">{data.baseInfo.city}</Tag>
+            <Tag color="blue">{displayedBaseInfo.city}</Tag>
             <span style={{ color: '#666' }}>
-              <EnvironmentOutlined /> {data.baseInfo.address}
+              <EnvironmentOutlined /> {displayedBaseInfo.address}
             </span>
           </Space>
         </div>
@@ -96,7 +102,7 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
       <Card title="酒店相册" variant="borderless" style={{ marginBottom: 24 }}>
         <Image.PreviewGroup>
           <Space size="large" wrap>
-            {data.baseInfo.images?.map((url, index) => (
+            {displayedBaseInfo.images?.map((url, index) => (
               <Image
                 key={index}
                 width={120}
@@ -121,16 +127,16 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
       >
         <Descriptions column={2} bordered>
           <Descriptions.Item label="英文名称">
-            {data.baseInfo.nameEn || '-'}
+            {displayedBaseInfo.nameEn || '-'}
           </Descriptions.Item>
           <Descriptions.Item label="星级">
-            {data.baseInfo.star} 星
+            {displayedBaseInfo.star} 星
           </Descriptions.Item>
           <Descriptions.Item label="开业时间">
-            {data.baseInfo.openTime}
+            {displayedBaseInfo.openTime}
           </Descriptions.Item>
           <Descriptions.Item label="联系电话">
-            {data.baseInfo.phone}
+            {displayedBaseInfo.phone}
           </Descriptions.Item>
 
           <Descriptions.Item label="入住时间">
@@ -142,7 +148,7 @@ export const HotelDetailsView: React.FC<Props> = ({ data, onEdit }) => {
 
           <Descriptions.Item label="简介" span={2}>
             <div style={{ whiteSpace: 'pre-wrap' }}>
-              {data.baseInfo.description}
+              {displayedBaseInfo.description}
             </div>
           </Descriptions.Item>
         </Descriptions>

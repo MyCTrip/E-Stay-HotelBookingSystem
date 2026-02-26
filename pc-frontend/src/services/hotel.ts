@@ -29,7 +29,8 @@ export const hotelApi = {
   // Get List (支持分页查询)
   getList: (params: any) => request.get<PageResult<Hotel>>('/hotels', { params }),
 
-
+  // 上传图片
+  uploadImage: (formData: FormData) => request.post<{ url: string; filename: string; size: number }>('/upload', formData),
 
   // === 🆕 房间管理接口 ===
 // 获取当前酒店的所有房间

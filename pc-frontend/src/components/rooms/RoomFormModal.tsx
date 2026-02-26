@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, InputNumber, Select, Radio, Checkbox, Row, Col, Button, message, Divider, Space } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import ImageUpload from '@/components/shared/ImageUpload';
-import { ROOM_FACILITIES, BED_TYPES, BED_SIZES } from '@/config/roomOptions'; // 记得确认这个文件存在
+import { FACILITY_CATEGORIES, facilitiesToFormValues, formValuesToFacilities } from '@/config/facilities';
+import { BED_TYPES, BED_SIZES } from '@/config/roomOptions';
+import { hotelApi } from '@/services/hotel';
 import type { UploadFile } from 'antd/es/upload/interface';
 
 // 如果没有定义 HotelRoom 类型，可以用 any 或补充定义
@@ -25,17 +27,17 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
     if (open) {
       if (initialValues) {
         // 编辑模式：回显数据
-        // 注意：这里假设父组件传进来的 initialValues 已经是后端返回的结构
-        // 如果需要反向解析 HTML -> Checkbox 勾选，逻辑会比较复杂
-        // 这里暂时做简单回显，主要字段对上即可
         const images = initialValues.baseInfo?.images?.map((url: string, i: number) => ({
              uid: String(i), name: `img-${i}`, status: 'done', url 
         })) || [];
 
+        // 将后端的 facilities 结构转换为表单的 checkbox 选中值
+        const facilitiesFormValues = facilitiesToFormValues(initialValues.baseInfo?.facilities || []);
+
         form.setFieldsValue({
             type: initialValues.baseInfo.type,
             price: initialValues.baseInfo.price,
-            stock: initialValues.baseInfo.stock, // 注意：后端可能在 inventory 字段
+            stock: initialValues.baseInfo.stock,
             maxOccupancy: initialValues.baseInfo.maxOccupancy,
             
             size: initialValues.headInfo.size,
@@ -44,9 +46,11 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
             windowAvailable: initialValues.headInfo.windowAvailable,
             smokingAllowed: initialValues.headInfo.smokingAllowed,
             
-            bedInfo: initialValues.bedInfo, // 回显床铺数组
+            bedInfo: initialValues.bedInfo,
+            images: images,
             
-            images: images
+            // 回显设施（checkbox 选中状态）
+            facilities: facilitiesFormValues
         });
       } else {
         // 新增模式：设置默认值
@@ -57,10 +61,12 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
             wifi: true,
             windowAvailable: true,
             smokingAllowed: false,
-            // 默认给一个床位，防止用户忘填报错 500
             bedInfo: [{ bedType: '大床', bedNumber: 1, bedSize: '1.8m' }],
-            // 默认勾选一些设施
-            facilities: { '基础设施': ['免费WiFi', '24小时热水'] }
+            // 默认勾选一些基础设施
+            facilities: {
+              basic: ['wifi', 'elevator', 'window'],
+              bathroom: ['hot_water', 'private_bathroom']
+            }
         });
       }
     }
@@ -72,29 +78,43 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
       const values = await form.validateFields();
       
       // --- A. 图片处理 ---
-      let imageList = values.images?.map(
-        (f: any) => f.url || (f.response && f.response.url)
-      ).filter(Boolean) || [];
+      let imageList: string[] = [];
+      
+      if (values.images && values.images.length > 0) {
+        // 并行处理所有文件：已上传的直接用 URL，新上传的要先上传到服务器
+        const uploadPromises = values.images.map(async (file: any) => {
+          // 如果已经有 URL（之前上传过或编辑时回显的），直接返回
+          if (file.url) {
+            return file.url;
+          }
+          // 如果有原始文件对象，需要上传到服务器
+          if (file.originFileObj) {
+            const formData = new FormData();
+            formData.append('file', file.originFileObj);
+            try {
+              const uploadResponse = await hotelApi.uploadImage(formData);
+              return (uploadResponse as any).url || (uploadResponse as any).data?.url;
+            } catch (uploadError: any) {
+              console.error('图片上传失败:', uploadError);
+              throw new Error('图片上传失败，请重试');
+            }
+          }
+          return null;
+        });
+        
+        const uploadedUrls = await Promise.all(uploadPromises);
+        imageList = uploadedUrls.filter(Boolean);
+      }
       
       if (imageList.length === 0) {
-         imageList = ['https://via.placeholder.com/600x400?text=Room+Image']; 
+         throw new Error('请上传至少一张房间图片');
       }
 
-      // --- B. Facilities 转换 (UI -> DB HTML) ---
-      const facilitiesDB = Object.keys(values.facilities || {}).map(key => {
-        const contentText = (values.facilities as any)[key]?.join(', ') || '';
-        return {
-            category: key,
-            content: `<p>${contentText}</p>`
-        };
-      }).filter(item => item.content !== '<p></p>');
-
-      if (facilitiesDB.length === 0) {
-          facilitiesDB.push({ category: '基础配置', content: '<p>标准客房配置</p>' });
-      }
+      // --- B. Facilities 转换 (UI -> 后端结构) ---
+      // 将表单的 checkbox 选中值转换为完整的 facilities 结构
+      const facilitiesDB = formValuesToFacilities(values.facilities || {});
 
       // --- C. Bed Remark (自动生成) ---
-      // 必填非空数组
       const bedRemarkList = values.bedInfo.map((b: any) => 
           `${b.bedType}${b.bedSize} * ${b.bedNumber}张`
       );
@@ -115,14 +135,14 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
       // --- E. 构造最终 Payload ---
       const payload = {
         baseInfo: {
-            type: values.type,         // 房型名称
-            price: values.price,       // 价格
+            type: values.type,
+            price: values.price,
             images: imageList,
-            status: 'draft',           
+            status: 'draft',
             maxOccupancy: values.maxOccupancy,
-            stock: values.stock,       
+            stock: values.stock,
             
-            // 🔥 必须符合后端要求的字段
+            // 新结构：facilities 包含分类和每个设施的 available 状态
             facilities: facilitiesDB,
             policies: policiesDB,
             bedRemark: bedRemarkList
@@ -134,8 +154,7 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
             windowAvailable: values.windowAvailable,
             smokingAllowed: values.smokingAllowed
         },
-        // 🔥 必填数组
-        bedInfo: values.bedInfo, 
+        bedInfo: values.bedInfo,
         
         breakfastInfo: {
             breakfastType: '无', 
@@ -189,7 +208,7 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
         </Row>
         
         <Form.Item label="房型图片" name="images" valuePropName="fileList" getValueFromEvent={normFile}>
-             <ImageUpload maxCount={5} />
+             <ImageUpload />
         </Form.Item>
 
         {/* === 2. 规格属性 (HeadInfo) === */}
@@ -287,9 +306,20 @@ export const RoomFormModal: React.FC<Props> = ({ open, title, initialValues, loa
 
         {/* === 4. 房型设施 (Facilities) === */}
         <Divider orientation="left">房内设施</Divider>
-        {ROOM_FACILITIES.map(group => (
-            <Form.Item key={group.category} label={group.category} name={['facilities', group.category]}>
-                <Checkbox.Group options={group.options} />
+        <p style={{ color: '#999', fontSize: 12, marginBottom: 16 }}>勾选房间提供的设施。</p>
+        {FACILITY_CATEGORIES.map((category) => (
+            <Form.Item key={category.id} label={category.name}>
+              <Form.Item noStyle name={['facilities', category.id]}>
+                <Checkbox.Group>
+                  <Row gutter={[16, 16]}>
+                    {category.facilities.map((facility) => (
+                      <Col span={6} key={facility.id}>
+                        <Checkbox value={facility.id} style={{ whiteSpace: 'nowrap' }}>{facility.name}</Checkbox>
+                      </Col>
+                    ))}
+                  </Row>
+                </Checkbox.Group>
+              </Form.Item>
             </Form.Item>
         ))}
 

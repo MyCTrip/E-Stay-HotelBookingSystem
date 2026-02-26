@@ -89,12 +89,22 @@ export const RoomDetailModal: React.FC<Props> = ({ open, data, onCancel }) => {
 
       <Divider />
 
-      {/* 5. 设施与服务 (解析后端复杂结构) */}
+      {/* 5. 设施与服务 */}
       <Title level={5}>🏢 设施服务</Title>
-      {baseInfo.facilities?.map((fac: any, idx: number) => (
-          <div key={idx} style={{ marginBottom: 8 }}>
-              <Tag color="cyan">{fac.category}</Tag> 
-              <span style={{ color: '#555' }}>{renderHtmlContent(fac.content)}</span>
+      {baseInfo.facilities?.map((category: any, idx: number) => (
+          <div key={idx} style={{ marginBottom: 12 }}>
+              <Tag color="cyan">{category.name}</Tag> 
+              <div style={{ marginTop: 4 }}>
+                  {category.facilities?.map((facility: any) => (
+                      <Tag
+                          key={facility.id}
+                          color={facility.available ? 'green' : 'default'}
+                          style={{ marginRight: 4, marginBottom: 4 }}
+                      >
+                          {facility.name}
+                      </Tag>
+                  ))}
+              </div>
           </div>
       ))}
 

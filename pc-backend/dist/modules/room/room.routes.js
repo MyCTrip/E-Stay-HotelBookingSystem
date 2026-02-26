@@ -16,8 +16,5 @@ router.get('/hotels/:hotelId/rooms', auth_middleware_1.authenticate, (0, role_mi
 router.put('/rooms/:id', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('merchant'), room_controller_1.updateRoom);
 router.post('/rooms/:id/submit', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('merchant'), room_controller_1.submitRoom);
 router.post('/rooms/:id/delete-request', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('merchant'), room_controller_1.requestDeleteRoom);
-// 管理员审核 room
-router.post('/rooms/:id/approve', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('admin'), room_controller_1.adminApproveRoom);
-router.post('/rooms/:id/reject', auth_middleware_1.authenticate, (0, role_middleware_1.requireRole)('admin'), room_controller_1.adminRejectRoom);
 exports.default = router;
 //# sourceMappingURL=room.routes.js.map

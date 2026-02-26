@@ -1,20 +1,15 @@
 import { z } from 'zod';
 
 const facilityItemSchema = z.object({
+  id: z.string().min(1),
   name: z.string().min(1),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  available: z.boolean().optional().default(true),
+  available: z.boolean(),
 });
 
 const facilitySchema = z.object({
-  category: z.string().min(1),
-  content: z.string().min(1), // supports HTML rich text
-  items: z.array(facilityItemSchema).optional(),
-  summary: z.string().optional(),
-  icon: z.string().optional(),
-  order: z.number().optional(),
-  visible: z.boolean().optional(),
+  id: z.string().min(1),
+  name: z.string().min(1),
+  facilities: z.array(facilityItemSchema).nonempty(),
 });
 
 const policySchema = z.object({
@@ -82,7 +77,7 @@ const baseInfoSchema = z.object({
   roomTotal: z.number().int().min(0).optional(),
   phone: z.string().optional(),
   description: z.string().optional(),
-  images: z.array(z.string()).optional(),
+  images: z.array(z.string().min(1)).nonempty('至少需要一张图片'),
   facilities: z.array(facilitySchema).nonempty(),
   policies: z.array(policySchema).nonempty(),
   surroundings: z.array(surroundingSchema).optional(),
