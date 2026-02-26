@@ -308,7 +308,7 @@ const PageContent: React.FC<PageContentProps> = ({
             {recommendedHomestays.length > 0 ? (
               recommendedHomestays.map((homestay) => (
                 <div key={homestay._id}>
-                  <RecommendCard homestay={homestay} />
+                  <RecommendCard homestay={homestay} minPrice={(homestay as any).startingPrice} />
                 </div>
               ))
             ) : (

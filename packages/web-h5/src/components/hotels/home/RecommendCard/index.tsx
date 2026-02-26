@@ -15,25 +15,37 @@ import styles from './index.module.scss'
 
 interface RecommendCardProps {
   homestay: HomeStayHotel
+  /** 可选的最低价（单位元/晚），优先使用。当后端已计算好起始价时可传入 */
+  minPrice?: number
   onClick?: (homestay: HomeStayHotel) => void
 }
 
-const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
+const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, minPrice, onClick }) => {
   const navigate = useNavigate()
 
-  // 计算最低房价
-  const minPrice = useMemo(() => {
-    if (!homestay.rooms || homestay.rooms.length === 0) {
-      return 299 // 默认价格
+  // 计算最低房价：优先使用传入的 minPrice 或模型中的 startingPrice，
+  // 否则再从 rooms 数据中推导，最后才用默认值。
+  const computedMinPrice = useMemo(() => {
+    if (typeof minPrice === 'number' && minPrice >= 0) {
+      return minPrice
     }
-    const prices = homestay.rooms
-      .map((room: any) => {
-        const price = room.price?.currentPrice || room.price?.originPrice
-        return typeof price === 'number' ? price : 299
-      })
-      .filter(p => p > 0)
-    return prices.length > 0 ? Math.min(...prices) : 299
-  }, [homestay.rooms])
+
+    if (typeof (homestay as any).startingPrice === 'number' && (homestay as any).startingPrice >= 0) {
+      return (homestay as any).startingPrice
+    }
+
+    if (Array.isArray(homestay.rooms) && homestay.rooms.length > 0) {
+      const prices = homestay.rooms
+        .map((room: any) => {
+          const price = room.price?.currentPrice || room.price?.originPrice
+          return typeof price === 'number' ? price : 0
+        })
+        .filter(p => p > 0)
+      return prices.length > 0 ? Math.min(...prices) : 299
+    }
+
+    return 299 // 默认价格
+  }, [homestay.rooms, homestay, minPrice])
 
   const handleClick = () => {
     if (onClick) {
@@ -88,7 +100,7 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ homestay, onClick }) => {
         <div className={styles.footer}>
           <div className={styles.priceInfo}>
             <span className={styles.priceSymbol}>¥</span>
-            <span className={styles.price}>{minPrice}</span>
+            <span className={styles.price}>{computedMinPrice}</span>
             <span className={styles.priceUnit}>/晚</span>
           </div>
         </div>
