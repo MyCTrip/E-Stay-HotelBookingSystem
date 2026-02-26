@@ -2,6 +2,12 @@
 
 本仓库为 E-Stay（易宿）酒店预订平台的 Monorepo，包含 PC 管理后台（前端/后端）与移动端框架（Web H5 与小程序）。本 README 将整合各子项目的简介、技术栈与快速启动指引。
 
+## 演示视频
+<video width="800" controls>
+  <source src="https://www.bilibili.com/video/BV1XcA6zRE6C/?spm_id_from=333.1387.upload.video_card.click" type="video/mp4">
+  你的浏览器不支持视频播放，请点击链接查看：<a href="你的视频直链">视频链接</a>
+</video>
+
 **子项目概览**
 - **pc-frontend:** 商家与管理员的 PC 端管理后台（React + TypeScript + Vite）。详情见 [pc-frontend/README.md](pc-frontend/README.md).
 - **pc-backend:** 后端服务（Node.js + Express + TypeScript + MongoDB），含认证、审核、审计与缓存等中间件。详情见 [pc-backend/README.md](pc-backend/README.md).
