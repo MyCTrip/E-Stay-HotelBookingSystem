@@ -4,6 +4,7 @@
 
 
 ## 视频演示
+- b站视频演示链接 `https://www.bilibili.com/video/BV1XcA6zRE6C/?spm_id_from=333.1387.upload.video_card.click`
 > 点击图片可播放完整演示视频
 [![功能演示视频](./mobile/assets/demo_preview.png)](./mobile/assets/152ca8a80c8d445e38056ac7b127f679.mp4)
 
