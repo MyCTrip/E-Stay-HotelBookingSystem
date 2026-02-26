@@ -2,7 +2,6 @@
  * 钟点房详情页 - 主容器
  */
 import React, { useEffect, useRef, useState } from 'react'
-// 🌟 1. 引入 useNavigate 用于处理返回上一页
 import { useParams, useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import DetailHeader from '../../../components/hourlyHotel/detail/DetailHeader'
@@ -18,8 +17,8 @@ import HourlyBookingBar from '../../../components/hourlyHotel/detail/HourlyBooki
 import HourlyTimePicker from '../../../components/hourlyHotel/detail/HourlyTimePicker'
 
 import { HourlyRoomDetail } from '@estay/shared'
-import HourlyRoomDetailDrawer from '../../../components/hourlyHotel/HourlyRoomDetailDrawer'
-
+// import HourlyRoomDetailDrawer from '../../../components/hourlyHotel/detail/HourlyRoomDetailDrawer'
+import HourlyRoomDetailDrawer from '../../RoomDetail/hourlyHotel/index'
 import styles from './index.module.scss'
 
 const mockHourlyData: any = {
@@ -33,9 +32,10 @@ const mockHourlyData: any = {
     tags: ['秒确认']
   },
   images: [
-    'https://picsum.photos/1080/900?random=11',
-    'https://picsum.photos/1080/900?random=12',
-    'https://picsum.photos/1080/900?random=13',
+    'https://img-md.veimg.cn/meadinindex/img5/2021/11/F87B3809081B4AE0BA6DFC64AE06C24E.jpg',
+    'https://th.bing.com/th/id/OIP.Akykor3nSsgINL-1Hi5vDAHaEJ?w=305&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3',
+    'https://www.hotelfh.cn/uploads/upfile/2020512121792386.jpg',
+    'https://tse1.explicit.bing.net/th/id/OIP.6xzB3YoHZGJd8E5UR4uXCwHaFj?rs=1&pid=ImgDetMain&o=7&rm=3'
   ],
   price: 90,
   duration: 3,
@@ -47,7 +47,6 @@ interface DetailPageProps {
 }
 
 const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyData }) => {
-  // 🌟 2. 实例化 navigate
   const navigate = useNavigate()
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -61,22 +60,18 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<HourlyRoomDetail | null>(null)
 
+  // 🌟 核心修改 1：新增并完善所需的状态 (State)
   const [selectedDate, setSelectedDate] = useState<string>(dayjs().format('YYYY-MM-DD'))
-  const [startTime, setStartTime] = useState<string>('14:00')
-  const [duration, setDuration] = useState<number>(initialData.duration || 3)
-
-  const handleTimeChange = (date: string, start: string, hours: number) => {
-    setSelectedDate(date)
-    setStartTime(start)
-    setDuration(hours)
-  }
+  const [roomCount, setRoomCount] = useState<number>(1)  // 默认1间
+  const [adultCount, setAdultCount] = useState<number>(1) // 默认1个成人
+  const [childCount, setChildCount] = useState<number>(0) // 默认0个儿童
 
   const sectionRefs = {
     rooms: useRef<HTMLDivElement>(null),
     reviews: useRef<HTMLDivElement>(null),
     facilities: useRef<HTMLDivElement>(null),
-    policies: useRef<HTMLDivElement>(null),
     nearby: useRef<HTMLDivElement>(null),
+    policies: useRef<HTMLDivElement>(null),
   }
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -93,8 +88,8 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
       rooms: sectionRefs.rooms.current?.offsetTop || 0,
       reviews: sectionRefs.reviews.current?.offsetTop || 1000,
       facilities: sectionRefs.facilities.current?.offsetTop || 2000,
-      policies: sectionRefs.policies.current?.offsetTop || 3000,
       nearby: sectionRefs.nearby.current?.offsetTop || 4000,
+      policies: sectionRefs.policies.current?.offsetTop || 3000,
     }
     const offset = 50
     for (const [tab, position] of Object.entries(tabPositions)) {
@@ -122,29 +117,26 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
   }
 
   const handleOpenRoomDetail = (room: HourlyRoomDetail) => {
+    console.log('点击了房型，准备打开弹窗！当前房型数据:', room)
     setSelectedRoom(room)
     setIsDrawerOpen(true)
   }
 
-  // 🌟 3. 新增顶部导航栏所需的交互事件
   const handleBack = () => {
-    navigate(-1) // 返回上一页
+    navigate(-1)
   }
 
   const handleShare = () => {
     console.log('Share clicked')
-    // TODO: 这里可以唤起系统的分享面板或自定义分享弹窗
   }
 
   const handleCollectionChange = () => {
     console.log('Collection toggled')
-    // TODO: 调用收藏/取消收藏接口
   }
 
   return (
     <div className={styles.container} ref={containerRef} onScroll={handleScroll}>
 
-      {/* 🌟 4. 把事件方法全部传给 DetailHeader */}
       <DetailHeader
         ref={headerRef}
         data={initialData}
@@ -162,11 +154,20 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
         </div>
 
         <div ref={sectionRefs.rooms}>
+          {/* 🌟 核心修改 2：接入新版的 HourlyTimePicker 参数和事件 */}
           <HourlyTimePicker
             date={selectedDate}
-            startTime={startTime}
-            duration={duration}
-            onChange={handleTimeChange}
+            roomCount={roomCount}
+            adultCount={adultCount}
+            childCount={childCount}
+            onDateChange={(newDate) => {
+              setSelectedDate(newDate) // 接收子组件传回的新日期并保存
+            }}
+            onGuestChange={(rooms, adults, children) => {
+              setRoomCount(rooms)      // 接收子组件传回的房间数并保存
+              setAdultCount(adults)    // 接收成人数并保存
+              setChildCount(children)  // 接收儿童数并保存
+            }}
           />
           <HourlyRoomSelection
             data={initialData}
@@ -187,8 +188,6 @@ const HourlyDetailPage: React.FC<DetailPageProps> = ({ initialData = mockHourlyD
           <PolicySection data={initialData} />
         </div>
 
-
-        {/* 底部的留白垫片 */}
         <div className={styles.spacer} />
       </div>
 

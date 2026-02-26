@@ -6,6 +6,7 @@ interface BannerItem {
   id: string
   title: string
   subtitle?: string
+  image: string
   link?: string
   color?: string
 }
@@ -17,16 +18,6 @@ interface BannerCarouselProps {
   onBannerClick?: (item: BannerItem) => void
 }
 
-/**
- * 钟点房首页轮播组件
- * 遵循规范：
- * - 宽度100%，高度480px
- * - 圆角10-12pt
- * - 自动轮播3.5秒，支持手动滑动
- * - 底部indicator显示当前位置
- * - 淡出淡入切换效果
- * - 纯色填充覆盖整个区域
- */
 export default function BannerCarousel({
   items,
   autoPlay = true,
@@ -41,6 +32,7 @@ export default function BannerCarousel({
       id: '1',
       title: '春节特惠',
       subtitle: '限时7折起',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1400&q=80',
       link: '/search/hourlyHotel?discount=weekend',
       color: '#FF6B6B',
     },
@@ -48,6 +40,7 @@ export default function BannerCarousel({
       id: '2',
       title: '机场高铁中转',
       subtitle: '快速缓解出行疲惫',
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=80',
       link: '/search/hourlyHotel?type=transit',
       color: '#26A69A',
     },
@@ -55,6 +48,7 @@ export default function BannerCarousel({
       id: '3',
       title: '聚会团建',
       subtitle: '春节举杯欢聚',
+      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1400&q=80',
       link: '/search/hourlyHotel?type=beach',
       color: '#F59E0B',
     },
@@ -95,6 +89,10 @@ export default function BannerCarousel({
             className={`${styles.bannerSlide} ${index === currentIndex ? styles.active : ''
               }`}
             style={{
+              backgroundImage: `url(${item.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
               backgroundColor: item.color || '#FF6B6B',
             }}
           >

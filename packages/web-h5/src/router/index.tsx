@@ -90,7 +90,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       },
       {
         path: 'room/:id/hourlyHotel',
-        element: <RoomDetailHourly />,
+        element: <RoomDetailPage />,
       },
 
       {

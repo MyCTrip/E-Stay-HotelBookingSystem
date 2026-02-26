@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom' // 🌟 引入 createPortal
 import styles from './index.module.css'
-import { createPortal } from 'react-dom'
 // 引入房型特有的子组件
-import RoomDrawerBanner from '../../../components/hourlyHotel/detail/RoomDetailDrawer/RoomDrawerBanner'
-import RoomDrawerBasicInfo from '../../../components/hourlyHotel/detail/RoomDetailDrawer/RoomDrawerBasicInfo'
-// 🌟 复用已有的酒店详情组件
-import FacilitiesSection from '../../../components/hourlyHotel/detail/FacilitiesSection'
-import PolicySection from '../../../components/hourlyHotel/detail/PolicySection'
+import RoomDrawerBanner from '../RoomDetailDrawer/RoomDrawerBanner'
+import RoomDrawerBasicInfo from '../RoomDetailDrawer/RoomDrawerBasicInfo'
+// 复用已有的酒店详情组件
+import FacilitiesSection from '../FacilitiesSection'
+import PolicySection from '../PolicySection'
 import { HourlyRoomDetail } from '@estay/shared'
 
 interface HourlyRoomDetailDrawerProps {

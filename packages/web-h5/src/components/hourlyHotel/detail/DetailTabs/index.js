@@ -6,7 +6,7 @@ const tabs = [
     { key: 'reviews', label: '点评' },
     { key: 'facilities', label: '设施' },
     { key: 'nearby', label: '周边' },
-    { key: 'policies', label: '须知' },
+    { key: 'policies', label: '政策' },
 
 ];
 const DetailTabs = ({ activeTab = 'overview', onChange = () => { } }) => {

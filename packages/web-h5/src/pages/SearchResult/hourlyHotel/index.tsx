@@ -36,7 +36,7 @@ const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
       policies: [],
     },
     images: [
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
+      'https://img-md.veimg.cn/meadinindex/img5/2021/11/F87B3809081B4AE0BA6DFC64AE06C24E.jpg',
     ],
     durationOptions: [3, 4],
     rooms: [
@@ -74,7 +74,7 @@ const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
       policies: [],
     },
     images: [
-      'https://images.unsplash.com/photo-1551882547-ff40c0d13c05?w=400&h=300&fit=crop',
+      'https://ak-d.tripcdn.com/images/0205i12000890pb39FF65_R_960_660_R5_D.jpg',
     ],
     durationOptions: [4, 6],
     rooms: [
@@ -112,7 +112,7 @@ const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
       policies: [],
     },
     images: [
-      'https://images.unsplash.com/photo-1542314831-c6a4d14d8373?w=400&h=300&fit=crop',
+      'https://www.3wen.com/userfiles/files/TUPIAN/1VIENNA1.jpg',
     ],
     durationOptions: [4, 6],
     rooms: [
@@ -154,18 +154,18 @@ const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
     _id: 'h4',
     merchantId: 'merchant_h4',
     baseInfo: {
-      nameCn: '天鹅恋情侣主题酒店(徐家汇店)',
+      nameCn: '橘子酒店(徐家汇店)',
       nameEn: 'Swan Love Theme Hotel (Xujiahui)',
       address: '上海市徐汇区肇嘉浜路',
       city: '上海',
       star: 4.5,
       phone: '021-99990000',
-      description: '浪漫情侣约会，氛围感拉满，超大圆床',
+      description: '距地铁站步行5分钟，候车快捷小憩，高性价比',
       facilities: [{ name: 'WiFi' } as any, { name: '智能客控' } as any, { name: '情侣浴缸' } as any],
       policies: [],
     },
     images: [
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop',
+      'https://img-md.veimg.cn/meadinindex/img5/2023/7/96236556ef280c555fe6a23e0237ea8d.jpg',
     ],
     durationOptions: [4],
     rooms: [
@@ -203,7 +203,7 @@ const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
       policies: [],
     },
     images: [
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=400&h=300&fit=crop',
+      'https://img-md.veimg.cn/meadinindex/img5/2021/11/A0E40E8494DA46E28ACEB26DF9558733.jpg',
     ],
     durationOptions: [3],
     rooms: [
@@ -228,6 +228,7 @@ const MOCK_HOURLY_ROOMS: HourlyRoom[] = [
   }
 ]
 
+
 const HourlySearchResultPage: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -242,21 +243,56 @@ const HourlySearchResultPage: React.FC = () => {
   const [hourlyHotels, setHourlyHotels] = useState<HourlyRoom[]>(MOCK_HOURLY_ROOMS)
   const [loading, setLoading] = useState(false)
 
+  // 🌟 1. 新增：无限滚动相关的状态
+  const [loadingMore, setLoadingMore] = useState(false) // 是否正在加载下一页
+  const [hasMore, setHasMore] = useState(true)          // 是否还有更多数据
+  const [page, setPage] = useState(1)                   // 当前页码
+
   const handleFiltersChange = useCallback((newFilters: HourlySearchFilters) => {
     setFilters(newFilters)
+
+    // 🌟 2. 现实对接后端时：筛选条件一旦改变，应该重置分页并重新请求第一页的数据
+    // setPage(1)
+    // setHasMore(true)
+    // setLoading(true) // 触发主 Loading
+    // fetchFirstPageData(newFilters)
   }, [])
 
   const handleModifySearch = useCallback(() => {
     navigate('/hourly-search', { state: { filters } })
   }, [filters, navigate])
 
-  // 新增：处理卡片点击跳转
   const handleItemClick = useCallback((id: string) => {
-    // 假设你在 router 里配的是 path: 'hourlyHotel/:id'
-    // navigate(`/hourlyHotel/${id}`)
     navigate(`/hotel/${id}/hourlyHotel`)
-    // 如果点过去是 404，请改成 navigate(`/hotel/${id}/hourlyHotel`) 试试
   }, [navigate])
+
+
+  const loadMoreData = useCallback(() => {
+    // 防抖保护：如果正在加载，或者已经没有更多数据了，直接 return
+    if (loadingMore || !hasMore) return
+
+    setLoadingMore(true)
+
+    // 模拟网络请求（延迟 500ms）
+    setTimeout(() => {
+      // 模拟后端返回了下一页的数据
+      const nextPageData = MOCK_HOURLY_ROOMS.map(item => ({
+        ...item,
+        _id: `${item._id}_page${page + 1}`, // 给 ID 加个后缀，防止 React 列表循环时 key 报错
+      }))
+
+      // 将新数据追加到旧数据后面
+      setHourlyHotels(prev => [...prev, ...nextPageData])
+      setPage(prev => prev + 1)
+
+      // 模拟最多只有 3 页数据（现实中应该是判断：新请求回来的数组长度 < 每页的 limit 大小，则说明没数据了）
+      if (page >= 5) {
+        setHasMore(false)
+      }
+
+      setLoadingMore(false)
+    }, 500)
+  }, [page, loadingMore, hasMore])
 
   return (
     <div className={styles.container}>
@@ -266,7 +302,12 @@ const HourlySearchResultPage: React.FC = () => {
         filters={filters}
         onFiltersChange={handleFiltersChange}
         onModifySearch={handleModifySearch}
-        onClick={handleItemClick} // 传递给列表组件去触发跳转
+        onClick={handleItemClick}
+
+        // 🌟 4. 将无限滚动的数据和回调传递给子组件
+        loadingMore={loadingMore}
+        hasMore={hasMore}
+        onLoadMore={loadMoreData}
       />
     </div>
   )
